@@ -131,7 +131,9 @@ describe('Declarations - Function', () => {
     ['if (true) async function f() { }', Context.Empty],
     ['label: async function f() { }', Context.Empty],
     ['if (true) async function* f() { }', Context.Empty],
-    ['label: async function* f() { }', Context.Empty]
+    ['label: async function* f() { }', Context.Empty],
+    ['function f(,,){}', Context.Empty]
+    //['function f(a,){}', Context.Empty],
   ];
 
   fail('Declarations - Functions (fail)', inValids);
@@ -166,7 +168,6 @@ describe('Declarations - Function', () => {
     'function arguments() { }',
     'function hello(a, b) { sayHi(); }',
     'var hi = function eval() { };',
-
     'function f() {var async = 1; return async;}',
     'function f() {let async = 1; return async;}',
     'function f() {const async = 1; return async;}',
@@ -338,7 +339,107 @@ describe('Declarations - Function', () => {
     'function f(arg) {g(arg); arguments[0] = 42; g(arg)}',
     'function f(arg) {g(arg); h(arguments); g(arg)}',
     "function f(arg) {g(arg); eval('arguments[0] = 42'); g(arg)}",
-    'function f(arg) {g(arg); g(() => arguments[0] = 42); g(arg)}'
+    'function f(arg) {g(arg); g(() => arguments[0] = 42); g(arg)}',
+    'function f([]){}',
+    'function f([] = x){}',
+    'function f([,]){}',
+    'function f([,] = x){}',
+    'function f([,,]){}',
+    'function f([,,] = x){}',
+    'function f([foo]){}',
+    'function f([foo] = x){}',
+    'function f([foo,]){}',
+    'function f([foo,] = x){}',
+    'function f([foo,,]){}',
+    'function f([foo,,] = x){}',
+    'function f([,foo]){}',
+    'function f([,foo] = x){}',
+    'function f([,,foo]){}',
+    'function f([,,foo] = x){}',
+    'function f([foo,bar]){}',
+    'function f([foo,bar] = x){}',
+    'function f([foo,,bar]){}',
+    'function f([foo,,bar] = x){}',
+    'function f([foo], [foo]){}',
+    'function f([foo] = x, [foo] = y){}',
+    'function f([foo], b){}',
+    'function f([foo] = x, b){}',
+    'function f([foo], b = y){}',
+    'function f([foo] = x, b = y){}',
+    'function f(x, [foo]){}',
+    'function f(x, [foo] = y){}',
+    'function f(x = y, [foo] = z){}',
+    'function f(x = y, [foo]){}',
+    'function f([foo=a]){}',
+    'function f([foo=a] = c){}',
+    'function f([foo=a,bar]){}',
+    'function f([foo=a,bar] = x){}',
+    'function f([foo,bar=b]){}',
+    'function f([foo,bar=b] = x){}',
+    'function f([foo=a,bar=b]){}',
+    'function f([foo=a,bar=b] = x){}',
+    'function f([...bar] = obj){}',
+    'function f([foo, ...bar] = obj){}',
+    'function f({foo} = x, {foo} = y){}',
+    'function f({foo} = x, b){}',
+    'function f({foo} = x, b = y){}',
+    'function f(x, {foo} = y){}',
+    'function f(x = y, {foo} = z){}',
+    'function f({foo=a} = x){}',
+    'function f({foo=a,bar} = x){}',
+    'function f({foo,bar=b} = x){}',
+    'function f({foo=a,bar=b} = x){}',
+    'function f({foo:a} = x){}',
+    'function f({foo:a,bar} = x){}',
+    'function f({foo,bar:b} = x){}',
+    'function f({foo:a,bar:b} = x){}',
+    'function f({foo:a,bar:b} = x){}',
+    'function f({foo:a=b} = x){}',
+    'function f({foo:a=b, bar:c=d} = x){}',
+    'function f({foo}){}',
+    'function f({foo=a}){}',
+    'function f({foo:a}){}',
+    'function f({foo:a=b}){}',
+    'function f({foo}, bar){}',
+    'function f(foo, {bar}){}',
+    'function f([]){}',
+    'function f([] = x){}',
+    'function f([,]){}',
+    'function f([,] = x){}',
+    'function f([,,]){}',
+    'function f([,,] = x){}',
+    'function f([foo]){}',
+    'function f([foo] = x){}',
+    'function f([foo,]){}',
+    'function f([foo,] = x){}',
+    'function f([foo,,]){}',
+    'function f([foo,,] = x){}',
+    'function f([,foo]){}',
+    'function f([,foo] = x){}',
+    'function f([,,foo]){}',
+    'function f([,,foo] = x){}',
+    'function f([foo,bar]){}',
+    'function f([foo,bar] = x){}',
+    'function f([foo,,bar]){}',
+    'function f([foo,,bar] = x){}',
+    'function f([foo], [foo]){}',
+    'function f([foo] = x, [foo] = y){}',
+    'function f([foo], b){}',
+    'function f([foo] = x, b){}',
+    'function f([foo], b = y){}',
+    'function f([foo] = x, b = y){}',
+    'function f(x, [foo]){}',
+    'function f(x, [foo] = y){}',
+    'function f(x = y, [foo] = z){}',
+    'function f(x = y, [foo]){}',
+    'function f([foo=a]){}',
+    'function f([foo=a] = c){}',
+    'function f([foo=a,bar]){}',
+    'function f([foo=a,bar] = x){}',
+    'function f([foo,bar=b]){}',
+    'function f([foo,bar=b] = x){}',
+    'function f([foo=a,bar=b]){}',
+    'function f([foo=a,bar=b] = x){}'
   ];
 
   for (const arg of programs) {
@@ -350,6 +451,296 @@ describe('Declarations - Function', () => {
   }
 
   pass('Declarations - Function (pass)', [
+    [
+      `function compareArray(a, b) {
+        if (b.length !== a.length) {
+            return;
+        }
+        for (var i = 0; i < a.length; i++) {
+            b[0];
+        }
+    }`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [
+              {
+                type: 'Identifier',
+                name: 'a'
+              },
+              {
+                type: 'Identifier',
+                name: 'b'
+              }
+            ],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'IfStatement',
+                  test: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: 'length'
+                      }
+                    },
+                    right: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: 'length'
+                      }
+                    },
+                    operator: '!=='
+                  },
+                  consequent: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ReturnStatement',
+                        argument: null
+                      }
+                    ]
+                  },
+                  alternate: null
+                },
+                {
+                  type: 'ForStatement',
+                  body: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ExpressionStatement',
+                        expression: {
+                          type: 'MemberExpression',
+                          object: {
+                            type: 'Identifier',
+                            name: 'b'
+                          },
+                          computed: true,
+                          property: {
+                            type: 'Literal',
+                            value: 0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  init: {
+                    type: 'VariableDeclaration',
+                    kind: 'var',
+                    declarations: [
+                      {
+                        type: 'VariableDeclarator',
+                        init: {
+                          type: 'Literal',
+                          value: 0
+                        },
+                        id: {
+                          type: 'Identifier',
+                          name: 'i'
+                        }
+                      }
+                    ]
+                  },
+                  test: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'i'
+                    },
+                    right: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: 'length'
+                      }
+                    },
+                    operator: '<'
+                  },
+                  update: {
+                    type: 'UpdateExpression',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'i'
+                    },
+                    operator: '++',
+                    prefix: false
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'compareArray'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `function shouldThrow(func, errorMessage) {
+          var errorThrown = false;
+          var error = null;
+          try {
+              func();
+          } catch (e) {
+              errorThrown = true;
+              error = e;
+          }
+      }`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [
+              {
+                type: 'Identifier',
+                name: 'func'
+              },
+              {
+                type: 'Identifier',
+                name: 'errorMessage'
+              }
+            ],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'VariableDeclaration',
+                  kind: 'var',
+                  declarations: [
+                    {
+                      type: 'VariableDeclarator',
+                      init: {
+                        type: 'Literal',
+                        value: false
+                      },
+                      id: {
+                        type: 'Identifier',
+                        name: 'errorThrown'
+                      }
+                    }
+                  ]
+                },
+                {
+                  type: 'VariableDeclaration',
+                  kind: 'var',
+                  declarations: [
+                    {
+                      type: 'VariableDeclarator',
+                      init: {
+                        type: 'Literal',
+                        value: null
+                      },
+                      id: {
+                        type: 'Identifier',
+                        name: 'error'
+                      }
+                    }
+                  ]
+                },
+                {
+                  type: 'TryStatement',
+                  block: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ExpressionStatement',
+                        expression: {
+                          type: 'CallExpression',
+                          callee: {
+                            type: 'Identifier',
+                            name: 'func'
+                          },
+                          arguments: []
+                        }
+                      }
+                    ]
+                  },
+                  handler: {
+                    type: 'CatchClause',
+                    param: {
+                      type: 'Identifier',
+                      name: 'e'
+                    },
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          expression: {
+                            type: 'AssignmentExpression',
+                            left: {
+                              type: 'Identifier',
+                              name: 'errorThrown'
+                            },
+                            operator: '=',
+                            right: {
+                              type: 'Literal',
+                              value: true
+                            }
+                          }
+                        },
+                        {
+                          type: 'ExpressionStatement',
+                          expression: {
+                            type: 'AssignmentExpression',
+                            left: {
+                              type: 'Identifier',
+                              name: 'error'
+                            },
+                            operator: '=',
+                            right: {
+                              type: 'Identifier',
+                              name: 'e'
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  finalizer: null
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'shouldThrow'
+            }
+          }
+        ]
+      }
+    ],
     [
       'function f([foo=a,bar] = x){}',
       Context.Empty,

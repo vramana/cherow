@@ -271,6 +271,43 @@ describe('Declarations - Var', () => {
       }
     ],
     [
+      'var [ a, , b ] = list',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'Identifier',
+                  name: 'list'
+                },
+                id: {
+                  type: 'ArrayPattern',
+                  elements: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    null,
+                    {
+                      type: 'Identifier',
+                      name: 'b'
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
       'var O = { async "method"() { await 1; } }',
       Context.Empty,
       {

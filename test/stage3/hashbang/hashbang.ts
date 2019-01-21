@@ -48,6 +48,8 @@ describe('Next - Hashbang grammar', () => {
       });
     }
 
+    // fail('fails before a lone hash', '#!');
+
     fail('fails before a lone hash', '# foo');
     fail('skips a BOM and fails before a lone hash', '\uFFEF# foo');
 
@@ -57,6 +59,14 @@ describe('Next - Hashbang grammar', () => {
       index: 30,
       line: 1,
       column: 28
+    });
+
+    pass('skips Hashbang comments in Script evaluator contexts', {
+      source: '#!---IGNORED---\n',
+      hasNext: false,
+      index: 16,
+      line: 2,
+      column: 0
     });
 
     pass('skips Hashbang comments without a required newline', {

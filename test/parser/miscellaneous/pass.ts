@@ -274,6 +274,488 @@ describe('Miscellaneous - Passing tests', () => {
     'my_var;',
     '{my_var}',
     '',
+    `function assert(a, e) {
+      if (a !== e)
+          throw new Error("Expected: " + e + " but got: " + a);
+  }
+
+  function bitAnd(a, b) {
+      return a & b;
+  }
+  noInline(bitAnd);
+
+  var o = { valueOf: () => 0b1101 };
+
+  for (var i = 0; i < 10000; i++)
+      assert(bitAnd(0b11, o), 0b1);
+
+  assert(numberOfDFGCompiles(bitAnd) <= 1, true);
+
+  function bitOr(a, b) {
+      return a | b;
+  }
+  noInline(bitOr);
+
+  for (var i = 0; i < 10000; i++)
+      assert(bitOr(0b11, o), 0b1111);
+
+  assert(numberOfDFGCompiles(bitOr) <= 1, true);
+
+  function bitXor(a, b) {
+      return a ^ b;
+  }
+  noInline(bitXor);
+
+  for (var i = 0; i < 10000; i++)
+      assert(bitXor(0b0011, o), 0b1110);
+
+  assert(numberOfDFGCompiles(bitXor) <= 1, true);`,
+    `for (var i = 0; i < 1e6; ++i)
+    foo();
+for (var i = 0; i < 1e6; ++i)
+    shouldBe(get(), 4);
+`,
+    `function foo() {
+      bar = 4;
+  }
+  function get() {
+      return bar;
+  }`,
+    `var invokeCount = 0;
+
+     Object.defineProperty(Function.prototype, 'prototype', {
+         get: function () {
+             invokeCount++;
+         }
+     });
+
+     new Promise(resolve => {
+         for (var i = 0; i < 10000; ++i)
+             new resolve();
+
+         if (invokeCount != 10000)
+             $vm.crash();
+     });`,
+    `forEach({ length: 5 }, function() {
+      for (var i = 0; i < 10; i++) {
+          forEach([1], function() {});
+      }
+  });
+
+  function forEach(a, b) {
+      for (var c = 0; c < a.length; c++)
+          b();
+  }`,
+    `function shouldBe(actual, expected)
+     {
+         if (actual !== expected)
+             throw new Error('bad value: ' + actual);
+     }
+     noInline(shouldBe);
+
+     function test(value)
+     {
+         return Object.prototype.toString.call(value);
+     }
+     noInline(test);
+
+     for (var i = 0; i < 1e6; ++i) {
+         switch (i % 3) {
+         case 0:
+             shouldBe(test(null), "[object Null]");
+             break;
+         case 1:
+             shouldBe(test(undefined), "[object Undefined]");
+             break;
+         case 2:
+             shouldBe(test(true), "[object Boolean]");
+             break;
+         }
+     }`,
+    `for (var i = 0; i < 1e6; ++i) {
+      if (i & 0x1)
+          shouldBe(test(null), "[object Null]");
+      else
+          shouldBe(test(undefined), "[object Undefined]");
+  }`,
+    `function f(x, y) {
+      x.y = y;
+  };
+
+  function g(x) {
+      return x.y + 42;
+  }
+  noInline(f);
+  noInline(g);
+
+  var x = {};
+  var y = {};
+  f(x, 42);
+  f(y, {});
+
+  while (!numberOfDFGCompiles(g)) {
+      optimizeNextInvocation(g);
+      if (typeof g(x) !== 'number')
+          throw 'failed warming up';
+  }
+
+  if (typeof g(y) !== 'string')
+      throw 'failed after compilation';`,
+    `function __isPropertyOfType(obj, name, type) {
+      desc = Object.getOwnPropertyDescriptor(obj, name)
+      return typeof type === 'undefined' || typeof desc.value === type;
+  }
+  function __getProperties(obj, type) {
+      let properties = [];
+      for (let name of Object.getOwnPropertyNames(obj)) {
+          if (__isPropertyOfType(obj, name, type)) properties.push(name);
+      }
+      let proto = Object.getPrototypeOf(obj);
+      while (proto && proto != Object.prototype) {
+          Object.getOwnPropertyNames(proto).forEach(name => {
+          });
+          proto = Object.getPrototypeOf(proto);
+      }
+      return properties;
+  }
+  function* __getObjects(root = this, level = 0) {
+      if (level > 4) return;
+      let obj_names = __getProperties(root, 'object');
+      for (let obj_name of obj_names) {
+          let obj = root[obj_name];
+          yield* __getObjects(obj, level + 1);
+      }
+  }
+  function __getRandomObject() {
+      for (let obj of __getObjects()) {
+      }
+  }
+  var theClass = class {
+      constructor() {
+          if (242487 != null && typeof __getRandomObject() == "object") try {
+          } catch (e) {}
+      }
+  };
+  var childClass = class Class extends theClass {
+      constructor() {
+          var arrow = () => {
+              try {
+                  super();
+              } catch (e) {}
+              this.idValue
+          };
+          arrow()()();
+      }
+  };
+  for (var counter = 0; counter < 1000; counter++) {
+      try {
+          new childClass();
+      } catch (e) {}
+  }`,
+    `function Hello(y) {
+    this.y = y;
+    this.x = foo(this.y);
+  }
+  function foo(z) {
+    try {
+      for (var i = 0; i < 1; i++) {
+        z[i];
+      }
+    } catch {
+    }
+  }
+  new Hello('a');
+  new Hello('a');
+  for (let i = 0; i < 100; ++i) {
+    new Hello();
+  }
+
+  // Busy loop to let the crash reporter have a chance to capture the crash log for the Compiler thread.
+  for (let i = 0; i < 1000000; ++i) {
+      $vm.ftlTrue();
+  }`,
+    `function foo(o) {
+    for (var i = 0; i < 100; ++i) {
+        o.f = o.f;
+    }
+}
+
+let typedArrays = [
+    Uint8Array,
+    Uint32Array,
+    Uint8Array,
+];
+
+for (let constructor of typedArrays) {
+    let a = new constructor(0);
+    for (let i = 0; i < 10000; i++) {
+        foo(a);
+    }
+}`,
+    '[ b, a ] = [ a, b ]',
+    `var list = [ 1, 2, 3 ]
+var [ a, , b ] = list
+[ b, a ] = [ a, b ]`,
+    `var obj = { a: 1 }
+var list = [ 1 ]
+var { a, b = 2 } = obj
+var [ x, y = 2 ] = list`,
+    `var list = [ 7, 42 ]
+var [ a = 1, b = 2, c = 3, d ] = list
+a === 7
+b === 42
+c === 3
+d === undefined`,
+    `function f ([ name, val ]) {
+  console.log(name, val)
+}
+function g ({ name: n, val: v }) {
+  console.log(n, v)
+}
+function h ({ name, val }) {
+  console.log(name, val)
+}
+f([ "bar", 42 ])
+g({ name: "foo", val:  7 })
+h({ name: "bar", val: 42 })`,
+
+    'let [a] = [];',
+
+    'let {a:b} = {};',
+    'function f([x] = [1]) {};',
+    '({f: function({x} = {x: 10}) {}});',
+    'f = function({x} = {x: 10}) {};',
+    '[a, b] = [b, a];',
+    '[ok.v] = 20;',
+    'var [x = 10, y, z] = a;',
+    '[x = 10, [ z = 10]] = a;',
+    'var {x = 10, y = 5, z = 1} = a;',
+    'var {x: x = 10, y: y = 10, z: z = 10} = a;',
+    'var { x: x = 10 } = x;',
+    'var {x, y: y = 10, z} = a;',
+    'var {x = 10, y: { z = 10}} = a;',
+    'var {x = 10, y: { z }} = a;',
+    `function x({a}) {
+  try {
+    var {b} = a;
+  }
+  catch([stack]) {
+  }
+};`,
+    '({ responseText: text } = res);',
+    'var {x: y, z: { a: b } } = { x: "3", z: { a: "b" } };',
+    'function a({x = 10}) {}',
+    'function x([ a, b ]){};',
+    'function a([x, , [, z]]) {};',
+    '(function x({ a, b }){});',
+    'function x({ a, b }){};',
+    '[a,,b] = array;',
+    'var let = a;',
+    '(let[a] = b);',
+    `(x=1) => x * x;`,
+    'for (const {a} of /b/) {}',
+    '({ a = 42, [b]: c.d } = e);',
+    `const test = ({ t, ...v }) => {
+  console.log(t, v);
+};`,
+
+    'switch (answer) { case 42: let t = 42; break; }',
+    'e => { 42; }',
+    'e => ({ property: 42 })',
+    '(a, b) => { 42; }',
+    '([a, , b]) => 42',
+    '(() => {})()',
+    '(x=1) => x * x',
+    '(a) => 00',
+    '(eval = 10) => 42',
+    '(eval, a = 10) => 42',
+    '(x) => ((y, z) => (x, y, z))',
+    'foo((x, y) => {})',
+    'x = { method() { } }',
+    'x = { method(test) { } }',
+    'x = { "method"() { } }',
+    'x = { set() { } }',
+    'x = { y, z }',
+    '[a.r] = b',
+    'let [a,,b] = c',
+    '({ responseText: text } = res)',
+    'const {a} = {}',
+    'const [a] = []',
+    'let [a] = []',
+    'var [a] = []',
+    'var {a:b} = {}',
+    'class A {get() {}}',
+    'class A extends B { static get foo() {}}',
+    'class A {set a(v) {}}',
+    'class A { static set(v) {};}',
+    'class A {*gen(v) { yield v; }}',
+    '(class { *static() {} })',
+    "class A { get ['constructor']() {} }",
+    'class A { foo() {} bar() {}}',
+    'class A { get foo() {} set foo(v) {}}',
+    'class A { static get foo() {} get foo() {}}',
+    'class A { static get foo() {} static set foo(v) {} get foo() {} set foo(v) {}}',
+    'var {[x]: y} = {y}',
+    'function f({[x]: y}) {}',
+    'var x = {*[test]() { yield *v; }}',
+    'class A {[x]() {}}',
+    'function f([x] = [1]) {}',
+    'function f([x] = [1]) { "use strict"; }',
+    'function f({x} = {x: 10}) {}',
+    'f = function({x} = {x: 10}) {}',
+    '({f: function({x} = {x: 10}) {}})',
+    '({f({x} = {x: 10}) {}})',
+    '(class {f({x} = {x: 10}) {}})',
+    '(({x} = {x: 10}) => {})',
+    'x = function(y = 1) {}',
+    'x = { f: function(a=1) {} }',
+    'x = { f(a=1) {} }',
+    'function f(a, ...b) {}',
+    'function x([ a, b ]){}',
+    'function x({ a, b }){}',
+    '(function x([ a, b ]){})',
+    '({ x([ a, b ]){} })',
+    '({ a }) => {}',
+    '({ a }, ...b) => {}',
+    '({ a: [a, b] }, ...c) => {}',
+    '({ a: b, c }, [d, e], ...f) => {}',
+    '[...a] = b',
+    '[a, ...b] = c',
+    '[{ a, b }, ...c] = d',
+    '[a, ...[b, c]] = d',
+    'var [a, ...b] = c',
+    'var [{ a, b }, ...c] = d',
+    'var [a, ...[b, c]] = d',
+    'func(...a)',
+    'func(...a, b)',
+    '/[a-z]/u',
+    'e => yield* 10',
+    'var {get} = obj;',
+    'var {propName: localVar = defaultValue} = obj',
+    'var {propName = defaultValue} = obj',
+    'var {get = defaultValue} = obj',
+    'var [localVar = defaultValue] = obj',
+    '({x = 0} = obj)',
+    '({x = 0}) => x',
+    '[a, {b: {c = 1}}] = arr',
+    'for ({x = 0} in arr);',
+    'try {} catch ({message}) {}',
+    'class A { static() {} }',
+    '`${/\\d/.exec("1")[0]}`',
+    'let [x,] = [1]',
+    'for (var [name, value] in obj) {}',
+    'function foo() { new.target; }',
+    '(([,]) => 0)',
+    'function foo() { return {arguments} }',
+    'function foo() { return {eval} }',
+    'function foo() { "use strict"; return {arguments} }',
+    'function foo() { return {yield} }',
+    'function* foo(a = function*(b) { yield b }) { }',
+    'function* foo(a = function* foo() { yield b }) {}',
+    'async function f() { for await (x of xs); }',
+    'async function f() { for await (var x of xs); }',
+    'async function f() { for await (let x of xs); }',
+    'async function f() { for\nawait (x of xs); }',
+    'f = async function() { for await (x of xs); }',
+    'f = async() => { for await (x of xs); }',
+    'obj = { async f() { for await (x of xs); } }',
+    'class A { async f() { for await (x of xs); } }',
+    'for (x of xs);',
+    'async function* f() { await a; yield b; }',
+    'f = async function*() { await a; yield b; }',
+    'obj = { async* f() { await a; yield b; } }',
+    'class A { async* f() { await a; yield b; } }',
+    'class A { static async* f() { await a; yield b; } }',
+    'var gen = { async *method() {} }',
+    '3 % 5 ** 1',
+    '`a${b=c}d`',
+    '`a${await foo}d`',
+    'f`x${/foo/}y`',
+    'f`x`\n/foo/',
+    'foo\n++bar',
+    '(x, /y/);',
+    'async("foo".bar) => x',
+    'async("foo".bar);',
+    'async(a);',
+    '(foo[x])',
+    '(foo.x)',
+    'async (foo = yield) => foo',
+    'async (foo = yield)',
+    'function *f(){ async (foo = yield) }',
+    'function *f(){ async (foo = yield x) }',
+    'async yield => foo',
+    'async (yield) => foo',
+    'function *f(){  async yield => foo  }',
+    'function *f(){  async (yield) => foo  }',
+    'async \n (a, b, c);',
+    'async (a, b, c);',
+    '(...[destruct]) => x',
+    '(...{destruct}) => x',
+    'async(...ident) => x',
+    'async(...[destruct]) => x',
+    'async(...{destruct}) => x',
+    'const [a] = b;',
+    'function b([a]){};',
+    'function b([a] = b){};',
+    '([a]) => b;',
+    '([a] = b) => c;',
+    '[a] = b;',
+    '[{x: y.z}]',
+    '[{x: y.z}] = a',
+    '([{x: y.z}]) => b',
+    '([{x: y.z}] = a) => b',
+    '([{x: y.z} = a]) => b',
+    `[x = y]`,
+    `[x = y, z]`,
+    `[true = x]`,
+    `[await = x]`,
+    `[x = true]`,
+    '[{}]',
+    '[{}.foo] = x',
+    '[{}[foo]] = x',
+    `[x]`,
+    `[x, y]`,
+    `[x = y]`,
+    `[x.y]`,
+    `[x.y = z]`,
+    `[x + y]`,
+    `[this]`,
+    `[this=x]`,
+    `[this]=x`,
+    '([...x]);',
+    '([...x, y]);',
+    '([...x+y]);',
+    '([...x.y] = z)',
+    '(z = [...x.y] = z) => z',
+    '[{}.foo]=x',
+    '[5[foo]]=x',
+    '["x".foo]=x',
+    '[`x`.foo]=x',
+    `[x]=y`,
+    `[x=y]=z`,
+    `[...{a = b} = c] = x`,
+    `({"a b c": bar});`,
+    `({"a b c"(){}});`,
+    `({"a b c": bar}) => x`,
+    `({15: bar});`,
+    `({15(){}});`,
+    `({15: bar}) => x`,
+    '({5(){}})',
+    '({...x}); ',
+    '({...x=y});',
+    '({...x.y} = z)',
+    '({...x, ...y}); ',
+    ' ({...x, y});',
+    '({...x+y});',
+    '({[foo]: bar} = baz)',
+    '({[foo]: a + b} = baz)',
+    '({ident: [foo].length} = x)',
+    '({ident: [foo].length = x} = x)',
+    '[...new x];',
+    'const {get = foo} = {}',
+    'var {get = defaultValue} = obj',
+    'var [localVar = defaultValue] = obj',
+    'x = function(y = 1) {}',
     'function inner2(my_var) { my_var; }',
     'function inner2(my_var) { }',
     'function inner2(my_var = 5) { my_var; }',

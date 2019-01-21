@@ -28,12 +28,21 @@ describe('Declarations - Let', () => {
     ['let x; { var x; var y; }', Context.Empty],
     ['let x; { var x; }', Context.Empty],
 
-    ['let let = 1', Context.Empty]
+    ['let let = 1', Context.Empty],
     // ['let [foo];', Context.Empty],
     // ['let [foo = x];', Context.Empty],
     //    ['let [foo], bar;', Context.Empty],
     //['let foo, [bar];', Context.Empty],
     //    ['let [foo:bar] = obj;', Context.Empty],
+
+    ['let [({x: 1})] = [];', Context.Empty],
+    ['let [(x)] = [];"', Context.Empty],
+    ['let [({x: 1}) = y] = [];', Context.Empty],
+    ['let [(x) = y] = [];', Context.Empty],
+    ['var [({x: 1})] = [];', Context.Empty],
+    ['var [(x)] = [];', Context.Empty],
+    ['var [({x: 1}) = y] = [];', Context.Empty],
+    ['var [(x) = y] = [];', Context.Empty]
   ];
 
   fail('Declarations - Let (fail)', inValids);

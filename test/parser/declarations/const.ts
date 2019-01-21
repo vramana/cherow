@@ -37,7 +37,8 @@ describe('Declarations - Const', () => {
     ],
     ['let let', Context.Empty],
     ['const [let] = 1', Context.Empty],
-    ['const let = 1', Context.Empty]
+    ['const let = 1', Context.Empty],
+    ['const [(x)] = []', Context.Empty]
   ]);
 
   const validSyntax = [
