@@ -92,7 +92,8 @@ export const enum Errors {
   InvalidCoverInitializedName,
   InvalidArrowFuncParamList,
   InvalidLHSInForIn,
-  InvalidLHSInForLoop
+  InvalidLHSInForLoop,
+  NoExperimentalOption
 }
 
 /*@internal*/
@@ -194,7 +195,8 @@ export const errorMessages: {
   [Errors.InvalidCoverInitializedName]: 'Invalid shorthand property initializer',
   [Errors.InvalidArrowFuncParamList]: 'Illegal arrow function parameter list',
   [Errors.InvalidLHSInForIn]: 'Invalid left-hand side in for-in',
-  [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop'
+  [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop',
+  [Errors.NoExperimentalOption]: 'Enable the experimental option for V8 experimental features'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

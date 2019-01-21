@@ -2942,6 +2942,8 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       }
       return parseIdentifier(state, context);
     }
+    case Token.DoKeyword:
+      return parseDoExpression(state, context);
     case Token.YieldKeyword:
       if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.DisallowedInContext);
     // falls through
@@ -2953,6 +2955,22 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
   }
 }
 
+/**
+ * Parse do expression (*experimental*)
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+function parseDoExpression(state: ParserState, context: Context): ESTree.DoExpression {
+  // AssignmentExpression ::
+  //     do '{' StatementList '}'
+  if ((context & Context.OptionsExperimental) === 0) report(state, Errors.NoExperimentalOption);
+  expect(state, context, Token.DoKeyword);
+  return {
+    type: 'DoExpression',
+    body: parseBlockStatement(state, context, createScope(ScopeType.BlockStatement))
+  };
+}
 /**
  * Parse array literal expression
  *
