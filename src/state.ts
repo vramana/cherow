@@ -17,6 +17,7 @@ import {
   addToExportedNamesAndCheckForDuplicates,
   addToExportedBindings,
   nextTokenIsFuncKeywordOnSameLine,
+  isValidSimpleAssignmentTarget,
   getLabel,
   validateContinueLabel,
   validateBreakStatement,
@@ -1455,7 +1456,7 @@ export function parseAssignmentPattern(state: ParserState, context: Context, lef
   return {
     type: 'AssignmentPattern',
     left,
-    right: secludeGrammar(state, context, parseAssignmentExpression)
+    right: secludeGrammar(state, context, 0, parseAssignmentExpression)
   };
 }
 
@@ -1482,7 +1483,7 @@ export function parseBindingInitializer(
     : {
         type: 'AssignmentPattern',
         left,
-        right: secludeGrammar(state, context, parseAssignmentExpression)
+        right: secludeGrammar(state, context, 0, parseAssignmentExpression)
       };
 }
 
@@ -1497,7 +1498,7 @@ export function parseBindingInitializer(
 
 export function parseComputedPropertyName(state: ParserState, context: Context): ESTree.Expression {
   expect(state, context, Token.LeftBracket);
-  const key: ESTree.Expression = secludeGrammar(state, context, parseAssignmentExpression);
+  const key: ESTree.Expression = secludeGrammar(state, context, 0, parseAssignmentExpression);
   expect(state, context, Token.RightBracket);
   return key;
 }
@@ -2031,7 +2032,7 @@ function parseVariableDeclaration(
   const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
   let init: any = null;
   if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
-    init = secludeGrammar(state, context, parseAssignmentExpression);
+    init = secludeGrammar(state, context, 0, parseAssignmentExpression);
   } else if (
     type & Type.Const &&
     ((origin & Origin.ForStatement) < 1 || (state.token === Token.Semicolon || state.token === Token.Comma))
@@ -2047,7 +2048,7 @@ function parseVariableDeclaration(
 }
 
 export function parseExpression(state: ParserState, context: Context): any {
-  const expr = secludeGrammar(state, context, parseAssignmentExpression);
+  const expr = secludeGrammar(state, context, 0, parseAssignmentExpression);
   if (state.token !== Token.Comma) return expr;
   return parseSequenceExpression(state, context, expr);
 }
@@ -2066,7 +2067,7 @@ export function parseSequenceExpression(
 ): ESTree.SequenceExpression {
   const expressions: ESTree.Expression[] = [left];
   while (optional(state, context | Context.AllowPossibleRegEx, Token.Comma)) {
-    expressions.push(secludeGrammar(state, context, parseAssignmentExpression));
+    expressions.push(secludeGrammar(state, context, 0, parseAssignmentExpression));
   }
   return {
     type: 'SequenceExpression',
@@ -2171,7 +2172,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     }
     const operator = state.token;
     next(state, context | Context.AllowPossibleRegEx);
-    const right = secludeGrammar(state, context, parseAssignmentExpression);
+    const right = secludeGrammar(state, context, 0, parseAssignmentExpression);
     state.pendingCoverInitializeError = null;
     return {
       type: 'AssignmentExpression',
@@ -2203,9 +2204,9 @@ function parseConditionalExpression(
   // LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression
   if (!optional(state, context | Context.AllowPossibleRegEx, Token.QuestionMark)) return test;
   state.bindable = state.assignable = false;
-  const consequent = secludeGrammar(state, context, parseAssignmentExpression);
+  const consequent = secludeGrammar(state, context, 0, parseAssignmentExpression);
   expect(state, context | Context.AllowPossibleRegEx, Token.Colon);
-  const alternate = secludeGrammar(state, context, parseAssignmentExpression);
+  const alternate = secludeGrammar(state, context, 0, parseAssignmentExpression);
   return {
     type: 'ConditionalExpression',
     test,
@@ -2250,7 +2251,7 @@ function parseBinaryExpression(
     left = {
       type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
       left,
-      right: acquireGrammar(state, context, prec, parseBinaryExpression),
+      right: secludeGrammar(state, context, prec, parseBinaryExpression),
       operator: KeywordDescTable[t & Token.Type]
     };
     state.assignable = state.bindable = false;
@@ -2306,7 +2307,7 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
   if ((state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
     const unaryOperator = state.token;
     next(state, context | Context.AllowPossibleRegEx);
-    const argument: ESTree.Expression = parseUnaryExpression(state, context);
+    const argument: ESTree.Expression = secludeGrammar(state, context, 0, parseUnaryExpression);
     if (state.token === Token.Exponentiate) report(state, Errors.InvalidLOExponentation);
     if (context & Context.Strict && (unaryOperator & Token.DeleteKeyword) === Token.DeleteKeyword) {
       if (argument.type === 'Identifier') {
@@ -2353,11 +2354,8 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
     if (context & Context.Strict && (expr.name === 'eval' || expr.name === 'arguments')) {
       report(state, Errors.StrictLHSPrefixPostFix, 'Prefix');
     }
-
     if (!state.assignable) report(state, Errors.InvalidLHSInAssignment);
-
     state.bindable = state.assignable = false;
-
     return {
       type: 'UpdateExpression',
       argument: expr,
@@ -2372,9 +2370,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
     if (context & Context.Strict && (expression.name === 'eval' || expression.name === 'arguments')) {
       report(state, Errors.StrictLHSPrefixPostFix, 'PostFix');
     }
-    if (!state.assignable) {
-      report(state, Errors.InvalidLHSInAssignment);
-    }
+    if (!state.assignable) report(state, Errors.InvalidLHSInAssignment);
     const operator = state.token;
     next(state, context | Context.AllowPossibleRegEx);
     state.bindable = state.assignable = false;
@@ -2387,16 +2383,6 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
   }
 
   return expression;
-}
-
-/**
- * Returns true if this an valid simple assignment target
- *
- * @param parser Parser object
- * @param context  Context masks
- */
-export function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean {
-  return node.type === 'Identifier' || node.type === 'MemberExpression' ? true : false;
 }
 
 /**
@@ -2445,7 +2431,7 @@ function parseCallExpression(state: ParserState, context: Context, callee: any |
         params.push(parseSpreadElement(state, context));
         seenSpread = true;
       } else {
-        params.push(secludeGrammar(state, context, parseAsyncArgument));
+        params.push(secludeGrammar(state, context, 0, parseAsyncArgument));
       }
       if (state.token === <Token>Token.RightParen) break;
       expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
@@ -2530,10 +2516,11 @@ export function parseMetaProperty(state: ParserState, context: Context, id: ESTr
 function parseSuperExpression(state: ParserState, context: Context): ESTree.Super {
   next(state, context);
   state.assignable = state.bindable = false;
-  if ((context & Context.SuperProperty) < 1 && (state.token === Token.LeftBracket || state.token === Token.Period)) {
-    report(state, Errors.InvalidSuperProperty);
+  if (state.token === Token.LeftBracket || state.token === Token.Period) {
     // new super() is never allowed.
     // super() is only allowed in derived constructor
+    if ((context & Context.SuperProperty) < 1) report(state, Errors.InvalidSuperProperty);
+    state.assignable = true;
   } else if ((context & Context.SuperCall) < 1 && state.token === Token.LeftParen) {
     report(state, Errors.SuperNoConstructor);
   }
@@ -2782,7 +2769,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
       expect(state, context, Token.Comma);
       continue;
     } else {
-      expressions.push(secludeGrammar(state, context, parseAssignmentExpression));
+      expressions.push(secludeGrammar(state, context, 0, parseAssignmentExpression));
     }
     if (state.token === <Token>Token.RightParen) break;
     expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
@@ -2839,10 +2826,12 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
   const id = parseIdentifier(state, context | Context.AllowPossibleRegEx);
 
   if (optional(state, context, Token.Period)) {
-    if ((context & Context.AllowNewTarget) < 1 || state.tokenValue !== 'target') report(state, Errors.Unexpected);
-    return parseMetaProperty(state, context, id);
+    return (context & Context.AllowNewTarget) < 1 || state.tokenValue !== 'target'
+      ? report(state, Errors.Unexpected)
+      : parseMetaProperty(state, context, id);
   }
   let callee;
+
   if (context & Context.OptionsNext && state.token === Token.ImportKeyword) {
     // Invalid: '"new import(x)"'
     if (lookAheadOrScan(state, context, nextTokenIsLeftParen, true))
@@ -2850,27 +2839,19 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
     // Fixes cases like ''new import.meta','
     callee = parseCallImportOrMetaProperty(state, context);
   } else {
-    const { bindable, assignable, pendingCoverInitializeError } = state;
-    state.bindable = true;
-    state.assignable = true;
-    state.pendingCoverInitializeError = null;
-    callee = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
-    state.bindable = state.bindable && bindable;
-    state.assignable = state.assignable && assignable;
-    state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
+    callee = secludeGrammar(state, context, 0, parseMemberExpressionOrHigher);
   }
-
-  const args = state.token === Token.LeftParen ? parseArgumentList(state, context) : [];
-
-  state.assignable = state.bindable = false;
 
   return {
     type: 'NewExpression',
     callee,
-    arguments: args
+    arguments: state.token === Token.LeftParen ? parseArgumentList(state, context) : []
   };
 }
 
+function parseMemberExpressionOrHigher(state: ParserState, context: Context): any {
+  return parseMemberExpression(state, context, parsePrimaryExpression(state, context));
+}
 /**
  * Parse primary expression
  *
@@ -3156,7 +3137,7 @@ function parseArrowFunctionExpression(
 
   const expression = state.token !== Token.LeftBrace;
   const body = expression
-    ? secludeGrammar(state, context, parseAssignmentExpression)
+    ? secludeGrammar(state, context, 0, parseAssignmentExpression)
     : parseFunctionBody(state, context, createSubScope(scope, ScopeType.BlockStatement), state.tokenValue, Origin.None);
   return {
     type: 'ArrowFunctionExpression',
@@ -3287,7 +3268,7 @@ function parseClassDeclaration(state: ParserState, context: Context, scope: Scop
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.Unexpected);
 
   if (optional(state, context, Token.ExtendsKeyword)) {
-    superClass = secludeGrammar(state, context, parseLeftHandSideExpression);
+    superClass = secludeGrammar(state, context, 0, parseLeftHandSideExpression);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
@@ -3323,7 +3304,7 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
   }
 
   if (optional(state, context, Token.ExtendsKeyword)) {
-    superClass = secludeGrammar(state, context, parseLeftHandSideExpression);
+    superClass = secludeGrammar(state, context, 0, parseLeftHandSideExpression);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
@@ -3933,6 +3914,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Obj
 
 export function parseLiteral(state: ParserState, context: Context, value: string | boolean | null): ESTree.Literal {
   const { tokenRaw } = state;
+  if (context & Context.Strict && state.flags & Flags.Octal) report(state, Errors.StrictOctalLiteral);
   next(state, context);
   const node: any = {
     type: 'Literal',

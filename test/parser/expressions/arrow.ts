@@ -4,7 +4,103 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Arrows', () => {
-  const fuckingsIcefapper = [
+  fail('Expressions - Functions', [
+    ['await => { let x; }', Context.AwaitContext],
+    ['async await => {}', Context.Empty],
+    ['async x => { let x; }', Context.Empty],
+    // ['(x) => { let x; }', Context.Empty],
+    ['x => { let x; }', Context.Empty],
+    ['x => { const x; }', Context.Empty],
+    ['()?c:d=>{}=>{}', Context.Empty],
+    ['()=c=>{}=>{};', Context.Empty],
+    ['var x = ()+c=>{}', Context.Empty],
+    ['var x = ()c++=>{};', Context.Empty],
+    ['a?c:d=>{}=>{};', Context.Empty],
+    ['(...a)`template-head${c}`=>{}', Context.Empty],
+    ['(...a)?c:d=>{}=>{};', Context.Empty],
+    ['var x = (...a)?c:d=>{}=>{}', Context.Empty],
+    ['var x = (...a)[1]=>{};', Context.Empty],
+    ['(a,...b)`template-head${c}`=>{}', Context.Empty],
+    ['(a,...b)`${c}template-tail`=>{};', Context.Empty],
+    ['var x = (a,...b)`${c}template-tail`=>{}', Context.Empty],
+    ['var x = (a,...b)[c]=>{};', Context.Empty],
+    ['()`template-head${c}template-tail`=>{}', Context.Empty],
+    ['()?c:d=>{}=>{};', Context.Empty],
+    ['var x = ()[1]=>{}', Context.Empty],
+    ['var x = ()[c]=>{};', Context.Empty],
+
+    //['var x = (a,b)+c=>{};', Context.Empty],
+
+    //    ['var x = a`template-head${c}template-tail`=>{}', Context.Empty],
+    //['var x = ac++=>{};', Context.Empty],
+    //    ['(a)`${c}template-tail`=>{}', Context.Empty],
+    //    ['(a)`template-head${c}template-tail`=>{};', Context.Empty],
+    //  ['var x = (a)?c:d=>{}=>{}', Context.Empty],
+    // ['var x = (a)`${c}template-tail`=>{};', Context.Empty],
+    // ['a`${c}template-tail`=>{}', Context.Empty],
+    //['a`template-head${c}template-tail`=>{};', Context.Empty],
+    //['var x = a`c`=>{}', Context.Empty],
+    //    ['(a)[1]=>{}', Context.Empty],
+    //  ['(a)[c]=>{};', Context.Empty],
+    //['var x = (a)`c`=>{}', Context.Empty],
+    //    ['var x = (a)-c=>{};', Context.Empty],
+    //['(...a)`c`=>{}', Context.Empty],
+    ['(...a)-c=>{};', Context.Empty],
+    ['var x = (...a)+c=>{}', Context.Empty],
+    ['var x = (...a)-c=>{};', Context.Empty],
+    //    ['(a,b)+c=>{}', Context.Empty],
+    ['var x = (a,b)", "=>{}', Context.Empty],
+    //    ['var x = (a,b)-c=>{};', Context.Empty],
+    ['(a,...b)+c=>{}', Context.Empty],
+    ['eval => { "use strict"; 0 }', Context.Empty],
+    ['arguments => { "use strict"; 0 }', Context.Empty],
+    ['yield => { "use strict"; 0 }', Context.Empty],
+    ['interface => { "use strict"; 0 }', Context.Empty],
+    ['(eval) => { "use strict"; 0 }', Context.Empty],
+    ['(arguments) => { "use strict"; 0 }', Context.Empty],
+    // ['(yield) => { "use strict"; 0 }', Context.Empty],
+    // ['(interface) => { "use strict"; 0 }', Context.Empty],
+    ['eval, bar) => { "use strict"; 0 }', Context.Empty],
+    ['(bar, eval) => { "use strict"; 0 }', Context.Empty],
+    ['(bar, arguments) => { "use strict"; 0 }', Context.Empty],
+    // ['(bar, yield) => { "use strict"; 0 }', Context.Empty],
+    // ['(bar, interface) => { "use strict"; 0 }', Context.Empty],
+    ['(a,...b)+c=>{}', Context.Empty],
+    //    ['32 => {}', Context.Empty],
+    ['(32) => {}', Context.Empty],
+    ['(a, 32) => {}', Context.Empty],
+    // ['if => {}', Context.Empty],
+    // ["(if) => {}", Context.Empty],
+    // ["(a, if) => {}", Context.Empty],
+    // ["a + b => {}", Context.Empty],
+    // ["(a + b) => {}", Context.Empty],
+    // ["(a + b, c) => {}", Context.Empty],
+    // ["(a, b - c) => {}", Context.Empty],
+    //    ['"a" => {}', Context.Empty],
+    ['("a") => {}', Context.Empty],
+    ['("a", b) => {}', Context.Empty],
+    ['(a, "b") => {}', Context.Empty],
+    //    ['-a => {}', Context.Empty],
+    ['(-a) => {}', Context.Empty],
+    ['(-a, b) => {}', Context.Empty],
+    ['(a, -b) => {}', Context.Empty],
+    ['{} => {}', Context.Empty],
+    // ["a++ => {}", Context.Empty],
+    ['(a++) => {}', Context.Empty],
+    ['(a++, b) => {}', Context.Empty],
+    ['(a, b++) => {}', Context.Empty],
+    //    ['[] => {}', Context.Empty],
+    ['(foo ? bar : baz) => {}', Context.Empty],
+    ['(a, foo ? bar : baz) => {}', Context.Empty],
+    ['(foo ? bar : baz, a) => {}', Context.Empty],
+    ['(a.b, c) => {}', Context.Empty],
+    ['(c, a.b) => {}', Context.Empty],
+    ["(a['b'], c) => {}", Context.Empty],
+    ["(c, a['b']) => {}", Context.Empty],
+    ['(...a = b) => b', Context.Empty]
+  ]);
+
+  for (const arg of [
     `const a = () => {return (3, 4);};`,
     `"use strict";
 ((one, two) => {});`,
@@ -148,8 +244,7 @@ describe('Expressions - Arrows', () => {
   'use strict';
   setTimeout( () => console.log( this ) );
 }`
-  ];
-  for (const arg of fuckingsIcefapper) {
+  ]) {
     it(`${arg};`, () => {
       t.doesNotThrow(() => {
         parseSource(`${arg};`, undefined, Context.Empty);
@@ -157,103 +252,9 @@ describe('Expressions - Arrows', () => {
     });
   }
 
-  const inValids: Array<[string, Context]> = [
-    ['await => { let x; }', Context.AwaitContext],
-    ['async await => {}', Context.Empty],
-    ['async x => { let x; }', Context.Empty],
-    // ['(x) => { let x; }', Context.Empty],
-    ['x => { let x; }', Context.Empty],
-    ['x => { const x; }', Context.Empty],
-    ['()?c:d=>{}=>{}', Context.Empty],
-    ['()=c=>{}=>{};', Context.Empty],
-    ['var x = ()+c=>{}', Context.Empty],
-    ['var x = ()c++=>{};', Context.Empty],
-    ['a?c:d=>{}=>{};', Context.Empty],
-    //    ['var x = a`template-head${c}template-tail`=>{}', Context.Empty],
-    //['var x = ac++=>{};', Context.Empty],
-    //    ['(a)`${c}template-tail`=>{}', Context.Empty],
-    //    ['(a)`template-head${c}template-tail`=>{};', Context.Empty],
-    //  ['var x = (a)?c:d=>{}=>{}', Context.Empty],
-    // ['var x = (a)`${c}template-tail`=>{};', Context.Empty],
-    ['(...a)`template-head${c}`=>{}', Context.Empty],
-    ['(...a)?c:d=>{}=>{};', Context.Empty],
-    ['var x = (...a)?c:d=>{}=>{}', Context.Empty],
-    ['var x = (...a)[1]=>{};', Context.Empty],
-    //    ['var x = (a,b)+c=>{};', Context.Empty],
-    ['(a,...b)`template-head${c}`=>{}', Context.Empty],
-    ['(a,...b)`${c}template-tail`=>{};', Context.Empty],
-    ['var x = (a,...b)`${c}template-tail`=>{}', Context.Empty],
-    ['var x = (a,...b)[c]=>{};', Context.Empty],
-    ['()`template-head${c}template-tail`=>{}', Context.Empty],
-    ['()?c:d=>{}=>{};', Context.Empty],
-    ['var x = ()[1]=>{}', Context.Empty],
-    ['var x = ()[c]=>{};', Context.Empty],
-    // ['a`${c}template-tail`=>{}', Context.Empty],
-    //['a`template-head${c}template-tail`=>{};', Context.Empty],
-    //['var x = a`c`=>{}', Context.Empty],
-    //    ['(a)[1]=>{}', Context.Empty],
-    //  ['(a)[c]=>{};', Context.Empty],
-    //['var x = (a)`c`=>{}', Context.Empty],
-    //    ['var x = (a)-c=>{};', Context.Empty],
-    //['(...a)`c`=>{}', Context.Empty],
-    ['(...a)-c=>{};', Context.Empty],
-    ['var x = (...a)+c=>{}', Context.Empty],
-    ['var x = (...a)-c=>{};', Context.Empty],
-    //    ['(a,b)+c=>{}', Context.Empty],
-    ['var x = (a,b)", "=>{}', Context.Empty],
-    //    ['var x = (a,b)-c=>{};', Context.Empty],
-    ['(a,...b)+c=>{}', Context.Empty],
-    ['eval => { "use strict"; 0 }', Context.Empty],
-    ['arguments => { "use strict"; 0 }', Context.Empty],
-    ['yield => { "use strict"; 0 }', Context.Empty],
-    ['interface => { "use strict"; 0 }', Context.Empty],
-    ['(eval) => { "use strict"; 0 }', Context.Empty],
-    ['(arguments) => { "use strict"; 0 }', Context.Empty],
-    // ['(yield) => { "use strict"; 0 }', Context.Empty],
-    // ['(interface) => { "use strict"; 0 }', Context.Empty],
-    ['eval, bar) => { "use strict"; 0 }', Context.Empty],
-    ['(bar, eval) => { "use strict"; 0 }', Context.Empty],
-    ['(bar, arguments) => { "use strict"; 0 }', Context.Empty],
-    // ['(bar, yield) => { "use strict"; 0 }', Context.Empty],
-    // ['(bar, interface) => { "use strict"; 0 }', Context.Empty],
-    ['(a,...b)+c=>{}', Context.Empty],
-    //    ['32 => {}', Context.Empty],
-    ['(32) => {}', Context.Empty],
-    ['(a, 32) => {}', Context.Empty],
-    // ['if => {}', Context.Empty],
-    // ["(if) => {}", Context.Empty],
-    // ["(a, if) => {}", Context.Empty],
-    // ["a + b => {}", Context.Empty],
-    // ["(a + b) => {}", Context.Empty],
-    // ["(a + b, c) => {}", Context.Empty],
-    // ["(a, b - c) => {}", Context.Empty],
-    //    ['"a" => {}', Context.Empty],
-    ['("a") => {}', Context.Empty],
-    ['("a", b) => {}', Context.Empty],
-    ['(a, "b") => {}', Context.Empty],
-    //    ['-a => {}', Context.Empty],
-    ['(-a) => {}', Context.Empty],
-    ['(-a, b) => {}', Context.Empty],
-    ['(a, -b) => {}', Context.Empty],
-    ['{} => {}', Context.Empty],
-    // ["a++ => {}", Context.Empty],
-    ['(a++) => {}', Context.Empty],
-    ['(a++, b) => {}', Context.Empty],
-    ['(a, b++) => {}', Context.Empty],
-    //    ['[] => {}', Context.Empty],
-    ['(foo ? bar : baz) => {}', Context.Empty],
-    ['(a, foo ? bar : baz) => {}', Context.Empty],
-    ['(foo ? bar : baz, a) => {}', Context.Empty],
-    ['(a.b, c) => {}', Context.Empty],
-    ['(c, a.b) => {}', Context.Empty],
-    ["(a['b'], c) => {}", Context.Empty],
-    ["(c, a['b']) => {}", Context.Empty],
-    ['(...a = b) => b', Context.Empty]
-  ];
-  fail('Expressions - Functions', inValids);
-
   // valid tests
-  const valids: Array<[string, Context, any]> = [
+
+  pass('Expressions - Arrows (pass)', [
     [
       `(x, y, z) => { return x + y + z; }`,
       Context.Empty,
@@ -2005,6 +2006,5 @@ describe('Expressions - Arrows', () => {
         ]
       }
     ]
-  ];
-  pass('Expressions - Arrows (pass)', valids);
+  ]);
 });
