@@ -31,11 +31,11 @@ describe('Expressions - Arrows', () => {
 
     //['var x = (a,b)+c=>{};', Context.Empty],
 
-    //    ['var x = a`template-head${c}template-tail`=>{}', Context.Empty],
+    //['var x = a`template-head${c}template-tail`=>{}', Context.Empty],
     //['var x = ac++=>{};', Context.Empty],
     //    ['(a)`${c}template-tail`=>{}', Context.Empty],
     //    ['(a)`template-head${c}template-tail`=>{};', Context.Empty],
-    //  ['var x = (a)?c:d=>{}=>{}', Context.Empty],
+    ['var x = (a)?c:d=>{}=>{}', Context.Empty],
     // ['var x = (a)`${c}template-tail`=>{};', Context.Empty],
     // ['a`${c}template-tail`=>{}', Context.Empty],
     //['a`template-head${c}template-tail`=>{};', Context.Empty],

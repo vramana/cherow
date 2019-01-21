@@ -504,9 +504,12 @@ export function isLexical(state: ParserState, context: Context): boolean {
   next(state, context);
   const { token } = state;
   return !!(
-    token & (Token.IsIdentifier | Token.IsYield | Token.IsAwait) ||
+    (token & Token.Identifier) === Token.IsIdentifier ||
+    (token & Token.Contextual) === Token.Contextual ||
     token === Token.LeftBrace ||
     token === Token.LeftBracket ||
+    state.token === Token.YieldKeyword ||
+    state.token === Token.AwaitKeyword ||
     token === Token.LetKeyword
   );
 }

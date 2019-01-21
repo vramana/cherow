@@ -369,7 +369,7 @@ describe('Statements - For', () => {
     'for (const j of x) { const foo = j }',
     'for (const j of x) { const [foo] = [j] }',
     'for (const j of x) { function foo() {return j} }',
-    // "for (let = 1; let < 1; let++) {}",
+    'for (let = 1; let < 1; let++) {}',
     'for (let in {}) {}',
     'for (var let = 1; let < 1; let++) {}',
     'for (var let in {}) {}',
@@ -392,7 +392,6 @@ describe('Statements - For', () => {
     'for (const {j} of x) { const foo = j }',
     'for (const {j} of x) { const [foo] = [j] }',
     'for (const {j} of x) { function foo() {return j} }',
-
     'for (j in x) { foo = j }',
     'for (j in x) { [foo] = [j] }',
     'for (j in x) { [[foo]=[42]] = [] }',
@@ -410,7 +409,6 @@ describe('Statements - For', () => {
     'for (j in x) { const foo = j }',
     'for (j in x) { const [foo] = [j] }',
     'for (j in x) { function foo() {return j} }',
-
     'for ({j} in x) { foo = j }',
     'for ({j} in x) { [foo] = [j] }',
     'for ({j} in x) { [[foo]=[42]] = [] }',
@@ -428,7 +426,6 @@ describe('Statements - For', () => {
     'for ({j} in x) { const foo = j }',
     'for ({j} in x) { const [foo] = [j] }',
     'for ({j} in x) { function foo() {return j} }',
-
     'for (var j in x) { foo = j }',
     'for (var j in x) { [foo] = [j] }',
     'for (var j in x) { [[foo]=[42]] = [] }',
@@ -463,7 +460,6 @@ describe('Statements - For', () => {
     'for (var {j} in x) { const foo = j }',
     'for (var {j} in x) { const [foo] = [j] }',
     'for (var {j} in x) { function foo() {return j} }',
-
     'for (let j in x) { foo = j }',
     'for (let j in x) { [foo] = [j] }',
     'for (let j in x) { [[foo]=[42]] = [] }',
@@ -481,7 +477,6 @@ describe('Statements - For', () => {
     'for (let j in x) { const foo = j }',
     'for (let j in x) { const [foo] = [j] }',
     'for (let j in x) { function foo() {return j} }',
-
     'for (let {j} in x) { foo = j }',
     'for (let {j} in x) { [foo] = [j] }',
     'for (let {j} in x) { [[foo]=[42]] = [] }',
@@ -499,7 +494,6 @@ describe('Statements - For', () => {
     'for (let {j} in x) { const foo = j }',
     'for (let {j} in x) { const [foo] = [j] }',
     'for (let {j} in x) { function foo() {return j} }',
-
     'for (const j in x) { foo = j }',
     'for (const j in x) { [foo] = [j] }',
     'for (const j in x) { [[foo]=[42]] = [] }',
@@ -517,7 +511,6 @@ describe('Statements - For', () => {
     'for (const j in x) { const foo = j }',
     'for (const j in x) { const [foo] = [j] }',
     'for (const j in x) { function foo() {return j} }',
-
     'for (const {j} in x) { foo = j }',
     'for (const {j} in x) { [foo] = [j] }',
     'for (const {j} in x) { [[foo]=[42]] = [] }',
@@ -535,7 +528,6 @@ describe('Statements - For', () => {
     'for (const {j} in x) { const foo = j }',
     'for (const {j} in x) { const [foo] = [j] }',
     'for (const {j} in x) { function foo() {return j} }',
-
     'while (j) { foo = j }',
     'while (j) { [foo] = [j] }',
     'while (j) { [[foo]=[42]] = [] }',
@@ -553,7 +545,6 @@ describe('Statements - For', () => {
     'while (j) { const foo = j }',
     'while (j) { const [foo] = [j] }',
     'while (j) { function foo() {return j} }',
-
     'do { foo = j } while (j)',
     'do { [foo] = [j] } while (j)',
     'do { [[foo]=[42]] = [] } while (j)',

@@ -1063,26 +1063,28 @@ function parseForStatement(
     if ((state.token & Token.IsVarDecl) !== 0) {
       const kind = KeywordDescTable[state.token & Token.Type];
       if (optional(state, context, Token.VarKeyword)) {
-        declarations = parseVariableDeclarationList(
-          state,
-          context | Context.DisallowInContext,
-          Type.Variable,
-          Origin.ForStatement,
-          false,
-          scope
-        );
-        init = { type: 'VariableDeclaration', kind, declarations };
+        init = {
+          type: 'VariableDeclaration',
+          kind,
+          declarations: parseVariableDeclarationList(
+            state,
+            context | Context.DisallowInContext,
+            Type.Variable,
+            Origin.ForStatement,
+            false,
+            scope
+          )
+        };
       } else if (state.token === Token.LetKeyword) {
-        const tokenValue = state.tokenValue;
-        next(state, context);
-        if (state.token === (Token.InKeyword as Token)) {
-          if (context & Context.Strict) report(state, Errors.Unexpected);
-          init = { type: 'Identifier', name: tokenValue };
+        if (lookAheadOrScan(state, context, isLexical, false)) {
+          init = {
+            type: 'VariableDeclaration',
+            kind,
+            declarations: parseVariableDeclarationList(state, context, Type.Let, Origin.ForStatement, true, scope)
+          };
         } else {
-          declarations = parseVariableDeclarationList(state, context, Type.Let, Origin.ForStatement, true, scope);
-          if (checkIfExistInLexicalBindings(state, context, scope, true))
-            report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
-          init = { type: 'VariableDeclaration', kind, declarations };
+          isPattern = true;
+          init = acquireGrammar(state, context | Context.DisallowInContext, 0, parseAssignmentExpression);
         }
       } else if (optional(state, context, Token.ConstKeyword)) {
         declarations = parseVariableDeclarationList(state, context, Type.Const, Origin.ForStatement, false, scope);
@@ -1095,12 +1097,6 @@ function parseForStatement(
       init = acquireGrammar(state, context | Context.DisallowInContext, 0, parseAssignmentExpression);
     }
   }
-
-  /**
-   * ForStatement
-   *
-   * https://tc39.github.io/ecma262/#sec-for-statement
-   */
 
   if (optional(state, context | Context.AllowPossibleRegEx, Token.OfKeyword)) {
     if (state.inCatch) report(state, Errors.Unexpected);
@@ -1124,13 +1120,6 @@ function parseForStatement(
       await: forAwait
     };
   }
-
-  /**
-   * ForIn statement
-   *
-   * https://tc39.github.io/ecma262/#sec-for-in-and-for-of-statements
-   *
-   */
 
   if (optional(state, context, Token.InKeyword)) {
     if (isPattern) {
