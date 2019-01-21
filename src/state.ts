@@ -2435,12 +2435,32 @@ function parseCallExpression(state: ParserState, context: Context, callee: any |
   while (true) {
     callee = parseMemberExpression(state, context, callee);
     if (state.token !== Token.LeftParen) return callee;
-    const params = parseArgumentList(state, context, Origin.AsyncArrow);
+
+    expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
+    let seenSpread = false;
+    let spreadCount = 0;
+    const params: (ESTree.Expression | ESTree.SpreadElement)[] = [];
+    while (state.token !== <Token>Token.RightParen) {
+      if (state.token === <Token>Token.Ellipsis) {
+        params.push(parseSpreadElement(state, context));
+        seenSpread = true;
+      } else {
+        params.push(secludeGrammar(state, context, parseAsyncArgument));
+      }
+      if (state.token === <Token>Token.RightParen) break;
+      expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
+      state.assignable = false;
+      if (seenSpread) spreadCount++;
+    }
+    expect(state, context, Token.RightParen);
+
     if (state.token === <Token>Token.Arrow) {
       if (flags & Flags.NewLine) report(state, Errors.Unexpected);
       // Fixes cases like: `async().foo13 () => 1`
       if (!state.bindable) report(state, Errors.Unexpected);
       state.bindable = state.assignable = false;
+      if (spreadCount > 0) report(state, Errors.TrailingCommaAfterRest);
+      state.bindable = false;
       return {
         type: Arrows.Async,
         scope,
@@ -2742,11 +2762,7 @@ function parseTemplateTail(state: ParserState, context: Context): ESTree.Templat
  * @param Parser Parser object
  * @param Context Context masks
  */
-function parseArgumentList(
-  state: ParserState,
-  context: Context,
-  origin: Origin
-): (ESTree.Expression | ESTree.SpreadElement)[] {
+function parseArgumentList(state: ParserState, context: Context): (ESTree.Expression | ESTree.SpreadElement)[] {
   /**
    * ArgumentList
    *
@@ -2766,9 +2782,7 @@ function parseArgumentList(
       expect(state, context, Token.Comma);
       continue;
     } else {
-      expressions.push(
-        secludeGrammar(state, context, origin & Origin.AsyncArrow ? parseAsyncArgument : parseAssignmentExpression)
-      );
+      expressions.push(secludeGrammar(state, context, parseAssignmentExpression));
     }
     if (state.token === <Token>Token.RightParen) break;
     expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
@@ -2846,7 +2860,7 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
     state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
   }
 
-  const args = state.token === Token.LeftParen ? parseArgumentList(state, context, Origin.None) : [];
+  const args = state.token === Token.LeftParen ? parseArgumentList(state, context) : [];
 
   state.assignable = state.bindable = false;
 
