@@ -143,13 +143,12 @@ export interface ParserState {
         flags: string;
     };
 }
-export declare function unimplemented(): never;
 export declare function unreachable(...values: never[]): never;
 export declare function pushComment(context: Context, array: any[]): any;
 export declare function pushToken(context: Context, array: any[]): any;
 export declare function finishNode<T extends ESTree.Node>(context: Context, start: number, end: number, node: T): T;
 export declare function optional(state: ParserState, context: Context, token: Token): boolean;
-export declare function expect(state: ParserState, context: Context, t: Token): boolean;
+export declare function expect(state: ParserState, context: Context, t: Token): void;
 export declare function consumeSemicolon(state: ParserState, context: Context): void | boolean;
 export declare function addVariable(state: ParserState, context: Context, scope: any, bindingType: Type, checkDuplicates: boolean, isVariableDecl: boolean, key: string): void;
 export declare function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context): boolean;

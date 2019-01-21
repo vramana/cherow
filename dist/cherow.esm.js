@@ -4981,7 +4981,7 @@ table$1[32] = table$1[9] = table$1[12] = table$1[11] = state => {
     return 1073741824;
 };
 table$1[10] = state => {
-    consumeLineFeed(state, (state.flags & 2) !== 0);
+    consumeLineFeed(state, (state.flags & 2) > 0);
     state.flags = (state.flags & ~2) | 1;
     return 1073741824;
 };
@@ -5043,10 +5043,8 @@ function optional(state, context, token) {
 function expect(state, context, t) {
     if (state.token !== t) {
         report(state, 0);
-        return false;
     }
     next(state, context);
-    return true;
 }
 function consumeSemicolon(state, context) {
     return (state.token & 536870912) === 536870912 || state.flags & 1
@@ -5772,7 +5770,7 @@ function parseBlockStatement(state, context, scope) {
     };
 }
 function parseEmptyStatement(state, context) {
-    next(state, context);
+    next(state, context | 32768);
     return {
         type: 'EmptyStatement'
     };
@@ -5995,7 +5993,7 @@ function parseCaseOrDefaultClauses(state, context, test, scope) {
 }
 function parseForStatement(state, context, scope) {
     next(state, context);
-    const forAwait = optional(state, context, 667757);
+    const forAwait = context & 4194304 ? optional(state, context, 667757) : false;
     scope = createSubScope(scope, 2);
     expect(state, context, 131083);
     let init = null;
@@ -6038,7 +6036,7 @@ function parseForStatement(state, context, scope) {
             init = parseExpression(state, context | 8192);
         }
     }
-    if (forAwait ? expect(state, context, 12402) : optional(state, context, 12402)) {
+    if (optional(state, context | 32768, 12402)) {
         if (state.inCatch)
             report(state, 0);
         if (isPattern)
@@ -6526,7 +6524,7 @@ function parseExpression(state, context) {
 }
 function parseSequenceExpression(state, context, left) {
     const expressions = [left];
-    while (optional(state, context, 18)) {
+    while (optional(state, context | 32768, 18)) {
         expressions.push(parseAssignmentExpression(state, context));
     }
     return {
@@ -6567,9 +6565,9 @@ function parseAssignmentExpression(state, context) {
         const scope = createScope(5);
         if (token & (274432 | 4096)) {
             addVariableAndDeduplicate(state, context, scope, 1, true, value);
-            return parseArrowFunctionExpression(state, context, scope, [expr], false);
+            return parseArrowFunctionExpression(state, context, scope, [expr], false, true);
         }
-        return parseArrowFunctionExpression(state, context, scope, expr, false);
+        return parseArrowFunctionExpression(state, context, scope, expr, false, false);
     }
     if (state.assignable && (state.token & 8388608) === 8388608) {
         if (state.token === 8388637)
@@ -6605,7 +6603,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(state, context) {
                 return expr;
             const scope = createScope(5);
             addVariableAndDeduplicate(state, context, scope, 1, true, state.tokenValue);
-            return parseArrowFunctionExpression(state, context, scope, [maybeConciseBody], true);
+            return parseArrowFunctionExpression(state, context, scope, [maybeConciseBody], true, true);
         }
         return expr;
     }
@@ -6618,7 +6616,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(state, context) {
             isArrow = true;
             if (flags & 1 || state.flags & 1)
                 report(state, 0);
-            expr = parseArrowFunctionExpression(state, context, createScope(5), args, true);
+            expr = parseArrowFunctionExpression(state, context, createScope(5), args, true, false);
             break;
         }
         expr = {
@@ -6714,7 +6712,7 @@ function parseUnaryExpression(state, context) {
 function parseUpdateExpression(state, context) {
     const { token } = state;
     if ((state.token & 67239936) === 67239936) {
-        next(state, context);
+        next(state, context | 32768);
         const expr = parseLeftHandSideExpression(state, context);
         if (context & 1024 && (expr.name === 'eval' || expr.name === 'arguments')) {
             report(state, 83, 'Prefix');
@@ -6738,7 +6736,7 @@ function parseUpdateExpression(state, context) {
             report(state, 84);
         }
         const operator = state.token;
-        next(state, context);
+        next(state, context | 32768);
         return {
             type: 'UpdateExpression',
             argument: expression,
@@ -6834,7 +6832,7 @@ function parseMemberExpression(state, context, expr) {
                 };
                 continue;
             case 131091:
-                next(state, context);
+                next(state, context | 32768);
                 expr = {
                     type: 'MemberExpression',
                     object: expr,
@@ -6881,11 +6879,11 @@ function parseTemplateSpans(state, tail) {
 }
 function parseTemplate(state, context) {
     const quasis = [parseTemplateSpans(state, false)];
-    expect(state, context, 131080);
+    expect(state, context | 32768, 131080);
     const expressions = [parseExpression(state, context)];
     while ((state.token = scanTemplateTail(state, context)) !== 131081) {
         quasis.push(parseTemplateSpans(state, false));
-        expect(state, context, 131080);
+        expect(state, context | 32768, 131080);
         expressions.push(parseExpression(state, context));
     }
     quasis.push(parseTemplateSpans(state, true));
@@ -6898,7 +6896,7 @@ function parseTemplate(state, context) {
 }
 function parseTemplateTail(state, context) {
     const { tokenValue, tokenRaw } = state;
-    expect(state, context, 131081);
+    expect(state, context | 32768, 131081);
     return {
         type: 'TemplateElement',
         value: {
@@ -6919,13 +6917,13 @@ function parseArgumentList(state, context) {
             expressions.push(parseAssignmentExpression(state, context));
         }
         if (state.token !== 16)
-            expect(state, context, 18);
+            expect(state, context | 32768, 18);
     }
     expect(state, context, 16);
     return expressions;
 }
 function parseSpreadElement(state, context) {
-    expect(state, context, 14);
+    expect(state, context | 32768, 14);
     const argument = parseAssignmentExpression(state, context);
     return {
         type: 'SpreadElement',
@@ -7063,8 +7061,8 @@ function parseFunctionExpression(state, context, isAsync) {
         id
     };
 }
-function parseArrowFunctionExpression(state, context, scope, params, isAsync) {
-    expect(state, context, 131082);
+function parseArrowFunctionExpression(state, context, scope, params, isAsync, ConciseBody) {
+    expect(state, context | (ConciseBody ? 32768 : 0), 131082);
     if (state.flags & 1)
         report(state, 0);
     for (let i = 0; i < params.length; ++i)
@@ -7117,12 +7115,12 @@ function parseParenthesizedExpression(state, context) {
                 if (state.token !== 131082)
                     report(state, 0);
                 expressions.push(restElement);
-                return parseArrowFunctionExpression(state, context, scope, expressions, false);
+                return parseArrowFunctionExpression(state, context, scope, expressions, false, false);
             }
             else if (optional(state, context, 16)) {
                 if (state.token !== 131082)
                     report(state, 0);
-                return parseArrowFunctionExpression(state, context, scope, expressions, false);
+                return parseArrowFunctionExpression(state, context, scope, expressions, false, false);
             }
             else {
                 expressions.push(parseAssignmentExpression(state, context));
@@ -7802,8 +7800,6 @@ function parseSource(source, options, context) {
             context |= 16;
         if (options.next)
             context |= 1;
-        if (options.jsx)
-            context |= 4;
         if (options.ranges)
             context |= 2;
         if (options.directives)
