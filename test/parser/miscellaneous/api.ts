@@ -28,6 +28,16 @@ describe('Expressions - API', () => {
           }
         ],
         end: 3,
+        loc: {
+          end: {
+            column: 3,
+            line: 1
+          },
+          start: {
+            column: 0,
+            line: 1
+          }
+        },
         sourceType: 'module',
         start: 0,
         type: 'Program'
