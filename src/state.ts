@@ -2842,19 +2842,18 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
     // Fixes cases like ''new import.meta','
     callee = parseCallImportOrMetaProperty(state, context);
   } else {
-    const previousBindable = state.bindable;
-    const previousAssignable = state.assignable;
-    const previouspendingCoverInitializeError = state.pendingCoverInitializeError;
+    const { bindable, assignable, pendingCoverInitializeError } = state;
     state.bindable = true;
     state.assignable = true;
     state.pendingCoverInitializeError = null;
     callee = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
-    state.bindable = state.bindable && previousBindable;
-    state.assignable = state.assignable && previousAssignable;
-    state.pendingCoverInitializeError = previouspendingCoverInitializeError || state.pendingCoverInitializeError;
+    state.bindable = state.bindable && bindable;
+    state.assignable = state.assignable && assignable;
+    state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
   }
 
   const args = state.token === Token.LeftParen ? parseArgumentList(state, context) : [];
+
   state.assignable = state.bindable = false;
 
   return {
