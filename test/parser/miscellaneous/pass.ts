@@ -88,9 +88,9 @@ describe('Miscellaneous - Passing tests', () => {
           });
         });
       }
-
-
     }`,
+    `let async = function(a){return {bind: "someMethodButIUseString"}};
+    async(function (req, res) { }).bind;`,
     '004',
     '004',
     '004',
@@ -1788,6 +1788,43 @@ h({ name: "bar", val: 42 })`,
   a = 1;
   b = 2;
 };`,
+    'f(a/b,a/b,a.of/b)',
+    'yield : 1',
+    `if (statement & FUNC_STATEMENT) {
+  node.id = (statement & FUNC_NULLABLE_ID) && this.type !== tt.name ? null : this.parseIdent()
+  if (node.id && !(statement & FUNC_HANGING_STATEMENT))
+    this.checkLVal(node.id, this.inModule && !this.inFunction ? BIND_LEXICAL : BIND_FUNCTION)
+}`,
+    `/* BEFORE */
+pp.parseFunctionStatement = function(node, isAsync, declarationPosition) {
+  this.next()
+  return this.parseFunction(node, FUNC_STATEMENT | (declarationPosition ? 0 : FUNC_HANGING_STATEMENT), false, isAsync)
+}
+
+/* AFTER */
+pp.parseFunctionStatement = function(node, isAsync, declarationPosition) {
+  this.next()
+  let statementFlags = {isStatement: true, isHanging: !declarationPosition}
+  return this.parseFunction(node, statementFlags, false, isAsync)
+}`,
+    'var AsyncGeneratorFunction = Object.getPrototypeOf(async function* () {}).constructor;',
+    `var [ a, , b ] = list
+[ b, a ] = [ a, b ]`,
+    'for (const {a} of /b/) {}',
+    '({ a = 42, [b]: c.d } = e);',
+    `const test = ({ t, ...v }) => {
+  console.log(t, v);
+};`,
+    `function a() {
+  var e, i, n, a, o = this._tween,
+    l = o.vars.roundProps,
+    h = {},
+    _ = o._propLookup.roundProps;
+  if ("object" != (void 0 === l ? "undefined" : t(l)) || l.push) for ("string" == typeof l && (l = l.split(",")), n = l.length; --n > -1;) h[l[n]] = Math.round;
+  else for (a in l) h[a] = s(l[a]);
+  for (a in h) for (e = o._firstPT; e;) i = e._next, e.pg ? e.t._mod(h) : e.n === a && (2 === e.f && e.t ? r(e.t._firstPT, h[a]) : (this._add(e.t, a, e.s, e.c, h[a]), i && (i._prev = e._prev), e._prev ? e._prev._next = i : o._firstPT === e && (o._firstPT = i), e._next = e._prev = null, o._propLookup[a] = _)), e = i;
+  return !1
+}`,
     `() => { [a, b] = [1, 2] }`,
     `() => [a, b] = [1, 2]`,
     `() => {
