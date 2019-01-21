@@ -1655,9 +1655,176 @@ h({ name: "bar", val: 42 })`,
     'a = { }',
     '/test/ && /test/',
     'a => { return 1; }',
+    `a+(+b<<2)`,
+    `1*1;1&&1;1+ +1;x+ ++y;a+ +b*2;a+ +b*2*2*2;a- -b;1+-b;1- --b;a- -b*2;a+(+b<<2);`,
+    `(class A {} < 1);`,
+    `function test() {
+      let ID = "1|123456";
+      return (([id, obj]) => ({[id = id.split('|')[1]]: {id: id}}))([ID, {}]);
+  }`,
+    `function test() {
+    let ID = "1|123456";
+    return {
+        [id = id.split('|')[1]]: id
+    }
+}`,
+    `for (let a, { b } = {};;) {
+  let a, { b } = {};
+
+  {
+    let a, { b } = {};
+  }
+}`,
+    `for (var a, _ref = {}, b = _ref.b;;) {
+  var _a = void 0,
+      _ref2 = {},
+      _b = _ref2.b;
+
+  {
+    var _a2 = void 0,
+        _ref3 = {},
+        _b2 = _ref3.b;
+  }
+}`,
+    `for (let i = 0; i < 3; i++) {
+  let i = 'abc';
+  console.log(i);
+
+  {
+    let i = "hello";
+  }
+}`,
+    `for (var i = 0; i < 3; i++) {
+  var _i = 'abc';
+  console.log(_i);
+  {
+    var _i2 = "hello";
+  }
+}`,
+    `() => {
+  a = 1;
+  b = 2;
+};`,
+    `() => { [a, b] = [1, 2] }`,
+    `() => [a, b] = [1, 2]`,
+    `() => {
+  var _ref = [1, 2];
+  a = _ref[0];
+  b = _ref[1];
+  return _ref;
+};`,
+    `const { [(() => 1)()]: a, ...rest } = { 1: "a" };`,
+    `const foo = {
+  1: "a",
+  2: "b",
+  3: "c",
+}`,
+    `function isBetween(x, a, b) {
+  if (a > b) [a, b] = [b, a];
+  return x > a && x < b;
+}`,
+    `let a = 1;
+let b = 2;
+
+[a, b] = [b, a];
+  `,
+    `function test() {
+    let a = 1;
+    let b = 2;
+    [a, b] = [b, a];
+    console.log(a); // 2
+    console.log(b); // 2
+  }
+  `,
+    `function foo(...{ length }) {
+    return length;
+  }`,
+    `function foo() {
+    for (var _len = arguments.length, _ref = new Array(_len), _key = 0; _key < _len; _key++) {
+      _ref[_key] = arguments[_key];
+    }
+
+    var a = _ref[0];
+  }`,
+    `(function(...[x]) {})`,
+    `(function () {
+    x;
+  });`,
+    `const foo = {
+    bar: 10,
+  }
+
+  let bar = 0;
+
+  if (foo) ({ bar } = foo); // throws an error (see stacktrace below)
+
+  console.log(bar); // should print 10`,
+    `const foo = {
+    bar: 10,
+  }
+
+  let bar = 0;
+
+  if (foo) {
+    ({ bar } = foo);
+  }
+
+  console.log(bar); // prints 10 `,
+    `({i: {...j}} = k);`,
+    `({i: [...j]} = k);`,
+    `const {
+    [({ ...rest }) => {
+      let { ...b } = {};
+    }]: a,
+    [({ ...d } = {})]: c,
+  } = {}; `,
+    `const {
+    a = ({ ...rest }) => {
+      let { ...b } = {};
+    },
+    c = ({ ...d } = {}),
+  } = {}; `,
+    `var result = "";
+
+  var obj = {
+    get foo() {
+      result += "foo"
+    },
+    a: {
+      get bar() {
+        result += "bar";
+      }
+    },
+    b: {
+      get baz() {
+        result += "baz";
+      }
+    }
+  };
+  `,
+    `var { a: { ...bar }, b: { ...baz }, ...foo } = obj;`,
     'a||(b||(c||(d||(e||f))))',
     'for(let a of [1,2]) 3',
     '({})=>1;',
+    `var a;
+    (a) = {};
+    (a.b) = {};
+    (a['c']) = {};`,
+    `(foo++).test(), (foo++)[0]`,
+    `(++a)();
+    (a++)();
+
+    new (++a)();
+    new (a++)();
+
+    new (++a);
+    new (a++);`,
+    `(++a)();
+    (a++)();
+    new (++a)();
+    new (a++)();
+    new (++a)();
+    new (a++)(); `,
     '({ "a": 1 })',
     `// mangle to the same name 'a'
     c: {
@@ -1670,6 +1837,18 @@ h({ name: "bar", val: 42 })`,
     }`,
     'if (!a) debugger;',
     'a ** b',
+    `// One
+    (1);
+
+    /* Two */
+    (2);
+
+    (
+      // Three
+      3
+    );
+
+    (/* Four */ 4);`,
     'new a(...b, ...c, ...d);',
     'a = { set b (c) {} } ',
     /*'"\\0"',
@@ -1688,6 +1867,22 @@ h({ name: "bar", val: 42 })`,
   `'\\160'`,
   `'\\301'`,
   `'\\377'`,*/
+    `const getState = () => ({});
+
+  const { data: { courses: oldCourses = [] } = {} } = getState();`,
+    `const _getState = getState(),
+  _getState$data = _getState.data,
+  _getState$data2 = _getState$data === void 0 ? {} : _getState$data,
+  _getState$data2$cours = _getState$data2.courses,
+  oldCourses = _getState$data2$cours === void 0 ? [] : _getState$data2$cours;`,
+    `
+  let arr = new Array(3);
+  /*
+   * or
+   * let arr = [,,,];
+   */
+  let arr2 = [...arr];`,
+    `const { data: { courses: oldCourses = [] } = {} } = getState();`,
     'if (x) function f() { return 23; } else function f() { return 42; }',
     'if (x) function f() {}',
     `var foo = [23]
@@ -1765,7 +1960,13 @@ switch (1) {
     case 1:
       function f() {  }
   }
-  }`
+  }`,
+    `const func = (...[foo, bar]) => {
+    console.log(foo)
+    console.log(bar)
+}
+
+func('foo', 'bar')`
   ];
 
   for (const arg of programs) {
