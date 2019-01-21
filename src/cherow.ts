@@ -67,7 +67,7 @@ export interface Options {
   directives?: boolean;
 }
 
-export const version = '2.0';
+export const version = '2.0'; // TODO: (fkleuver) Add back Rollup replae plugin for bundle
 
 /**
  * Parse a module body, function body, script body, etc.
