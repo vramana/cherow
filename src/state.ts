@@ -94,7 +94,7 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
 /**
  * Parse a module body, function body, script body, etc.
  */
-export function parseTopLevel(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
+export function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
   // Prime the scanner
   next(state, context | Context.AllowPossibleRegEx);
   const statements: ESTree.Statement[] = [];
@@ -107,8 +107,29 @@ export function parseTopLevel(state: ParserState, context: Context, scope: Scope
   }
 
   while (state.token !== Token.EndOfSource) {
-    if (context & Context.Module) statements.push(parseModuleItem(state, context, scope));
-    else statements.push(parseStatementListItem(state, context, scope));
+    statements.push(parseModuleItemList(state, context, scope));
+  }
+
+  return statements;
+}
+
+/**
+ * Parse a module body, function body, script body, etc.
+ */
+export function parseStatementList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
+  // Prime the scanner
+  next(state, context | Context.AllowPossibleRegEx);
+  const statements: ESTree.Statement[] = [];
+  while (state.token === Token.StringLiteral) {
+    const tokenValue = state.tokenValue;
+    if (!(context & Context.Strict) && tokenValue.length === 10 && tokenValue === 'use strict') {
+      context |= Context.Strict;
+    }
+    statements.push(parseDirective(state, context, scope));
+  }
+
+  while (state.token !== Token.EndOfSource) {
+    statements.push(parseStatementListItem(state, context, scope));
   }
 
   return statements;
@@ -267,7 +288,7 @@ function parseStatement(
   }
 }
 
-function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
+function parseModuleItemList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
   state.assignable = state.bindable = true;
   switch (state.token) {
     case Token.ExportKeyword:
