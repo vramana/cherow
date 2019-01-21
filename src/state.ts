@@ -90,7 +90,6 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
     pendingCoverInitializeError: null
   };
 }
-
 /**
  * Parse a module body, function body, script body, etc.
  */
