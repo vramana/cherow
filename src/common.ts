@@ -60,6 +60,9 @@ export const enum Flags {
   SeenPrototype = 1 << 5,
   SimpleParameterList = 1 << 6,
   HasPrivateName = 1 << 7,
+  InArrowContext = 1 << 8,
+  HasStrictReserved = 1 << 9,
+  StrictEvalArguments = 1 << 10,
 }
 // prettier-ignore
 /**
@@ -72,7 +75,8 @@ export const enum Type {
   Variable = 1 << 1,
   Let = 1 << 2, // Lexical
   Const = 1 << 3, // Lexical
-  ClassExprDecl = 1 << 4
+  ClassExprDecl = 1 << 4,
+  ConciseBody = 1 << 6,
 }
 
 /**
@@ -121,6 +125,23 @@ export const enum ObjectState {
   GetSet = Getter | Setter
 }
 
+export const enum Arrows {
+  None = 0,
+  ConciseBody = 1 << 0,
+  Plain = 1 << 1,
+  Async = 1 << 2
+}
+
+export const enum Grammar {
+  None = 0,
+  Bindable = 1 << 0,
+  Assignable = 1 << 1,
+  NotBindable = 1 << 2,
+  NotAssignable = 1 << 3,
+  NotAssignbleOrBindable = NotBindable | NotAssignable,
+  BindableAndAssignable = Assignable | Bindable
+}
+
 /*@internal*/
 export const enum LabelState {
   Empty = 0, // Break statement
@@ -157,6 +178,7 @@ export interface ParserState {
   onComment: any;
   onToken: any;
   flags: Flags;
+  grammar: Grammar;
   index: number;
   line: number;
   startIndex: number;
@@ -174,6 +196,7 @@ export interface ParserState {
   lastChar: number;
   inCatch: boolean;
   assignable: boolean;
+  bindable: boolean;
   exportedNames: any[];
   exportedBindings: any[];
   labelSet: any;
@@ -183,7 +206,7 @@ export interface ParserState {
   iterationStatement: LabelState;
   labelDepth: number;
   functionBoundaryStack: any;
-  arrowScope: any;
+  pendingCoverInitializeError: Errors | null;
   tokenRegExp: void | {
     pattern: string;
     flags: string;
@@ -538,12 +561,12 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
 }
 
 export function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token = state.token) {
-  if (context & Context.Strict) {
-    if ((token & Token.FutureReserved) === Token.FutureReserved) {
-      report(state, Errors.Unexpected);
-    }
-    if (token === Token.StaticKeyword) report(state, Errors.InvalidStrictStatic);
+  if (context & Context.Strict && token === Token.StaticKeyword) report(state, Errors.InvalidStrictStatic);
+
+  if ((token & Token.FutureReserved) === Token.FutureReserved) {
+    if (context & Context.Strict) report(state, Errors.Unexpected);
   }
+
   if ((token & Token.Reserved) === Token.Reserved) {
     report(state, Errors.InvalidStrictReservedWord);
   }
@@ -761,4 +784,70 @@ export function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Contex
 export function nextTokenIsLeftParen(parser: ParserState, context: Context): boolean {
   next(parser, context);
   return parser.token === Token.LeftParen;
+}
+
+/**
+ * Bit fiddle current grammar state and keep track of the state during the parse and restore
+ * it back to original state after finish parsing or throw.
+ *
+ * Ideas for this is basicly from V8 and SM, but also the Esprima parser does this in a similar way.
+ *
+ * However this implementation is an major improvement over similiar implementations, and
+ * does not require additonal bitmasks to be set / unset during the parsing outside this function.
+ *
+ * @param parser Parser object
+ * @param context Context mask
+ * @param callback Callback function
+ * @param errMsg Optional error message
+ */
+//RecordExpressionError
+export function secludeGrammar<T>(
+  state: ParserState,
+  context: Context,
+  callback: (state: ParserState, context: Context) => T
+): T {
+  const { assignable, bindable, pendingCoverInitializeError } = state;
+
+  state.bindable = true;
+  state.assignable = true;
+  state.pendingCoverInitializeError = null;
+
+  const result = callback(state, context);
+  if (state.pendingCoverInitializeError !== null) {
+    report(state, state.pendingCoverInitializeError);
+  }
+
+  state.bindable = bindable;
+  state.assignable = assignable;
+  state.pendingCoverInitializeError = pendingCoverInitializeError;
+
+  return result;
+}
+
+/**
+ * Restore current grammar to previous state, or unset necessary bitmasks
+ *
+ * @param parser Parser state
+ * @param context Context mask
+ * @param callback Callback function
+ */
+export function acquireGrammar<T>(
+  state: ParserState,
+  context: Context,
+  precedence: number,
+  callback: (state: ParserState, context: Context, precedence: number) => T
+): T {
+  const { assignable, bindable, pendingCoverInitializeError } = state;
+
+  state.bindable = true;
+  state.assignable = true;
+  state.pendingCoverInitializeError = null;
+
+  const result = callback(state, context, precedence);
+
+  state.bindable = state.bindable && bindable;
+  state.assignable = state.assignable && assignable;
+  state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
+
+  return result;
 }

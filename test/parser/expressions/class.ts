@@ -450,6 +450,57 @@ describe('Expressions - Class', () => {
 
   pass('Expressions - Class (pass)', [
     [
+      'class Some { render=( )=>{ return null; } }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'Some'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'FieldDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'render'
+                  },
+                  value: {
+                    type: 'ArrowFunctionExpression',
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'ReturnStatement',
+                          argument: {
+                            type: 'Literal',
+                            value: null
+                          }
+                        }
+                      ]
+                    },
+                    params: [],
+                    id: null,
+                    async: false,
+                    expression: false
+                  },
+                  computed: false,
+                  static: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
       'class A { static get async() {} }',
       Context.Empty,
       {

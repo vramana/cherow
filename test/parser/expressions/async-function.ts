@@ -124,31 +124,30 @@ describe('Expressions - Async Functions', () => {
 
     ['async function * gen() { var {foo: yield 24} = {a: 42};  }', Context.Empty],
     ['async function * gen() { var {foo: await 24} = {a: 42};  }', Context.Empty],
-    //['async function * gen() { [await 24] = [42];  }', Context.Empty],
-    //['async function * gen() { ({a: yield 24} = {a: 42});  }', Context.Empty],
-    //['async function * gen() { ({a: await 24} = {a: 42});  }', Context.Empty],
+    ['async function * gen() { [await 24] = [42];  }', Context.Empty],
+    ['async function * gen() { ({a: yield 24} = {a: 42});  }', Context.Empty],
+    ['async function * gen() { ({a: await 24} = {a: 42});  }', Context.Empty],
     // ['async function * gen() { for (yield "x" in {});  }', Context.Empty],
     // ['async function * gen() { for (yield "x" of {});  }', Context.Empty],
     // ['async function * gen() { for (yield "x" in {} in {});  }', Context.Empty],
     // ['async function * gen() { for (yield "x" in {} of {});  }', Context.Empty],
-    ['async function * gen() { class C extends yield { }  }', Context.Empty]
+    ['async function * gen() { class C extends yield { }  }', Context.Empty],
     // ['async function * gen() { class C extends await { }  }', Context.Empty],
-
-    /*
-    [`(async
-      function f() {})`, Context.Empty],
-       ['0, async function*(...x = []) {};', Context.Empty],
-       ['(async function f(...a,) {})', Context.Empty],
-       ['(async function foo1() { } foo2 => 1)', Context.Empty],
-       ['var f = async() => ((async(x = await 1) => x)();', Context.Empty],
-       ['class C { async constructor() {} }', Context.Empty],
-       ['class C {}; class C2 extends C { async constructor() {} }', Context.Empty],
-       ['class C { static async prototype() {} }', Context.Empty],
-       ['class C {}; class C2 extends C { static async prototype() {} }', Context.Empty],
-       ['(async function foo3() { } () => 1)', Context.Empty],
-       ['(async function foo4() { } => 1)', Context.Empty],
-       ['(async function() { } foo5 => 1)', Context.Empty],
-       */
+    [
+      `(async
+      function f() {})`,
+      Context.Empty
+    ],
+    ['0, async function*(...x = []) {};', Context.Empty],
+    ['(async function f(...a,) {})', Context.Empty],
+    //     ['(async function foo1() { } foo2 => 1)', Context.Empty],
+    ['var f = async() => ((async(x = await 1) => x)();', Context.Empty]
+    //       ['class C {}; class C2 extends C { async constructor() {} }', Context.Empty],
+    //     ['class C { static async prototype() {} }', Context.Empty],
+    //   ['class C {}; class C2 extends C { static async prototype() {} }', Context.Empty],
+    //       ['(async function foo3() { } () => 1)', Context.Empty],
+    //     ['(async function foo4() { } => 1)', Context.Empty],
+    //   ['(async function() { } foo5 => 1)', Context.Empty],
   ];
 
   fail('Expressions - Async Functions', inValids);
@@ -239,7 +238,7 @@ describe('Expressions - Async Functions', () => {
       });
     });
   }
-  // async function * f() {([a = 1] of [])}
+
   const valids: Array<[string, Context, any]> = [
     [
       '(async function foo(a, b = 39,) {})',
