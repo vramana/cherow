@@ -5,9 +5,92 @@ import { parseSource } from '../../../src/cherow';
 
 describe('Miscellaneous - Passing tests', () => {
   const programs = [
-    //`/}?/u;`,
-    //`/{*/u;`,
-    //`/.{.}/;`,
+    `const regeneratorRuntime = require('regenerator-runtime')
+
+    async function foo() {
+      const promises = [ [ 1 ], [ 2 ], [ 3 ] ].map(async ([ number ]) => {
+        return new Promise(function (resolve, reject) {
+          setTimeout(function () {
+            resolve(number)
+          }, 1)
+        });
+      })
+
+      return Promise.all(promises)
+    }
+
+    foo().then(function (number) {
+      console.log(number)
+    });`,
+    `class Launcher {
+
+      constructor(projectRoot, preferredRevision, isPuppeteerCore) {
+        this._projectRoot = projectRoot;
+        this._preferredRevision = preferredRevision;
+        this._isPuppeteerCore = isPuppeteerCore;
+      }
+
+      async launch(options = {}) {
+        const {
+          ignoreDefaultArgs = false,
+          args = [],
+          dumpio = false,
+          executablePath = null,
+          pipe = false,
+          env = process.env,
+          handleSIGINT = true,
+          handleSIGTERM = true,
+          handleSIGHUP = true,
+          ignoreHTTPSErrors = false,
+          defaultViewport = {width: 800, height: 600},
+          slowMo = 0,
+          timeout = 30000
+        } = options;
+
+        const chromeArguments = [];
+        if (!ignoreDefaultArgs)
+          chromeArguments.push(...this.defaultArgs(options));
+        else if (Array.isArray(ignoreDefaultArgs))
+          chromeArguments.push(...this.defaultArgs(options).filter(arg => ignoreDefaultArgs.indexOf(arg) === -1));
+        else
+          chromeArguments.push(...args);
+
+        let temporaryUserDataDir = null;
+
+        if (!chromeArguments.some(argument => argument.startsWith('--remote-debugging-')))
+          chromeArguments.push(pipe ? '--remote-debugging-pipe' : '--remote-debugging-port=0');
+        if (!chromeArguments.some(arg => arg.startsWith('--user-data-dir'))) {
+          temporaryUserDataDir = await mkdtempAsync(CHROME_PROFILE_PATH);
+          chromeArguments.push("");
+        }
+
+        let chromeExecutable = executablePath;
+        if (!executablePath) {
+          const {missingText, executablePath} = this._resolveExecutablePath();
+          if (missingText)
+            throw new Error(missingText);
+          chromeExecutable = executablePath;
+        }
+
+
+        let chromeClosed = false;
+        const waitForChromeToClose = new Promise((fulfill, reject) => {
+          chromeProcess.once('exit', () => {
+            chromeClosed = true;
+            // Cleanup as processes exit.
+            if (temporaryUserDataDir) {
+              removeFolderAsync(temporaryUserDataDir)
+                  .then(() => fulfill())
+                  .catch(err => console.error(err));
+            } else {
+              fulfill();
+            }
+          });
+        });
+      }
+
+
+    }`,
     '004',
     '004',
     '004',

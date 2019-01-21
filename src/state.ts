@@ -1842,22 +1842,24 @@ export function parseFunctionBody(
     body.push(parseDirective(state, context, scope));
   }
   if (context & Context.Strict) {
-    if (state.flags & Flags.HasStrictReserved) report(state, Errors.UnexpectedStrictReserved);
+    if ((state.flags & Flags.HasStrictReserved) === Flags.HasStrictReserved)
+      report(state, Errors.UnexpectedStrictReserved);
     if (state.flags & Flags.StrictEvalArguments) {
       report(state, Errors.StrictEvalArguments);
     }
     if ((firstRestricted && firstRestricted === 'eval') || firstRestricted === 'arguments')
       report(state, Errors.StrictFunctionName);
   }
+
+  state.flags =
+    (state.flags | (Flags.StrictEvalArguments | Flags.HasStrictReserved)) ^
+    (Flags.StrictEvalArguments | Flags.HasStrictReserved);
+
   if (state.flags & Flags.SimpleParameterList) report(state, Errors.StrictFunctionName);
 
   if (!isStrict && (context & Context.Strict) !== 0 && (context & Context.InGlobal) < 1) {
     checkFunctionsArgForDuplicate(state, scope.lex['@'], true);
   }
-
-  state.flags =
-    (state.flags | (Flags.StrictEvalArguments | Flags.HasStrictReserved)) ^
-    (Flags.StrictEvalArguments | Flags.HasStrictReserved);
 
   if (state.token !== Token.RightBrace) {
     const previousSwitchStatement = state.switchStatement;
@@ -2127,12 +2129,12 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
       state.pendingCoverInitializeError = null;
       return parseArrowFunctionExpression(state, context, arrowScope, params, (type & Arrows.Async) !== 0, Type.None);
     }
-    if (token & Token.FutureReserved) {
+    if ((token & Token.FutureReserved) === Token.FutureReserved) {
       state.flags |= Flags.HasStrictReserved;
     } else if (tokenValue === 'eval' || tokenValue === 'arguments') {
       if (context & Context.Strict) report(state, Errors.StrictEvalArguments);
       state.flags |= Flags.StrictEvalArguments;
-    } else report(state, Errors.UnexpectedToken, KeywordDescTable[token & Token.Type]);
+    } // else report(state, Errors.UnexpectedToken, KeywordDescTable[token & Token.Type]);
     arrowScope = createScope(ScopeType.ArgumentList);
     addVariableAndDeduplicate(state, context, arrowScope, Type.ArgList, true, tokenValue);
     return parseArrowFunctionExpression(state, context, arrowScope, [expr], false, Type.ConciseBody);
