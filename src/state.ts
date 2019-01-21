@@ -1835,7 +1835,7 @@ export function parseFunctionBody(
   const isStrict = (context & Context.Strict) === Context.Strict;
   context = (context | Context.TopLevel | Context.AllowReturn | Context.InGlobal) ^ Context.InGlobal;
 
-  while ((state.token & Token.StringLiteral) === Token.StringLiteral) {
+  while (state.token === Token.StringLiteral) {
     if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
       context |= Context.Strict;
     }
