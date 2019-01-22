@@ -14,12 +14,1079 @@ describe('Declarations - Var', () => {
     ['"use strict"; var foo = {}; foo.-;', Context.Empty],
     ['var foo = {}; foo.--;', Context.Empty],
     ['{ let x; var x; }', Context.Empty],
-    ['var {foo};', Context.Empty]
+    ['var {foo};', Context.Empty],
+
+    ['var [foo]; ', Context.Empty],
+    ['var [foo=a];', Context.Empty],
+    ['var [foo], bar;', Context.Empty],
+    ['var foo, [bar];', Context.Empty],
+    ['var [...foo, bar] = obj;', Context.Empty],
+    ['var [...foo,,] = obj;', Context.Empty],
+    ['var [...[a, b],,] = obj;', Context.Empty],
+    ['ar [... ...foo] = obj;', Context.Empty],
+    [' var [...] = obj;', Context.Empty],
+    ['var [..x] = obj; ', Context.Empty],
+    ['var {foo};', Context.Empty],
+    ['var [.x] = obj;', Context.Empty],
+    ['var {,} = x;', Context.Empty],
+    ['var {foo,,} = x;', Context.Empty],
+    [' var {,foo} = x; ', Context.Empty],
+    ['var {,,foo} = x;', Context.Empty],
+    ['var {foo,,bar} = x;', Context.Empty],
+    ['var\nfoo()', Context.Empty],
+    ['var [foo = x];', Context.Empty],
+    ['var [foo], bar;', Context.Empty],
+    ['var foo, [bar];', Context.Empty],
+    ['var [foo:bar] = obj;', Context.Empty],
+    ['var [...foo, bar] = obj;', Context.Empty],
+    ['var [...foo,] = obj;', Context.Empty],
+    ['var [...foo,,] = obj;', Context.Empty],
+    ['var [...[foo, bar],] = obj;', Context.Empty],
+    ['var [...[foo, bar],,] = obj;', Context.Empty],
+    ['var [... ...foo] = obj;', Context.Empty],
+    ['var [...bar = foo] = obj;', Context.Empty],
+    ['var [.x] = obj;', Context.Empty],
+    ['var [..x] = obj;', Context.Empty],
+    ['var {,} = obj;', Context.Empty],
+    ['var {,,} = obj;', Context.Empty],
+    ['var {,x} = obj;', Context.Empty],
+    ['var {,,x} = obj;', Context.Empty],
+    ['var {x,, y} = obj;', Context.Empty],
+    ['var {x,, y} = obj;', Context.Empty],
+    ['var {x};', Context.Empty],
+    ['var {x}, {y} = z;', Context.Empty],
+    ['var x, {y};', Context.Empty],
+    ['var {x}, y', Context.Empty],
+    ['var {x:y};', Context.Empty],
+    ['var {x=y};', Context.Empty],
+
+    ['for (var {x = y, z = a} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x : y} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x : y, z} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x : y, z : a} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x : y = z} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x : y, z, a : b = c} = obj)', Context.OptionsDisableWebCompat],
+    ['for (var {x}, {y} = z);', Context.OptionsDisableWebCompat],
+    ['for (var x, {y});', Context.OptionsDisableWebCompat],
+    ['for (var {x});', Context.OptionsDisableWebCompat],
+    ['for (var {x}, y);', Context.OptionsDisableWebCompat],
+    ['for (var x = y, {z});', Context.OptionsDisableWebCompat],
+    ['for (var {x}, y);', Context.OptionsDisableWebCompat],
+    ['for (var {x:y});', Context.OptionsDisableWebCompat],
+    ['for (var {x:y=z} = obj, {a:b=c});', Context.OptionsDisableWebCompat],
+    ['for (var {x:y=z});', Context.OptionsDisableWebCompat],
+    ['for (var {x:y=z}, {a:b=c} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {a:=c} = z);', Context.OptionsDisableWebCompat],
+    ['for (var {[x]: y} = z);', Context.OptionsDisableWebCompat],
+    ['for (var {[x]: y});', Context.OptionsDisableWebCompat],
+    ['for (var {[x] = y} = z);', Context.OptionsDisableWebCompat],
+    ['for (var {[x]: y = z});', Context.OptionsDisableWebCompat],
+    ['for (var {[x]: y = z} = a);', Context.OptionsDisableWebCompat],
+    ['for (var {a, [x]: y} = a);', Context.OptionsDisableWebCompat],
+    ['for (var [foo] = arr, [bar] in arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo], bar in arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo] = arr, bar in arr);', Context.OptionsDisableWebCompat],
+    ['for (var foo, [bar] in arr);', Context.OptionsDisableWebCompat],
+    ['for (var foo = arr, [bar] in arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo = x]);', Context.OptionsDisableWebCompat],
+    ['var {[x]} = z;', Context.Empty],
+    ['var {[x] = y} = z;', Context.Empty],
+    ['for (var foo);', Context.Empty],
+    ['for (var\nfoo();;);', Context.Empty],
+    ['for (var foo = bar, zoo = boo);', Context.Empty],
+    ['for (var\nfoo());', Context.Empty],
+    ['for (var foo = bar, zoo = boo in x);', Context.Empty],
+    ['var {foo};', Context.Empty],
+    ['for (var foo = bar, zoo = boo of x);', Context.Empty],
+    ['for (var\nfoo() of x);', Context.Empty],
+    ['for (var [foo];;);', Context.Empty],
+    ['for (var foo, [bar];;);', Context.Empty],
+    ['for (var [...foo, bar] = obj;;);', Context.Empty],
+    ['var {foo};', Context.Empty],
+    ['for (var [...foo,,] = obj;;);', Context.Empty],
+    ['for (var [...[foo, bar],,] = obj;;);', Context.Empty],
+    ['for (var [...bar = foo] = obj;;);', Context.Empty],
+    ['for (var [... ...foo] = obj;;);', Context.Empty],
+    ['for (var {,} = obj;;);', Context.Empty],
+    ['for (var {,,x} = obj;;);', Context.Empty],
+    ['var {foo};', Context.Empty],
+    ['for (var {x,, y} = obj;;);', Context.Empty],
+    ['for (var {x}, {y} = z;;);', Context.Empty],
+    ['for (var {x}, y;;);', Context.Empty],
+    ['for (var {x:y=z} = obj, {a:b=c};;);', Context.Empty],
+    ['for (var [foo]);', Context.Empty],
+    ['for (var [foo, ...bar] = obj);', Context.Empty],
+    ['for (var [...[foo, bar],,] = obj);', Context.Empty],
+    ['for (var [.x] = obj);', Context.Empty],
+    ['for (var [..x] = obj);', Context.Empty],
+    ['for (var {x,} = obj);', Context.Empty],
+    ['for (var {x,, y} = obj);', Context.Empty],
+    ['for (var {x} = a, y = obj);', Context.Empty],
+    ['for (var {x} = a, obj);', Context.Empty],
+    ['for (var x, {y} = obj);', Context.Empty],
+    ['for (var {x = y, z} = obj);', Context.Empty],
+    ['for (var {x : y} = obj);', Context.Empty],
+    ['for (var {x : y = z} = obj);', Context.Empty],
+    ['for (var x, {y});', Context.Empty],
+    ['for (var {x=y});', Context.Empty],
+    ['for (var {[x] = y} = z);', Context.Empty],
+    ['for (var {[x]: y = z});', Context.Empty],
+    ['var {foo};', Context.Empty],
+    ['for (var {[x]: y = z} = a);', Context.Empty],
+    ['for (var [foo], bar);', Context.Empty],
+    ['for (var [...foo, bar] in obj);', Context.Empty],
+    ['for (var [...[foo, bar],,] in obj);', Context.Empty],
+    ['for (var [...[foo, bar],] in obj);', Context.Empty],
+    ['for (var [...] in obj);', Context.Empty],
+    ['for (var [..x] in obj);', Context.Empty],
+    ['for (var {,} in obj);', Context.Empty],
+    ['for (var {,,} in obj);', Context.Empty],
+    ['for (var {,,x} in obj);', Context.Empty],
+    ['for (var {x,, y} in obj);', Context.Empty],
+    ['for (var {x} = a, {y} in obj);', Context.Empty],
+    ['for (var {x=y});', Context.Empty],
+    ['for (var {a:=c} in z);', Context.Empty],
+    ['for (var [foo] = arr, [bar] of arr);', Context.Empty],
+    ['for (var [foo], bar of arr);', Context.Empty],
+    ['for (var [foo] = arr, bar of arr);', Context.Empty],
+    ['for (var foo, [bar] of arr);', Context.Empty],
+    ['for (var [foo = x]);', Context.Empty],
+    ['for (var [foo]);', Context.Empty],
+    ['for (var foo, [bar]);', Context.Empty],
+    ['for (var [...foo, bar] of obj);', Context.Empty],
+    ['for (var [...foo,,] of obj);', Context.Empty],
+    ['for (var [...[foo, bar],] of obj);', Context.Empty],
+    ['var {foo};', Context.Empty],
+    ['for (var [...[foo, bar],,] of obj);', Context.Empty],
+    ['for (var [..x] of obj);', Context.Empty],
+    ['for (var [.x] of obj);', Context.Empty],
+    ['for (var {,,} of obj);', Context.Empty],
+    ['for (var x, {y} of obj);', Context.Empty]
   ];
 
   fail('Declarations - Var (fail)', inValids);
 
   pass('Declarations - Var (pass)', [
+    [
+      'for (var {x, y = z} of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        method: false,
+                        shorthand: true
+                      },
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'AssignmentPattern',
+                          left: {
+                            type: 'Identifier',
+                            name: 'y'
+                          },
+                          right: {
+                            type: 'Identifier',
+                            name: 'z'
+                          }
+                        },
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for (var {x = y, z = a} of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'AssignmentPattern',
+                          left: {
+                            type: 'Identifier',
+                            name: 'x'
+                          },
+                          right: {
+                            type: 'Identifier',
+                            name: 'y'
+                          }
+                        },
+                        method: false,
+                        shorthand: true
+                      },
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'z'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'AssignmentPattern',
+                          left: {
+                            type: 'Identifier',
+                            name: 'z'
+                          },
+                          right: {
+                            type: 'Identifier',
+                            name: 'a'
+                          }
+                        },
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for (var {x : y} of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for (var {x, y : z} of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        method: false,
+                        shorthand: true
+                      },
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'z'
+                        },
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for (var {x : y, z : a} of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        method: false,
+                        shorthand: false
+                      },
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'z'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for (var foo in x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (var foo of x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for (var [,] = x;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [null]
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var [foo,] = arr;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'arr'
+                  },
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'foo'
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var [,foo] = arr;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'arr'
+                  },
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      null,
+                      {
+                        type: 'Identifier',
+                        name: 'foo'
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var [foo,,bar] = arr;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'arr'
+                  },
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'foo'
+                      },
+                      null,
+                      {
+                        type: 'Identifier',
+                        name: 'bar'
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var [foo, ...bar] = obj;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'obj'
+                  },
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'foo'
+                      },
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'bar'
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var [x, ...[foo, bar]] = obj;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'obj'
+                  },
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'ArrayPattern',
+                          elements: [
+                            {
+                              type: 'Identifier',
+                              name: 'foo'
+                            },
+                            {
+                              type: 'Identifier',
+                              name: 'bar'
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var [a=[...b], ...c] = obj;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'obj'
+                  },
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        right: {
+                          type: 'ArrayExpression',
+                          elements: [
+                            {
+                              type: 'SpreadElement',
+                              argument: {
+                                type: 'Identifier',
+                                name: 'b'
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'c'
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var x = a, {y} = obj;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                },
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'obj'
+                  },
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var x, {y} = obj;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                },
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'obj'
+                  },
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var [] in x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: []
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (var [,,] in x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [null, null]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        ]
+      }
+    ],
     [
       'var x; var x = 5;',
       Context.Empty,
