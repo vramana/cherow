@@ -1,8 +1,10 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Declarations - Var', () => {
-  const inValids: Array<[string, Context]> = [
+  fail('Declarations - Var (fail)', [
     ['var a = b; const a = c', Context.Empty],
     ['const a = b; var a = c', Context.Empty],
     ['{ var f; function f() {} }', Context.Empty],
@@ -162,9 +164,86 @@ describe('Declarations - Var', () => {
     ['for (var [.x] of obj);', Context.Empty],
     ['for (var {,,} of obj);', Context.Empty],
     ['for (var x, {y} of obj);', Context.Empty]
+  ]);
+
+  // Should fail reserved words
+  const reservedKeywords = [
+    'break',
+    'case',
+    'catch',
+    'class',
+    'const',
+    'continue',
+    'debugger',
+    'default',
+    'delete',
+    'do',
+    'else',
+    'export',
+    'extends',
+    'finally',
+    'for',
+    'function',
+    'if',
+    'import',
+    'in',
+    'instanceof',
+    'new',
+    'return',
+    'super',
+    'switch',
+    'this',
+    'throw',
+    'try',
+    'typeof',
+    'var',
+    'void',
+    'while',
+    'with',
+    'null',
+    'true',
+    'false'
+    // future reserved keyword,
+    //  'enum',
   ];
 
-  fail('Declarations - Var (fail)', inValids);
+  for (const arg of reservedKeywords) {
+    it(`for (var ${arg} = x;;);`, () => {
+      t.throws(() => {
+        parseSource(`for (var ${arg} = x;;);`, undefined, Context.Empty);
+      });
+    });
+
+    it(`function f({${arg}}) {}`, () => {
+      t.throws(() => {
+        parseSource(`function f({${arg}}) {}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`function fh({x: ${arg}}) {}`, () => {
+      t.throws(() => {
+        parseSource(`function fh({x: ${arg}}) {}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`function f([${arg}]) {}`, () => {
+      t.throws(() => {
+        parseSource(`function f([${arg}]) {}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`try {} catch (${arg}) {}`, () => {
+      t.throws(() => {
+        parseSource(`try {} catch (${arg}) {}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`export var ${arg} = 10;`, () => {
+      t.throws(() => {
+        parseSource(`export var ${arg} = 10;`, undefined, Context.Module);
+      });
+    });
+  }
 
   pass('Declarations - Var (pass)', [
     [

@@ -4,7 +4,7 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Declarations - Let', () => {
-  const inValids: Array<[string, Context]> = [
+  fail('Declarations - Let (fail)', [
     // Bindings
 
     ['const a = b, a = c', Context.OptionsDisableWebCompat],
@@ -289,25 +289,20 @@ describe('Declarations - Let', () => {
     ['_ => { let[foo]; }', Context.OptionsDisableWebCompat],
     ['let\n{foo};', Context.OptionsDisableWebCompat],
     ['function f(){ let\n{foo}; }', Context.OptionsDisableWebCompat],
-
     ['_ => let {foo};', Context.OptionsDisableWebCompat],
     ['_ => { let\n{foo}; }', Context.OptionsDisableWebCompat],
     ['class x { foo() { let\n{foo}; }}', Context.OptionsDisableWebCompat],
-    ['function f(){ let\n{foo}; }', Context.OptionsDisableWebCompat],
-    ['function f(){ let\n{foo}; }', Context.OptionsDisableWebCompat],
-    ['function f(){ let\n{foo}; }', Context.OptionsDisableWebCompat],
-    ['function f(){ let\n{foo}; }', Context.OptionsDisableWebCompat],
-    ['function f(){ let\n{foo}; }', Context.OptionsDisableWebCompat],
-    ['function f(){ let\n{foo}; }', Context.OptionsDisableWebCompat],
-    ['function f(){ let\n{foo}; }', Context.OptionsDisableWebCompat],
-    ['function f(){ let\n{foo}; }', Context.OptionsDisableWebCompat]
-  ];
+    ['if (true) let x = 1;', Context.OptionsDisableWebCompat]
+  ]);
 
-  fail('Declarations - Let (fail)', inValids);
-
-  const validSyntax = [
+  for (const arg of [
     'let { w = a(), x = b(), y = c(), z = d() } = { w: null, x: 0, y: false, z: "" };',
     'let { fn = function () {}, xFn = function x() {} } = {};',
+    'switch (true) { case true: let x = 1; }',
+    `let a = [];
+    for (let i = 0; i < 5; a.push(function () { return i; }), ++i) { }
+    for (let k = 0; k < 5; ++k) {
+    }`,
     'let { x, } = { x: 23 };',
     'let { w: [x, y, z] = [4, 5, 6] } = {};',
     'let { w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] };',
@@ -329,10 +324,27 @@ describe('Declarations - Let', () => {
     'let [, , ...x] = [1, 2];',
     'let [ , , ...x] = [1, 2, 3, 4, 5];',
     'let [[x]] = [null];',
-    'let test262id8;'
-  ];
-
-  for (const arg of validSyntax) {
+    'let test262id8;',
+    'let arrow = () => {};',
+    `let xCls = class x {};
+    let cls = class {};
+    let xCls2 = class { static name() {} };`,
+    'let [[x]] = [null];',
+    'let [arrow = () => {}] = [];',
+    'let [{ x, y, z } = { x: 44, y: 55, z: 66 }] = [{ x: 11, y: 22, z: 33 }];',
+    'let [{ x }] = [];',
+    'let [...x] = [1, 2, 3];',
+    'let { x, } = { x: 23 };',
+    'let { x: y = 33 } = { };',
+    'let { x: y } = { x: 23 };',
+    'let { w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: null };',
+    'let {a, b, ...rest} = {x: 1, y: 2, a: 5, b: 3};',
+    `let x = "outer_x";
+    let y = "outer_y";
+    for (let x = "inner_x", i = 0; i < 1; i++) {
+      let y = "inner_y";
+    }`
+  ]) {
     it(`${arg}`, () => {
       t.doesNotThrow(() => {
         parseSource(`${arg}`, undefined, Context.OptionsDisableWebCompat);
