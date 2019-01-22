@@ -423,6 +423,792 @@ describe('Declarations - Const', () => {
       }
     ],
     [
+      'for (const {x : y = z} in obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'AssignmentPattern',
+                          left: {
+                            type: 'Identifier',
+                            name: 'y'
+                          },
+                          right: {
+                            type: 'Identifier',
+                            name: 'z'
+                          }
+                        },
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const {[x]: y} in obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: true,
+                        value: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const {[x]: y = z} in obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: true,
+                        value: {
+                          type: 'AssignmentPattern',
+                          left: {
+                            type: 'Identifier',
+                            name: 'y'
+                          },
+                          right: {
+                            type: 'Identifier',
+                            name: 'z'
+                          }
+                        },
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const [] of x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: []
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const [foo,] of arr);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'foo'
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'arr'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const [foo,bar] of arr);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'foo'
+                      },
+                      {
+                        type: 'Identifier',
+                        name: 'bar'
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'arr'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const [foo=a] of arr);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'foo'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'a'
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'arr'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const [foo=a, bar=b] of arr);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'foo'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'a'
+                        }
+                      },
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'bar'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'b'
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'arr'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const [foo, ...bar] of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'foo'
+                      },
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'bar'
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const [x, ...[foo, bar]] of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'ArrayPattern',
+                          elements: [
+                            {
+                              type: 'Identifier',
+                              name: 'foo'
+                            },
+                            {
+                              type: 'Identifier',
+                              name: 'bar'
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const [a=[...b], ...c] of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        right: {
+                          type: 'ArrayExpression',
+                          elements: [
+                            {
+                              type: 'SpreadElement',
+                              argument: {
+                                type: 'Identifier',
+                                name: 'b'
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'c'
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const {} of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: []
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const {x, y} of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        method: false,
+                        shorthand: true
+                      },
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const {x : y} of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
+      'for (const {x, y : z} of obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        method: false,
+                        shorthand: true
+                      },
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'z'
+                        },
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'obj'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+
+    [
       '"use strict"; { const x = 1; }; x = 0;',
       Context.OptionsDirectives | Context.OptionsRaw,
       {

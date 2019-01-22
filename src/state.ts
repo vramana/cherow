@@ -1975,14 +1975,14 @@ export function parseVariableDeclarationList(
   checkForDuplicates: boolean,
   scope: ScopeState
 ): any {
-  let elementCount = 1;
+  let bindingCount = 1;
   const list: any[] = [parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope)];
   while (optional(state, context, Token.Comma)) {
     list.push(parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope));
-    ++elementCount;
+    ++bindingCount;
   }
 
-  if (origin & Origin.ForStatement && isInOrOf(state) && elementCount > 1) {
+  if (origin & Origin.ForStatement && isInOrOf(state) && bindingCount > 1) {
     report(state, Errors.Unexpected);
   }
   return list;
