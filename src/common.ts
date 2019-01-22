@@ -92,7 +92,8 @@ export const enum Origin {
   AsyncArgs = 1 << 4,
   ArgList = 1 << 5,
   ClassExprDecl = 1 << 6,
-  Declaration = 1 << 7
+  Declaration = 1 << 7,
+  AsyncArrow = 1 << 8,
 }
 
 export const enum ScopeType {
@@ -278,9 +279,11 @@ export function expect(state: ParserState, context: Context, t: Token): void {
  * @param context Context masks
  */
 export function consumeSemicolon(state: ParserState, context: Context): void | boolean {
-  return (state.token & Token.ASI) === Token.ASI || state.flags & Flags.NewLine
-    ? optional(state, context, Token.Semicolon)
-    : report(state, Errors.Unexpected);
+  if ((state.token & Token.ASI) === Token.ASI) {
+    optional(state, context, Token.Semicolon);
+  } else if ((state.flags & Flags.NewLine) === 0) {
+    report(state, Errors.Unexpected);
+  }
 }
 
 /**
@@ -501,9 +504,12 @@ export function isLexical(state: ParserState, context: Context): boolean {
   next(state, context);
   const { token } = state;
   return !!(
-    token & (Token.IsIdentifier | Token.IsYield | Token.IsAwait) ||
+    (token & Token.Identifier) === Token.IsIdentifier ||
+    (token & Token.Contextual) === Token.Contextual ||
     token === Token.LeftBrace ||
     token === Token.LeftBracket ||
+    state.token === Token.YieldKeyword ||
+    state.token === Token.AwaitKeyword ||
     token === Token.LetKeyword
   );
 }
@@ -804,7 +810,8 @@ export function nextTokenIsLeftParen(parser: ParserState, context: Context): boo
 export function secludeGrammar<T>(
   state: ParserState,
   context: Context,
-  callback: (state: ParserState, context: Context) => T
+  minprec: number = 0,
+  callback: (state: ParserState, context: Context, precedence: number) => T
 ): T {
   const { assignable, bindable, pendingCoverInitializeError } = state;
 
@@ -812,7 +819,7 @@ export function secludeGrammar<T>(
   state.assignable = true;
   state.pendingCoverInitializeError = null;
 
-  const result = callback(state, context);
+  const result = callback(state, context, minprec);
   if (state.pendingCoverInitializeError !== null) {
     report(state, state.pendingCoverInitializeError);
   }
@@ -834,7 +841,7 @@ export function secludeGrammar<T>(
 export function acquireGrammar<T>(
   state: ParserState,
   context: Context,
-  precedence: number,
+  minprec: number,
   callback: (state: ParserState, context: Context, precedence: number) => T
 ): T {
   const { assignable, bindable, pendingCoverInitializeError } = state;
@@ -843,11 +850,21 @@ export function acquireGrammar<T>(
   state.assignable = true;
   state.pendingCoverInitializeError = null;
 
-  const result = callback(state, context, precedence);
+  const result = callback(state, context, minprec);
 
   state.bindable = state.bindable && bindable;
   state.assignable = state.assignable && assignable;
   state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
 
   return result;
+}
+
+/**
+ * Returns true if this an valid simple assignment target
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+export function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean {
+  return node.type === 'Identifier' || node.type === 'MemberExpression' ? true : false;
 }

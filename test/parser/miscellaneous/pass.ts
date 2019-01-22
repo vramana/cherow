@@ -1788,6 +1788,82 @@ h({ name: "bar", val: 42 })`,
   a = 1;
   b = 2;
 };`,
+    `class UserRepo{
+  async get(id) {
+      return id;
+  }
+}`,
+    `class UserRepo{
+  async notget(id) {
+      return id;
+  }
+}`,
+    `(class UserRepo{
+  get(id) {
+      return id;
+  }
+})`,
+    `function parseArrayInitializer() {
+  var elements = [], node = new Node(), restSpread;
+
+  expect('[');
+
+  while (!match(']')) {
+      if (match(',')) {
+          lex();
+          elements.push(null);
+          if(match(']')) {
+              elements.push(null);
+          }
+      } else if (match('...')) {
+          restSpread = new Node();
+          lex();
+          restSpread.finishSpreadElement(inheritCoverGrammar(parseAssignmentExpression));
+
+          if (!match(']')) {
+              isAssignmentTarget = isBindingElement = false;
+              expect(',');
+          }
+          elements.push(restSpread);
+      } else {
+          elements.push(inheritCoverGrammar(parseAssignmentExpression));
+
+          if (!match(']')) {
+              expect(',');
+              if(match(']')) {
+                  elements.push(null);
+              }
+          }
+      }
+  }
+  lex();
+
+  return node.finishArrayExpression(elements);
+}`,
+    `var funky =
+  {
+    toString: function()
+    {
+      Array.prototype[1] = "chorp";
+      Object.prototype[3] = "fnord";
+      return "funky";
+    }
+  };
+var trailingHoles = [0, funky, /* 2 */, /* 3 */,];
+assertEq(trailingHoles.join(""), "0funkyfnord");`,
+    `var x = {
+	a: "asdf",
+	b: "qwerty",
+	...(1 > 0 ? { c: "zxcv" } : ""),
+	d: 1234
+};`,
+    `query = {
+  ...query,
+  $or: [
+    {_id: { $in: req.jwt.var}},
+    {owner: req.jwt.var2}
+  ]
+};`,
     'f(a/b,a/b,a.of/b)',
     'yield : 1',
     `if (statement & FUNC_STATEMENT) {
