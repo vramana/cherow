@@ -4,9 +4,7 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Statements - For in', () => {
-  const inValids: Array<[string, Context]> = [
-    // Bindings
-
+  fail('Statements - For in (fail)', [
     ['for (let in x) {}', Context.Strict],
     ['for (let x;;) { var x; }', Context.OptionsDisableWebCompat],
     ['for (const x = y;;) { var x; }', Context.OptionsDisableWebCompat],
@@ -17,12 +15,95 @@ describe('Statements - For in', () => {
     ['for (const a,b,c;;);', Context.OptionsDisableWebCompat],
     ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.OptionsDisableWebCompat],
     ['for (const let in {}) {}', Context.Empty],
-    ['for (let let of {}) {}', Context.Empty]
-  ];
+    ['for (let let of {}) {}', Context.Empty],
+    ['for(var [] = 0 in {});', Context.Empty],
+    ['for(var [,] = 0 in {});', Context.Empty],
+    ['for(var [a] = 0 in {});', Context.Empty],
+    ['for ([...x,] in [[]]) ;', Context.Empty],
+    ['for(var [a = 0] = 0 in {});', Context.Empty],
+    ['for(var [...a] = 0 in {});', Context.Empty],
+    ['for(var [...[]] = 0 in {});', Context.Empty],
+    ['for(var [...[a]] = 0 in {});', Context.Empty],
+    ['for(var {} = 0 in {});', Context.Empty],
+    ['for(var {p: x} = 0 in {});', Context.Empty],
+    ['for(var {p: x = 0} = 0 in {});', Context.Empty],
+    ['for(var {x} = 0 in {});', Context.Empty],
+    ['for(var {x = 0} = 0 in {});', Context.Empty],
+    ['for(let x = 0 in {});', Context.Empty],
+    ['for(let [] = 0 in {});', Context.Empty],
+    ['for(let [,] = 0 in {});', Context.Empty],
+    ['for(let [a] = 0 in {});', Context.Empty],
+    ['for(const {x = 0} = 0 in {});', Context.Empty],
+    ['for([,] = 0 in {});', Context.Empty],
+    ['for([a] = 0 in {});', Context.Empty],
+    ['for([a = 0] = 0 in {});', Context.Empty],
+    ['for([...a] = 0 in {});', Context.Empty],
+    ['for([...[]] = 0 in {});', Context.Empty],
+    ['for([...[a]] = 0 in {});', Context.Empty],
+    ['for({} = 0 in {});', Context.Empty],
+    ['for({p: x} = 0 in {});', Context.Empty],
+    ['for({p: x = 0} = 0 in {});', Context.Empty],
+    ['for({x} = 0 in {});', Context.Empty],
+    ['for({x = 0} = 0 in {});', Context.Empty],
+    ['for(f() = 0 in {});', Context.Empty],
+    ['for(let [a = 0] = 0 in {});', Context.Empty],
+    ['for(let [...a] = 0 in {});', Context.Empty],
+    ['for(let [...[]] = 0 in {});', Context.Empty],
+    ['for(let [...[a]] = 0 in {});', Context.Empty],
+    ['for(let {} = 0 in {});', Context.Empty],
+    ['for(let {p: x} = 0 in {});', Context.Empty],
+    ['for(let {p: x = 0} = 0 in {});', Context.Empty],
+    ['for(let {x} = 0 in {});', Context.Empty],
+    ['for(let {x = 0} = 0 in {});', Context.Empty],
+    ['for(const x = 0 in {});', Context.Empty],
+    ['for(const [] = 0 in {});', Context.Empty],
+    ['for(const [,] = 0 in {});', Context.Empty],
+    ['for(const [a] = 0 in {});', Context.Empty],
+    ['for(const [a = 0] = 0 in {});', Context.Empty],
+    ['for(const [...a] = 0 in {});', Context.Empty],
+    ['for(const [...[]] = 0 in {});', Context.Empty],
+    ['for(const [...[a]] = 0 in {});', Context.Empty],
+    ['for(const {} = 0 in {});', Context.Empty],
+    ['for(const {p: x} = 0 in {});', Context.Empty],
+    ['for(const {p: x = 0} = 0 in {});', Context.Empty],
+    ['for(const {x} = 0 in {});', Context.Empty],
+    ['"use strict"; for (var [ v , c ] = 0 in undefined) { }', Context.Empty],
+    ['"use strict"; for (var {a: []} = 2 in []) { }', Context.Empty],
+    ['for (x => 0 in 1;;) break;', Context.Empty],
+    ['"use strict"; for (var [x] = x in y) var x;', Context.Empty],
+    ['"use strict"; for (var [arguments] = ({ get y(){} }) in y ) (x);', Context.Empty],
+    ['for (let i = void 0 in [1, 2, 3]) {}', Context.Empty],
+    ['function foo() { for (let i, j = 1 in {}) {} }', Context.Empty],
+    ['function foo() { for (const i, j = void 0 in [1, 2, 3]) {} }', Context.Empty],
+    ['for (var a = b = c = (d in e) in z);', Context.Empty],
+    ['for (i++ = 0 in {});', Context.Empty],
+    ['for(let a = 0 of b);', Context.Empty],
+    ['for(let ? b : c in 0);', Context.Empty],
+    ['for (var i, j in {}) {}', Context.Empty],
+    ['for (var i, j = void 0 in [1, 2, 3]) {}', Context.Empty],
+    ['function foo() { for (var i, j of {}) {} }', Context.Empty],
+    ['"use strict"; for ([ x = yield ] in [[]]) ;', Context.Empty],
+    ['for ([[(x, y)]] in [[[]]]) ;', Context.Empty],
+    ['"use strict"; for ([[x[yield]]] in [[[]]]) ;', Context.Empty],
+    ['"use strict"; for ([{ x = yield }] in [[{}]]) ;', Context.Empty],
+    ['for ([...x,] in [[]]) ;', Context.Empty],
+    ['for ([...{ get x() {} }] in [[[]]]) ;', Context.Empty],
+    ['for ([...{ get x() {} }] in [[[]]]) ;', Context.Empty],
+    ['"use strict"; for ({ x = yield } in [{}]) ;', Context.Empty],
+    ['for (let x in {}) label1: label2: function f() {}', Context.Empty],
+    ['for (x in {}) label1: label2: function f() {}', Context.Empty]
+  ]);
 
-  fail('Statements - For (fail)', inValids);
-
-  const programs: any = [
+  for (const arg of [
+    'for(x in {}, {}) {}',
+    'for(var x in {}, {}) {}',
+    'for(let x in {}, {}) {}',
+    'for(const x in {}, {}) {}',
+    'for(const x in [1,2,3]) {}',
+    'for(const x = 1; ; ) {}',
+    'for([{a=0}] in b);',
+    'for({0: a = 1} in []) {}',
+    'for(let [a] in []) {}',
     'for(x in {}, {}) {}',
     'for(var x in {}, {}) {}',
     'for(let x in {}, {}) {}',
@@ -77,9 +158,7 @@ describe('Statements - For in', () => {
                       }
                   }
               }`
-  ];
-
-  for (const arg of programs) {
+  ]) {
     it(`"use strict"; ${arg}`, () => {
       t.doesNotThrow(() => {
         parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
@@ -1360,6 +1439,4 @@ describe('Statements - For in', () => {
   ];
 
   pass('Statements - For of (pass)', valids);
-
-  fail('Statements - For (fail)', inValids);
 });

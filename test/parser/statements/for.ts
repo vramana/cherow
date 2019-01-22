@@ -4,7 +4,7 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Statements - For', () => {
-  const inValids: Array<[string, Context]> = [
+  fail('Statements - For (fail)', [
     // Bindings
 
     ['for (let x;;) { var x; }', Context.OptionsDisableWebCompat],
@@ -98,12 +98,81 @@ describe('Statements - For', () => {
     ['for (var {[x]: y});', Context.OptionsDisableWebCompat],
     ['for (var {[x]: y = z});', Context.OptionsDisableWebCompat],
     ['for (var {[x]: y = z} = a);', Context.OptionsDisableWebCompat],
-    ['for (var {a, [x]: y} = a);', Context.OptionsDisableWebCompat]
-  ];
+    ['for (var {a, [x]: y} = a);', Context.OptionsDisableWebCompat],
 
-  fail('Statements - For (fail)', inValids);
+    ['for(index=0; index<10; index+=4; index++; index--) ;', Context.OptionsDisableWebCompat],
 
-  const programs = [
+    ['for({var index=0; index+=1;} index++<=10; index*2;) {	[].add(""+index);};', Context.OptionsDisableWebCompat],
+    ['for ( ; false; ) class C {}', Context.OptionsDisableWebCompat],
+    [`for ( ; false; ) function f() {}`, Context.OptionsDisableWebCompat],
+    ['for ( ; false; ) label1: label2: function f() {}', Context.OptionsDisableWebCompat],
+    ['for ( ; false; ) label1: label2: function f() {}', Context.Empty],
+    ['for ((i in {}));', Context.OptionsDisableWebCompat],
+    ['for (let [];;);', Context.OptionsDisableWebCompat],
+    ['for (let [a = 0];;);', Context.OptionsDisableWebCompat],
+    ['for (let a = 0, [];;);', Context.OptionsDisableWebCompat],
+    ['for (let [] = 0, [];;);', Context.OptionsDisableWebCompat],
+    ['for (let {};;);', Context.OptionsDisableWebCompat],
+    ['for (let {a = 0};;);', Context.OptionsDisableWebCompat],
+    ['for (let a = 0, {};;);', Context.OptionsDisableWebCompat],
+    ['for (let [] = 0, {};;);', Context.OptionsDisableWebCompat],
+    ['for (let [...x = []] = []; a < 1; ) {}', Context.OptionsDisableWebCompat],
+    ['for (let [...{ x } = []] = []; a < 1; ) {}', Context.OptionsDisableWebCompat],
+    ['for (var a in arr;1;){ break; }', Context.OptionsDisableWebCompat],
+    ['for ( ; false; ) class C {}', Context.OptionsDisableWebCompat],
+    ['for ( ; false; ) function f() {}', Context.OptionsDisableWebCompat],
+    ['for ( ; false; ) function* g() {}', Context.OptionsDisableWebCompat],
+    ['for (const [...{ x }, y] = [1, 2, 3]; iterCount < 1; ) {}', Context.OptionsDisableWebCompat],
+    ['for (var [...[ x ] = []] = []; iterCount < 1; ) {}', Context.OptionsDisableWebCompat],
+    ['for (var a in arr;1;){ break; }', Context.OptionsDisableWebCompat]
+  ]);
+
+  for (const arg of [
+    // tests for possible destructuring regression
+    'for (var {j}=x; j<10; ++j) { const foo = j }',
+    `        for ("boolean" == typeof a && (l = a, a = arguments[s] ||
+          {}, s++), "object" == typeof a ||
+          g(a) || (a = {}), s === u && (a = this, s--); s < u; s++)
+  if (null != (e = arguments[s]))
+      for (t in e) n = a[t], a !== (r = e[t]) && (l && r && (w.isPlainObject(r) ||
+      (i = Array.isArray(r))) ? (i ? (i = !1, o = n && Array.isArray(n)
+      ? n : [])
+      : o = n && w.isPlainObject(n)
+      ? n : {}, a[t] = w.extend(l, o, r))
+      : void 0 !== r && (a[t] = r));`,
+    `for(x, y;;);`,
+    `for(x = 0;;);`,
+    `for(x; x < 0;);`,
+    `for(x; x < 0; x++);`,
+    `for(var x = 0;;);`,
+    `for(let x = 0;;);`,
+    `for(var a = 0;;) { let a; }`,
+    `for (var { w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: undefined }; a < 1; ) {}`,
+    `for (var [[] = function() { a += 1; }()] = [[23]]; b < 1; ) {}`,
+    `for (let { w = a(), x = b(), y = c(), z = d() } = { w: null, x: 0, y: false, z: '' }; e < 1; ) {}`,
+    `for (let [,] = a(); b < 1; ) {}`,
+    `for (let [x, y, z] = [1, 2, 3]; a < 1; ) {}`,
+    `for (const { x, } = { x: 23 }; a < 1; ) {};
+      for (const { x, } = { x: 23 }; a < 1; ) {};
+      for (const { x, } = { x: 23 }; a < 1; ) {};
+      for (const { x, } = { x: 23 }; a < 1; ) {};
+      for (const { x, } = { x: 23 }; a < 1; ) {};`,
+    `for (const {} = obj; a < 1; ) {}`,
+    'for (j=x; j<10; ++j) { [foo] = [j] }',
+    'for (j=x; j<10; ++j) { let foo = j }',
+    'for (j=x; j<10; ++j) { function foo() {return j} }',
+    'for ({j}=x; j<10; ++j) { var [foo] = [j] }',
+    'for ({j}=x; j<10; ++j) { let foo = j }',
+    'for ({j}=x; j<10; ++j) { const [foo] = [j] }',
+    'for ({j}=x; j<10; ++j) { function foo() {return j} }',
+    'for (var j=x; j<10; ++j) { foo = j }',
+    'for (var {j}=x; j<10; ++j) { var [foo] = [j] }',
+    'for (let {j}=x; j<10; ++j) { function foo(){return j} }',
+    'for (let j=x; j<10; ++j) { const foo = j }',
+    'for (let j=x; j<10; ++j) { let [foo] = [j] }',
+    `let = 1;
+    for ( let; ; )
+      break;`,
     'for (x of [1,2,3]) {}',
     'for (x in {a: 1}) {}',
     'for ([x] of [[1],[2],[3]]) {}',
@@ -563,6 +632,72 @@ describe('Statements - For', () => {
     'do { const [foo] = [j] } while (j)',
     'do { function foo() {return j} } while (j)',
 
+    'for (const [[...x] = [2, 1, 3]] = []; iterCount < 1; ) {}',
+    'for (const [cover = (function () {}), xCover = (0, function() {})] = []; iterCount < 1; ) {}',
+    'for (const [x = 23] = [undefined]; iterCount < 1; ) {}',
+    'for (const [{ x, y, z } = { x: 44, y: 55, z: 66 }] = [{ x: 11, y: 22, z: 33 }]; iterCount < 1; ) {}',
+    'for (const [...[,]] = g(); iterCount < 1; ) {}',
+    `var __str, index, index_n;
+    __str="";
+
+    outer : for(index=0; index<4; index+=1) {
+        nested : for(index_n=0; index_n<=index; index_n++) {
+      if (index*index_n >= 4)break nested;
+      __str+=""+index+index_n;
+        }
+    }`,
+    `__str="";
+
+    outer : for(index=0; index<4; index+=1) {
+        nested : for(index_n=0; index_n<=index; index_n++) {
+      if (index*index_n >= 4)break outer;
+      __str+=""+index+index_n;
+        }
+    }`,
+    `__str="";
+
+    outer : for(index=0; index<4; index+=1) {
+        nested : for(index_n=0; index_n<=index; index_n++) {
+      if (index*index_n >= 4)break ;
+      __str+=""+index+index_n;
+        }
+    }`,
+    `let z = 1;
+    let s = 0;
+    for (const x = 1; z < 2; z++) {
+      s += x + z;
+    }`,
+    `var probeBefore = function() { return x; };
+    var probeTest, probeIncr, probeBody;
+    var run = true;
+
+    for (
+        var _ = eval('var x = 1;');
+        run && (probeTest = function() { return x; });
+        probeIncr = function() { return x; }
+      )
+      probeBody = function() { return x; }, run = false;
+
+    var x = 2;`,
+    `let x = 'outside';
+    var probeBefore = function() { return x; };
+    var probeDecl, probeTest, probeIncr, probeBody;
+    var run = true;
+
+    for (
+        let x = 'inside', _ = probeDecl = function() { return x; };
+        run && (probeTest = function() { return x; });
+        probeIncr = function() { return x; }
+      )
+      probeBody = function() { return x; }, run = false;`,
+    `var probeFirst;
+    var probeSecond = null;
+
+    for (let x = 'first'; probeSecond === null; x = 'second')
+      if (!probeFirst)
+        probeFirst = function() { return x; };
+      else
+        probeSecond = function() { return x; };`,
     // tests for possible destructuring regression
     'for (var {j}=x; j<10; ++j) { const foo = j }',
     `        for ("boolean" == typeof a && (l = a, a = arguments[s] ||
@@ -575,9 +710,7 @@ describe('Statements - For', () => {
          : o = n && w.isPlainObject(n)
          ? n : {}, a[t] = w.extend(l, o, r))
          : void 0 !== r && (a[t] = r));`
-  ];
-
-  for (const arg of programs) {
+  ]) {
     it(`${arg}`, () => {
       t.doesNotThrow(() => {
         parseSource(`${arg}`, undefined, Context.Empty);
