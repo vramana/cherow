@@ -2154,10 +2154,8 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
   }
 
   if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
-    if (!state.assignable) {
-      report(state, Errors.InvalidLHSInAssignment);
-    }
     if (state.token === Token.Assign) {
+      if (!state.assignable) report(state, Errors.InvalidLHSInAssignment);
       reinterpret(expr);
     } else {
       state.bindable = state.assignable = false;
@@ -2195,10 +2193,10 @@ function parseConditionalExpression(
   // LogicalOrExpression
   // LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression
   if (!optional(state, context | Context.AllowPossibleRegEx, Token.QuestionMark)) return test;
-  state.bindable = state.assignable = false;
   const consequent = secludeGrammar(state, context, 0, parseAssignmentExpression);
   expect(state, context | Context.AllowPossibleRegEx, Token.Colon);
   const alternate = secludeGrammar(state, context, 0, parseAssignmentExpression);
+  state.bindable = state.assignable = false;
   return {
     type: 'ConditionalExpression',
     test,
@@ -2702,6 +2700,7 @@ function parseTemplate(state: ParserState, context: Context): ESTree.TemplateLit
     expressions.push(parseExpression(state, context));
   }
   quasis.push(parseTemplateSpans(state, /* tail */ true));
+  state.assignable = state.bindable = false;
   next(state, context);
 
   return {
@@ -2910,7 +2909,6 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       state.bindable = state.assignable = false;
       return parseTemplateLiteral(state, context);
     case Token.TemplateCont:
-      state.bindable = state.assignable = false;
       return parseTemplate(state, context);
     case Token.NewKeyword:
       state.bindable = state.assignable = false;
@@ -2983,17 +2981,19 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
    * SpreadElement:
    * ...AssignmentExpression
    */
-  expect(state, context | Context.AllowPossibleRegEx, Token.LeftBracket);
+  next(state, context | Context.AllowPossibleRegEx);
   const elements: (ESTree.SpreadElement | ESTree.Expression | null)[] = [];
   while (state.token !== Token.RightBracket) {
     if (optional(state, context, Token.Comma)) {
       elements.push(null);
+      if ((state.token as Token) === Token.LeftBracket) {
+        break;
+      }
     } else if (state.token === Token.Ellipsis) {
       expect(state, context | Context.AllowPossibleRegEx, Token.Ellipsis);
       const argument = acquireGrammar(state, context, 0, parseAssignmentExpression);
-      if (!state.assignable && state.pendingCoverInitializeError) {
-        report(state, Errors.Unexpected);
-      }
+      if (!state.assignable && state.pendingCoverInitializeError) report(state, Errors.Unexpected);
+
       if (
         argument.type !== 'ArrayExpression' &&
         argument.type !== 'ObjectExpression' &&
@@ -3012,9 +3012,13 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
       }
     } else {
       elements.push(acquireGrammar(state, context, 0, parseAssignmentExpression));
-      if (!state.assignable && state.pendingCoverInitializeError) report(state, Errors.Unexpected);
-      if (state.token !== (Token.RightBracket as any)) {
-        expect(state, context, Token.Comma);
+
+      if (optional(state, context, Token.Comma)) {
+        if ((state.token as Token) === Token.RightBracket) {
+          break;
+        }
+      } else {
+        break;
       }
     }
   }
@@ -3622,12 +3626,16 @@ function parseObjectLiteral(
     if (state.token === Token.Ellipsis) {
       properties.push(parseSpreadElement(state, context));
     } else {
-      if (state.token & Token.IsIdentifier) {
+      if ((state.token & Token.IsIdentifier) !== 0) {
         token = state.token;
         tokenValue = state.tokenValue;
         objState = ObjectState.None;
         key = parseIdentifier(state, context);
-        if (state.token === Token.Comma || state.token === <Token>Token.RightBrace || state.token === Token.Assign) {
+        if (
+          state.token === <Token>Token.Comma ||
+          state.token === <Token>Token.RightBrace ||
+          state.token === <Token>Token.Assign
+        ) {
           // PropertyDefinition
           //    IdentifierReference
           //    CoverInitializedName
@@ -3641,7 +3649,7 @@ function parseObjectLiteral(
 
           addVariable(state, context, scope, type, false, false, tokenValue);
 
-          if (state.token === Token.Assign) {
+          if (state.token === <Token>Token.Assign) {
             // PropertyDefinition
             //    IdentifierReference
             //    CoverInitializedName
@@ -3670,9 +3678,9 @@ function parseObjectLiteral(
             addVariable(state, context, scope, type, false, false, tokenValue);
           }
           value = acquireGrammar(state, context, 0, parseAssignmentExpression);
-        } else if (state.token === Token.LeftBracket) {
+        } else if (state.token === <Token>Token.LeftBracket) {
           key = parseComputedPropertyName(state, context);
-          if (token === Token.AsyncKeyword) {
+          if (token === <Token>Token.AsyncKeyword) {
             objState |= ObjectState.Async | ObjectState.Computed | ObjectState.Method;
           } else {
             if ((token & Token.GetKeyword) === Token.GetKeyword)
@@ -3685,16 +3693,16 @@ function parseObjectLiteral(
           if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
           state.bindable = state.assignable = false;
           value = parseMethodDeclaration(state, context, objState);
-        } else if (state.token === Token.LeftParen) {
+        } else if (state.token === <Token>Token.LeftParen) {
           objState = objState | (ObjectState.Method & ~(ObjectState.Async | ObjectState.Generator));
           state.bindable = state.assignable = false;
           value = parseMethodDeclaration(state, context, objState);
-        } else if (token === Token.AsyncKeyword) {
+        } else if (token === <Token>Token.AsyncKeyword) {
           objState |= ObjectState.Async;
           if (optional(state, context, Token.Multiply)) objState |= ObjectState.Generator;
           if (state.token & Token.IsIdentifier) {
             key = parseIdentifier(state, context);
-          } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
+          } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
             key = parseLiteral(state, context, state.tokenValue);
           } else if (state.token === <Token>Token.LeftBracket) {
             key = parseComputedPropertyName(state, context);
@@ -3711,12 +3719,12 @@ function parseObjectLiteral(
             objState = (objState & ~ObjectState.Setter) | ObjectState.Getter;
           } else if ((token & Token.SetKeyword) === Token.SetKeyword) {
             objState = (objState & ~ObjectState.Getter) | ObjectState.Setter;
-          } else if (state.token !== Token.AsyncKeyword) report(state, Errors.Unexpected);
+          } else if (state.token !== <Token>Token.AsyncKeyword) report(state, Errors.Unexpected);
 
           if (optional(state, context, Token.Multiply)) report(state, Errors.Unexpected);
           if (state.token & Token.IsIdentifier) {
             key = parseIdentifier(state, context);
-          } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
+          } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
             key = parseLiteral(state, context, state.tokenValue);
           } else if (state.token === <Token>Token.LeftBracket) {
             key = parseComputedPropertyName(state, context);

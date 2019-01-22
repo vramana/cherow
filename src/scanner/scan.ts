@@ -7,7 +7,7 @@ import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
 import { scanRegularExpression } from './regexp';
 import { scanNumeric, scanHexIntegerLiteral, scanBinaryOrOctalDigits, scanImplicitOctalDigits } from './numeric';
-import { scanIdentifier, scanMaybeIdentifier, scanPrivateName } from './identifier';
+import { scanIdentifier, scanIdentifierOrKeyword, scanMaybeIdentifier, scanPrivateName } from './identifier';
 
 // Table for one char punctuator lookup
 const OneCharPunc = new Array(128).fill(0) as Token[];
@@ -366,7 +366,7 @@ for (let i = Chars.UpperA; i <= Chars.UpperZ; i++) {
 
 // `a`...`z`
 for (let i = Chars.LowerA; i <= Chars.LowerZ; i++) {
-  table[i] = scanIdentifier;
+  table[i] = scanIdentifierOrKeyword;
 }
 
 // `[`
@@ -374,7 +374,7 @@ table[Chars.LeftBracket] = scanChar;
 OneCharPunc[Chars.LeftBracket] = Token.LeftBracket;
 
 // `\\u{N}var`
-table[Chars.Backslash] = scanIdentifier;
+table[Chars.Backslash] = scanIdentifierOrKeyword;
 
 // `]`
 table[Chars.RightBracket] = scanChar;
