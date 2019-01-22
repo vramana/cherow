@@ -17,7 +17,6 @@ describe('Declarations - Var', () => {
     ['var foo = {}; foo.--;', Context.Empty],
     ['{ let x; var x; }', Context.Empty],
     ['var {foo};', Context.Empty],
-
     ['var [foo]; ', Context.Empty],
     ['var [foo=a];', Context.Empty],
     ['var [foo], bar;', Context.Empty],
@@ -61,7 +60,6 @@ describe('Declarations - Var', () => {
     ['var {x}, y', Context.Empty],
     ['var {x:y};', Context.Empty],
     ['var {x=y};', Context.Empty],
-
     ['for (var {x = y, z = a} = obj);', Context.OptionsDisableWebCompat],
     ['for (var {x : y} = obj);', Context.OptionsDisableWebCompat],
     ['for (var {x : y, z} = obj);', Context.OptionsDisableWebCompat],
@@ -166,7 +164,53 @@ describe('Declarations - Var', () => {
     ['for (var x, {y} of obj);', Context.Empty]
   ]);
 
-  // Should fail reserved words
+  for (const arg of [
+    'var [[...x] = function() { initCount += 1; }()] = [[2, 1, 3]];',
+    'var [[x]] = [null];',
+    'var [cls = class {}, xCls = class X {}, xCls2 = class { static name() {} }] = [];',
+    `var first = 0;
+    var second = 0;
+    function* g() {
+      first += 1;
+      yield;
+      second += 1;
+    };
+
+    var [,] = g();`,
+    'var { x, } = { x: 23 };',
+    'var { w: [x, y, z] = [4, 5, 6] } = {};',
+    'var { w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] };',
+    'var { x: y = 33 } = { };',
+    'var { x: y, } = { x: 23 };',
+    'var xCls = class x {};',
+    'var cls = class {};',
+    'var\n{x} = x;',
+    'var {x}\n= x;',
+    'var [...x] = [1, 2, 3];',
+    'var { x, } = { x: 23 };',
+    'var { x: y = 33 } = { };',
+    'var {...x} = { get v() { count++; return 2; } };',
+    `var { w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: undefined };`,
+    `var { poisoned: x = ++initEvalCount } = poisonedProperty;`,
+    `var { w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] };`,
+    `var arrow = () => {};`,
+    `var xFn = function x() {};`,
+    'var obj = { test262id: 1 };'
+  ]) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.OptionsDisableWebCompat);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
+
+  // Should fail on reserved words
   const reservedKeywords = [
     'break',
     'case',
