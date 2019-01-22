@@ -1,5 +1,6 @@
 import * as ESTree from './estree';
 import { Token } from './token';
+import { Errors } from './errors';
 export declare const enum Context {
     Empty = 0,
     OptionsNext = 1,
@@ -41,7 +42,10 @@ export declare const enum Flags {
     Binary = 16,
     SeenPrototype = 32,
     SimpleParameterList = 64,
-    HasPrivateName = 128
+    HasPrivateName = 128,
+    InArrowContext = 256,
+    HasStrictReserved = 512,
+    StrictEvalArguments = 1024
 }
 export declare const enum Type {
     None = 0,
@@ -49,7 +53,8 @@ export declare const enum Type {
     Variable = 2,
     Let = 4,
     Const = 8,
-    ClassExprDecl = 16
+    ClassExprDecl = 16,
+    ConciseBody = 64
 }
 export declare const enum Origin {
     None = 0,
@@ -89,6 +94,21 @@ export declare const enum ObjectState {
     Setter = 512,
     GetSet = 768
 }
+export declare const enum Arrows {
+    None = 0,
+    ConciseBody = 1,
+    Plain = 2,
+    Async = 4
+}
+export declare const enum Grammar {
+    None = 0,
+    Bindable = 1,
+    Assignable = 2,
+    NotBindable = 4,
+    NotAssignable = 8,
+    NotAssignbleOrBindable = 12,
+    BindableAndAssignable = 3
+}
 export declare type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start?: number, end?: number) => any);
 export declare type OnToken = void | Token[] | ((token: Token, start?: number, end?: number) => any);
 export interface ScopeState {
@@ -109,6 +129,7 @@ export interface ParserState {
     onComment: any;
     onToken: any;
     flags: Flags;
+    grammar: Grammar;
     index: number;
     line: number;
     startIndex: number;
@@ -126,6 +147,7 @@ export interface ParserState {
     lastChar: number;
     inCatch: boolean;
     assignable: boolean;
+    bindable: boolean;
     exportedNames: any[];
     exportedBindings: any[];
     labelSet: any;
@@ -137,7 +159,7 @@ export interface ParserState {
     iterationStatement: LabelState;
     labelDepth: number;
     functionBoundaryStack: any;
-    arrowScope: any;
+    pendingCoverInitializeError: Errors | null;
     tokenRegExp: void | {
         pattern: string;
         flags: string;
@@ -174,4 +196,6 @@ export declare function createScope(type: ScopeType): ScopeState;
 export declare function createSubScope(parent: ScopeState, type: ScopeType): ScopeState;
 export declare function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Context): boolean;
 export declare function nextTokenIsLeftParen(parser: ParserState, context: Context): boolean;
+export declare function secludeGrammar<T>(state: ParserState, context: Context, callback: (state: ParserState, context: Context) => T): T;
+export declare function acquireGrammar<T>(state: ParserState, context: Context, precedence: number, callback: (state: ParserState, context: Context, precedence: number) => T): T;
 //# sourceMappingURL=common.d.ts.map

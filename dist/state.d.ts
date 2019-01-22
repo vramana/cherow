@@ -1,7 +1,8 @@
 import * as ESTree from './estree';
 import { Context, LabelledState, OnComment, OnToken, ParserState, Type, Origin, ScopeState } from './common';
 export declare function create(source: string, onComment: OnComment | void, onToken: OnToken | void): ParserState;
-export declare function parseTopLevel(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[];
+export declare function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[];
+export declare function parseStatementList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[];
 export declare function parseDirective(state: ParserState, context: Context, scope: ScopeState): any;
 export declare function parseImportDeclaration(state: ParserState, context: Context, scope: ScopeState): any;
 export declare function parseBlockStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.BlockStatement;
@@ -51,7 +52,6 @@ export declare function parseLexicalDeclaration(state: ParserState, context: Con
 export declare function parseVariableDeclarationList(state: ParserState, context: Context, type: Type, origin: Origin, checkForDuplicates: boolean, scope: ScopeState): any;
 export declare function parseExpression(state: ParserState, context: Context): any;
 export declare function parseSequenceExpression(state: ParserState, context: Context, left: ESTree.Expression): ESTree.SequenceExpression;
-export declare function nextTokenisIdentifierOrParen(state: ParserState, context: Context): boolean | number;
 export declare function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean;
 export declare function parseLeftHandSideExpression(state: ParserState, context: Context): any;
 export declare function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): any;

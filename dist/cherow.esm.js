@@ -84,7 +84,14 @@ const errorMessages = {
     [82]: 'Private fields can not be deleted',
     [83]: 'Private fields can not be deleted',
     [83]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
-    [84]: 'Invalid left-hand side in assignment'
+    [84]: 'Invalid left-hand side in assignment',
+    [85]: 'Unexpected eval or arguments in strict mode',
+    [86]: 'Unexpected strict mode reserved word',
+    [87]: 'Invalid shorthand property initializer',
+    [88]: 'Illegal arrow function parameter list',
+    [89]: 'Invalid left-hand side in for-in',
+    [90]: 'Invalid left-hand side in for-loop',
+    [91]: 'Enable the experimental option for V8 experimental features'
 };
 function constructError(index, line, column, description) {
     const error = new SyntaxError(`Line ${line}, column ${column}: ${description}`);
@@ -4100,7 +4107,7 @@ function scanMaybeIdentifier(state, _, first) {
     }
     report(state, 29, String.fromCharCode(first));
 }
-function scanIdentifier(state) {
+function scanIdentifier(state, context) {
     let { index, column } = state;
     while (isIdentifierPart(state.source.charCodeAt(index))) {
         index++;
@@ -4110,6 +4117,8 @@ function scanIdentifier(state) {
     if (state.source.charCodeAt(index) === 92) ;
     state.index = index;
     state.column = column;
+    if (context & 8)
+        state.tokenRaw = state.source.slice(state.startIndex, index);
     return descKeywordTable[state.tokenValue] || 405505;
 }
 function scanPrivateName(state, _) {
@@ -5242,12 +5251,11 @@ function isValidIdentifier(context, t) {
         (t & 36864) === 36864);
 }
 function validateBindingIdentifier(state, context, type, token = state.token) {
-    if (context & 1024) {
-        if ((token & 36864) === 36864) {
+    if (context & 1024 && token === 36969)
+        report(state, 73);
+    if ((token & 36864) === 36864) {
+        if (context & 1024)
             report(state, 0);
-        }
-        if (token === 36969)
-            report(state, 73);
     }
     if ((token & 20480) === 20480) {
         report(state, 72);
@@ -5385,6 +5393,31 @@ function nextTokenIsLeftParen(parser, context) {
     next(parser, context);
     return parser.token === 131083;
 }
+function secludeGrammar(state, context, callback) {
+    const { assignable, bindable, pendingCoverInitializeError } = state;
+    state.bindable = true;
+    state.assignable = true;
+    state.pendingCoverInitializeError = null;
+    const result = callback(state, context);
+    if (state.pendingCoverInitializeError !== null) {
+        report(state, state.pendingCoverInitializeError);
+    }
+    state.bindable = bindable;
+    state.assignable = assignable;
+    state.pendingCoverInitializeError = pendingCoverInitializeError;
+    return result;
+}
+function acquireGrammar(state, context, precedence, callback) {
+    const { assignable, bindable, pendingCoverInitializeError } = state;
+    state.bindable = true;
+    state.assignable = true;
+    state.pendingCoverInitializeError = null;
+    const result = callback(state, context, precedence);
+    state.bindable = state.bindable && bindable;
+    state.assignable = state.assignable && assignable;
+    state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
+    return result;
+}
 
 function create(source, onComment, onToken) {
     return {
@@ -5392,6 +5425,7 @@ function create(source, onComment, onToken) {
         onComment,
         onToken,
         flags: 0,
+        grammar: 3,
         index: 0,
         line: 1,
         column: 0,
@@ -5410,6 +5444,7 @@ function create(source, onComment, onToken) {
         lastChar: 0,
         inCatch: false,
         assignable: true,
+        bindable: true,
         exportedNames: [],
         exportedBindings: [],
         labelSet: undefined,
@@ -5419,10 +5454,10 @@ function create(source, onComment, onToken) {
         switchStatement: 0,
         iterationStatement: 0,
         functionBoundaryStack: undefined,
-        arrowScope: undefined
+        pendingCoverInitializeError: null
     };
 }
-function parseTopLevel(state, context, scope) {
+function parseModuleItem(state, context, scope) {
     next(state, context | 32768);
     const statements = [];
     while (state.token === 131075) {
@@ -5433,10 +5468,22 @@ function parseTopLevel(state, context, scope) {
         statements.push(parseDirective(state, context, scope));
     }
     while (state.token !== 536870912) {
-        if (context & 2048)
-            statements.push(parseModuleItem(state, context, scope));
-        else
-            statements.push(parseStatementListItem(state, context, scope));
+        statements.push(parseModuleItemList(state, context, scope));
+    }
+    return statements;
+}
+function parseStatementList(state, context, scope) {
+    next(state, context | 32768);
+    const statements = [];
+    while (state.token === 131075) {
+        const tokenValue = state.tokenValue;
+        if (!(context & 1024) && tokenValue.length === 10 && tokenValue === 'use strict') {
+            context |= 1024;
+        }
+        statements.push(parseDirective(state, context, scope));
+    }
+    while (state.token !== 536870912) {
+        statements.push(parseStatementListItem(state, context, scope));
     }
     return statements;
 }
@@ -5452,7 +5499,85 @@ function parseDirective(state, context, scope) {
         directive
     };
 }
-function parseModuleItem(state, context, scope) {
+function parseAsyncFunctionOrAssignmentExpression(state, context, scope, isDefault) {
+    return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
+        ? parseHoistableFunctionDeclaration(state, context, scope, isDefault, true)
+        : parseAssignmentExpression(state, context);
+}
+function parseStatementListItem(state, context, scope) {
+    state.assignable = state.bindable = true;
+    switch (state.token) {
+        case 151639:
+            return parseFunctionDeclaration(state, context, scope, 128, false);
+        case 151629:
+            return parseClassDeclaration(state, context, scope);
+        case 402804809:
+            return parseLexicalDeclaration(state, context, 8, 1, scope);
+        case 402821192:
+            return parseLetOrExpressionStatement(state, context, scope);
+        case 1060972:
+            return parseAsyncFunctionOrExpressionStatement(state, context, scope);
+        default:
+            return parseStatement(state, context, scope, 1);
+    }
+}
+function parseAsyncFunctionOrExpressionStatement(state, context, scope) {
+    return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
+        ? parseFunctionDeclaration(state, context, scope, 0, true)
+        : parseExpressionOrLabelledStatement(state, context, scope, 2);
+}
+function parseLetOrExpressionStatement(state, context, scope) {
+    return lookAheadOrScan(state, context, isLexical, true)
+        ? parseLexicalDeclaration(state, context, 4, 1, scope)
+        : parseExpressionOrLabelledStatement(state, context, scope, 2);
+}
+function parseStatement(state, context, scope, label) {
+    switch (state.token) {
+        case 268587079:
+            return parseVariableStatement(state, context, 2, 1, scope);
+        case 151645:
+            return parseSwitchStatement(state, context, scope);
+        case 20561:
+            return parseDoWhileStatement(state, context, scope);
+        case 20571:
+            return parseReturnStatement(state, context);
+        case 20577:
+            return parseWhileStatement(state, context, scope);
+        case 20578:
+            return parseWithStatement(state, context, scope);
+        case 20554:
+            return parseBreakStatement(state, context);
+        case 20558:
+            return parseContinueStatement(state, context);
+        case 20559:
+            return parseDebuggerStatement(state, context);
+        case 20576:
+            return parseTryStatement(state, context, scope);
+        case 151647:
+            return parseThrowStatement(state, context);
+        case 20568:
+            return parseIfStatement(state, context, scope);
+        case 536870929:
+            return parseEmptyStatement(state, context);
+        case 131084:
+            return parseBlockStatement(state, (context | 4096) ^ 4096, createSubScope(scope, 1));
+        case 20566:
+            return parseForStatement(state, context, scope);
+        case 1060972:
+            if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
+                report(state, 76);
+            }
+            return parseExpressionOrLabelledStatement(state, context, scope, label);
+        case 151639:
+            report(state, context & 1024 ? 44 : 43);
+        case 151629:
+            report(state, 75, KeywordDescTable[state.token & 255]);
+        default:
+            return parseExpressionOrLabelledStatement(state, context, scope, label);
+    }
+}
+function parseModuleItemList(state, context, scope) {
+    state.assignable = state.bindable = true;
     switch (state.token) {
         case 20563:
             return parseExportDeclaration(state, context, scope);
@@ -5680,82 +5805,6 @@ function parseModuleSpecifier(state, context) {
     if (state.token !== 131075)
         report(state, 0);
     return parseLiteral(state, context, state.tokenValue);
-}
-function parseAsyncFunctionOrAssignmentExpression(state, context, scope, isDefault) {
-    return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-        ? parseHoistableFunctionDeclaration(state, context, scope, isDefault, true)
-        : parseAssignmentExpression(state, context);
-}
-function parseStatementListItem(state, context, scope) {
-    switch (state.token) {
-        case 151639:
-            return parseFunctionDeclaration(state, context, scope, 128, false);
-        case 151629:
-            return parseClassDeclaration(state, context, scope);
-        case 402804809:
-            return parseLexicalDeclaration(state, context, 8, 1, scope);
-        case 402821192:
-            return parseLetOrExpressionStatement(state, context, scope);
-        case 1060972:
-            return parseAsyncFunctionOrExpressionStatement(state, context, scope);
-        default:
-            return parseStatement(state, context, scope, 1);
-    }
-}
-function parseAsyncFunctionOrExpressionStatement(state, context, scope) {
-    return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-        ? parseFunctionDeclaration(state, context, scope, 0, true)
-        : parseExpressionOrLabelledStatement(state, context, scope, 2);
-}
-function parseLetOrExpressionStatement(state, context, scope) {
-    return lookAheadOrScan(state, context, isLexical, true)
-        ? parseLexicalDeclaration(state, context, 4, 1, scope)
-        : parseExpressionOrLabelledStatement(state, context, scope, 2);
-}
-function parseStatement(state, context, scope, label) {
-    switch (state.token) {
-        case 268587079:
-            return parseVariableStatement(state, context, 2, 1, scope);
-        case 151645:
-            return parseSwitchStatement(state, context, scope);
-        case 20561:
-            return parseDoWhileStatement(state, context, scope);
-        case 20571:
-            return parseReturnStatement(state, context);
-        case 20577:
-            return parseWhileStatement(state, context, scope);
-        case 20578:
-            return parseWithStatement(state, context, scope);
-        case 20554:
-            return parseBreakStatement(state, context);
-        case 20558:
-            return parseContinueStatement(state, context);
-        case 20559:
-            return parseDebuggerStatement(state, context);
-        case 20576:
-            return parseTryStatement(state, context, scope);
-        case 151647:
-            return parseThrowStatement(state, context);
-        case 20568:
-            return parseIfStatement(state, context, scope);
-        case 536870929:
-            return parseEmptyStatement(state, context);
-        case 131084:
-            return parseBlockStatement(state, (context | 4096) ^ 4096, createSubScope(scope, 1));
-        case 20566:
-            return parseForStatement(state, context, scope);
-        case 1060972:
-            if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
-                report(state, 76);
-            }
-            return parseExpressionOrLabelledStatement(state, context, scope, label);
-        case 151639:
-            report(state, context & 1024 ? 44 : 43);
-        case 151629:
-            report(state, 75, KeywordDescTable[state.token & 255]);
-        default:
-            return parseExpressionOrLabelledStatement(state, context, scope, label);
-    }
 }
 function parseBlockStatement(state, context, scope) {
     const body = [];
@@ -6033,14 +6082,18 @@ function parseForStatement(state, context, scope) {
         }
         else {
             isPattern = state.token === 131091 || state.token === 131084;
-            init = parseExpression(state, context | 8192);
+            init = acquireGrammar(state, context | 8192, 0, parseAssignmentExpression);
         }
     }
     if (optional(state, context | 32768, 12402)) {
         if (state.inCatch)
             report(state, 0);
-        if (isPattern)
+        if (isPattern) {
+            if (!state.assignable || init.type === 'AssignmentExpression') {
+                report(state, 90);
+            }
             reinterpret(init);
+        }
         right = parseAssignmentExpression(state, context);
         expect(state, context, 16);
         const previousIterationStatement = state.iterationStatement;
@@ -6056,8 +6109,12 @@ function parseForStatement(state, context, scope) {
         };
     }
     if (optional(state, context, 33707825)) {
-        if (isPattern)
+        if (isPattern) {
+            if (!state.assignable || init.type === 'AssignmentExpression') {
+                report(state, 89);
+            }
             reinterpret(init);
+        }
         right = parseExpression(state, context);
         expect(state, context, 16);
         const previousIterationStatement = state.iterationStatement;
@@ -6070,6 +6127,9 @@ function parseForStatement(state, context, scope) {
             left: init,
             right
         };
+    }
+    if (state.token === 18) {
+        init = parseSequenceExpression(state, context, init);
     }
     expect(state, context, 536870929);
     if (state.token !== 536870929) {
@@ -6212,7 +6272,7 @@ function parseAssignmentPattern(state, context, left) {
     return {
         type: 'AssignmentPattern',
         left,
-        right: parseAssignmentExpression(state, context)
+        right: secludeGrammar(state, context, parseAssignmentExpression)
     };
 }
 function parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates) {
@@ -6222,12 +6282,12 @@ function parseBindingInitializer(state, context, scope, type, origin, verifyDupl
         : {
             type: 'AssignmentPattern',
             left,
-            right: parseAssignmentExpression(state, context)
+            right: secludeGrammar(state, context, parseAssignmentExpression)
         };
 }
 function parseComputedPropertyName(state, context) {
     expect(state, context, 131091);
-    const key = parseAssignmentExpression(state, context);
+    const key = secludeGrammar(state, context, parseAssignmentExpression);
     expect(state, context, 20);
     return key;
 }
@@ -6390,31 +6450,31 @@ function parseFormalParameters(state, context, scope, origin) {
     expect(state, context, 131083);
     const params = [];
     state.flags = (state.flags | 64) ^ 64;
+    if (state.token === 18)
+        report(state, 0);
     while (state.token !== 16) {
         if (state.token === 14) {
             params.push(parseRestElement(state, context, scope, 1, 0));
             break;
         }
-        else {
-            if (optional(state, context, 18)) {
-                if (state.token === 18)
-                    report(state, 0);
-            }
-            else {
-                let left = parseBindingIdentifierOrPattern(state, context, scope, 1, origin, false);
-                if (optional(state, context | 32768, 8388637)) {
-                    if (state.token & 2097152 && context & 2097152)
-                        report(state, 0);
-                    left = parseAssignmentPattern(state, context, left);
-                }
-                params.push(left);
-            }
+        params.push(parseFormalParameterList(state, context, scope, origin));
+        if (optional(state, context, 18)) {
+            if (state.token === 18)
+                report(state, 0);
         }
     }
     expect(state, context, 16);
     if ((context & (1024 | 33554432)) !== 0)
         checkFunctionsArgForDuplicate(state, scope.lex, true);
     return params;
+}
+function parseFormalParameterList(state, context, scope, origin) {
+    const left = parseBindingIdentifierOrPattern(state, context, scope, 1, origin, false);
+    if (!optional(state, context | 32768, 8388637))
+        return left;
+    if (state.token & 2097152 && context & 2097152)
+        report(state, 0);
+    return parseAssignmentPattern(state, context, left);
 }
 function parseRestElement(state, context, scope, type, origin) {
     expect(state, context, 14);
@@ -6429,16 +6489,24 @@ function parseFunctionBody(state, context, scope, firstRestricted, origin) {
     expect(state, context, 131084);
     const isStrict = (context & 1024) === 1024;
     context = (context | 4096 | 134217728 | 1048576) ^ 1048576;
-    while ((state.token & 131075) === 131075) {
+    while (state.token === 131075) {
         if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
             context |= 1024;
         }
         body.push(parseDirective(state, context, scope));
     }
     if (context & 1024) {
+        if ((state.flags & 512) === 512)
+            report(state, 86);
+        if (state.flags & 1024) {
+            report(state, 85);
+        }
         if ((firstRestricted && firstRestricted === 'eval') || firstRestricted === 'arguments')
             report(state, 61);
     }
+    state.flags =
+        (state.flags | (1024 | 512)) ^
+            (1024 | 512);
     if (state.flags & 64)
         report(state, 61);
     if (!isStrict && (context & 1024) !== 0 && (context & 1048576) < 1) {
@@ -6504,7 +6572,7 @@ function parseVariableDeclaration(state, context, type, origin, checkForDuplicat
     const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
     let init = null;
     if (optional(state, context | 32768, 8388637)) {
-        init = parseAssignmentExpression(state, context);
+        init = secludeGrammar(state, context, parseAssignmentExpression);
     }
     else if (type & 8 &&
         ((origin & 2) < 1 || (state.token === 536870929 || state.token === 18))) {
@@ -6517,7 +6585,7 @@ function parseVariableDeclaration(state, context, type, origin, checkForDuplicat
     };
 }
 function parseExpression(state, context) {
-    const expr = parseAssignmentExpression(state, context);
+    const expr = secludeGrammar(state, context, parseAssignmentExpression);
     if (state.token !== 18)
         return expr;
     return parseSequenceExpression(state, context, expr);
@@ -6525,7 +6593,7 @@ function parseExpression(state, context) {
 function parseSequenceExpression(state, context, left) {
     const expressions = [left];
     while (optional(state, context | 32768, 18)) {
-        expressions.push(parseAssignmentExpression(state, context));
+        expressions.push(secludeGrammar(state, context, parseAssignmentExpression));
     }
     return {
         type: 'SequenceExpression',
@@ -6548,33 +6616,56 @@ function parseYieldExpression(state, context) {
         delegate
     };
 }
-function nextTokenisIdentifierOrParen(state, context) {
-    next(state, context);
-    const { token } = state;
-    return token & (274432 | 2097152) || token === 131083;
-}
 function parseAssignmentExpression(state, context) {
-    const value = state.tokenValue;
-    const { token } = state;
-    if (state.token & 2097152 && context & 2097152)
+    const { token, tokenValue } = state;
+    if (token & 2097152 && context & 2097152)
         return parseYieldExpression(state, context);
-    const expr = state.token & 1048576 && lookAheadOrScan(state, context, nextTokenisIdentifierOrParen, true)
-        ? parserCoverCallExpressionAndAsyncArrowHead(state, context)
-        : parseConditionalExpression(state, context);
-    if (state.token === 131082) {
+    const expr = acquireGrammar(state, context, 0, parseBinaryExpression);
+    if (token & 1048576 &&
+        (state.flags & 1) < 1 &&
+        ((state.token & 274432) === 274432 || (state.token & 2097152) === 2097152)) {
         const scope = createScope(5);
-        if (token & (274432 | 4096)) {
-            addVariableAndDeduplicate(state, context, scope, 1, true, value);
-            return parseArrowFunctionExpression(state, context, scope, [expr], false, true);
-        }
-        return parseArrowFunctionExpression(state, context, scope, expr, false, false);
+        addVariableAndDeduplicate(state, context, scope, 1, true, state.tokenValue);
+        const arg = parseIdentifier(state, context);
+        if (state.flags & 1)
+            report(state, 0);
+        return parseArrowFunctionExpression(state, context, scope, [arg], true, 64);
     }
-    if (state.assignable && (state.token & 8388608) === 8388608) {
-        if (state.token === 8388637)
+    if (state.token === 131082) {
+        let { type, scope: arrowScope, params } = expr;
+        state.bindable = state.assignable = false;
+        if (type & (2 | 4)) {
+            if (state.flags & 1)
+                report(state, 0);
+            state.pendingCoverInitializeError = null;
+            return parseArrowFunctionExpression(state, context, arrowScope, params, (type & 4) !== 0, 0);
+        }
+        if ((token & 36864) === 36864) {
+            state.flags |= 512;
+        }
+        else if (tokenValue === 'eval' || tokenValue === 'arguments') {
+            if (context & 1024)
+                report(state, 85);
+            state.flags |= 1024;
+        }
+        arrowScope = createScope(5);
+        addVariableAndDeduplicate(state, context, arrowScope, 1, true, tokenValue);
+        return parseArrowFunctionExpression(state, context, arrowScope, [expr], false, 64);
+    }
+    if ((state.token & 8388608) === 8388608) {
+        if (!state.assignable) {
+            report(state, 84);
+        }
+        if (state.token === 8388637) {
             reinterpret(expr);
+        }
+        else {
+            state.bindable = state.assignable = false;
+        }
         const operator = state.token;
         next(state, context | 32768);
-        const right = parseAssignmentExpression(state, context);
+        const right = secludeGrammar(state, context, parseAssignmentExpression);
+        state.pendingCoverInitializeError = null;
         return {
             type: 'AssignmentExpression',
             left: expr,
@@ -6582,74 +6673,15 @@ function parseAssignmentExpression(state, context) {
             right
         };
     }
-    return expr;
+    return parseConditionalExpression(state, context, expr);
 }
-function parserCoverCallExpressionAndAsyncArrowHead(state, context) {
-    let expr = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
-    const { token, flags } = state;
-    if (token & 274432) {
-        if (state.flags & 1)
-            return expr;
-        if ((state.token & 16908288) === 16908288 || (state.token & 33685504) === 33685504) {
-            return parseBinaryExpression(state, context, 0, expr);
-        }
-        const maybeConciseBody = parseIdentifier(state, context);
-        if ((state.token & 131082) === 131082) {
-            if (state.flags & 1)
-                report(state, 0);
-            if (token & 524288)
-                report(state, 0);
-            if (state.flags & 1)
-                return expr;
-            const scope = createScope(5);
-            addVariableAndDeduplicate(state, context, scope, 1, true, state.tokenValue);
-            return parseArrowFunctionExpression(state, context, scope, [maybeConciseBody], true, true);
-        }
-        return expr;
-    }
-    let isArrow = false;
-    const scope = createScope(5);
-    while (state.token === 131083) {
-        expr = parseMemberExpression(state, context, expr);
-        const args = parseAsyncArgumentList(state, context, scope);
-        if (state.token === 131082) {
-            isArrow = true;
-            if (flags & 1 || state.flags & 1)
-                report(state, 0);
-            expr = parseArrowFunctionExpression(state, context, createScope(5), args, true, false);
-            break;
-        }
-        expr = {
-            type: 'CallExpression',
-            callee: expr,
-            arguments: args
-        };
-    }
-    return isArrow ? expr : parseMemberExpression(state, context, parseBinaryExpression(state, context, 0, expr));
-}
-function parseAsyncArgumentList(state, context, _) {
-    expect(state, context | 32768, 131083);
-    const expressions = [];
-    while (state.token !== 16) {
-        if (state.token === 14) {
-            expressions.push(parseSpreadElement(state, context));
-        }
-        else {
-            expressions.push(parseAssignmentExpression(state, context));
-        }
-        if (state.token !== 16)
-            expect(state, context, 18);
-    }
-    expect(state, context, 16);
-    return expressions;
-}
-function parseConditionalExpression(state, context) {
-    const test = parseBinaryExpression(state, context, 0);
+function parseConditionalExpression(state, context, test) {
     if (!optional(state, context | 32768, 22))
         return test;
-    const consequent = parseAssignmentExpression(state, context);
+    state.bindable = state.assignable = false;
+    const consequent = secludeGrammar(state, context, parseAssignmentExpression);
     expect(state, context | 32768, 21);
-    const alternate = parseAssignmentExpression(state, context);
+    const alternate = secludeGrammar(state, context, parseAssignmentExpression);
     return {
         type: 'ConditionalExpression',
         test,
@@ -6670,9 +6702,10 @@ function parseBinaryExpression(state, context, minPrec, left = parseUnaryExpress
         left = {
             type: t & 65536 ? 'LogicalExpression' : 'BinaryExpression',
             left,
-            right: parseBinaryExpression(state, context, prec),
+            right: acquireGrammar(state, context, prec, parseBinaryExpression),
             operator: KeywordDescTable[t & 255]
         };
+        state.assignable = state.bindable = false;
     }
     return left;
 }
@@ -6698,6 +6731,7 @@ function parseUnaryExpression(state, context) {
                 report(state, 82);
             }
         }
+        state.bindable = state.assignable = false;
         return {
             type: 'UnaryExpression',
             operator: KeywordDescTable[unaryOperator & 255],
@@ -6717,9 +6751,9 @@ function parseUpdateExpression(state, context) {
         if (context & 1024 && (expr.name === 'eval' || expr.name === 'arguments')) {
             report(state, 83, 'Prefix');
         }
-        if (!isValidSimpleAssignmentTarget(expr)) {
+        if (!state.assignable)
             report(state, 84);
-        }
+        state.bindable = state.assignable = false;
         return {
             type: 'UpdateExpression',
             argument: expr,
@@ -6732,11 +6766,12 @@ function parseUpdateExpression(state, context) {
         if (context & 1024 && (expression.name === 'eval' || expression.name === 'arguments')) {
             report(state, 83, 'PostFix');
         }
-        if (!isValidSimpleAssignmentTarget(expression)) {
+        if (!state.assignable) {
             report(state, 84);
         }
         const operator = state.token;
         next(state, context | 32768);
+        state.bindable = state.assignable = false;
         return {
             type: 'UpdateExpression',
             argument: expression,
@@ -6757,6 +6792,59 @@ function parseLeftHandSideExpression(state, context) {
             : parseMemberExpression(state, context, parsePrimaryExpression(state, context));
     return parseCallExpression(state, context, expr);
 }
+function parseCallExpression(state, context, expr) {
+    const isAsync = expr.name === 'async';
+    let scope;
+    while (true) {
+        expr = parseMemberExpression(state, context, expr);
+        if (state.token !== 131083)
+            return expr;
+        if (isAsync)
+            scope = createScope(1);
+        state.bindable = state.assignable = false;
+        const params = isAsync ? parseAsyncArgumentList(state, context) : parseArgumentList(state, context);
+        if (isAsync && state.token === 131082) {
+            expr = {
+                type: 4,
+                scope,
+                params
+            };
+        }
+        else {
+            expr = {
+                type: 'CallExpression',
+                callee: expr,
+                arguments: params
+            };
+        }
+    }
+}
+function parseAsyncArgumentList(state, context) {
+    expect(state, context | 32768, 131083);
+    const expressions = [];
+    while (state.token !== 16) {
+        if (state.token === 14) {
+            expressions.push(parseSpreadElement(state, context));
+            if (state.token === 16)
+                break;
+            expect(state, context, 18);
+            continue;
+        }
+        else {
+            expressions.push(secludeGrammar(state, context, parseAsyncArgument));
+        }
+        if (state.token === 16)
+            break;
+        expect(state, context | 32768, 18);
+    }
+    expect(state, context, 16);
+    return expressions;
+}
+function parseAsyncArgument(state, context) {
+    const arg = parseAssignmentExpression(state, context);
+    state.pendingCoverInitializeError = null;
+    return arg;
+}
 function parseCallImportOrMetaProperty(state, context) {
     const id = parseIdentifier(state, context);
     if (optional(state, context, 13)) {
@@ -6772,19 +6860,6 @@ function parseImportExpression() {
         type: 'Import'
     };
 }
-function parseCallExpression(state, context, expr) {
-    while (true) {
-        expr = parseMemberExpression(state, context, expr);
-        if (state.token !== 131083)
-            return expr;
-        const args = parseArgumentList(state, context);
-        expr = {
-            type: 'CallExpression',
-            callee: expr,
-            arguments: args
-        };
-    }
-}
 function parseMetaProperty(state, context, id) {
     return {
         meta: id,
@@ -6794,6 +6869,7 @@ function parseMetaProperty(state, context, id) {
 }
 function parseSuperExpression(state, context) {
     next(state, context);
+    state.assignable = state.bindable = false;
     if ((context & 262144) < 1 && (state.token === 131091 || state.token === 13)) {
         report(state, 59);
     }
@@ -6822,6 +6898,8 @@ function parseMemberExpression(state, context, expr) {
         switch (state.token) {
             case 13:
                 next(state, context);
+                state.bindable = false;
+                state.assignable = true;
                 expr = {
                     type: 'MemberExpression',
                     object: expr,
@@ -6833,6 +6911,8 @@ function parseMemberExpression(state, context, expr) {
                 continue;
             case 131091:
                 next(state, context | 32768);
+                state.bindable = false;
+                state.assignable = true;
                 expr = {
                     type: 'MemberExpression',
                     object: expr,
@@ -6842,6 +6922,7 @@ function parseMemberExpression(state, context, expr) {
                 expect(state, context, 20);
                 break;
             case 131081:
+                state.bindable = state.assignable = false;
                 expr = {
                     type: 'TaggedTemplateExpression',
                     tag: expr,
@@ -6849,6 +6930,7 @@ function parseMemberExpression(state, context, expr) {
                 };
                 break;
             case 131080:
+                state.bindable = state.assignable = false;
                 expr = {
                     type: 'TaggedTemplateExpression',
                     tag: expr,
@@ -6912,19 +6994,24 @@ function parseArgumentList(state, context) {
     while (state.token !== 16) {
         if (state.token === 14) {
             expressions.push(parseSpreadElement(state, context));
+            if (state.token === 16)
+                break;
+            expect(state, context, 18);
+            continue;
         }
         else {
-            expressions.push(parseAssignmentExpression(state, context));
+            expressions.push(secludeGrammar(state, context, parseAssignmentExpression));
         }
-        if (state.token !== 16)
-            expect(state, context | 32768, 18);
+        if (state.token === 16)
+            break;
+        expect(state, context | 32768, 18);
     }
     expect(state, context, 16);
     return expressions;
 }
 function parseSpreadElement(state, context) {
     expect(state, context | 32768, 14);
-    const argument = parseAssignmentExpression(state, context);
+    const argument = acquireGrammar(state, context, 0, parseAssignmentExpression);
     return {
         type: 'SpreadElement',
         argument
@@ -6943,29 +7030,45 @@ function parseNewExpression(state, context) {
             report(state, 1, KeywordDescTable[state.token & 255]);
         callee = parseCallImportOrMetaProperty(state, context);
     }
-    else
+    else {
+        const { bindable, assignable, pendingCoverInitializeError } = state;
+        state.bindable = true;
+        state.assignable = true;
+        state.pendingCoverInitializeError = null;
         callee = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
+        state.bindable = state.bindable && bindable;
+        state.assignable = state.assignable && assignable;
+        state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
+    }
+    const args = state.token === 131083 ? parseArgumentList(state, context) : [];
+    state.assignable = state.bindable = false;
     return {
         type: 'NewExpression',
         callee,
-        arguments: state.token === 131083 ? parseArgumentList(state, context) : []
+        arguments: args
     };
 }
 function parsePrimaryExpression(state, context) {
     switch (state.token) {
         case 131074:
         case 131075:
+            state.bindable = state.assignable = false;
             return parseLiteral(state, context, state.tokenValue);
         case 116:
+            state.bindable = state.assignable = false;
             return parseBigIntLiteral(state, context);
         case 131076:
+            state.bindable = state.assignable = false;
             return parseRegularExpressionLiteral(state, context);
         case 151558:
         case 151557:
+            state.bindable = state.assignable = false;
             return parseLiteral(state, context, state.tokenValue === 'true');
         case 151559:
+            state.bindable = state.assignable = false;
             return parseLiteral(state, context, null);
         case 151646:
+            state.bindable = state.assignable = false;
             return parseThisExpression(state, context);
         case 131091:
             return parseArrayLiteral(state, context & ~8192);
@@ -6974,24 +7077,35 @@ function parsePrimaryExpression(state, context) {
         case 131084:
             return parseObjectLiteral(state, context & ~8192, -1, 0);
         case 151639:
+            state.bindable = state.assignable = false;
             return parseFunctionExpression(state, context, false);
         case 151629:
+            state.bindable = state.assignable = false;
             return parseClassExpression(state, context);
         case 131081:
+            state.bindable = state.assignable = false;
             return parseTemplateLiteral(state, context);
         case 131080:
+            state.bindable = state.assignable = false;
             return parseTemplate(state, context);
         case 151642:
+            state.bindable = state.assignable = false;
             return parseNewExpression(state, context);
         case 151644:
+            state.bindable = state.assignable = false;
             return parseSuperExpression(state, context);
         case 119:
+            state.bindable = state.assignable = false;
             return parseIdentifierNameOrPrivateName(state, context);
         case 1060972: {
-            return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-                ? parseFunctionExpression(state, context, true)
-                : parseIdentifier(state, context);
+            if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
+                state.bindable = state.assignable = false;
+                return parseFunctionExpression(state, context, true);
+            }
+            return parseIdentifier(state, context);
         }
+        case 20561:
+            return parseDoExpression(state, context);
         case 2265194:
             if (context & (2097152 | 1024))
                 report(state, 67);
@@ -7002,6 +7116,15 @@ function parsePrimaryExpression(state, context) {
             report(state, 0);
     }
 }
+function parseDoExpression(state, context) {
+    if ((context & 128) === 0)
+        report(state, 91);
+    expect(state, context, 20561);
+    return {
+        type: 'DoExpression',
+        body: parseBlockStatement(state, context, createScope(1))
+    };
+}
 function parseArrayLiteral(state, context) {
     expect(state, context | 32768, 131091);
     const elements = [];
@@ -7009,10 +7132,32 @@ function parseArrayLiteral(state, context) {
         if (optional(state, context, 18)) {
             elements.push(null);
         }
+        else if (state.token === 14) {
+            expect(state, context | 32768, 14);
+            const argument = acquireGrammar(state, context, 0, parseAssignmentExpression);
+            if (!state.assignable && state.pendingCoverInitializeError) {
+                report(state, 0);
+            }
+            if (argument.type !== 'ArrayExpression' &&
+                argument.type !== 'ObjectExpression' &&
+                !isValidSimpleAssignmentTarget(argument)) {
+                state.bindable = state.assignable = false;
+            }
+            elements.push({
+                type: 'SpreadElement',
+                argument
+            });
+            if (state.token !== 20) {
+                state.bindable = state.assignable = false;
+                expect(state, context, 18);
+            }
+        }
         else {
-            elements.push(state.token === 14 ? parseSpreadElement(state, context) : parseAssignmentExpression(state, context));
-            if (!optional(state, context, 18)) {
-                break;
+            elements.push(acquireGrammar(state, context, 0, parseAssignmentExpression));
+            if (!state.assignable && state.pendingCoverInitializeError)
+                report(state, 0);
+            if (state.token !== 20) {
+                expect(state, context, 18);
             }
         }
     }
@@ -7061,12 +7206,17 @@ function parseFunctionExpression(state, context, isAsync) {
         id
     };
 }
-function parseArrowFunctionExpression(state, context, scope, params, isAsync, ConciseBody) {
-    expect(state, context | (ConciseBody ? 32768 : 0), 131082);
+function parseArrowFunctionExpression(state, context, scope, params, isAsync, type) {
+    if (type & 64) {
+        expect(state, context | 32768, 131082);
+    }
+    else {
+        expect(state, context, 131082);
+        for (let i = 0; i < params.length; ++i)
+            reinterpret(params[i]);
+    }
     if (state.flags & 1)
         report(state, 0);
-    for (let i = 0; i < params.length; ++i)
-        reinterpret(params[i]);
     if (checkIfExistInLexicalBindings(state, context, scope, true))
         report(state, 41);
     context =
@@ -7076,7 +7226,7 @@ function parseArrowFunctionExpression(state, context, scope, params, isAsync, Co
         context |= 4194304;
     const expression = state.token !== 131084;
     const body = expression
-        ? parseAssignmentExpression(state, context)
+        ? secludeGrammar(state, context, parseAssignmentExpression)
         : parseFunctionBody(state, context, createSubScope(scope, 1), state.tokenValue, 0);
     return {
         type: 'ArrowFunctionExpression',
@@ -7090,52 +7240,93 @@ function parseArrowFunctionExpression(state, context, scope, params, isAsync, Co
 function parseParenthesizedExpression(state, context) {
     expect(state, context | 32768, 131083);
     const scope = createScope(5);
-    if (state.token === 16) {
-        next(state, context);
+    if (optional(state, context, 16)) {
         if (state.token !== 131082)
             report(state, 0);
-        state.arrowScope = scope;
-        return [];
+        state.assignable = state.bindable = false;
+        return {
+            type: 2,
+            scope,
+            params: []
+        };
     }
     else if (state.token === 14) {
-        const rest = [parseRestElement(state, context, scope, 1, 0)];
+        const rest = parseRestElement(state, context, scope, 1, 0);
         expect(state, context, 16);
         if (state.token !== 131082)
             report(state, 0);
-        state.arrowScope = scope;
-        return rest;
+        state.assignable = state.bindable = false;
+        return {
+            type: 2,
+            scope,
+            params: [rest]
+        };
     }
-    let expr = parseAssignmentExpression(state, context);
+    let expr = acquireGrammar(state, context, 0, parseAssignmentExpression);
+    let isSequence = false;
     if (state.token === 18) {
-        const expressions = [expr];
+        state.assignable = false;
+        isSequence = true;
+        const params = [expr];
         while (optional(state, context | 32768, 18)) {
+            if (optional(state, context, 16)) {
+                if (state.token !== 131082)
+                    report(state, 0);
+                return {
+                    type: 2,
+                    scope,
+                    params: params
+                };
+            }
+            state.assignable = false;
             if (state.token === 14) {
+                if (!state.bindable)
+                    report(state, 0);
                 const restElement = parseRestElement(state, context, scope, 1, 0);
                 expect(state, context, 16);
                 if (state.token !== 131082)
                     report(state, 0);
-                expressions.push(restElement);
-                return parseArrowFunctionExpression(state, context, scope, expressions, false, false);
+                state.bindable = false;
+                params.push(restElement);
+                return {
+                    type: 2,
+                    scope,
+                    params: params
+                };
             }
             else if (optional(state, context, 16)) {
                 if (state.token !== 131082)
                     report(state, 0);
-                return parseArrowFunctionExpression(state, context, scope, expressions, false, false);
+                return {
+                    type: 2,
+                    scope,
+                    params: params
+                };
             }
             else {
-                expressions.push(parseAssignmentExpression(state, context));
+                params.push(acquireGrammar(state, context, 0, parseAssignmentExpression));
             }
         }
         expr = {
             type: 'SequenceExpression',
-            expressions
+            expressions: params
         };
     }
     expect(state, context, 16);
-    if (state.token === 131082) {
-        state.arrowScope = scope;
-        return expr.type === 'SequenceExpression' ? expr.expressions : [expr];
+    if ((state.flags & 1) === 0 && state.token === 131082) {
+        if (!state.bindable)
+            report(state, 88);
+        state.bindable = false;
+        return {
+            type: 2,
+            scope,
+            params: isSequence ? expr.expressions : [expr],
+            async: false
+        };
     }
+    state.bindable = false;
+    if (!isValidSimpleAssignmentTarget(expr))
+        state.assignable = false;
     return expr;
 }
 function parseClassDeclaration(state, context, scope) {
@@ -7151,7 +7342,7 @@ function parseClassDeclaration(state, context, scope) {
     else if (!(context & 512))
         report(state, 0);
     if (optional(state, context, 20564)) {
-        superClass = parseLeftHandSideExpression(state, context);
+        superClass = secludeGrammar(state, context, parseLeftHandSideExpression);
         context |= 524288;
     }
     else
@@ -7176,7 +7367,7 @@ function parseClassExpression(state, context) {
         id = parseIdentifier(state, context);
     }
     if (optional(state, context, 20564)) {
-        superClass = parseLeftHandSideExpression(state, context);
+        superClass = secludeGrammar(state, context, parseLeftHandSideExpression);
         context |= 524288;
     }
     else
@@ -7479,134 +7670,144 @@ function parseObjectLiteral(state, context, scope, type) {
     let token = state.token;
     let tokenValue = state.tokenValue;
     let value;
-    let protoCount = 0;
+    let hasProto = false;
     const properties = [];
     let objState = 0;
-    while (state.token !== 536870927) {
+    const { assignable, bindable, pendingCoverInitializeError } = state;
+    state.bindable = true;
+    state.assignable = true;
+    state.pendingCoverInitializeError = null;
+    while ((state.token & 536870927) !== 536870927) {
         if (state.token === 14) {
             properties.push(parseSpreadElement(state, context));
         }
         else {
             if (state.token & 274432) {
-                {
-                    token = state.token;
-                    tokenValue = state.tokenValue;
-                    objState = 0;
-                    key = parseIdentifier(state, context);
-                    if (state.token === 18 || state.token === 536870927 || state.token === 8388637) {
-                        objState |= 4;
-                        if (tokenValue !== 'eval' || tokenValue !== 'arguments') {
-                            validateBindingIdentifier(state, context, type, token);
-                        }
-                        addVariable(state, context, scope, type, false, false, tokenValue);
-                        if (optional(state, context, 8388637)) {
-                            value = {
-                                type: 'AssignmentExpression',
-                                left: key,
-                                operator: '=',
-                                right: parseAssignmentExpression(state, context)
-                            };
-                        }
-                        else {
-                            value = key;
-                        }
+                token = state.token;
+                tokenValue = state.tokenValue;
+                objState = 0;
+                key = parseIdentifier(state, context);
+                if (state.token === 18 || state.token === 536870927 || state.token === 8388637) {
+                    objState |= 4;
+                    if (tokenValue !== 'eval' || tokenValue !== 'arguments') {
+                        validateBindingIdentifier(state, context, type, token);
                     }
-                    else if (optional(state, context | 32768, 21)) {
-                        if (tokenValue === '__proto__')
-                            state.flags |= 32;
-                        if (state.token & 274432) {
-                            tokenValue = state.tokenValue;
-                            value = parseAssignmentExpression(state, context);
-                            addVariable(state, context, scope, type, false, false, tokenValue);
+                    addVariable(state, context, scope, type, false, false, tokenValue);
+                    if (state.token === 8388637) {
+                        state.pendingCoverInitializeError = 87;
+                        expect(state, context, 8388637);
+                        value = parseAssignmentPattern(state, context, key);
+                    }
+                    else {
+                        value = key;
+                    }
+                }
+                else if (optional(state, context | 32768, 21)) {
+                    if (tokenValue === '__proto__') {
+                        if (hasProto) {
+                            state.pendingCoverInitializeError = 87;
                         }
-                        else {
-                            value = parseAssignmentExpression(state, context);
-                        }
+                        else
+                            hasProto = true;
+                    }
+                    if (state.token & 274432) {
+                        tokenValue = state.tokenValue;
+                        addVariable(state, context, scope, type, false, false, tokenValue);
+                    }
+                    value = acquireGrammar(state, context, 0, parseAssignmentExpression);
+                }
+                else if (state.token === 131091) {
+                    key = parseComputedPropertyName(state, context);
+                    if (token === 1060972) {
+                        objState |= 16 | 2 | 1;
+                    }
+                    else {
+                        if ((token & 12399) === 12399)
+                            objState = (objState & ~512) | 256;
+                        else if ((token & 12400) === 12400)
+                            objState = (objState & ~256) | 512;
+                        objState |= 2 & ~1;
+                    }
+                    if (state.token !== 131083)
+                        report(state, 0);
+                    state.bindable = state.assignable = false;
+                    value = parseMethodDeclaration(state, context, objState);
+                }
+                else if (state.token === 131083) {
+                    objState = objState | (1 & ~(16 | 8));
+                    state.bindable = state.assignable = false;
+                    value = parseMethodDeclaration(state, context, objState);
+                }
+                else if (token === 1060972) {
+                    objState |= 16;
+                    if (optional(state, context, 21105203))
+                        objState |= 8;
+                    if (state.token & 274432) {
+                        key = parseIdentifier(state, context);
+                    }
+                    else if (state.token === 131074 || state.token === 131075) {
+                        key = parseLiteral(state, context, state.tokenValue);
                     }
                     else if (state.token === 131091) {
                         key = parseComputedPropertyName(state, context);
-                        if (token === 1060972) {
-                            objState |= 16 | 2 | 1;
-                        }
-                        else {
-                            if ((token & 12399) === 12399)
-                                objState = (objState & ~512) | 256;
-                            else if ((token & 12400) === 12400)
-                                objState = (objState & ~256) | 512;
-                            objState |= 2 & ~1;
-                        }
-                        if (state.token !== 131083)
-                            report(state, 0);
-                        value = parseMethodDeclaration(state, context, objState);
                     }
-                    else if (state.token === 131083) {
-                        objState = objState | (1 & ~(16 | 8));
-                        value = parseMethodDeclaration(state, context, objState);
+                    else {
+                        report(state, 0);
                     }
-                    else if (token === 1060972) {
-                        objState |= 16;
-                        if (optional(state, context, 21105203))
-                            objState |= 8;
-                        if (state.token & 274432) {
-                            key = parseIdentifier(state, context);
-                        }
-                        else if (state.token === 131074 || state.token === 131075) {
-                            key = parseLiteral(state, context, state.tokenValue);
-                        }
-                        else if (state.token === 131091) {
-                            key = parseComputedPropertyName(state, context);
-                        }
-                        else {
-                            report(state, 0);
-                        }
-                        if (state.token !== 131083)
-                            report(state, 0);
-                        objState |= 1 | 16;
-                        value = parseMethodDeclaration(state, context, objState);
+                    if (state.token !== 131083)
+                        report(state, 0);
+                    objState |= 1 | 16;
+                    state.bindable = state.assignable = false;
+                    value = parseMethodDeclaration(state, context, objState);
+                }
+                else if ((token & 12399) === 12399 || (token & 12400) === 12400) {
+                    if ((token & 12399) === 12399) {
+                        objState = (objState & ~512) | 256;
                     }
-                    else if ((token & 12399) === 12399 ||
-                        (token & 12400) === 12400) {
-                        if ((token & 12399) === 12399) {
-                            objState = (objState & ~512) | 256;
-                        }
-                        else if ((token & 12400) === 12400) {
-                            objState = (objState & ~256) | 512;
-                        }
-                        else if (state.token !== 1060972)
-                            report(state, 0);
-                        if (optional(state, context, 21105203))
-                            report(state, 0);
-                        if (state.token & 274432) {
-                            key = parseIdentifier(state, context);
-                        }
-                        else if (state.token === 131074 || state.token === 131075) {
-                            key = parseLiteral(state, context, state.tokenValue);
-                        }
-                        else if (state.token === 131091) {
-                            key = parseComputedPropertyName(state, context);
-                        }
-                        else {
-                            report(state, 0);
-                        }
-                        if (state.token !== 131083)
-                            report(state, 0);
-                        objState &= ~(1 | 2 | 8 | 16);
-                        value = parseMethodDeclaration(state, context, objState);
+                    else if ((token & 12400) === 12400) {
+                        objState = (objState & ~256) | 512;
                     }
+                    else if (state.token !== 1060972)
+                        report(state, 0);
+                    if (optional(state, context, 21105203))
+                        report(state, 0);
+                    if (state.token & 274432) {
+                        key = parseIdentifier(state, context);
+                    }
+                    else if (state.token === 131074 || state.token === 131075) {
+                        key = parseLiteral(state, context, state.tokenValue);
+                    }
+                    else if (state.token === 131091) {
+                        key = parseComputedPropertyName(state, context);
+                    }
+                    else {
+                        report(state, 0);
+                    }
+                    if (state.token !== 131083)
+                        report(state, 0);
+                    objState &= ~(1 | 2 | 8 | 16);
+                    state.bindable = state.assignable = false;
+                    value = parseMethodDeclaration(state, context, objState);
                 }
             }
             else if (state.token === 131074 || state.token === 131075) {
                 tokenValue = state.tokenValue;
                 key = parseLiteral(state, context, tokenValue);
                 if (optional(state, context | 32768, 21)) {
-                    if (tokenValue === '__proto__')
-                        state.flags |= 32;
-                    value = parseAssignmentExpression(state, context);
+                    if (tokenValue === '__proto__') {
+                        if (hasProto) {
+                            state.pendingCoverInitializeError = 87;
+                        }
+                        else
+                            hasProto = true;
+                    }
+                    value = acquireGrammar(state, context, 0, parseAssignmentExpression);
                     addVariable(state, context, scope, type, false, false, tokenValue);
                 }
                 else {
                     if (state.token !== 131083)
                         report(state, 0);
+                    state.bindable = state.assignable = false;
                     value = parseMethodDeclaration(state, context, objState);
                     objState |= 1;
                 }
@@ -7623,6 +7824,7 @@ function parseObjectLiteral(state, context, scope, type) {
                     objState |= 1;
                     if (state.token !== 131083)
                         report(state, 0);
+                    state.bindable = state.assignable = false;
                     value = parseMethodDeclaration(state, context, objState);
                 }
             }
@@ -7633,6 +7835,7 @@ function parseObjectLiteral(state, context, scope, type) {
                     objState &= ~(1 | 16);
                     key = parseIdentifier(state, context);
                     if (state.token === 131083) {
+                        state.bindable = state.assignable = false;
                         value = parseMethodDeclaration(state, context, objState | 8);
                         objState |= 1 | 8;
                     }
@@ -7648,11 +7851,13 @@ function parseObjectLiteral(state, context, scope, type) {
                 }
                 else if (state.token === 131074 || state.token === 131075) {
                     key = parseLiteral(state, context, state.tokenValue);
+                    state.bindable = state.assignable = false;
                     value = parseMethodDeclaration(state, context, objState | 8);
                     objState |= 1;
                 }
                 else if (state.token === 131091) {
                     key = parseComputedPropertyName(state, context);
+                    state.bindable = state.assignable = false;
                     value = parseMethodDeclaration(state, context, objState | 8);
                     objState |= 1 | 2;
                 }
@@ -7663,8 +7868,6 @@ function parseObjectLiteral(state, context, scope, type) {
             else {
                 report(state, 1, KeywordDescTable[state.token & 255]);
             }
-            if (state.flags & 32)
-                ++protoCount;
             properties.push({
                 type: 'Property',
                 key,
@@ -7678,14 +7881,30 @@ function parseObjectLiteral(state, context, scope, type) {
         optional(state, context, 18);
     }
     expect(state, context, 536870927);
-    if (protoCount === 1)
-        state.flags &= ~32;
+    state.flags &= ~32;
+    state.bindable = state.bindable && bindable;
+    state.assignable = state.assignable && assignable;
+    state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
     return {
         type: 'ObjectExpression',
         properties
     };
 }
 function parseMethodDeclaration(state, context, objState) {
+    state.assignable = state.bindable = false;
+    const { assignable, bindable, pendingCoverInitializeError } = state;
+    state.bindable = state.assignable = true;
+    state.pendingCoverInitializeError = null;
+    const result = parsePropertyMethod(state, context, objState);
+    if (state.pendingCoverInitializeError !== null) {
+        report(state, 0);
+    }
+    state.bindable = bindable;
+    state.assignable = assignable;
+    state.pendingCoverInitializeError = pendingCoverInitializeError;
+    return result;
+}
+function parsePropertyMethod(state, context, objState) {
     let functionScope = createScope(1);
     let id = null;
     let firstRestricted;
@@ -7729,11 +7948,15 @@ function parseMethodDeclaration(state, context, objState) {
     };
 }
 function parseLiteral(state, context, value) {
+    const { tokenRaw } = state;
     next(state, context);
-    return {
+    const node = {
         type: 'Literal',
         value
     };
+    if (context & 8)
+        node.raw = tokenRaw;
+    return node;
 }
 function parseThisExpression(state, context) {
     next(state, context);
@@ -7742,12 +7965,15 @@ function parseThisExpression(state, context) {
     };
 }
 function parseIdentifier(state, context) {
-    const tokenValue = state.tokenValue;
+    const { tokenRaw, tokenValue } = state;
     next(state, context);
-    return {
+    const node = {
         type: 'Identifier',
         name: tokenValue
     };
+    if (context & 8)
+        node.raw = tokenRaw;
+    return node;
 }
 function parseRegularExpressionLiteral(state, context) {
     const { tokenRegExp: regex, tokenValue: value } = state;
@@ -7774,8 +8000,6 @@ function parseSource(source, options, context) {
     let onComment;
     let onToken;
     if (options != null) {
-        const ecmaVersion = options.ecmaVersion || 10;
-        options.ecmaVersion = (ecmaVersion > 2009 ? ecmaVersion - 2009 : ecmaVersion);
         if (options.module)
             context |= 2048;
         if (options.next)
@@ -7822,18 +8046,25 @@ function parseSource(source, options, context) {
     const state = create(source, onComment, onToken);
     skipHashBang(state, context);
     const scope = createScope(1);
-    const node = {
-        type: 'Program',
-        sourceType: context & 2048 ? 'module' : 'script',
-        body: parseTopLevel(state, context | 4096, scope)
-    };
+    let body;
+    let sourceType = 'script';
     if (context & 2048) {
+        sourceType = 'module';
+        body = parseModuleItem(state, context | 4096, scope);
         for (const key in state.exportedBindings) {
             if (key[0] === '@' && key !== '#default' && (scope.var[key] === undefined && scope.lex[key] === undefined)) {
                 report(state, 47, key.slice(1));
             }
         }
     }
+    else {
+        body = parseStatementList(state, context | 4096, scope);
+    }
+    const node = {
+        type: 'Program',
+        sourceType,
+        body
+    };
     if (context & 2) {
         node.start = 0;
         node.end = source.length;
