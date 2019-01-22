@@ -13,7 +13,8 @@ describe('Declarations - Var', () => {
     ['var foo = {}; foo.-;', Context.Empty],
     ['"use strict"; var foo = {}; foo.-;', Context.Empty],
     ['var foo = {}; foo.--;', Context.Empty],
-    ['{ let x; var x; }', Context.Empty]
+    ['{ let x; var x; }', Context.Empty],
+    ['var {foo};', Context.Empty]
   ];
 
   fail('Declarations - Var (fail)', inValids);
@@ -2508,46 +2509,6 @@ describe('Declarations - Var', () => {
           }
         ],
         sourceType: 'script'
-      }
-    ],
-    [
-      'var {foo};',
-      Context.Empty,
-      {
-        body: [
-          {
-            declarations: [
-              {
-                id: {
-                  properties: [
-                    {
-                      computed: false,
-                      key: {
-                        name: 'foo',
-                        type: 'Identifier'
-                      },
-                      kind: 'init',
-                      method: false,
-                      shorthand: true,
-                      type: 'Property',
-                      value: {
-                        name: 'foo',
-                        type: 'Identifier'
-                      }
-                    }
-                  ],
-                  type: 'ObjectPattern'
-                },
-                init: null,
-                type: 'VariableDeclarator'
-              }
-            ],
-            kind: 'var',
-            type: 'VariableDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
       }
     ],
     [

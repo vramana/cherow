@@ -1975,25 +1975,22 @@ export function parseVariableDeclarationList(
   checkForDuplicates: boolean,
   scope: ScopeState
 ): any {
-  const elementCount = 1;
+  let elementCount = 1;
   const list: any[] = [parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope)];
   while (optional(state, context, Token.Comma)) {
     list.push(parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope));
+    ++elementCount;
   }
-  if (origin === Origin.ForStatement && (state.token === Token.InKeyword || state.token === Token.OfKeyword)) {
-    if (
-      state.token === Token.OfKeyword ||
-      type === Type.Variable ||
-      context & (Context.OptionsDisableWebCompat | Context.Strict)
-    ) {
-      if (elementCount > 1) {
-        report(state, Errors.Unexpected);
-      }
-    }
+
+  if (origin & Origin.ForStatement && isInOrOf(state) && elementCount > 1) {
+    report(state, Errors.Unexpected);
   }
   return list;
 }
 
+export function isInOrOf(state: ParserState): boolean {
+  return state.token === Token.InKeyword || state.token === Token.OfKeyword;
+}
 /**
  * VariableDeclaration :
  *   BindingIdentifier Initializeropt
@@ -2018,15 +2015,21 @@ function parseVariableDeclaration(
   checkForDuplicates: boolean,
   scope: ScopeState
 ): any {
+  const isBinding = state.token === Token.LeftBrace || state.token === Token.LeftBracket;
   const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
+
   let init: any = null;
+
   if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
     init = secludeGrammar(state, context, 0, parseAssignmentExpression);
-  } else if (
-    type & Type.Const &&
-    ((origin & Origin.ForStatement) < 1 || (state.token === Token.Semicolon || state.token === Token.Comma))
-  ) {
-    report(state, Errors.MissingInitInConstDecl);
+    if (isInOrOf(state) && (origin & Origin.ForStatement || isBinding)) {
+      // https://github.com/tc39/test262/blob/master/test/annexB/language/statements/for-in/strict-initializer.js
+      if ((type & Type.Variable) === 0 || context & (Context.OptionsDisableWebCompat | Context.Strict) || isBinding) {
+        report(state, Errors.Unexpected);
+      }
+    }
+  } else if ((type & Type.Const || isBinding) && !isInOrOf(state)) {
+    report(state, Errors.Unexpected, type & Type.Const ? 'const' : 'destructuring');
   }
 
   return {

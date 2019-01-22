@@ -20,7 +20,8 @@ describe('Statements - For of', () => {
     ['for(const x of [], []) {}', Context.OptionsDisableWebCompat],
     ['for(x of [], []) {}', Context.OptionsDisableWebCompat],
     ['for(var x of [], []) {}', Context.OptionsDisableWebCompat],
-    ['for(let x of [], []) {}', Context.OptionsDisableWebCompat]
+    ['for(let x of [], []) {}', Context.OptionsDisableWebCompat],
+    ['for (var i, j of {}) {}', Context.OptionsDisableWebCompat]
   ];
 
   const programs = [
@@ -36,7 +37,6 @@ describe('Statements - For of', () => {
     'for (j of x) { var [foo] = [j] }',
     'for (j of x) { var [foo] = [j] }',
     'for (j of x) { const [foo] = [j] }',
-    'for (var i, j of {}) {}',
     'for (j of x) { function foo() {return j} }',
     'for ({j} of x) { foo = j }',
     'for ({j} of x) { let foo = j }',
