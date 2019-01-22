@@ -88,7 +88,8 @@ describe('Expressions - Switch', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
-              value: 'use strict'
+              value: 'use strict',
+              raw: '"use strict"'
             },
             directive: 'use strict'
           },
@@ -96,14 +97,16 @@ describe('Expressions - Switch', () => {
             type: 'SwitchStatement',
             discriminant: {
               type: 'Identifier',
-              name: 'x'
+              name: 'x',
+              raw: 'x'
             },
             cases: [
               {
                 type: 'SwitchCase',
                 test: {
                   type: 'Literal',
-                  value: 1
+                  value: 1,
+                  raw: '1'
                 },
                 consequent: []
               }

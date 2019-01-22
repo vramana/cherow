@@ -26,8 +26,8 @@ describe('Expressions - Functions', () => {
     ['(function eval() {"use strict";})', Context.Empty],
 
     // General
-    // ['"use strict"; (function eval(){})', Context.Empty],
-    // ['"use strict"; (function eval(){})', Context.Empty],
+    ['"use strict"; (function eval(){})', Context.Empty],
+    ['"use strict"; (function eval(){})', Context.Empty],
 
     ['(function arguments(){ "use strict"; })', Context.Empty],
     ['(function arguments(){ "use strict"; })', Context.Empty],

@@ -1,8 +1,8 @@
 import { Context } from '../../../src/common';
 import { pass } from '../../test-utils';
 
-describe('Expressions - Precedence', () => {
-  pass('Expressions - Postfix (pass)', [
+describe('Miscellaneous - Precedence', () => {
+  pass('Miscellaneous - Precedence (pass)', [
     [
       '(a * b + c) * d',
       Context.Empty,

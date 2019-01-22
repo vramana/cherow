@@ -156,6 +156,7 @@ describe('Miscellaneous - Directives', () => {
                 {
                   expression: {
                     type: 'Literal',
+                    raw: "'use strict'",
                     value: 'use strict'
                   },
                   type: 'ExpressionStatement'
@@ -167,6 +168,7 @@ describe('Miscellaneous - Directives', () => {
                   },
                   object: {
                     name: 'a',
+                    raw: 'a',
                     type: 'Identifier'
                   },
                   type: 'WithStatement'
@@ -177,6 +179,7 @@ describe('Miscellaneous - Directives', () => {
             generator: false,
             id: {
               name: 'foo',
+              raw: 'foo',
               type: 'Identifier'
             },
             params: [],
@@ -197,118 +200,16 @@ describe('Miscellaneous - Directives', () => {
             directive: 'foo',
             expression: {
               type: 'Literal',
+              raw: '"foo"',
               value: 'foo'
             },
             type: 'ExpressionStatement'
           },
           {
             expression: {
+              raw: 'x',
               name: 'x',
               type: 'Identifier'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      '"foo";"bar";',
-      Context.OptionsDirectives | Context.OptionsRaw,
-      {
-        body: [
-          {
-            directive: 'foo',
-            expression: {
-              type: 'Literal',
-              value: 'foo'
-            },
-            type: 'ExpressionStatement'
-          },
-          {
-            directive: 'bar',
-            expression: {
-              type: 'Literal',
-              value: 'bar'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      '\'foo\';\n"bar";',
-      Context.OptionsDirectives | Context.OptionsRaw,
-      {
-        body: [
-          {
-            directive: 'foo',
-            expression: {
-              type: 'Literal',
-              value: 'foo'
-            },
-            type: 'ExpressionStatement'
-          },
-          {
-            directive: 'bar',
-            expression: {
-              type: 'Literal',
-              value: 'bar'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      '"foo";\n\'bar\';',
-      Context.OptionsDirectives | Context.OptionsRaw,
-      {
-        body: [
-          {
-            directive: 'foo',
-            expression: {
-              type: 'Literal',
-              value: 'foo'
-            },
-            type: 'ExpressionStatement'
-          },
-          {
-            directive: 'bar',
-            expression: {
-              type: 'Literal',
-              value: 'bar'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      '"foo";/*abc\nxyz*/"bar";',
-      Context.OptionsDirectives | Context.OptionsRaw,
-      {
-        body: [
-          {
-            directive: 'foo',
-            expression: {
-              type: 'Literal',
-              value: 'foo'
-            },
-            type: 'ExpressionStatement'
-          },
-          {
-            directive: 'bar',
-            expression: {
-              type: 'Literal',
-              value: 'bar'
             },
             type: 'ExpressionStatement'
           }
@@ -327,10 +228,12 @@ describe('Miscellaneous - Directives', () => {
             expression: {
               left: {
                 type: 'Literal',
-                value: 'ignore me'
+                value: 'ignore me',
+                raw: '"ignore me"'
               },
               operator: '+',
               right: {
+                raw: 'x',
                 name: 'x',
                 type: 'Identifier'
               },
@@ -356,6 +259,7 @@ describe('Miscellaneous - Directives', () => {
                   directive: 'foo',
                   expression: {
                     type: 'Literal',
+                    raw: "'foo'",
                     value: 'foo'
                   },
                   type: 'ExpressionStatement'
@@ -366,6 +270,7 @@ describe('Miscellaneous - Directives', () => {
             generator: false,
             id: {
               name: 'f',
+              raw: 'f',
               type: 'Identifier'
             },
             params: [],
@@ -389,6 +294,7 @@ describe('Miscellaneous - Directives', () => {
                   directive: 'foo',
                   expression: {
                     type: 'Literal',
+                    raw: '"foo"',
                     value: 'foo'
                   },
                   type: 'ExpressionStatement'
@@ -399,103 +305,11 @@ describe('Miscellaneous - Directives', () => {
             generator: false,
             id: {
               name: 'f',
+              raw: 'f',
               type: 'Identifier'
             },
             params: [],
             type: 'FunctionDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      'function f(){\n"foo"\n// stuff here\n"bar";\n}',
-      Context.OptionsDirectives | Context.OptionsRaw,
-      {
-        body: [
-          {
-            async: false,
-            body: {
-              body: [
-                {
-                  directive: 'foo',
-                  expression: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  type: 'ExpressionStatement'
-                },
-                {
-                  directive: 'bar',
-                  expression: {
-                    type: 'Literal',
-                    value: 'bar'
-                  },
-                  type: 'ExpressionStatement'
-                }
-              ],
-              type: 'BlockStatement'
-            },
-            generator: false,
-            id: {
-              name: 'f',
-              type: 'Identifier'
-            },
-            params: [],
-            type: 'FunctionDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      '"foo";\n"bar";',
-      Context.OptionsDirectives | Context.OptionsRaw,
-      {
-        body: [
-          {
-            directive: 'foo',
-            expression: {
-              type: 'Literal',
-              value: 'foo'
-            },
-            type: 'ExpressionStatement'
-          },
-          {
-            directive: 'bar',
-            expression: {
-              type: 'Literal',
-              value: 'bar'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      '\'foo\';\n"bar";',
-      Context.OptionsDirectives | Context.OptionsRaw,
-      {
-        body: [
-          {
-            directive: 'foo',
-            expression: {
-              type: 'Literal',
-              value: 'foo'
-            },
-            type: 'ExpressionStatement'
-          },
-          {
-            directive: 'bar',
-            expression: {
-              type: 'Literal',
-              value: 'bar'
-            },
-            type: 'ExpressionStatement'
           }
         ],
         sourceType: 'script',
@@ -511,6 +325,7 @@ describe('Miscellaneous - Directives', () => {
             directive: 'ignore me',
             expression: {
               type: 'Literal',
+              raw: '"ignore me"',
               value: 'ignore me'
             },
             type: 'ExpressionStatement'
@@ -518,6 +333,7 @@ describe('Miscellaneous - Directives', () => {
           {
             expression: {
               argument: {
+                raw: 'x',
                 name: 'x',
                 type: 'Identifier'
               },
@@ -543,6 +359,7 @@ describe('Miscellaneous - Directives', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
+              raw: '"use strict"',
               value: 'use strict'
             }
           },
@@ -552,11 +369,13 @@ describe('Miscellaneous - Directives', () => {
               type: 'AssignmentExpression',
               left: {
                 type: 'Identifier',
-                name: 'foo'
+                name: 'foo',
+                raw: 'foo'
               },
               operator: '=',
               right: {
                 type: 'Literal',
+                raw: '42',
                 value: 42
               }
             }
@@ -575,6 +394,7 @@ describe('Miscellaneous - Directives', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
+              raw: '"use strict"',
               value: 'use strict'
             }
           },
@@ -584,11 +404,13 @@ describe('Miscellaneous - Directives', () => {
               type: 'AssignmentExpression',
               left: {
                 type: 'Identifier',
+                raw: 'eval',
                 name: 'eval'
               },
               operator: '=',
               right: {
                 type: 'Literal',
+                raw: '42',
                 value: 42
               }
             }
@@ -607,6 +429,7 @@ describe('Miscellaneous - Directives', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
+              raw: '"USE STRICT"',
               value: 'USE STRICT'
             },
             directive: 'USE STRICT'
@@ -619,6 +442,7 @@ describe('Miscellaneous - Directives', () => {
                 type: 'VariableDeclarator',
                 init: {
                   type: 'Literal',
+                  raw: '1',
                   value: 1
                 },
                 id: {
@@ -629,39 +453,6 @@ describe('Miscellaneous - Directives', () => {
             ]
           }
         ]
-      }
-    ],
-    [
-      "function f(){\n'foo';\n}",
-      Context.OptionsDirectives | Context.OptionsRaw,
-      {
-        body: [
-          {
-            async: false,
-            body: {
-              body: [
-                {
-                  directive: 'foo',
-                  expression: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  type: 'ExpressionStatement'
-                }
-              ],
-              type: 'BlockStatement'
-            },
-            generator: false,
-            id: {
-              name: 'f',
-              type: 'Identifier'
-            },
-            params: [],
-            type: 'FunctionDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
       }
     ],
     [
@@ -678,6 +469,7 @@ describe('Miscellaneous - Directives', () => {
                     directive: 'use strict',
                     expression: {
                       type: 'Literal',
+                      raw: '"use strict"',
                       value: 'use strict'
                     },
                     type: 'ExpressionStatement'
@@ -714,7 +506,8 @@ describe('Miscellaneous - Directives', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
-                    value: 'use asm'
+                    value: 'use asm',
+                    raw: '"use asm"'
                   },
                   directive: 'use asm'
                 },
@@ -722,6 +515,7 @@ describe('Miscellaneous - Directives', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
+                    raw: '"use strict"',
                     value: 'use strict'
                   },
                   directive: 'use strict'
@@ -730,6 +524,7 @@ describe('Miscellaneous - Directives', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Identifier',
+                    raw: 'foo',
                     name: 'foo'
                   }
                 }
@@ -739,6 +534,7 @@ describe('Miscellaneous - Directives', () => {
             generator: false,
             id: {
               type: 'Identifier',
+              raw: 'wrap',
               name: 'wrap'
             }
           }
@@ -759,6 +555,7 @@ describe('Miscellaneous - Directives', () => {
                 type: 'ExpressionStatement',
                 expression: {
                   type: 'Literal',
+                  raw: '"use strict"',
                   value: 'use strict'
                 }
               }
@@ -784,6 +581,7 @@ describe('Miscellaneous - Directives', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
+                    raw: '"use strict"',
                     value: 'use strict'
                   },
                   directive: 'use strict'
@@ -794,6 +592,7 @@ describe('Miscellaneous - Directives', () => {
             generator: false,
             id: {
               type: 'Identifier',
+              raw: 'a',
               name: 'a'
             }
           },
@@ -801,6 +600,7 @@ describe('Miscellaneous - Directives', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
+              raw: '"use strict"',
               value: 'use strict'
             }
           },
@@ -808,6 +608,7 @@ describe('Miscellaneous - Directives', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Identifier',
+              raw: 'foo',
               name: 'foo'
             }
           }
@@ -831,6 +632,7 @@ describe('Miscellaneous - Directives', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
+                    raw: '"Esprima uses directives"',
                     value: 'Esprima uses directives'
                   },
                   directive: 'Esprima uses directives'
@@ -839,6 +641,7 @@ describe('Miscellaneous - Directives', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
+                    raw: '"use strict"',
                     value: 'use strict'
                   },
                   directive: 'use strict'
@@ -849,6 +652,7 @@ describe('Miscellaneous - Directives', () => {
             generator: false,
             id: {
               type: 'Identifier',
+              raw: 'f',
               name: 'f'
             }
           }
@@ -872,13 +676,15 @@ describe('Miscellaneous - Directives', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
-                    value: 123
+                    value: 123,
+                    raw: '123'
                   }
                 },
                 {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
+                    raw: '"use strict"',
                     value: 'use strict'
                   }
                 }
@@ -888,6 +694,7 @@ describe('Miscellaneous - Directives', () => {
             generator: false,
             id: {
               type: 'Identifier',
+              raw: 'f',
               name: 'f'
             }
           }
@@ -911,6 +718,7 @@ describe('Miscellaneous - Directives', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
+                    raw: '"use strict"',
                     value: 'use strict'
                   },
                   directive: 'use strict'
@@ -921,6 +729,7 @@ describe('Miscellaneous - Directives', () => {
             generator: false,
             id: {
               type: 'Identifier',
+              raw: 'f',
               name: 'f'
             }
           }
@@ -949,6 +758,7 @@ describe('Miscellaneous - Directives', () => {
                       type: 'ExpressionStatement',
                       expression: {
                         type: 'Literal',
+                        raw: '"use strict"',
                         value: 'use strict'
                       },
                       directive: 'use strict'
@@ -959,7 +769,8 @@ describe('Miscellaneous - Directives', () => {
                 generator: false,
                 id: {
                   type: 'Identifier',
-                  name: 'f'
+                  name: 'f',
+                  raw: 'f'
                 }
               },
               prefix: true
@@ -984,7 +795,8 @@ describe('Miscellaneous - Directives', () => {
                   type: 'Property',
                   key: {
                     type: 'Identifier',
-                    name: 'x'
+                    name: 'x',
+                    raw: 'x'
                   },
                   value: {
                     type: 'FunctionExpression',
@@ -996,6 +808,7 @@ describe('Miscellaneous - Directives', () => {
                           type: 'ExpressionStatement',
                           expression: {
                             type: 'Literal',
+                            raw: '"use strict"',
                             value: 'use strict'
                           },
                           directive: 'use strict'
@@ -1039,7 +852,8 @@ describe('Miscellaneous - Directives', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
-                    value: 'use strict'
+                    value: 'use strict',
+                    raw: '"use strict"'
                   },
                   directive: 'use strict'
                 }
@@ -1049,7 +863,8 @@ describe('Miscellaneous - Directives', () => {
             generator: false,
             id: {
               type: 'Identifier',
-              name: 'f'
+              name: 'f',
+              raw: 'f'
             }
           }
         ]
@@ -1081,8 +896,10 @@ describe('Miscellaneous - Directives', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
+                    raw: '"use strict"',
                     value: 'use strict'
                   },
+
                   directive: 'use strict'
                 }
               ]
@@ -1091,7 +908,8 @@ describe('Miscellaneous - Directives', () => {
             generator: false,
             id: {
               type: 'Identifier',
-              name: 'f'
+              name: 'f',
+              raw: 'f'
             }
           }
         ]
@@ -1113,7 +931,8 @@ describe('Miscellaneous - Directives', () => {
                   type: 'Property',
                   key: {
                     type: 'Identifier',
-                    name: 'x'
+                    name: 'x',
+                    raw: 'x'
                   },
                   value: {
                     type: 'FunctionExpression',
@@ -1134,7 +953,8 @@ describe('Miscellaneous - Directives', () => {
                           type: 'ExpressionStatement',
                           expression: {
                             type: 'Literal',
-                            value: 'use strict'
+                            value: 'use strict',
+                            raw: '"use strict"'
                           },
                           directive: 'use strict'
                         }

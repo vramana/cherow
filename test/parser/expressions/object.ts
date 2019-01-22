@@ -114,7 +114,12 @@ describe('Expressions - Object', () => {
     ['s = {foo: yield /x/}', Context.Empty],
 
     ['s = {foo: yield / x}', Context.Strict],
-    ['s = {foo: yield}', Context.Strict]
+    ['s = {foo: yield}', Context.Strict],
+
+    ['x = {\'__proto__\': 1, "__proto__": 2}', Context.Empty],
+    ['x = {__proto__: 1, "__proto__": 2}', Context.Empty],
+    ["x = {'__proto__': 1, __proto__: 2}", Context.Empty],
+    ['({ __proto__: b, "__proto__": c})', Context.Empty]
   ];
 
   // [      '{ function a() {} ; function b() {} }', Context.Empty,   {}],
@@ -5573,54 +5578,6 @@ describe('Expressions - Object', () => {
             }
           }
         ]
-      }
-    ],
-    [
-      '({ __proto__: b, "__proto__": c})',
-      Context.OptionsDisableWebCompat,
-      {
-        body: [
-          {
-            expression: {
-              properties: [
-                {
-                  computed: false,
-                  key: {
-                    name: '__proto__',
-                    type: 'Identifier'
-                  },
-                  kind: 'init',
-                  method: false,
-                  shorthand: false,
-                  type: 'Property',
-                  value: {
-                    name: 'b',
-                    type: 'Identifier'
-                  }
-                },
-                {
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: '__proto__'
-                  },
-                  kind: 'init',
-                  method: false,
-                  shorthand: false,
-                  type: 'Property',
-                  value: {
-                    name: 'c',
-                    type: 'Identifier'
-                  }
-                }
-              ],
-              type: 'ObjectExpression'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
       }
     ],
     [

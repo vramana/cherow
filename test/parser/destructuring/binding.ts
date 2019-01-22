@@ -4,6 +4,55 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Destructuring - Binding', () => {});
+
+const invalidSyntax = [
+  '({e: a.b}) => 0',
+  'function a({e: a.b}) {}',
+  'function* a({e: a.b}) {}',
+  '(function ({e: a.b}) {})',
+  '(function* ({e: a.b}) {})',
+  '(function* ([a.b]) {})',
+  '({a([a.b]){}})',
+  '({*a([a.b]){}})',
+  '({set a([a.b]){}})',
+  'function a([a.b]) {}',
+  '([a.b]) => 0',
+  '({a({e: a.b}){}})',
+  '({*a({e: a.b}){}})',
+  '({set a({e: a.b}){}})',
+  '({a = 0});',
+  //'({a} += 0);',
+  '([{x: y.z}]) => b',
+  '([{x: y.z}] = a) => b',
+  '([{x: y.z} = a]) => b',
+  '({a,,} = 0)',
+  '({,a,} = 0)',
+  '({a,,a} = 0)',
+  '({function} = 0)',
+  '({a:function} = 0)',
+  // '({a:for} = 0)',
+  "({'a'} = 0)",
+  '({var} = 0)',
+  '({a.b} = 0)',
+  '{a = [...b, c]} = 0',
+  '[a, ...b, {c=0}]',
+  '({0} = 0)'
+];
+
+for (const arg of invalidSyntax) {
+  it(`${arg}`, () => {
+    t.throws(() => {
+      parseSource(`${arg}`, undefined, Context.Empty);
+    });
+  });
+
+  it(`${arg}`, () => {
+    t.throws(() => {
+      parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+    });
+  });
+}
+
 const validSyntax = [
   '({x} = 0)',
   '({x,} = 0)',

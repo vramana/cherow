@@ -7,7 +7,7 @@ describe('Declarations - Class', () => {
   // Strict mode errors
   const StrictModeErrors = [
     'class C { method() { with ({}) {} } }',
-    //  'class C extends function() { with ({}) {} } {}',
+    //'class C extends function() { with ({}) {} } {}',
     'class C { *method() { with ({}) {} } }'
   ];
 

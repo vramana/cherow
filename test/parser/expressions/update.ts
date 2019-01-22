@@ -9,7 +9,6 @@ describe('Expressions - Update', () => {
     ['1--', Context.Empty],
     ['a[]++', Context.Empty],
     ['a()++', Context.Empty],
-
     ['a()++', Context.Empty],
     ['a()++', Context.Empty],
     ['a()++', Context.Empty],

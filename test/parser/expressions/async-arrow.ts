@@ -24,11 +24,9 @@ describe('Expressions - Async arrow', () => {
     'async (()) => 0',
     'async(,)',
     '"use strict"; async (foo, bar eval) => {};',
-    'async() => { await: ; };',
-    `async
-  (foo) => { }`,
-    `async
-  (a) => await a`
+    'async() => { await: ; };'
+    //  `async
+    //(a) => await a`
   ];
 
   for (const arg of invalidSyntax) {
@@ -55,7 +53,7 @@ describe('Expressions - Async arrow', () => {
     ['cherow => let cherow;', Context.Empty],
 
     // ['async (a, ...b, ...c) => {}', Context.Empty],
-    ['async\n(a, b) => {}', Context.Empty],
+    //['async\n(a, b) => {}', Context.Empty],
     // ['new async() => {}', Context.Empty],
     // ['({ async\nf(){} })', Context.Empty],
     // ['async ((a)) => {}', Context.Empty],
@@ -76,64 +74,60 @@ describe('Expressions - Async arrow', () => {
     ['(class { async get a(){} })', Context.Empty],
     // ['async (a = await => {}) => {}', Context.Empty],
 
-    ['f(async\n()=>c)', Context.Empty],
+    //['f(async\n()=>c)', Context.Empty],
     // ['async x \n => x', Context.Empty],
-    ['async \n (x, y) => x', Context.Empty],
-    ['async (x, y) \n => x', Context.Empty],
-    ['async \n (x, y) \n => x', Context.Empty],
-    ['async \n (x) \n => x', Context.Empty],
-    ['async (x) \n => x', Context.Empty],
-    ['async \n (x) => x', Context.Empty],
-    ['async \n () => x', Context.Empty],
-    ['function f(){   return async \n () => x    }', Context.Empty],
-    ['break async \n () => x', Context.Empty],
-    ['continue async \n () => x', Context.Empty],
+    // ['async \n (x, y) => x', Context.Empty],
+    // ['async (x, y) \n => x', Context.Empty],
+    // ['async \n (x, y) \n => x', Context.Empty],
+    // ['async \n (x) \n => x', Context.Empty],
+    // ['async (x) \n => x', Context.Empty],
+    // ['async \n (x) => x', Context.Empty],
+    // ['async \n () => x', Context.Empty],
+    //['function f(){   return async \n () => x    }', Context.Empty],
+    // ['break async \n () => x', Context.Empty],
+    // ['continue async \n () => x', Context.Empty],
     ['let x = {[async () => x, y]: z}', Context.Empty],
-    ['const x = async () => x, y', Context.Empty],
-    ['const x = async \n () => x, y', Context.Empty],
+    ['const x = async () => x, y', Context.Empty]
+    // ['const x = async \n () => x, y', Context.Empty],
     // ['export async () => x', Context.Module],
-    ['(async \n () => x)', Context.Empty],
-    ['[async \n () => x]', Context.Empty],
+    // ['(async \n () => x)', Context.Empty],
+    // ['[async \n () => x]', Context.Empty],
 
-    ['x={x: async \n () => x}', Context.Empty],
-    ['x[async \n () => x]', Context.Empty],
-    ['`${async \n () => x}`', Context.Empty],
-    ['if (async \n () => x) x', Context.Empty],
-    ['for (async \n () => x;;) x', Context.Empty],
+    // ['x={x: async \n () => x}', Context.Empty],
+    // ['x[async \n () => x]', Context.Empty],
+    // ['`${async \n () => x}`', Context.Empty],
+    // ['if (async \n () => x) x', Context.Empty],
+    // ['for (async \n () => x;;) x', Context.Empty],
 
-    ['for (;async \n () => x;) x', Context.Empty],
-    ['for (;;async \n () => x) x', Context.Empty],
-    ['for (x of async \n () => x) x', Context.Empty],
-    ['if (x) async \n () => x else y', Context.Empty],
-    ['class x extends async \n () => x {}', Context.Empty],
-    ['with (async \n () => x) {}', Context.Empty],
+    // ['for (;async \n () => x;) x', Context.Empty],
+    // ['for (;;async \n () => x) x', Context.Empty],
+    // ['for (x of async \n () => x) x', Context.Empty],
+    // ['if (x) async \n () => x else y', Context.Empty],
+    // ['class x extends async \n () => x {}', Context.Empty],
+    // ['with (async \n () => x) {}', Context.Empty],
     //['({\nasync foo() {}})', Context.Empty],
     //['({async \n foo() {}})', Context.Empty],
-    ['[async \n () => x]', Context.Empty],
-    ['[async \n () => x]', Context.Empty],
-    ['[async \n () => x]', Context.Empty],
-    ['[async \n () => x]', Context.Empty],
+    // ['[async \n () => x]', Context.Empty],
 
-    ['async \n () => x;', Context.Empty],
     // ['foo + async \n () => x;', Context.Empty],
-    ['return async \n () => x;', Context.Empty],
-    ['break async \n () => x;', Context.Empty],
-    ['var x = async \n () => x, y;', Context.Empty],
-    ['let x = async \n () => x, y;', Context.Empty],
-    ['const x = async \n () => x, y;', Context.Empty],
-    ['export async \n () => x;', Context.Empty],
-    ['(async \n () => x);', Context.Empty],
-    ['[async \n () => x];', Context.Empty],
-    ['{x: async \n () => x};', Context.Empty],
-    ['x[async \n () => x];', Context.Empty],
-    ['x(async \n () => x);', Context.Empty],
-    ['function f(x = async \n () => x){};', Context.Empty],
-    ['`${async \n () => x}`;', Context.Empty],
-    ['do async \n () => x while (x);;', Context.Empty],
-    ['if (async \n () => x) x;', Context.Empty],
-    ['try {} catch(e = async \n () => x) {}', Context.Empty],
-    ['if (x) async \n () => x else y;', Context.Empty],
-    ['class x extends async \n () => x {};', Context.Empty]
+    //     ['return async \n () => x;', Context.Empty],
+    // ['break async \n () => x;', Context.Empty],
+    // ['var x = async \n () => x, y;', Context.Empty],
+    // ['let x = async \n () => x, y;', Context.Empty],
+    // ['const x = async \n () => x, y;', Context.Empty],
+    // ['export async \n () => x;', Context.Empty],
+    // ['(async \n () => x);', Context.Empty],
+    // ['[async \n () => x];', Context.Empty],
+    // ['{x: async \n () => x};', Context.Empty],
+    // ['x[async \n () => x];', Context.Empty],
+    // ['x(async \n () => x);', Context.Empty],
+    // ['function f(x = async \n () => x){};', Context.Empty],
+    // ['`${async \n () => x}`;', Context.Empty],
+    // ['do async \n () => x while (x);;', Context.Empty],
+    // ['if (async \n () => x) x;', Context.Empty],
+    // ['try {} catch(e = async \n () => x) {}', Context.Empty],
+    // ['if (x) async \n () => x else y;', Context.Empty],
+    // ['class x extends async \n () => x {};', Context.Empty]
   ];
 
   fail('Expressions - Async arrow', inValids);
@@ -4402,223 +4396,223 @@ describe('Expressions - Async arrow', () => {
           }
         ]
       }
-    ]
-    /* [
-    `async cherow => {}`,
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'ArrowFunctionExpression',
-            body: {
-              type: 'BlockStatement',
-              body: []
-            },
-            params: [
-              {
-                type: 'Identifier',
-                name: 'cherow'
-              }
-            ],
-            id: null,
-            async: true,
-            expression: false
+    ],
+    [
+      `async cherow => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'cherow'
+                }
+              ],
+              id: null,
+              async: true,
+              expression: false
+            }
           }
-        }
-      ]
-    }
-  ],
-  [
-    `async => {}`,
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'ArrowFunctionExpression',
-            body: {
-              type: 'BlockStatement',
-              body: []
-            },
-            params: [
-              {
-                type: 'Identifier',
-                name: 'async'
-              }
-            ],
-            id: null,
-            async: false,
-            expression: false
+        ]
+      }
+    ],
+    [
+      `async => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'async'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
           }
-        }
-      ]
-    }
-  ],
-  [
-    `() => {}
+        ]
+      }
+    ],
+    [
+      `() => {}
       async () => {}`,
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'ArrowFunctionExpression',
-            body: {
-              type: 'BlockStatement',
-              body: []
-            },
-            params: [],
-            id: null,
-            async: false,
-            expression: false
-          }
-        },
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'ArrowFunctionExpression',
-            body: {
-              type: 'BlockStatement',
-              body: []
-            },
-            params: [],
-            id: null,
-            async: true,
-            expression: false
-          }
-        }
-      ]
-    }
-  ],
-  [
-    `async => {}
-    async () => {}`,
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'ArrowFunctionExpression',
-            body: {
-              type: 'BlockStatement',
-              body: []
-            },
-            params: [
-              {
-                type: 'Identifier',
-                name: 'async'
-              }
-            ],
-            id: null,
-            async: false,
-            expression: false
-          }
-        },
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'ArrowFunctionExpression',
-            body: {
-              type: 'BlockStatement',
-              body: []
-            },
-            params: [],
-            id: null,
-            async: true,
-            expression: false
-          }
-        }
-      ]
-    }
-  ],
-  [
-    `async () => {}
-    async () => {}`,
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'ArrowFunctionExpression',
-            body: {
-              type: 'BlockStatement',
-              body: []
-            },
-            params: [],
-            id: null,
-            async: true,
-            expression: false
-          }
-        },
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'ArrowFunctionExpression',
-            body: {
-              type: 'BlockStatement',
-              body: []
-            },
-            params: [],
-            id: null,
-            async: true,
-            expression: false
-          }
-        }
-      ]
-    }
-  ],
-  [
-    'async (a, b, c) => {}',
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'ArrowFunctionExpression',
-            body: {
-              type: 'BlockStatement',
-              body: []
-            },
-            params: [
-              {
-                type: 'Identifier',
-                name: 'a'
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
               },
-              {
-                type: 'Identifier',
-                name: 'b'
+              params: [],
+              id: null,
+              async: false,
+              expression: false
+            }
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
               },
-              {
-                type: 'Identifier',
-                name: 'c'
-              }
-            ],
-            id: null,
-            async: true,
-            expression: false
+              params: [],
+              id: null,
+              async: true,
+              expression: false
+            }
           }
-        }
-      ]
-    }
-  ]*/
+        ]
+      }
+    ],
+    [
+      `async => {}
+    async () => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'async'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [],
+              id: null,
+              async: true,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `async () => {}
+    async () => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [],
+              id: null,
+              async: true,
+              expression: false
+            }
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [],
+              id: null,
+              async: true,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'async (a, b, c) => {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'b'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'c'
+                }
+              ],
+              id: null,
+              async: true,
+              expression: false
+            }
+          }
+        ]
+      }
+    ]
   ]);
 });

@@ -5,9 +5,92 @@ import { parseSource } from '../../../src/cherow';
 
 describe('Miscellaneous - Passing tests', () => {
   const programs = [
-    //`/}?/u;`,
-    //`/{*/u;`,
-    //`/.{.}/;`,
+    `const regeneratorRuntime = require('regenerator-runtime')
+
+    async function foo() {
+      const promises = [ [ 1 ], [ 2 ], [ 3 ] ].map(async ([ number ]) => {
+        return new Promise(function (resolve, reject) {
+          setTimeout(function () {
+            resolve(number)
+          }, 1)
+        });
+      })
+
+      return Promise.all(promises)
+    }
+
+    foo().then(function (number) {
+      console.log(number)
+    });`,
+    `class Launcher {
+
+      constructor(projectRoot, preferredRevision, isPuppeteerCore) {
+        this._projectRoot = projectRoot;
+        this._preferredRevision = preferredRevision;
+        this._isPuppeteerCore = isPuppeteerCore;
+      }
+
+      async launch(options = {}) {
+        const {
+          ignoreDefaultArgs = false,
+          args = [],
+          dumpio = false,
+          executablePath = null,
+          pipe = false,
+          env = process.env,
+          handleSIGINT = true,
+          handleSIGTERM = true,
+          handleSIGHUP = true,
+          ignoreHTTPSErrors = false,
+          defaultViewport = {width: 800, height: 600},
+          slowMo = 0,
+          timeout = 30000
+        } = options;
+
+        const chromeArguments = [];
+        if (!ignoreDefaultArgs)
+          chromeArguments.push(...this.defaultArgs(options));
+        else if (Array.isArray(ignoreDefaultArgs))
+          chromeArguments.push(...this.defaultArgs(options).filter(arg => ignoreDefaultArgs.indexOf(arg) === -1));
+        else
+          chromeArguments.push(...args);
+
+        let temporaryUserDataDir = null;
+
+        if (!chromeArguments.some(argument => argument.startsWith('--remote-debugging-')))
+          chromeArguments.push(pipe ? '--remote-debugging-pipe' : '--remote-debugging-port=0');
+        if (!chromeArguments.some(arg => arg.startsWith('--user-data-dir'))) {
+          temporaryUserDataDir = await mkdtempAsync(CHROME_PROFILE_PATH);
+          chromeArguments.push("");
+        }
+
+        let chromeExecutable = executablePath;
+        if (!executablePath) {
+          const {missingText, executablePath} = this._resolveExecutablePath();
+          if (missingText)
+            throw new Error(missingText);
+          chromeExecutable = executablePath;
+        }
+
+
+        let chromeClosed = false;
+        const waitForChromeToClose = new Promise((fulfill, reject) => {
+          chromeProcess.once('exit', () => {
+            chromeClosed = true;
+            // Cleanup as processes exit.
+            if (temporaryUserDataDir) {
+              removeFolderAsync(temporaryUserDataDir)
+                  .then(() => fulfill())
+                  .catch(err => console.error(err));
+            } else {
+              fulfill();
+            }
+          });
+        });
+      }
+    }`,
+    `let async = function(a){return {bind: "someMethodButIUseString"}};
+    async(function (req, res) { }).bind;`,
     '004',
     '004',
     '004',
@@ -685,7 +768,7 @@ h({ name: "bar", val: 42 })`,
     'function *f(){ async (foo = yield x) }',
     'async yield => foo',
     'async (yield) => foo',
-    'function *f(){  async yield => foo  }',
+    // 'function *f(){  async yield => foo  }',
     'function *f(){  async (yield) => foo  }',
     'async \n (a, b, c);',
     'async (a, b, c);',
@@ -702,12 +785,8 @@ h({ name: "bar", val: 42 })`,
     '[a] = b;',
     '[{x: y.z}]',
     '[{x: y.z}] = a',
-    '([{x: y.z}]) => b',
-    '([{x: y.z}] = a) => b',
-    '([{x: y.z} = a]) => b',
     `[x = y]`,
     `[x = y, z]`,
-    `[true = x]`,
     `[await = x]`,
     `[x = true]`,
     '[{}]',
@@ -720,8 +799,6 @@ h({ name: "bar", val: 42 })`,
     `[x.y = z]`,
     `[x + y]`,
     `[this]`,
-    `[this=x]`,
-    `[this]=x`,
     '([...x]);',
     '([...x, y]);',
     '([...x+y]);',
@@ -733,7 +810,6 @@ h({ name: "bar", val: 42 })`,
     '[`x`.foo]=x',
     `[x]=y`,
     `[x=y]=z`,
-    `[...{a = b} = c] = x`,
     `({"a b c": bar});`,
     `({"a b c"(){}});`,
     `({"a b c": bar}) => x`,
@@ -748,7 +824,6 @@ h({ name: "bar", val: 42 })`,
     ' ({...x, y});',
     '({...x+y});',
     '({[foo]: bar} = baz)',
-    '({[foo]: a + b} = baz)',
     '({ident: [foo].length} = x)',
     '({ident: [foo].length = x} = x)',
     '[...new x];',
@@ -776,16 +851,392 @@ h({ name: "bar", val: 42 })`,
     'function inner2({my_var} = {my_var: 8}) { }',
     'my_var => my_var;',
     'my_var => { }',
+    '(a) = b;',
+    '((a)) = b;',
+    'a = ((b)) = c;',
+    '(await())',
+    '(x);',
+    '(a) = 1;',
+    '(a.b) = 1;',
+    '(a[b]) = 1;',
+    '(a.b().c().d) = 1;',
+    //'(super.a) = 1;',
+    //'(super[a]) = 1;',
+    '[x, y] = z;',
+    '([x, y] = z);',
+    '([x, y] = z) => x;',
+    '([[x, y] = z]);',
+    '([[x, y] = z]) => x;',
+    '([[x, y] = z]) => x;',
+    '({x, y} = z);',
+    '(a) += 1;',
+    '(a.b) += 1;',
+    '(a[b]) += 1;',
+    '(a.b().c().d) += 1;',
+    '(this.a) += 1;',
+    '(this[b]) += 1;',
+    '(new x);',
+    '(delete foo.bar);',
+    '({});',
+    '(a / b);',
+    '(a \n/b/g);',
+    '(delete /a/.x);',
+    '(delete /a/g.x);',
+    '(foo /=g/m.x);',
+    '(void /=g/m.x);',
+    '(void /=/g/m.x);',
+    '([new x]);',
+    '([delete foo.bar]);',
+    '([{}]);',
+    '([a / b]);',
+    '([a \n/b/g]);',
+    '([delete /a/.x]);',
+    '([delete /a/g.x]);',
+    '([foo /=g/m.x]);',
+    '([void /=g/m.x]);',
+    '([void /=/g/m.x]);',
+    '(++x);',
+    '(++x, y);',
+    '(this.a) = 1;',
+    '(this[b]) = 1;',
     '(my_var = 5) => my_var;',
+    "x({'a':b}=obj);",
+    "x({'a':b, 'c':d}=obj);",
+    'x({"a":b}=obj);',
+    "x({'a':b, c:d}=obj);",
+    "x({a:b, 'c':d}=obj);",
+    '({"x": y+z})',
+    '({ident: [foo, bar].join("")})',
+    '({ident: [foo, bar]/x})',
+    '({ident: [foo, bar]/x/g})',
+    '[...[x].map(y, z)];',
+    '(foo, [bar, baz] = doo);',
+    '[...[x]/y]',
+    '[...{x}/y]',
+    '[.../x//y]',
+    'function x([a, b]){};',
+    'function f([a, {b: []}]) {}',
+    'function f({x: [a, {b: []}]}) {}',
+    'try {} catch({e=x}){}',
+    'try {} catch([e=x]){}',
+    'new Foo.Bar',
+    'new a.b.c.d',
+    'new x().y',
+    'new x()();',
+    'new x().y + z',
+    'new x()[y] = z',
+    'new x().y++',
+    'delete new x()',
+    'delete new x().y',
+    'typeof new x()',
+    'typeof new x().y',
+    'new x().y++',
+    'new Foo`bar`',
+    'function f([...bar]){}',
+    'function f([...bar] = obj){}',
+    'function f([foo, ...bar]){}',
+    'function f([foo, ...bar] = obj){}',
+    'function f([...[a, b]]){}',
+    'function f([...[a, b]] = obj){}',
+    'function f([x, ...[a, b]]){}',
+    'function f([x, ...[a, b]] = obj){}',
+    'function f( [a=[...b], ...c]){}',
+    'function f( [a=[...b], ...c] = obj){}',
+    'function f(a){}',
+    'function f(a,b){}',
+    'function f([foo,]){}',
+    'function f([,]){}',
+    'function f([,] = x){}',
+    'function f([foo] = x){}',
+    'function f([foo,,]){}',
+    'function f([foo,,bar] = x){}',
+    'function f([foo] = x, b){}',
+    'function f([foo], b = y){}',
+    'function f([foo] = x, b = y){}',
+    'function f(x, [foo]){}',
+    'function f(x, [foo] = y){}',
+    '[(a)] = 0',
+    '[(a) = 0] = 1',
+    '[(a.b)] = 0',
+    '[a = (b = c)] = 0',
+    '[(a = 0)]',
+    '({a:(b)} = 0)',
+    '({a:(b) = 0} = 1)',
+    '({a:(b.c)} = 0)',
+    '({a:(b = 0)})',
+
+    'a = { b(c=1) {} }',
+
+    `(function () {
+      while (!a || b()) {
+          c();
+      }
+  }());`,
+    'a = []',
+    `(function () {
+      a(typeof b === 'c');
+  }());`,
+    '(let[let])',
+    '({[1*2]:3})',
+    'a = { set b (c) {} }',
+    '(function(){ return a * b })',
+    '[a] = 1',
+    '({ false: 1 })',
+    '({*yield(){}})',
+    `var a = {
+      'arguments': 1,
+      'eval': 2
+  };`,
+    'var {a} = 1;',
+    'var [a = b] = c',
+    'for(a; a < 1;);',
+    '(function a() {"use strict";return 1;});',
+    `(function(){ return // Comment
+      a; })`,
+    '/*42*/',
+    'function *a(){yield ~1}',
+    `with (a)
+    // do not optimize it
+    (function () {
+      b('c');
+    }());`,
+    '(a,b) => 1 + 2',
+    'a = { set true(b) { c = b } }',
+    'function a(b, c) { return b-- > c; }',
+    `(function () {
+      a();
+      function a() {
+          b.c('d');
+      }
+      function a() {
+          b.c('e');
+      }
+  }());`,
+    'do a(); while (true)',
+    'do continue; while(1);',
+    `'use strict';
+    var a = {
+        '10': 1,
+        '0x20': 2
+    };`,
+    `{ throw a/* Multiline
+      Comment */a; }`,
+    '({} = 1);',
+    '({a = 1} = 2)',
+    '(a) => { yield + a };',
+    `function a() {
+      var b = function c() { }
+  }`,
+    `/*a
+    c*/ 1`,
+    'function a() {} / 1 /',
+    ';;;;',
+    'if (a) (function(){})',
+    `
+    function a([[a = 123] = {abc}] = [{a = 1} = 2] ) {
+    function a() {
+    class A { await() {(a = b)} }
+    b => {}
+    (b = [{}]) => {}
+    b => {}
+    b => {}
+    }
+      (yield) = 1;
+       (yield) = 1;
+    var a = ((((c)))) = b;
+    ([][[[]]], a, b, c[[]])
+    }`,
+    '(class { constructor() { super.a } });',
+    '// one\n',
+    'a => { b: 1 }',
+    `/**
+    * @type {number}
+    */
+   var a = 1;`,
+    'new a(...b, ...c, ...d);',
+    'var [a, ...a] = 1;',
+    '__proto__: a',
+    `do {
+      // do not optimize it
+      (function () {
+        a('b');
+      }());
+    } while (c);`,
+    'a ** b',
+    `a['0'];
+    a['1'];
+    a['00'];
+    a['0x20'];`,
+    `while (a) {
+      b;
+    }`,
+    'if (!a) debugger;',
+    'var a = class extends (b,c) {};',
+    `(class {;;;
+      ;
+      })`,
+    `({
+      a,
+      a:a,
+      a:a=a,
+      [a]:{a},
+      a:b()[a],
+      a:this.a
+  } = 1);`,
+    `/((((((((((((.))))))))))))\\12/;`,
+    `b: {
+      if (a) break b;
+      c.d("e");
+  }`,
+    '0xdef',
+    `class a {
+      constructor() {
+      };
+      b() {};
+  };
+  class c {
+      constructor(...d) {
+      }
+      b() {}
+  };
+  class e extends a {};
+  var f = class g {};
+  var h = class {};`,
+    '((((((((((((((((((((((((((((((((((((((((a.a)))))))))))))))))))))))))))))))))))))))) = 1',
+    'a = a += 1',
+    '(function*() { yield 1; })',
+    'var a, b;',
+    '({ a: 1, get a() { } })',
+    'a = { __proto__: 1 }',
+    'a`hello ${b}`',
+    '{do ; while(false); false}',
+
+    '/* assignment */\n a = b',
+    'function* a(){(class extends (yield) {});}',
+    'function* a(){(class {[yield](){}})};',
+    'function f(x = y, [foo] = z){}',
+    'function f(x = y, [foo]){}',
+    'function f([foo=a]){}',
+    'function f([foo=a] = c){}',
+    'function f([foo=a,bar]){}',
+    'function f([foo=a,bar] = x){}',
+    'function f([foo,bar=b]){}',
+    'function f([foo,bar=b] = x){}',
+    'function f([foo=a,bar=b]){}',
+    'function f([a = b = c] = arr){}',
+    'call(yield)',
+    'function* f(){ yield; }',
+    'function* f(){ yield x + y; }',
+    'function* f(){ call(yield); }',
+    'function* f(){ call(yield x); }',
+    'function* f(){ call(yield x + y); }',
+    'function f(){ yield; }',
+    '5 + yield',
+    `function* g() { let x = yield 3; }`,
+    `function* g(x) { yield x = 3; }`,
+    `function* g(x) { yield x = yield 3; }`,
+    '++(x);',
+    '++\n(x);',
+    '++\n(((x)));',
+    '--(x);',
+    '--(((x)));',
+    '--\n(x);',
+    '--\n(((x)));',
+    '(x)++;',
+    '(x)--;',
+    '(((x)))--;',
+    'x *\n++y',
+    'async function f(){ await\n++c; }',
+    'a().b',
+    '[.../x/g/y]',
+    '(x--);',
+    '(x--, y);',
+    '(a = 1, b = 2) => x;',
+    'wrap({a=b}=c);',
+    'foo(.200)',
+    '({[x]:y} = z);',
+    '(...x) => x',
+    '(x, ...y) => x',
+    'log({foo: [bar]});',
+    '[...{a = b} = c];',
+    'foo, async()',
+    'foo(async(), x)',
+    'foo(async(x,y,z), a, b)',
+    'log(async().foo);',
     '(my_var = 5) => { }',
+    '({} + 1);',
+    '(x + y) >= z',
+    '({"x": 600..xyz} = x)',
+    'const [...x] = y',
+    '({"x": 600})',
+    '({"x": 600..xyz})',
+    'async ({} + 1);',
+    '[{}.x] = y',
+    '[{}[x]] = y',
+    '[[][x]] = y',
+    '[[].x] = y',
+    'for (foo=10;;);',
+    'var [let] = x;',
+    '({ x: x[Y] } = x);',
+    //'for (let=10;;);',
+    'result = [x[yield]] = vals;',
     '(...my_var) => my_var;',
+    'for ({x=y} in a) b',
+    'for ({x=y} of a) b',
     '(...my_var) => { }',
+    '{ if (x) function f() {} ; function f() {} }',
     '([a, my_var, b]) => my_var;',
+    'function *g() {x={     ...yield,    };}',
+    'function *g() {x={     ...yield yield    };}',
+    'function *g() {yield {     ...yield yield    };}',
+    'function *g() {x={     ...yield yield,    };}',
+    'function *g() {yield {     ...yield yield,    };}',
+    'function *g() { yield {...(x,y),}}',
+    `for ({x=y} in a) b;`,
+    `for ({x=y} of a) b;`,
     '([a, my_var, b]) => { }',
     '([a, my_var, b] = [1, 2, 3]) => my_var;',
     '([a, my_var, b] = [1, 2, 3]) => { }',
     '({x: my_var}) => my_var;',
+    'function f() {var f}',
+    'function f(x) {{let x}}',
+    'function f() {{let f}}',
+    'var x; { let x; }',
+    '{ let x; } var x;',
+    'function *f(){ let f }',
+    'x=function *f(){ var f }',
+    'x=function *f(){ let f }',
+    'x={*f(){ var f }}',
+    'x={*f(){ let f }}',
+    'async function *f(){ var f }',
+    'async function *f(){ let f }',
+    'x=async function *f(){ var f }',
+    'x=async function *f(){ let f }',
+    'x={async *f(){ var f }}',
+    'x={async *f(){ let f }}',
+    'o = {f(f) { }}',
+    'o = {f(x) { function x() {} }}',
+    'o = {f(x) { var x; }}',
+    'o = {f(){ function x(){} var x = y; }}',
+    'class o {f(x) { function x() {} }}',
+    'class o {f(f) { }}',
+    'class o {f(){ function x(){} var x = y; }}',
+    'function f() {{var f}}',
     '({x: my_var}) => { }',
+    '[[x = true] = true] = y',
+    '[x = true] = y',
+    '[[x] = true] = y',
+    '[[x = true] = true] = y',
+    '({a: x = true} = y)',
+    '({"foo": 15..foo}=y)',
+    '({a: {x = true} = true} = y)',
+    'function *f(){   s = {foo: yield}   }',
+    'f = ([xCls = class X {}]) => {}',
+    'f = ([cls = class {}]) => {}',
+    'f = ([xCls2 = class { name() {} }]) => {}',
+    'f = ([xCls2 = class { static name() {} }]) => {}',
+    'f = ([cls = class {}, xCls = class X {}, xCls2 = class { static name() {} }]) => {}',
+    'function* g() {   [...{ x = yield }] = y   }',
     '({x: my_var} = {x: 0}) => my_var;',
     '({x: my_var} = {x: 0}) => { }',
     '({my_var}) => my_var;',
@@ -1208,7 +1659,6 @@ h({ name: "bar", val: 42 })`,
     'a>=b',
     'function f(){   return;    }',
     '[...{a = b} = c];',
-    '([...{a = b} = c]) => d;',
     'arguments; log(arguments); arguments.foo; arguments[foo]; arguments.foo = bar; arguments[foo] = bar;',
     'class a extends b { c() { [super.d] = e } }',
     '1 + (a(), b(), c())',
@@ -1288,9 +1738,213 @@ h({ name: "bar", val: 42 })`,
     'a = { }',
     '/test/ && /test/',
     'a => { return 1; }',
+    `a+(+b<<2)`,
+    `1*1;1&&1;1+ +1;x+ ++y;a+ +b*2;a+ +b*2*2*2;a- -b;1+-b;1- --b;a- -b*2;a+(+b<<2);`,
+    `(class A {} < 1);`,
+    `function test() {
+      let ID = "1|123456";
+      return (([id, obj]) => ({[id = id.split('|')[1]]: {id: id}}))([ID, {}]);
+  }`,
+    `function test() {
+    let ID = "1|123456";
+    return {
+        [id = id.split('|')[1]]: id
+    }
+}`,
+    `for (let a, { b } = {};;) {
+  let a, { b } = {};
+
+  {
+    let a, { b } = {};
+  }
+}`,
+    `for (var a, _ref = {}, b = _ref.b;;) {
+  var _a = void 0,
+      _ref2 = {},
+      _b = _ref2.b;
+
+  {
+    var _a2 = void 0,
+        _ref3 = {},
+        _b2 = _ref3.b;
+  }
+}`,
+    `for (let i = 0; i < 3; i++) {
+  let i = 'abc';
+  console.log(i);
+
+  {
+    let i = "hello";
+  }
+}`,
+    `for (var i = 0; i < 3; i++) {
+  var _i = 'abc';
+  console.log(_i);
+  {
+    var _i2 = "hello";
+  }
+}`,
+    `() => {
+  a = 1;
+  b = 2;
+};`,
+    'f(a/b,a/b,a.of/b)',
+    'yield : 1',
+    `if (statement & FUNC_STATEMENT) {
+  node.id = (statement & FUNC_NULLABLE_ID) && this.type !== tt.name ? null : this.parseIdent()
+  if (node.id && !(statement & FUNC_HANGING_STATEMENT))
+    this.checkLVal(node.id, this.inModule && !this.inFunction ? BIND_LEXICAL : BIND_FUNCTION)
+}`,
+    `/* BEFORE */
+pp.parseFunctionStatement = function(node, isAsync, declarationPosition) {
+  this.next()
+  return this.parseFunction(node, FUNC_STATEMENT | (declarationPosition ? 0 : FUNC_HANGING_STATEMENT), false, isAsync)
+}
+
+/* AFTER */
+pp.parseFunctionStatement = function(node, isAsync, declarationPosition) {
+  this.next()
+  let statementFlags = {isStatement: true, isHanging: !declarationPosition}
+  return this.parseFunction(node, statementFlags, false, isAsync)
+}`,
+    'var AsyncGeneratorFunction = Object.getPrototypeOf(async function* () {}).constructor;',
+    `var [ a, , b ] = list
+[ b, a ] = [ a, b ]`,
+    'for (const {a} of /b/) {}',
+    '({ a = 42, [b]: c.d } = e);',
+    `const test = ({ t, ...v }) => {
+  console.log(t, v);
+};`,
+    `function a() {
+  var e, i, n, a, o = this._tween,
+    l = o.vars.roundProps,
+    h = {},
+    _ = o._propLookup.roundProps;
+  if ("object" != (void 0 === l ? "undefined" : t(l)) || l.push) for ("string" == typeof l && (l = l.split(",")), n = l.length; --n > -1;) h[l[n]] = Math.round;
+  else for (a in l) h[a] = s(l[a]);
+  for (a in h) for (e = o._firstPT; e;) i = e._next, e.pg ? e.t._mod(h) : e.n === a && (2 === e.f && e.t ? r(e.t._firstPT, h[a]) : (this._add(e.t, a, e.s, e.c, h[a]), i && (i._prev = e._prev), e._prev ? e._prev._next = i : o._firstPT === e && (o._firstPT = i), e._next = e._prev = null, o._propLookup[a] = _)), e = i;
+  return !1
+}`,
+    `() => { [a, b] = [1, 2] }`,
+    `() => [a, b] = [1, 2]`,
+    `() => {
+  var _ref = [1, 2];
+  a = _ref[0];
+  b = _ref[1];
+  return _ref;
+};`,
+    `const { [(() => 1)()]: a, ...rest } = { 1: "a" };`,
+    `const foo = {
+  1: "a",
+  2: "b",
+  3: "c",
+}`,
+    `function isBetween(x, a, b) {
+  if (a > b) [a, b] = [b, a];
+  return x > a && x < b;
+}`,
+    `let a = 1;
+let b = 2;
+
+[a, b] = [b, a];
+  `,
+    `function test() {
+    let a = 1;
+    let b = 2;
+    [a, b] = [b, a];
+    console.log(a); // 2
+    console.log(b); // 2
+  }
+  `,
+    `function foo(...{ length }) {
+    return length;
+  }`,
+    `function foo() {
+    for (var _len = arguments.length, _ref = new Array(_len), _key = 0; _key < _len; _key++) {
+      _ref[_key] = arguments[_key];
+    }
+
+    var a = _ref[0];
+  }`,
+    `(function(...[x]) {})`,
+    `(function () {
+    x;
+  });`,
+    `const foo = {
+    bar: 10,
+  }
+
+  let bar = 0;
+
+  if (foo) ({ bar } = foo); // throws an error (see stacktrace below)
+
+  console.log(bar); // should print 10`,
+    `const foo = {
+    bar: 10,
+  }
+
+  let bar = 0;
+
+  if (foo) {
+    ({ bar } = foo);
+  }
+
+  console.log(bar); // prints 10 `,
+    `({i: {...j}} = k);`,
+    `({i: [...j]} = k);`,
+    `const {
+    [({ ...rest }) => {
+      let { ...b } = {};
+    }]: a,
+    [({ ...d } = {})]: c,
+  } = {}; `,
+    `const {
+    a = ({ ...rest }) => {
+      let { ...b } = {};
+    },
+    c = ({ ...d } = {}),
+  } = {}; `,
+    `var result = "";
+
+  var obj = {
+    get foo() {
+      result += "foo"
+    },
+    a: {
+      get bar() {
+        result += "bar";
+      }
+    },
+    b: {
+      get baz() {
+        result += "baz";
+      }
+    }
+  };
+  `,
+    `var { a: { ...bar }, b: { ...baz }, ...foo } = obj;`,
     'a||(b||(c||(d||(e||f))))',
     'for(let a of [1,2]) 3',
     '({})=>1;',
+    `var a;
+    (a) = {};
+    (a.b) = {};
+    (a['c']) = {};`,
+    `(foo++).test(), (foo++)[0]`,
+    `(++a)();
+    (a++)();
+
+    new (++a)();
+    new (a++)();
+
+    new (++a);
+    new (a++);`,
+    `(++a)();
+    (a++)();
+    new (++a)();
+    new (a++)();
+    new (++a)();
+    new (a++)(); `,
     '({ "a": 1 })',
     `// mangle to the same name 'a'
     c: {
@@ -1303,6 +1957,18 @@ h({ name: "bar", val: 42 })`,
     }`,
     'if (!a) debugger;',
     'a ** b',
+    `// One
+    (1);
+
+    /* Two */
+    (2);
+
+    (
+      // Three
+      3
+    );
+
+    (/* Four */ 4);`,
     'new a(...b, ...c, ...d);',
     'a = { set b (c) {} } ',
     /*'"\\0"',
@@ -1321,6 +1987,22 @@ h({ name: "bar", val: 42 })`,
   `'\\160'`,
   `'\\301'`,
   `'\\377'`,*/
+    `const getState = () => ({});
+
+  const { data: { courses: oldCourses = [] } = {} } = getState();`,
+    `const _getState = getState(),
+  _getState$data = _getState.data,
+  _getState$data2 = _getState$data === void 0 ? {} : _getState$data,
+  _getState$data2$cours = _getState$data2.courses,
+  oldCourses = _getState$data2$cours === void 0 ? [] : _getState$data2$cours;`,
+    `
+  let arr = new Array(3);
+  /*
+   * or
+   * let arr = [,,,];
+   */
+  let arr2 = [...arr];`,
+    `const { data: { courses: oldCourses = [] } = {} } = getState();`,
     'if (x) function f() { return 23; } else function f() { return 42; }',
     'if (x) function f() {}',
     `var foo = [23]
@@ -1398,7 +2080,13 @@ switch (1) {
     case 1:
       function f() {  }
   }
-  }`
+  }`,
+    `const func = (...[foo, bar]) => {
+    console.log(foo)
+    console.log(bar)
+}
+
+func('foo', 'bar')`
   ];
 
   for (const arg of programs) {

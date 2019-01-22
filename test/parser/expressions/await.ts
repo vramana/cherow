@@ -3,9 +3,9 @@ import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Await', () => {
   const inValids: Array<[string, Context]> = [
-    // ['function call(foo=await bar){}', Context.Empty],
+    //['function call(foo=await bar){}', Context.Empty],
     //['function call(foo=await bar=10){}', Context.Empty],
-    //['5 + (await bar())', Context.Empty],
+    ['5 + (await bar())', Context.Empty],
     ['function call(foo= 5 + (await bar())){}', Context.Empty],
     //['async function x(){ function y(s=await foo){}}', Context.Empty],
     //['async function f(){ let y = x => await x; }', Context.Empty],
