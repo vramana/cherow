@@ -2021,6 +2021,7 @@ let b = 2;
     new (a++)();
     new (++a)();
     new (a++)(); `,
+    `; 'use strict'; with ({}) {}`,
     '({ "a": 1 })',
     `// mangle to the same name 'a'
     c: {

@@ -33,7 +33,8 @@ import {
   nextTokenIsLeftParenOrPeriod,
   nextTokenIsLeftParen,
   acquireGrammar,
-  secludeGrammar
+  secludeGrammar,
+  nameIsArgumentsOrEval
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
@@ -2154,7 +2155,9 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
   }
 
   if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
-    if (state.token === Token.Assign) {
+    if (context & Context.Strict && nameIsArgumentsOrEval((expr as ESTree.Identifier).name)) {
+      report(state, Errors.Unexpected);
+    } else if (state.token === Token.Assign) {
       if (!state.assignable) report(state, Errors.InvalidLHSInAssignment);
       reinterpret(expr);
     } else {
@@ -2926,6 +2929,19 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
         return parseFunctionExpression(state, context, true);
       }
       return parseIdentifier(state, context);
+    }
+    case Token.LetKeyword: {
+      if (context & Context.Strict) report(state, Errors.UnexpectedStrictReserved);
+      next(state, context);
+      if (state.flags & Flags.NewLine) {
+        if (state.token === (Token.LeftBracket as any)) report(state, Errors.UnexpectedToken, 'let');
+      }
+      const node: any = {
+        type: 'Identifier',
+        name: 'let'
+      };
+      if (context & Context.OptionsRaw) node.raw = 'let';
+      return node;
     }
     case Token.DoKeyword:
       return parseDoExpression(state, context);

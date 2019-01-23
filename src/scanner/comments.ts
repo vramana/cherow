@@ -59,13 +59,13 @@ export function skipSingleLineComment(state: ParserState, type: CommentType): To
         state.column = 0;
         ++state.line;
         if (state.index < state.length && state.source.charCodeAt(state.index) === Chars.LineFeed) state.index++;
-        state.flags | Flags.NewLine;
+        state.flags |= Flags.NewLine;
         break;
       } else if (next === Chars.LineFeed || (next ^ Chars.ParagraphSeparator) <= 1) {
         ++state.index;
         state.column = 0;
         ++state.line;
-        state.flags | Flags.NewLine;
+        state.flags |= Flags.NewLine;
         break;
       } else {
         ++state.index;

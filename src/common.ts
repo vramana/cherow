@@ -1,5 +1,5 @@
 import * as ESTree from './estree';
-import { Token } from './token';
+import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
 import { Errors, report } from './errors';
 
@@ -281,8 +281,8 @@ export function expect(state: ParserState, context: Context, t: Token): void {
 export function consumeSemicolon(state: ParserState, context: Context): void | boolean {
   if ((state.token & Token.ASI) === Token.ASI) {
     optional(state, context, Token.Semicolon);
-  } else if ((state.flags & Flags.NewLine) === 0) {
-    report(state, Errors.Unexpected);
+  } else if ((state.flags & Flags.NewLine) !== Flags.NewLine) {
+    report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
   }
 }
 
@@ -545,6 +545,9 @@ export function reinterpret(ast: any) {
   }
 }
 
+export function nameIsArgumentsOrEval(value: string): boolean {
+  return value === 'eval' || value === 'arguments';
+}
 /**
  * Returns true if this is an valid identifier
  *
