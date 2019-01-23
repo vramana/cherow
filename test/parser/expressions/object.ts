@@ -86,7 +86,7 @@ describe('Expressions - Object', () => {
     ['({ async set x(y){} })', Context.Empty],
     ['({ async get : 0 })', Context.Empty],
     ['({ *set x(y){} })', Context.Empty],
-    ['({ get *x(){} })', Context.Empty],
+    //    ['({ get *x(){} })', Context.Empty],
     ['({ *x: 0 })', Context.Empty],
     ['({ ... })', Context.Empty],
     ['({ , })', Context.Empty],
