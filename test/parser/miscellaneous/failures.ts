@@ -569,12 +569,39 @@ describe('Miscellaneous - Failurea', () => {
     ],
     ['if (true) function* g() {  } else function* _g() {}', Context.Empty],
     ['if (true) function* g() {  } else ;', Context.Empty],
+    ['for (let i = 0;;) { var i }', Context.Empty],
     ['for (let let in {}) { }', Context.Empty],
+    ['class a {} class a {}', Context.Empty],
+    ['{ class a {} class a {} }', Context.Empty],
+    ['{ let a; class a {} }', Context.Empty],
+    ['var await;', Context.Module],
+    ['var C = class yield {};', Context.Module],
+    ['{ async function a() {} async function a() {} }', Context.OptionsDisableWebCompat],
+    ['switch (0) { case 1: function* a() {} break; default: var a; }', Context.OptionsDisableWebCompat],
     [
       `let  // start of a LexicalDeclaration, *not* an ASI opportunity
     let;`,
       Context.Empty
     ],
+    [
+      `function* g() {
+      for (yield '' in {}; ; ) ;
+    }`,
+      Context.Empty
+    ],
+    [
+      `({
+        async
+        foo() { }
+      })`,
+      Context.Empty
+    ],
+    ['function f([x] = [1]) { "use strict"; }', Context.Empty],
+    ['1 /= 1;', Context.Empty],
+    ['1 |= 1;', Context.Empty],
+    ['catch = 1', Context.Empty],
+    ['function* yield() {})', Context.Empty],
+    ['function* wrap() {\nfunction* yield() {}\n}', Context.Empty],
     ["'use strict'; let let", Context.Empty],
     ["'use strict'; const let", Context.Empty],
     ['class yield {}', Context.Empty],

@@ -867,6 +867,6 @@ export function acquireGrammar<T>(
  * @param parser Parser object
  * @param context  Context masks
  */
-export function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean {
+export function isValidSimpleAssignment(node: ESTree.Node): boolean {
   return node.type === 'Identifier' || node.type === 'MemberExpression' ? true : false;
 }

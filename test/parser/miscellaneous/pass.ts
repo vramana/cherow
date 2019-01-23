@@ -1,10 +1,54 @@
-import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/common';
 import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Miscellaneous - Passing tests', () => {
   const programs = [
+    `(function foo(y, z) {{ function x() {} } })(1);`,
+    // Complex parameter shouldn't be shadowed
+    `(function foo(x = 0) { var x; { function x() {} } })(1);`,
+    // Nested complex parameter shouldn't be shadowed
+    `(function foo([[x]]) {var x; {function x() {} } })([[1]]);`,
+    // Complex parameter shouldn't be shadowed
+    `(function foo(x = 0) { var x; { function x() {}} })(1);`,
+    // Nested complex parameter shouldn't be shadowed
+    `(function foo([[x]]) { var x;{ function x() {} }  })([[1]]);`,
+    // Rest parameter shouldn't be shadowed
+    `(function foo(...x) { var x; {  function x() {}  } })(1);`,
+    // Don't shadow complex rest parameter
+    `(function foo(...[x]) { var x; { function x() {} } })(1);`,
+    // Hoisting is not affected by other simple parameters
+    `(function foo(y, z) {{function x() {}} })(1);`,
+    // Hoisting is not affected by other complex parameters
+    ` (function foo([y] = [], z) {{function x() {} } })();`,
+    // Should allow shadowing function names
+    `{(function foo() { { function foo() { return 0; } } })();}`,
+    `{(function foo(...r) { { function foo() { return 0; } } })(); }`,
+    `(function foo() { { let f = 0; (function () { { function f() { return 1; } } })(); } })();`,
+    `(function foo() { var y = 1; (function bar(x = y) { { function y() {} } })();  })();`,
+    `(function foo() { { function f() { return 4; } { function f() { return 5; } } }})()`,
+    '(function foo(a = 0) { { let y = 3; function f(b = 0) { y = 2; } f(); } })();',
+    '(function conditional() {  if (true) { function f() { return 1; } } else {  function f() { return 2; }} if (false) { function g() { return 1; }}  L: {break L;function f() { return 3; } }})();',
+    '(function foo() {function outer() { return f; } { f = 1; function f () {} f = ""; } })();',
+    '(function foo(x) { {  function x() {} } })(1);',
+    '(function foo([[x]]) { { function x() {}}})([[1]]);',
+    `(function foo() { { let f = 2; { let y = 3; function f() { y = 2; } f(); } }})();`,
+    // rest parameter shouldn't be shadowed
+    '(function shadowingRestParameterDoesntBind(...x) { {  function x() {} } })(1);',
+    `({});[];
+        this.nan;
+        1 < 2 > 3 <= 4 >= 5 == 6 != 7 === 8 !== 9;
+        1 + 2 - 3 * 4 % 5 / 6 << 7 >> 8 >>> 9;
+        this.nan++; ++this.nan; this.nan--; --this.nan;
+        1 & 2 | 3 ^ 4 && !5 || ~6;
+        1 ? 2 : 3;
+        this.nan = 1; this.nan += 2; this.nan -= 3; this.nan *= 4; this.nan /= 5;
+        this.nan %= 6; this.nan <<= 7; this.nan >>= 8; this.nan >>>= 9;
+        this.nan &= 1; this.nan |= 2; this.nan ^= 3;`,
+    `let a = (x => (x, x * 2), 3);
+  let b = ((x, y) => (x, x * y), 1);
+  let c = (x => x * x)(2);
+  let d = (1, 2, 3);`,
     `const regeneratorRuntime = require('regenerator-runtime')
 
     async function foo() {
@@ -683,7 +727,6 @@ h({ name: "bar", val: 42 })`,
     'var x = {*[test]() { yield *v; }}',
     'class A {[x]() {}}',
     'function f([x] = [1]) {}',
-    'function f([x] = [1]) { "use strict"; }',
     'function f({x} = {x: 10}) {}',
     'f = function({x} = {x: 10}) {}',
     '({f: function({x} = {x: 10}) {}})',
@@ -2021,7 +2064,6 @@ let b = 2;
     new (a++)();
     new (++a)();
     new (a++)(); `,
-    `for (let i = 0;;) { let i }`,
     `; 'use strict'; with ({}) {}`,
     '({ "a": 1 })',
     `// mangle to the same name 'a'

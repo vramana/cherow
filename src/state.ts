@@ -17,7 +17,7 @@ import {
   addToExportedNamesAndCheckForDuplicates,
   addToExportedBindings,
   nextTokenIsFuncKeywordOnSameLine,
-  isValidSimpleAssignmentTarget,
+  isValidSimpleAssignment,
   getLabel,
   validateContinueLabel,
   validateBreakStatement,
@@ -1764,10 +1764,11 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
    */
   expect(state, context, Token.LeftParen);
   const params: any[] = [];
-  state.flags = (state.flags | Flags.SimpleParameterList) ^ Flags.SimpleParameterList;
+  state.flags &= ~Flags.SimpleParameterList;
   if (state.token === (Token.Comma as any)) report(state, Errors.Unexpected);
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
+      state.flags |= Flags.SimpleParameterList;
       params.push(parseRestElement(state, context, scope, Type.ArgList, Origin.None));
       break; //rest parameter must be the last
     }
@@ -1792,8 +1793,10 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
  * @param context Context masks
  */
 function parseFormalParameterList(state: ParserState, context: Context, scope: ScopeState, origin: Origin) {
+  if ((state.token & Token.Identifier) !== Token.Identifier) state.flags |= Flags.SimpleParameterList;
   const left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
   if (!optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) return left;
+  state.flags |= Flags.SimpleParameterList;
   if (state.token & Token.IsYield && context & Context.YieldContext) report(state, Errors.Unexpected);
   return parseAssignmentPattern(state, context, left);
 }
@@ -1848,6 +1851,7 @@ export function parseFunctionBody(
 
   while (state.token === Token.StringLiteral) {
     if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
+      if (state.flags & Flags.SimpleParameterList) report(state, Errors.StrictFunctionName);
       context |= Context.Strict;
     }
     body.push(parseDirective(state, context, scope));
@@ -1865,8 +1869,6 @@ export function parseFunctionBody(
   state.flags =
     (state.flags | (Flags.StrictEvalArguments | Flags.HasStrictReserved)) ^
     (Flags.StrictEvalArguments | Flags.HasStrictReserved);
-
-  if (state.flags & Flags.SimpleParameterList) report(state, Errors.StrictFunctionName);
 
   if (!isStrict && (context & Context.Strict) !== 0 && (context & Context.InGlobal) < 1) {
     checkFunctionsArgForDuplicate(state, scope.lex['@'], true);
@@ -2161,6 +2163,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
       if (!state.assignable) report(state, Errors.InvalidLHSInAssignment);
       reinterpret(expr);
     } else {
+      if (!state.assignable || !isValidSimpleAssignment(expr)) report(state, Errors.InvalidLHSInAssignment);
       state.bindable = state.assignable = false;
     }
     const operator = state.token;
@@ -3013,7 +3016,7 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
       if (
         argument.type !== 'ArrayExpression' &&
         argument.type !== 'ObjectExpression' &&
-        !isValidSimpleAssignmentTarget(argument)
+        !isValidSimpleAssignment(argument)
       ) {
         state.bindable = state.assignable = false;
       }
@@ -3253,7 +3256,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
 
   state.bindable = false;
 
-  if (!isValidSimpleAssignmentTarget(expr)) state.assignable = false;
+  if (!isValidSimpleAssignment(expr)) state.assignable = false;
 
   return expr;
 }
