@@ -1261,6 +1261,11 @@ export function parseBindingIdentifier(
 ): ESTree.Identifier {
   const name = state.tokenValue;
 
+  // TODO: (fkleuver) This should be tokens in 'token.ts', and validated inside 'validateBindingIdentifier'
+  if (context & Context.Strict) {
+    if (nameIsArgumentsOrEval(name) || name === 'enum') report(state, Errors.Unexpected);
+  } else if (name === 'enum') report(state, Errors.Unexpected);
+
   validateBindingIdentifier(state, context, type);
   addVariable(
     state,

@@ -300,11 +300,5 @@ describe('Miscellaneous - Grammar', () => {
         parseSource(`${arg}`, undefined, Context.OptionsDisableWebCompat);
       });
     });
-
-    it(`${arg}`, () => {
-      t.doesNotThrow(() => {
-        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
-      });
-    });
   }
 });

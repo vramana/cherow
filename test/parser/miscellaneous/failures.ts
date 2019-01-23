@@ -597,6 +597,8 @@ describe('Miscellaneous - Failurea', () => {
       Context.Empty
     ],
     ['function f([x] = [1]) { "use strict"; }', Context.Empty],
+
+    ['var enum = 123;', Context.Empty],
     ['1 /= 1;', Context.Empty],
     ['1 |= 1;', Context.Empty],
     ['catch = 1', Context.Empty],
