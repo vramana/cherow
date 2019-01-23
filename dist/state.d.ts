@@ -50,9 +50,9 @@ export declare function parseFunctionBody(state: ParserState, context: Context, 
 export declare function parseVariableStatement(state: ParserState, context: Context, type: Type, origin: Origin, scope: ScopeState): ESTree.VariableDeclaration;
 export declare function parseLexicalDeclaration(state: ParserState, context: Context, type: Type, origin: Origin, scope: ScopeState): ESTree.VariableDeclaration;
 export declare function parseVariableDeclarationList(state: ParserState, context: Context, type: Type, origin: Origin, checkForDuplicates: boolean, scope: ScopeState): any;
+export declare function isInOrOf(state: ParserState): boolean;
 export declare function parseExpression(state: ParserState, context: Context): any;
 export declare function parseSequenceExpression(state: ParserState, context: Context, left: ESTree.Expression): ESTree.SequenceExpression;
-export declare function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean;
 export declare function parseLeftHandSideExpression(state: ParserState, context: Context): any;
 export declare function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): any;
 export declare function parsePrimaryExpression(state: ParserState, context: Context): any;
