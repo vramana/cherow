@@ -44,7 +44,7 @@ import {
   expect,
   addVariable,
   checkIfExistInLexicalBindings,
-  checkFunctionsArgForDuplicate,
+  validateFunctionArgs,
   addFunctionName,
   isLexical,
   lookAheadOrScan
@@ -1771,13 +1771,25 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
   const params: any[] = [];
   state.flags &= ~Flags.SimpleParameterList;
   if (state.token === (Token.Comma as any)) report(state, Errors.Unexpected);
+  let hasComplexArgs = false;
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
       state.flags |= Flags.SimpleParameterList;
       params.push(parseRestElement(state, context, scope, Type.ArgList, Origin.None));
       break; //rest parameter must be the last
     }
-    params.push(parseFormalParameterList(state, context, scope, origin));
+
+    if ((state.token & Token.Identifier) !== Token.Identifier) state.flags |= Flags.SimpleParameterList;
+    let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
+    if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
+      state.flags |= Flags.SimpleParameterList;
+      if ((state.token & Token.Identifier) === Token.Identifier) {
+        hasComplexArgs = true;
+      } else if (state.token & Token.IsYield && context & Context.YieldContext) report(state, Errors.Unexpected);
+      left = parseAssignmentPattern(state, context, left);
+    }
+    params.push(left);
+
     if (optional(state, context, Token.Comma)) {
       if (state.token === (Token.Comma as any)) report(state, Errors.Unexpected);
     }
@@ -1785,25 +1797,11 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
 
   expect(state, context, Token.RightParen);
 
-  if ((context & (Context.Strict | Context.InMethod)) !== 0) checkFunctionsArgForDuplicate(state, scope.lex, true);
+  if (hasComplexArgs || (context & (Context.Strict | Context.InMethod)) !== 0) {
+    validateFunctionArgs(state, scope.lex);
+  }
 
   return params;
-}
-/**
- * Parse formal parameter list
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-FormalParameterList)
- *
- * @param parser Parser object
- * @param context Context masks
- */
-function parseFormalParameterList(state: ParserState, context: Context, scope: ScopeState, origin: Origin) {
-  if ((state.token & Token.Identifier) !== Token.Identifier) state.flags |= Flags.SimpleParameterList;
-  const left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
-  if (!optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) return left;
-  state.flags |= Flags.SimpleParameterList;
-  if (state.token & Token.IsYield && context & Context.YieldContext) report(state, Errors.Unexpected);
-  return parseAssignmentPattern(state, context, left);
 }
 
 /**
@@ -1876,7 +1874,7 @@ export function parseFunctionBody(
     (Flags.StrictEvalArguments | Flags.HasStrictReserved);
 
   if (!isStrict && (context & Context.Strict) !== 0 && (context & Context.InGlobal) < 1) {
-    checkFunctionsArgForDuplicate(state, scope.lex['@'], true);
+    validateFunctionArgs(state, scope.lex['@']);
   }
 
   if (state.token !== Token.RightBrace) {
@@ -3045,6 +3043,7 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
       }
     }
   }
+
   expect(state, context, Token.RightBracket);
 
   return {

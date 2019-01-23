@@ -62,7 +62,7 @@ export const enum Flags {
   HasPrivateName = 1 << 7,
   InArrowContext = 1 << 8,
   HasStrictReserved = 1 << 9,
-  StrictEvalArguments = 1 << 10,
+  StrictEvalArguments = 1 << 10
 }
 // prettier-ignore
 /**
@@ -440,15 +440,14 @@ export function addFunctionName(state: any, context: Context, scope: any, bindin
 }
 
 /**
+ * Validate function argument list for possible duplicates
  *
- * @param state
- * @param lex
- * @param wereSimpleArgs
+ * @param state Parser object
+ * @param arg Argument list
  */
-export function checkFunctionsArgForDuplicate(state: ParserState, lex: any, wereSimpleArgs: boolean) {
-  const w = wereSimpleArgs;
-  for (const key in lex) {
-    if (key[0] === '@' && key.length > 1 && lex[key] > 1) {
+export function validateFunctionArgs(state: ParserState, arg: any): void {
+  for (const key in arg) {
+    if (key[0] === '@' && key.length > 1 && arg[key] > 1) {
       report(state, Errors.AlreadyDeclared, key.slice(1));
     }
   }

@@ -22,6 +22,8 @@ describe('Miscellaneous - Failurea', () => {
     ['s = {"foo": null = x} = x', Context.Empty],
     ['s = {"foo": this = x} = x', Context.Empty],
     ['s = {"foo": super = x} = x', Context.Empty],
+    //    ['(async function f(x = 0, x) {});', Context.Empty],
+
     //['s = {"foo": yield = x} = x', Context.Empty],
     ['s = {"foo": yield /fail/g = x} = x', Context.Empty],
     ['function *g() {   s = {"foo": yield /brains/ = x} = x   }', Context.Empty],
@@ -597,7 +599,7 @@ describe('Miscellaneous - Failurea', () => {
       Context.Empty
     ],
     ['function f([x] = [1]) { "use strict"; }', Context.Empty],
-
+    ['function f(a=break){}', Context.Empty],
     ['var enum = 123;', Context.Empty],
     ['1 /= 1;', Context.Empty],
     ['1 |= 1;', Context.Empty],
