@@ -32,6 +32,15 @@ describe('Miscellaneous - Passing tests', () => {
     '(function foo() {function outer() { return f; } { f = 1; function f () {} f = ""; } })();',
     '(function foo(x) { {  function x() {} } })(1);',
     '(function foo([[x]]) { { function x() {}}})([[1]]);',
+    `class B {
+      1() { return 1; }
+      get 2() { return 2; }
+      set 3(_) {}
+
+      static 4() { return 4; }
+      static get 5() { return 5; }
+      static set 6(_) {}
+    }`,
     `(function foo() { { let f = 2; { let y = 3; function f() { y = 2; } f(); } }})();`,
     // rest parameter shouldn't be shadowed
     '(function shadowingRestParameterDoesntBind(...x) { {  function x() {} } })(1);',

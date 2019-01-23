@@ -1619,7 +1619,13 @@ export function parseFunctionDeclaration(
   context = (context | Context.SuperProperty) ^ Context.SuperProperty;
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
-  const params = parseFormalParameters(state, context | Context.AllowNewTarget, paramScoop, Origin.ArgList);
+  const params = parseFormalParameters(
+    state,
+    context | Context.AllowNewTarget,
+    paramScoop,
+    Origin.ArgList,
+    ObjectState.None
+  );
 
   const body = parseFunctionBody(
     state,
@@ -1715,7 +1721,13 @@ export function parseHoistableFunctionDeclaration(
   context = (context | Context.SuperProperty) ^ Context.SuperProperty;
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
-  const params = parseFormalParameters(state, context | Context.AllowNewTarget, paramScoop, Origin.ArgList);
+  const params = parseFormalParameters(
+    state,
+    context | Context.AllowNewTarget,
+    paramScoop,
+    Origin.ArgList,
+    ObjectState.None
+  );
 
   const body = parseFunctionBody(
     state,
@@ -1744,7 +1756,13 @@ export function parseHoistableFunctionDeclaration(
  * @param origin Origin
  */
 
-export function parseFormalParameters(state: ParserState, context: Context, scope: ScopeState, origin: Origin): any {
+export function parseFormalParameters(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  origin: Origin,
+  objState: ObjectState
+): any {
   /**
    * FormalParameterList :
    *    [empty]
@@ -1767,6 +1785,7 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
    *   BindingPattern Initializeropt
    *
    */
+
   expect(state, context, Token.LeftParen);
   const params: any[] = [];
   state.flags &= ~Flags.SimpleParameterList;
@@ -1775,17 +1794,19 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
       state.flags |= Flags.SimpleParameterList;
+      if (objState & ObjectState.Setter) report(state, Errors.BadSetterRestParameter);
       params.push(parseRestElement(state, context, scope, Type.ArgList, Origin.None));
       break; //rest parameter must be the last
     }
-
     if ((state.token & Token.Identifier) !== Token.Identifier) state.flags |= Flags.SimpleParameterList;
+
     let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
     if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
       state.flags |= Flags.SimpleParameterList;
       if ((state.token & Token.Identifier) === Token.Identifier) {
         hasComplexArgs = true;
-      } else if (state.token & Token.IsYield && context & Context.YieldContext) report(state, Errors.Unexpected);
+      } else if (state.token & Token.IsYield && context & (Context.Strict | Context.YieldContext))
+        report(state, Errors.Unexpected);
       left = parseAssignmentPattern(state, context, left);
     }
     params.push(left);
@@ -1794,7 +1815,13 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
       if (state.token === (Token.Comma as any)) report(state, Errors.Unexpected);
     }
   }
+  if (objState & ObjectState.Setter && params.length !== 1) {
+    report(state, Errors.AccessorWrongArgs, 'Setter', 'one', '');
+  }
 
+  if (objState & ObjectState.Getter && params.length > 0) {
+    report(state, Errors.AccessorWrongArgs, 'Getter', 'no', 's');
+  }
   expect(state, context, Token.RightParen);
 
   if (hasComplexArgs || (context & (Context.Strict | Context.InMethod)) !== 0) {
@@ -3100,7 +3127,13 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 
-  const params = parseFormalParameters(state, context | Context.AllowNewTarget, paramScoop, Origin.ArgList);
+  const params = parseFormalParameters(
+    state,
+    context | Context.AllowNewTarget,
+    paramScoop,
+    Origin.ArgList,
+    ObjectState.None
+  );
   const body: any = parseFunctionBody(
     state,
     context | Context.AllowNewTarget,
@@ -3528,7 +3561,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
         if (optional(state, context, Token.Assign)) {
           value = parseAssignmentExpression(state, context);
         }
-      } else value = parseMethodDeclaration(state, context, objState);
+      } else value = parseMethodDeclaration(state, context, objState & ~(ObjectState.Setter | ObjectState.Getter));
     } else if ((state.token & Token.LeftBracket) === Token.LeftBracket) {
       objState |= ObjectState.Computed;
       key = parseComputedPropertyName(state, context);
@@ -3844,7 +3877,7 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
   state.bindable = state.assignable = true;
   state.pendingCoverInitializeError = null;
 
-  const result = parsePropertyMethod(state, context, objState);
+  const result = parsePropertyMethod(state, context | Context.InMethod, objState);
   if (state.pendingCoverInitializeError !== null) {
     report(state, Errors.Unexpected);
   }
@@ -3904,7 +3937,8 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Obj
     state,
     context | Context.AllowNewTarget | Context.InMethod,
     paramScoop,
-    Origin.ArgList
+    Origin.ArgList,
+    objState
   );
 
   const body = parseFunctionBody(

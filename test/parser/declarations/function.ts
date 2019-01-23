@@ -21,6 +21,7 @@ describe('Declarations - Function', () => {
 
     // General
 
+    // ['function f([foo], [foo]){}', Context.Empty],
     ['function f([foo] = x, [foo] = y){}', Context.Empty],
     ['function f({foo} = x, {foo} = y){}', Context.Empty],
     ['function f(b, a, b, a = x) {}', Context.Empty],
