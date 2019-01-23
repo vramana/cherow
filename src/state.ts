@@ -3273,7 +3273,7 @@ function parseClassDeclaration(state: ParserState, context: Context, scope: Scop
   let id: ESTree.Expression | null = null;
   let superClass: ESTree.Expression | null = null;
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
-    validateBindingIdentifier(state, context, Type.ClassExprDecl);
+    validateBindingIdentifier(state, context | Context.Strict, Type.ClassExprDecl);
     addVariableAndDeduplicate(state, context, scope, Type.Let, true, state.tokenValue);
     id = parseIdentifier(state, context);
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.Unexpected);
@@ -3304,12 +3304,12 @@ function parseClassDeclaration(state: ParserState, context: Context, scope: Scop
  */
 function parseClassExpression(state: ParserState, context: Context): ESTree.ClassExpression {
   next(state, context);
-  context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
+  context = (context | (Context.Strict | Context.InConstructor)) ^ (Context.Strict | Context.InConstructor);
 
   let id: ESTree.Expression | null = null;
   let superClass: ESTree.Expression | null = null;
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
-    validateBindingIdentifier(state, context, Type.ClassExprDecl);
+    validateBindingIdentifier(state, context | Context.Strict, Type.ClassExprDecl);
     addVariable(state, context, -1, Type.Let, false, false, state.tokenValue);
     id = parseIdentifier(state, context);
   }
@@ -3645,6 +3645,7 @@ function parseObjectLiteral(
         token = state.token;
         tokenValue = state.tokenValue;
         objState = ObjectState.None;
+        const newLine = (state.flags & Flags.NewLine) !== 0;
         key = parseIdentifier(state, context);
         if (
           state.token === <Token>Token.Comma ||
@@ -3680,6 +3681,7 @@ function parseObjectLiteral(
         } else if (state.token === <Token>Token.LeftBracket) {
           key = parseComputedPropertyName(state, context);
           if (token === <Token>Token.AsyncKeyword) {
+            if (newLine) report(state, Errors.Unexpected);
             objState |= ObjectState.Async | ObjectState.Computed | ObjectState.Method;
           } else {
             if ((token & Token.GetKeyword) === Token.GetKeyword)
@@ -3702,7 +3704,8 @@ function parseObjectLiteral(
           if ((state.token & Token.IsIdentifier) !== 0) {
             key = parseIdentifier(state, context);
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
-            if (token & Token.IsAsync) {
+            if (token === <Token>Token.AsyncKeyword) {
+              if (newLine) report(state, Errors.Unexpected);
               objState |= ObjectState.Async | ObjectState.Method;
             } else if (token === <Token>Token.GetKeyword) {
               objState = (objState & ~ObjectState.Setter) | ObjectState.Getter;
@@ -3714,7 +3717,8 @@ function parseObjectLiteral(
           } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
             key = parseLiteral(state, context, state.tokenValue);
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
-            if (token & Token.IsAsync) {
+            if (token === <Token>Token.AsyncKeyword) {
+              if (newLine) report(state, Errors.Unexpected);
               objState |= ObjectState.Async | ObjectState.Method;
             } else if (token === <Token>Token.GetKeyword) {
               objState = (objState & ~ObjectState.Setter) | ObjectState.Getter;
@@ -3724,7 +3728,8 @@ function parseObjectLiteral(
             state.bindable = state.assignable = false;
             value = parseMethodDeclaration(state, context, objState);
           } else if (state.token === <Token>Token.LeftBracket) {
-            if (token & Token.IsAsync) {
+            if (token === <Token>Token.AsyncKeyword) {
+              if (newLine) report(state, Errors.Unexpected);
               objState |= ObjectState.Async | ObjectState.Method;
             } else if (token === <Token>Token.GetKeyword) {
               objState = (objState & ~ObjectState.Setter) | ObjectState.Getter;

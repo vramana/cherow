@@ -564,7 +564,6 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
   return (
     (t & Token.IsIdentifier) === Token.IsIdentifier ||
     (t & Token.Contextual) === Token.Contextual ||
-    (t && t !== Token.ImportKeyword && t & Token.Reserved) === Token.Reserved ||
     (t & Token.FutureReserved) === Token.FutureReserved
   );
 }
