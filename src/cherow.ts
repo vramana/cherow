@@ -112,13 +112,13 @@ export function parseSource(source: string, options: Options | void, context: Co
     if (options.directives) context |= Context.OptionsDirectives | Context.OptionsRaw;
     // The flag to attach raw property to each literal and identifier node
     if (options.raw) context |= Context.OptionsRaw;
+    // Accepts either a callback function to be invoked or an array to collect comments (as the node is constructed)
     if (options.onComment != null) {
-      if (Array.isArray(options.onComment)) onComment = pushComment(context, options.onComment);
-      else onComment = options.onComment;
+      onComment = Array.isArray(options.onComment) ? pushComment(context, options.onComment) : options.onComment;
     }
+    // Accepts a callback function or an array to be invoked for each syntax node (as the node is constructed)
     if (options.onToken != null) {
-      if (Array.isArray(options.onToken)) onComment = pushToken(context, options.onToken);
-      else onToken = options.onToken;
+      onToken = Array.isArray(options.onToken) ? pushToken(context, options.onToken) : options.onToken;
     }
   }
 
@@ -153,6 +153,13 @@ export function parseSource(source: string, options: Options | void, context: Co
     node.end = source.length;
   }
 
+  if (context & Context.OptionsLoc) {
+    node.loc = {
+      start: { line: 1, column: 0 },
+      end: { line: state.line, column: state.column }
+    };
+  }
+
   return node;
 }
 
@@ -166,7 +173,7 @@ export function parseSource(source: string, options: Options | void, context: Co
  * @param options parser options
  */
 export function parse(source: string, options?: Options): ESTree.Program {
-  return options && options.module ? parseModule(source, options) : parseScript(source, options);
+  return parseSource(source, options, options && options.module ? Context.Strict | Context.Module : Context.Empty);
 }
 
 /**

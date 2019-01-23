@@ -535,7 +535,61 @@ describe('Miscellaneous - Failurea', () => {
     ['0++;', Context.Empty],
     ['({}) = 1', Context.Empty],
     ['({a}) = 0;', Context.Empty],
-    ['const let = "irrelevant initializer";', Context.Empty]
+    ['const let = "irrelevant initializer";', Context.Empty],
+
+    [
+      `class A {
+      *g() {
+        function h() {
+          yield = 1;
+        }
+      }
+    }`,
+      Context.Empty
+    ],
+
+    ['for (let let in {}) {}', Context.Empty],
+    [
+      `for (let x; false; ) {
+      var x;
+    }`,
+      Context.Empty
+    ],
+    [
+      `for (let x; false; ) {
+      var x;
+    }`,
+      Context.Strict
+    ],
+    [
+      `for (const x in {}) {
+      var x;
+    }`,
+      Context.Empty
+    ],
+    ['if (true) function* g() {  } else function* _g() {}', Context.Empty],
+    ['if (true) function* g() {  } else ;', Context.Empty],
+    ['for (let let in {}) { }', Context.Empty],
+    [
+      `let  // start of a LexicalDeclaration, *not* an ASI opportunity
+    let;`,
+      Context.Empty
+    ],
+    ["'use strict'; let let", Context.Empty],
+    ["'use strict'; const let", Context.Empty],
+    ['class yield {}', Context.Empty],
+    ['class let {}', Context.Empty],
+    ['var C = class let {};', Context.Empty],
+    ['class public {}', Context.Empty],
+    ['class static {}', Context.Empty],
+    ['let let = 1;', Context.Empty],
+    ['const let = 1;', Context.Empty],
+    [
+      `for (let x of []) {
+      var x;
+    }`,
+      Context.Empty
+    ]
   ];
 
   fail('Miscellaneous - Failurea', inValids);

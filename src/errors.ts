@@ -93,7 +93,9 @@ export const enum Errors {
   InvalidArrowFuncParamList,
   InvalidLHSInForIn,
   InvalidLHSInForLoop,
-  NoExperimentalOption
+  NoExperimentalOption,
+  TrailingCommaAfterRest,
+  StrictOctalLiteral
 }
 
 /*@internal*/
@@ -196,7 +198,9 @@ export const errorMessages: {
   [Errors.InvalidArrowFuncParamList]: 'Illegal arrow function parameter list',
   [Errors.InvalidLHSInForIn]: 'Invalid left-hand side in for-in',
   [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop',
-  [Errors.NoExperimentalOption]: 'Enable the experimental option for V8 experimental features'
+  [Errors.NoExperimentalOption]: 'Enable the experimental option for V8 experimental features',
+  [Errors.TrailingCommaAfterRest]: 'A trailing comma is not permitted after the rest element ',
+  [Errors.StrictOctalLiteral]: 'Legacy octal literals are not allowed in strict mode'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

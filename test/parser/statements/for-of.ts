@@ -4,15 +4,71 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Statements - For of', () => {
-  const inValids: Array<[string, Context]> = [
+  fail('Statements - For of (fail)', [
+    ['for(const x = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const [] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const [,] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const [a] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const [a = 0] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const [...a] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const [...[]] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const [...[a]] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const {} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const {p: x} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const {p: x = 0} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const {x} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(const {x = 0} = 0 of {});', Context.OptionsDisableWebCompat],
+    //    ['for(x = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for([] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for([,] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for([a] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for([a = 0] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for([...a] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for([...[]] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for([...[a]] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for({} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for({p: x} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for({p: x = 0} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for({x} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for({x = 0} = 0 of {});', Context.OptionsDisableWebCompat],
+    //    ['for(o.p = 0 of {});', Context.OptionsDisableWebCompat],
+    //    ['for(o[0] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(f() = 0 of {});', Context.OptionsDisableWebCompat],
+    //    ['for(({a}) of 0);', Context.OptionsDisableWebCompat],
+    //    ['for(([a]) of 0);', Context.OptionsDisableWebCompat],
+    ['for(var [] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var [,] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var [a] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var [a = 0] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var [...a] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var [...[]] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var [...[a]] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var {} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var {p: x} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var {p: x = 0} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var {x} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(var {x = 0} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let x = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let [] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let [,] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let [a] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let [a = 0] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let [...a] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let [...[]] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let [...[a]] = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let {} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let {p: x} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let {p: x = 0} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let {x} = 0 of {});', Context.OptionsDisableWebCompat],
+    ['for(let {x = 0} = 0 of {});', Context.OptionsDisableWebCompat],
     ['for (let of x) y', Context.OptionsDisableWebCompat],
-    //['for (var i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
-    //['for (var i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
-    //['for (var i, j = void 0 of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
-    //['for (let i, j of {}) {}', Context.OptionsDisableWebCompat],
-    //['for (let i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
-    // ['for (let i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
-    //    ['for (let i, j = void 0 of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    ['for (var i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    ['for (var i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
+    ['for (var i, j = void 0 of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    ['for (let i, j of {}) {}', Context.OptionsDisableWebCompat],
+    ['for (let i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    ['for (let i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
+    ['for (let i, j = void 0 of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
     ['for (const i, j of {}) {}', Context.OptionsDisableWebCompat],
     ['for (const i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
     ['for (const i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
@@ -20,11 +76,58 @@ describe('Statements - For of', () => {
     ['for(const x of [], []) {}', Context.OptionsDisableWebCompat],
     ['for(x of [], []) {}', Context.OptionsDisableWebCompat],
     ['for(var x of [], []) {}', Context.OptionsDisableWebCompat],
-    ['for(let x of [], []) {}', Context.OptionsDisableWebCompat]
-  ];
+    ['for(let x of [], []) {}', Context.OptionsDisableWebCompat],
+    ['for (var i, j of {}) {}', Context.OptionsDisableWebCompat]
+  ]);
 
   const programs = [
     'for({a=0} of b);',
+    `var x, y;
+    for ({x, y} of [{x: 1, y: 2}]) {}`,
+    `var x, y;
+    for ([x, y] of [[1, 2]]) {
+      console.log(x, y);
+    }`,
+    `function foo () {
+        for ( let x of y ) {
+      bar( function () {
+        call( x ); // call expression
+    });
+      if ( x > 10 ) return;
+      }
+    }`,
+    'for (let {j} of x) { foo = j }',
+    `for ( var i = 0, list = items; i < list.length; i += 1 ) {
+      var item = list[i];
+        if ( item.foo ) { continue; }
+    }`,
+    `for ( x of y ) {}`,
+    `for ( let member of [ 'a', 'b', 'c' ] ) {
+      setTimeout( function () {
+      doSomething( member );
+      });
+     }`,
+    `for ( let member of array ) { doSomething( member ); }`,
+    'for (const {j} of x) { const [foo] = [j] }',
+    'for (const {j} of x) { var [foo] = [j] }',
+    `for ([] of [{ next: function() {return { done: true }; },return: function() {return {}; }}]) {}`,
+    `function* g() { for(const x of yield) {} }`,
+    `for([{a=0}] of b);`,
+    `for (var x of set) {}`,
+    `for (var { cover = (function () {}), a = (0, function() {})  } of [{}]) {}`,
+    `for (var [...{ length }] of [[1, 2, 3]]) {}`,
+    `for (var [...[...x]] of [[1, 2, 3]]) {}`,
+    `for ({ x: prop = 'x' in {} } of [{}]) {}`,
+    `for ({ x: xGen = function* x() {}, x: gen = function*() {} } of [{}]) {}`,
+    `for ({ y: x = 1 } of [{ y: undefined }]) {}`,
+    `for ({ x = y } of [{}]) {}`,
+    `for (const [{ x, y, z } = { x: 44, y: 55, z: 66 }] of [[]]) {}`,
+    `for ([...{ 0: x, length }] of [[null]]) {}`,
+    `for ([] of [[]]) {}`,
+    `for (x of let) {}`,
+    `for (var {x, y} of z);`,
+    `for ({x, y} of z);`,
+    `for (const y of list);`,
     'for (let of of ([0])) { }',
     'for (let of of [0]) { }',
     'for (let of; false; ) { }',
@@ -36,7 +139,6 @@ describe('Statements - For of', () => {
     'for (j of x) { var [foo] = [j] }',
     'for (j of x) { var [foo] = [j] }',
     'for (j of x) { const [foo] = [j] }',
-    'for (var i, j of {}) {}',
     'for (j of x) { function foo() {return j} }',
     'for ({j} of x) { foo = j }',
     'for ({j} of x) { let foo = j }',
@@ -282,6 +384,4 @@ describe('Statements - For of', () => {
   ];
 
   pass('Statements - For of (pass)', valids);
-
-  fail('Statements - For (fail)', inValids);
 });

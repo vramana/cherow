@@ -39,6 +39,42 @@ export function scanMaybeIdentifier(state: ParserState, _: Context, first: numbe
   report(state, Errors.IllegalCaracter, String.fromCharCode(first));
 }
 
+/**
+ * Scan identifier or keyword.
+ *
+ * Note: A valid keyword start with a lowercase letter and are between 2 and 11 characters long
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function scanIdentifierOrKeyword(state: ParserState, context: Context): Token {
+  let { index, column } = state;
+  while (isIdentifierPart(state.source.charCodeAt(index))) {
+    index++;
+    column++;
+  }
+  state.tokenValue = state.source.slice(state.startIndex, index);
+  if (state.source.charCodeAt(index) === Chars.Backslash) {
+    //state.tokenValue += fromCodePoint(scanIdentifierRest(state));
+  }
+  state.index = index;
+  state.column = column;
+
+  const len = state.tokenValue.length;
+  if (len >= 2 && len <= 11) {
+    const keyword: Token | undefined = descKeywordTable[state.tokenValue];
+    if (keyword !== undefined) return keyword;
+  }
+  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, index);
+  return Token.Identifier;
+}
+
+/**
+ * Scan identifier
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function scanIdentifier(state: ParserState, context: Context): Token {
   let { index, column } = state;
   while (isIdentifierPart(state.source.charCodeAt(index))) {
@@ -52,7 +88,7 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
   state.index = index;
   state.column = column;
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, index);
-  return descKeywordTable[state.tokenValue] || Token.Identifier;
+  return Token.Identifier;
 }
 
 /**
