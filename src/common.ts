@@ -33,7 +33,6 @@ export const enum Context {
   SuperProperty = 1 << 18,
 
   SuperCall = 1 << 19,
-  AsyncFunc = 1 << 20,
   YieldContext = 1 << 21,
   AwaitContext = 1 << 22,
   InArgList = 1 << 23,
@@ -297,7 +296,7 @@ export function consumeSemicolon(state: ParserState, context: Context): void | b
  * @param scope Parent scope
  * @param name Binding name
  * @param bindingType Binding type
- * @param bindingType Binding origin
+ * @param origin Binding origin
  * @param checkDuplicates
  * @param isVarDecl True if origin is a variable declaration
  */

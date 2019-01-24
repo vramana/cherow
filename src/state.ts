@@ -2816,8 +2816,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
     } else {
       expressions.push(secludeGrammar(state, context, 0, parseAssignmentExpression));
     }
-    if (state.token === <Token>Token.RightParen) break;
-    optional(state, context | Context.AllowPossibleRegEx, Token.Comma);
+    if (!optional(state, context | Context.AllowPossibleRegEx, Token.Comma)) break;
   }
 
   expect(state, context, Token.RightParen);
@@ -3718,8 +3717,8 @@ function parseObjectLiteral(
         token = state.token;
         tokenValue = state.tokenValue;
         objState = ObjectState.None;
-        const newLine = (state.flags & Flags.NewLine) > 0;
         key = parseIdentifier(state, context);
+        const newLine = (state.flags & Flags.NewLine) > 0;
         if (
           state.token === <Token>Token.Comma ||
           state.token === <Token>Token.RightBrace ||

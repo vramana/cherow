@@ -5600,6 +5600,59 @@ describe('Expressions - Object', () => {
       }
     ],
     [
+      `var obj = {
+        async *method() {
+        }
+      };`,
+      Context.Empty,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'obj',
+                  type: 'Identifier'
+                },
+                init: {
+                  properties: [
+                    {
+                      computed: false,
+                      key: {
+                        name: 'method',
+                        type: 'Identifier'
+                      },
+                      kind: 'init',
+                      method: true,
+                      shorthand: false,
+                      type: 'Property',
+                      value: {
+                        async: true,
+                        body: {
+                          body: [],
+                          type: 'BlockStatement'
+                        },
+                        generator: true,
+                        id: null,
+                        params: [],
+                        type: 'FunctionExpression'
+                      }
+                    }
+                  ],
+                  type: 'ObjectExpression'
+                },
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'x = {__proto__(){}, __proto__: 2}',
       Context.Empty,
       {
