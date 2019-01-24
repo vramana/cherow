@@ -513,34 +513,35 @@ export function isLexical(state: ParserState, context: Context): boolean {
   );
 }
 
-export function reinterpret(ast: any) {
+export function reinterpret(state: ParserState, ast: any) {
   switch (ast.type) {
     case 'ArrayExpression':
       ast.type = 'ArrayPattern';
       const elements = ast.elements;
       for (let i = 0, n = elements.length; i < n; ++i) {
         const element = elements[i];
-        if (element) reinterpret(element);
+        if (element) reinterpret(state, element);
       }
       break;
     case 'ObjectExpression':
       ast.type = 'ObjectPattern';
       const properties = ast.properties;
       for (let i = 0, n = properties.length; i < n; ++i) {
-        reinterpret(properties[i]);
+        reinterpret(state, properties[i]);
       }
       break;
     case 'AssignmentExpression':
       ast.type = 'AssignmentPattern';
+      if (ast.operator !== '=') report(state, Errors.Unexpected);
       delete ast.operator;
-      reinterpret(ast.left);
+      reinterpret(state, ast.left);
       break;
     case 'Property':
-      reinterpret(ast.value);
+      reinterpret(state, ast.value);
       break;
     case 'SpreadElement':
       ast.type = 'RestElement';
-      reinterpret(ast.argument);
+      reinterpret(state, ast.argument);
   }
 }
 

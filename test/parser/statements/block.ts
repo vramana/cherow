@@ -22,7 +22,7 @@ describe('Statements - Block', () => {
     ['for (let x of []) { var x;  }', Context.OptionsDisableWebCompat],
     ['for (const x in {}) { var x; }', Context.OptionsDisableWebCompat],
     ['{ async function f() {} let f }', Context.OptionsDisableWebCompat],
-    ['{ async function* f() {} var f }', Context.OptionsDisableWebCompat],
+    ['{ async function* f() {} async function f() {} }', Context.OptionsDisableWebCompat],
     ['{ async function* f() {} var f }', Context.OptionsDisableWebCompat],
     ['{ class f {} const f = 0 }', Context.OptionsDisableWebCompat],
     ['{ const f = 0; async function f() {} }', Context.OptionsDisableWebCompat],
@@ -54,7 +54,23 @@ describe('Statements - Block', () => {
     ['{ { var f; } async function* f() {}; } ', Context.OptionsDisableWebCompat],
     ['{ function* f() {} class f {} }', Context.OptionsDisableWebCompat],
     ['{ function* f() {} async function* f() {} }', Context.OptionsDisableWebCompat],
-    ['{ function f() {} function* f() {} }', Context.OptionsDisableWebCompat]
+    ['{ function f() {} function* f() {} }', Context.OptionsDisableWebCompat],
+
+    ['{ class f {}; var f; }', Context.OptionsDisableWebCompat],
+    ['{ var f; async function f() {} }', Context.OptionsDisableWebCompat],
+    ['{ var f; class f {} }', Context.OptionsDisableWebCompat],
+    ['{ let f; function* f() {} }', Context.OptionsDisableWebCompat],
+    ['{ let f; { var f; } }', Context.OptionsDisableWebCompat],
+    ['{ const f = 0; { var f; } }', Context.OptionsDisableWebCompat],
+    ['{ function* f() {} var f }', Context.OptionsDisableWebCompat],
+    ['function x() { { async function f() {}; var f; } }', Context.OptionsDisableWebCompat],
+    ['{ const f = 0; const f = 0 }', Context.OptionsDisableWebCompat],
+    ['{ class f {} var f }', Context.OptionsDisableWebCompat],
+    ['{ async function f() {} var f }', Context.OptionsDisableWebCompat],
+    ['{ async function f() {} const f = 0 }', Context.OptionsDisableWebCompat],
+    ['{ async function f() {} class f {} }', Context.OptionsDisableWebCompat],
+    ['{ async function f() {} async function* f() {} }', Context.OptionsDisableWebCompat],
+    ['{ async function f() {} async function f() {} }', Context.OptionsDisableWebCompat]
   ];
 
   fail('Statements - Block (fail)', inValids);

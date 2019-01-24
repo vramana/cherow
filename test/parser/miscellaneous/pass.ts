@@ -1607,6 +1607,63 @@ h({ name: "bar", val: 42 })`,
       }
   }());`,
     'a++',
+    `function fn(x) {
+      let a = [];
+      for (let p in x) {
+        a.push(function () { return p; });
+      }
+      let k = 0;
+      for (let q in x) {
+        ++k;
+      }
+    }
+    fn({a : [0], b : 1, c : {v : 1}, get d() {}, set e(x) {}});`,
+    `function props(x) {
+      var array = [];
+      for (let p in x) array.push(p);
+      return array;
+    }`,
+    '[a, {b}, c] = obj',
+    '[a, {b:d}, c] = obj',
+    '[a, {[b]:d}, c] = obj',
+    '[a, {[b]: c}, d] = e',
+    'null',
+    'false',
+    'x;"foo"',
+    '0x123',
+    '0o123',
+    '0b1010',
+    '0456',
+    'this',
+    'null\n/foo;',
+    'null\n/foo/g;',
+    'a<b',
+    'a>=b',
+    '{b\n++c};',
+    'while (true) {b\n++c};',
+    '() => b\n++c;',
+    'x *\n++y',
+    'async function f(){ await\n++c; }',
+    'async function f(){ await b\n++c; }',
+    'typeof b\n++c;',
+    'new b\n++c;',
+    'a=b?c:d',
+    'a?b:c=d',
+    'true\n/foo;',
+    'true\n/foo/g;',
+    'void a\n/foo/g',
+    'x("" + y)',
+    'a+b',
+    'a-b',
+    'a*b',
+    'a**b',
+    'a|b',
+    'a||b',
+    'a *= b',
+    'yield',
+    '5 + yield',
+    'log({foo: [bar]} = obj);',
+    `switch (true) { default: function g() {} }`,
     'class a extends b { constructor() { super.c } }',
     '(a)=>{"use strict";}',
     'function* a() {}',

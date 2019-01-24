@@ -51,6 +51,13 @@ describe('Expressions - Async Generator Functions', () => {
     ],
     ['"use strict"; (async function arguments () {  })', Context.Empty],
     ['"use strict"; (async function eval () { })', Context.Empty],
+    ['"use strict"; (async function arguments () {  })', Context.Empty],
+
+    ['async function *gen() { await: ; }', Context.Empty],
+    ['async function *gen() { void await; }', Context.Empty],
+    ['async function* f(...x = []) {}', Context.Empty],
+    ['"use strict"; (async function arguments () {  })', Context.Empty],
+    ['"use strict"; (async function arguments () {  })', Context.Empty],
     ['"use strict"; (async function arguments () {  })', Context.Empty]
   ];
 

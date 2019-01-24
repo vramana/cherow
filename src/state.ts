@@ -1105,7 +1105,7 @@ function parseForStatement(
       if (!state.assignable || init.type === 'AssignmentExpression') {
         report(state, Errors.InvalidLHSInForLoop);
       }
-      reinterpret(init);
+      reinterpret(state, init);
     }
     right = parseAssignmentExpression(state, context);
     expect(state, context, Token.RightParen);
@@ -1127,7 +1127,7 @@ function parseForStatement(
       if (!state.assignable || init.type === 'AssignmentExpression') {
         report(state, Errors.InvalidLHSInForIn);
       }
-      reinterpret(init);
+      reinterpret(state, init);
     }
     right = parseExpression(state, context);
     expect(state, context, Token.RightParen);
@@ -2191,7 +2191,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
       report(state, Errors.Unexpected);
     } else if (state.token === Token.Assign) {
       if (!state.assignable) report(state, Errors.InvalidLHSInAssignment);
-      reinterpret(expr);
+      reinterpret(state, expr);
     } else {
       if (!state.assignable || !isValidSimpleAssignment(expr)) report(state, Errors.InvalidLHSInAssignment);
       state.bindable = state.assignable = false;
@@ -2799,7 +2799,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
       expressions.push(secludeGrammar(state, context, 0, parseAssignmentExpression));
     }
     if (state.token === <Token>Token.RightParen) break;
-    expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
+    optional(state, context | Context.AllowPossibleRegEx, Token.Comma);
   }
 
   expect(state, context, Token.RightParen);
@@ -3173,7 +3173,7 @@ function parseArrowFunctionExpression(
     expect(state, context | Context.AllowPossibleRegEx, Token.Arrow);
   } else {
     expect(state, context, Token.Arrow);
-    for (let i = 0; i < params.length; ++i) reinterpret(params[i]);
+    for (let i = 0; i < params.length; ++i) reinterpret(state, params[i]);
   }
 
   if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
