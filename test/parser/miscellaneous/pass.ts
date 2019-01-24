@@ -142,6 +142,12 @@ describe('Miscellaneous - Passing tests', () => {
         });
       }
     }`,
+    'for (let\n{x} of list) process(x);',
+    `async function* f() {
+      for await (var x of []) let // ASI
+      x = 1;
+    }`,
+    'arguments--;',
     `let async = function(a){return {bind: "someMethodButIUseString"}};
     async(function (req, res) { }).bind;`,
     'function f() { return 1; } function f() { return 2; }',

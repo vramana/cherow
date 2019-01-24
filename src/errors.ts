@@ -97,7 +97,13 @@ export const enum Errors {
   TrailingCommaAfterRest,
   StrictOctalLiteral,
   AccessorWrongArgs,
-  BadSetterRestParameter
+  BadSetterRestParameter,
+  InvalidNestedStatement,
+  RestricedLetProduction,
+  AlreadyBoundAsLexical,
+  MultipleLexicals,
+  DoubleDeclBinding,
+  BoundLexicalAsParam
 }
 
 /*@internal*/
@@ -204,7 +210,13 @@ export const errorMessages: {
   [Errors.TrailingCommaAfterRest]: 'A trailing comma is not permitted after the rest element ',
   [Errors.StrictOctalLiteral]: 'Legacy octal literals are not allowed in strict mode',
   [Errors.AccessorWrongArgs]: '%0 functions must have %1 argument%2',
-  [Errors.BadSetterRestParameter]: 'Setter function argument must not be a rest parameter'
+  [Errors.BadSetterRestParameter]: 'Setter function argument must not be a rest parameter',
+  [Errors.InvalidNestedStatement]: '%0  statement must be nested within an iteration statement',
+  [Errors.RestricedLetProduction]: '`let \n [` is a restricted production at the start of a statement',
+  [Errors.AlreadyBoundAsLexical]: '%0 is already bound as a lexical binding',
+  [Errors.MultipleLexicals]: 'The lexical binding %0 has been bound multiple times',
+  [Errors.BoundLexicalAsParam]: 'Cannot use `let` or `const` with the same name as bound to a parameter',
+  [Errors.DoubleDeclBinding]: 'Double declaration of the same binding name in a `catch` var'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

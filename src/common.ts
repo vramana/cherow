@@ -256,17 +256,20 @@ export function finishNode<T extends ESTree.Node>(context: Context, start: numbe
   return node;
 }
 
-export function optional(state: ParserState, context: Context, token: Token): boolean {
-  if (state.token !== token) return false;
-  next(state, context);
-  return true;
+export function optional(state: ParserState, context: Context, t: Token): boolean {
+  if (state.token === t) {
+    next(state, context);
+    return true;
+  }
+  return false;
 }
 
 export function expect(state: ParserState, context: Context, t: Token): void {
-  if (state.token !== t) {
-    report(state, Errors.Unexpected);
+  if (state.token === t) {
+    next(state, context);
+  } else {
+    report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
   }
-  next(state, context);
 }
 
 /**
@@ -294,7 +297,7 @@ export function consumeSemicolon(state: ParserState, context: Context): void | b
  * @param name Binding name
  * @param bindingType Binding type
  * @param checkDuplicates
- * @param isVariableDecl True if origin is a variable declaration
+ * @param isVarDecl True if origin is a variable declaration
  */
 
 export function addVariable(
@@ -303,26 +306,26 @@ export function addVariable(
   scope: any,
   bindingType: Type,
   checkDuplicates: boolean,
-  isVariableDecl: boolean,
+  isVarDecl: boolean,
   key: string
 ) {
   if (scope === -1) return;
-  if ((bindingType & Type.Variable) === Type.Variable) {
+  if (bindingType & Type.Variable) {
     let lex = scope.lex;
     while (lex) {
       const type = lex.type;
       if (lex['@' + key] !== undefined) {
         if (type === ScopeType.CatchClause) {
-          if (isVariableDecl && (context & Context.OptionsDisableWebCompat) === 0) {
+          if (isVarDecl && (context & Context.OptionsDisableWebCompat) === 0) {
             state.inCatch = true;
           } else {
             report(state, Errors.InvalidCatchVarBinding, key);
           }
         } else if (type === ScopeType.ForStatement) {
-          report(state, Errors.AlreadyDeclared);
+          report(state, Errors.AlreadyBoundAsLexical);
         } else if (type !== ScopeType.ArgumentList) {
           if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
-            report(state, Errors.AlreadyDeclared);
+            report(state, Errors.AlreadyBoundAsLexical, key);
           }
         }
       }
@@ -330,8 +333,13 @@ export function addVariable(
     }
 
     let x = scope.var['@' + key];
-    if (x === undefined) x = 1;
-    else ++x;
+
+    if (x === undefined) {
+      x = 1;
+    } else {
+      ++x;
+    }
+
     scope.var['@' + key] = x;
     let lexVars = scope.lexVars;
     while (lexVars) {
@@ -356,9 +364,11 @@ export function addVariable(
     if (x === undefined) x = 1;
     else if (checkDuplicates) {
       if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
-        report(state, Errors.AlreadyDeclared, key);
+        report(state, Errors.MultipleLexicals, key);
       }
-    } else ++x;
+    } else {
+      ++x;
+    }
 
     lex['@' + key] = x;
   }
@@ -372,10 +382,11 @@ export function addVariable(
  */
 
 export function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context): boolean {
-  if (context & Context.OptionsDisableWebCompat) return true;
-  if ((scope.lex.funcs[key] === true) === false) return true;
-  if (context & Context.Strict) return true;
-  return false;
+  return context & (Context.OptionsDisableWebCompat | Context.Strict)
+    ? true
+    : (scope.lex.funcs[key] === true) === false
+    ? true
+    : false;
 }
 
 /**
@@ -394,9 +405,7 @@ export function checkIfExistInLexicalBindings(
   const lex = scope.lex;
   for (const key in lex) {
     if (key[0] === '@' && key.length > 1) {
-      if (lex[key] > 1) {
-        return true;
-      }
+      if (lex[key] > 1) return true;
       if (!skipParent) checkIfExistInLexicalParentScope(state, context, scope, key);
     }
   }
@@ -410,17 +419,20 @@ export function checkIfExistInLexicalBindings(
  * @param scope
  * @param key
  */
-export function checkIfExistInLexicalParentScope(state: ParserState, context: Context, scope: ScopeState, key: any) {
+export function checkIfExistInLexicalParentScope(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  key: string
+): void {
   const lex = scope.lex;
 
   const lexParent = lex['@'];
-  if (lexParent !== undefined) {
-    if (lexParent.type === ScopeType.ArgumentList && lexParent[key] !== undefined) {
-      report(state, Errors.AlreadyDeclared, key.slice(1));
-    }
-
-    if (lexParent.type === ScopeType.CatchClause && lexParent[key] !== undefined) {
-      report(state, Errors.AlreadyDeclared, key.slice(1));
+  if (lexParent !== undefined && lexParent[key] !== undefined) {
+    if (lexParent.type === ScopeType.ArgumentList) {
+      report(state, Errors.BoundLexicalAsParam);
+    } else if (lexParent.type === ScopeType.CatchClause) {
+      report(state, Errors.DoubleDeclBinding);
     }
   }
 
@@ -431,8 +443,8 @@ export function checkIfExistInLexicalParentScope(state: ParserState, context: Co
   }
 }
 
-export function addFunctionName(state: any, context: Context, scope: any, bindingType: Type, isVariableDecl: boolean) {
-  addVariable(state, context, scope, bindingType, true, isVariableDecl, state.tokenValue);
+export function addFunctionName(state: any, context: Context, scope: any, bindingType: Type, isVarDecl: boolean) {
+  addVariable(state, context, scope, bindingType, true, isVarDecl, state.tokenValue);
   if ((context & Context.OptionsDisableWebCompat) === 0 && !scope.lex.funcs['@' + state.tokenValue]) {
     scope.lex.funcs['@' + state.tokenValue] = true;
   }
@@ -506,8 +518,8 @@ export function isLexical(state: ParserState, context: Context): boolean {
     (token & Token.Contextual) === Token.Contextual ||
     token === Token.LeftBrace ||
     token === Token.LeftBracket ||
-    state.token === Token.YieldKeyword ||
-    state.token === Token.AwaitKeyword ||
+    state.token & Token.IsYield ||
+    state.token & Token.IsAwait ||
     token === Token.LetKeyword
   );
 }
@@ -572,7 +584,7 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
   if (context & Context.Strict && token === Token.StaticKeyword) report(state, Errors.InvalidStrictStatic);
 
   if ((token & Token.FutureReserved) === Token.FutureReserved) {
-    if (context & Context.Strict) report(state, Errors.Unexpected);
+    if (context & Context.Strict) report(state, Errors.InvalidStrictReservedWord);
   }
 
   if ((token & Token.Reserved) === Token.Reserved) {
@@ -663,7 +675,7 @@ export function validateContinueLabel(state: ParserState, label: string): void {
     if (sstate & LabelState.CrossingBoundary) {
       report(state, Errors.Unexpected);
     } else {
-      report(state, Errors.Unexpected);
+      report(state, Errors.InvalidNestedStatement, 'continue');
     }
   }
 }
@@ -675,8 +687,8 @@ export function validateContinueLabel(state: ParserState, label: string): void {
  * @param label Label
  */
 export function validateBreakStatement(state: ParserState, label: any): void {
-  const lblstate = getLabel(state, `@${label}`);
-  if ((lblstate & LabelState.Iteration) !== LabelState.Iteration) report(state, Errors.Unexpected);
+  if ((getLabel(state, `@${label}`) & LabelState.Iteration) !== LabelState.Iteration)
+    report(state, Errors.InvalidNestedStatement);
 }
 
 /**
@@ -727,17 +739,17 @@ export function getLabel(
  * @param context Context masks
  * @param scope Scope instance
  * @param type Binding type
- * @param isVariableDecl True if variable decl
+ * @param isVarDecl True if variable decl
  */
 export function addVariableAndDeduplicate(
   state: ParserState,
   context: Context,
   scope: ScopeState,
   type: Type,
-  isVariableDecl: boolean,
+  isVarDecl: boolean,
   name: string
 ): void {
-  addVariable(state, context, scope, type, true, isVariableDecl, name);
+  addVariable(state, context, scope, type, true, isVarDecl, name);
   if ((context & Context.OptionsDisableWebCompat) === 0) {
     scope.lex.funcs['#' + state.tokenValue] = false;
   }
@@ -867,6 +879,6 @@ export function acquireGrammar<T>(
  * @param parser Parser object
  * @param context  Context masks
  */
-export function isValidSimpleAssignment(node: ESTree.Node): boolean {
+export function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean {
   return node.type === 'Identifier' || node.type === 'MemberExpression' ? true : false;
 }
