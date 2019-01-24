@@ -3,8 +3,6 @@ import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Switch', () => {
   fail('Statements - Return (fail)', [
-    // Bindings
-
     ['switch (x) { case a: let foo; break; case b: let foo; break; }', Context.OptionsDisableWebCompat],
     ['switch (x) { case a: let foo; break; default: let foo; break; }', Context.OptionsDisableWebCompat],
     ['switch (x) { case a: let foo; break; case b: var foo; break; }', Context.OptionsDisableWebCompat],
@@ -19,6 +17,12 @@ describe('Expressions - Switch', () => {
     ['switch (x) {case a: function f(){}; break; case b: let f; break; }', Context.Empty],
     ['switch (x) {case a: function f(){}; break; case b: let f; break; }', Context.OptionsDisableWebCompat],
     ['switch (x) {case a: async function f(){}; break; case b: let f; break; }', Context.OptionsDisableWebCompat],
+    ['switch (0) { case 1: async function* f() {} default: async function f() {} }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: const f = 0 }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: let f }', Context.Empty],
+    ['switch (0) { case 1: class f {} default: async function f() {} }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: async function f() {} }', Context.Empty],
     ['switch (x) {case a: function f(){}; break; case b: async function f(){} }', Context.OptionsDisableWebCompat],
     [
       'switch (x) {case a: async function f(){}; break; case b: async function f(){} }',

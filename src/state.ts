@@ -215,7 +215,7 @@ function parseAsyncFunctionOrExpressionStatement(
   scope: ScopeState
 ): ReturnType<typeof parseFunctionDeclaration | typeof parseExpressionOrLabelledStatement> {
   return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-    ? parseFunctionDeclaration(state, context, scope, Origin.None, true)
+    ? parseFunctionDeclaration(state, context, scope, Origin.AsyncFunction, true)
     : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
 }
 
@@ -357,7 +357,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
     // See: https://www.ecma-international.org/ecma-262/9.0/index.html#sec-exports-static-semantics-exportedbindings
     addToExportedBindings(state, '*default*');
-    addVariable(state, context, scope, Type.None, true, false, '*default*');
+    addVariable(state, context, scope, Type.None, Origin.None, true, false, '*default*');
 
     return {
       type: 'ExportDefaultDeclaration',
@@ -440,11 +440,11 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       break;
     case Token.LetKeyword:
       declaration = parseLexicalDeclaration(state, context, Type.Let, Origin.Export, scope);
-      if (checkIfExistInLexicalBindings(state, context, scope)) report(state, Errors.Unexpected);
+      if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, false)) report(state, Errors.Unexpected);
       break;
     case Token.ConstKeyword:
       declaration = parseLexicalDeclaration(state, context, Type.Const, Origin.Export, scope);
-      if (checkIfExistInLexicalBindings(state, context, scope)) report(state, Errors.Unexpected);
+      if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, false)) report(state, Errors.Unexpected);
       break;
     case Token.VarKeyword:
       declaration = parseVariableStatement(state, context, Type.Variable, Origin.Export, scope);
@@ -486,7 +486,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
     // V8: 'VariableMode::kConst',
     // Cherow: 'Type.Const'
     validateBindingIdentifier(state, context, Type.Const);
-    addVariable(state, context, scope, Type.None, true, false, state.tokenValue);
+    addVariable(state, context, scope, Type.None, Origin.None, true, false, state.tokenValue);
     specifiers.push({
       type: 'ImportDefaultSpecifier',
       local: parseIdentifier(state, context)
@@ -563,13 +563,13 @@ function parseImportSpecifierOrNamedImports(
     let local: ESTree.Identifier;
     if (optional(state, context, Token.AsKeyword)) {
       validateBindingIdentifier(state, context, Type.Const);
-      addVariable(state, context, scope, Type.Const, true, false, state.tokenValue);
+      addVariable(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);
       local = parseIdentifier(state, context);
     } else {
       // An import name that is a keyword is a syntax error if it is not followed
       // by the keyword 'as'.
       validateBindingIdentifier(state, context, Type.Const, token);
-      addVariable(state, context, scope, Type.Const, true, false, tokenValue);
+      addVariable(state, context, scope, Type.Const, Origin.None, true, false, tokenValue);
       local = imported;
     }
 
@@ -605,7 +605,7 @@ function parseImportNamespace(
   next(state, context);
   expect(state, context, Token.AsKeyword);
   validateBindingIdentifier(state, context, Type.Const);
-  addVariable(state, context, scope, Type.Const, true, false, state.tokenValue);
+  addVariable(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);
   const local = parseIdentifier(state, context);
   specifiers.push({
     type: 'ImportNamespaceSpecifier',
@@ -964,7 +964,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
     if (state.token === Token.RightParen) report(state, Errors.Unexpected);
     param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.ArgList, Origin.CatchClause, false);
     if (state.token === Token.Assign) report(state, Errors.Unexpected);
-    if (checkIfExistInLexicalBindings(state, context, catchScope, true))
+    if (checkIfExistInLexicalBindings(state, context, catchScope, Origin.None, true))
       report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
     expect(state, context, Token.RightParen);
     secondScope = createSubScope(catchScope, ScopeType.BlockStatement);
@@ -1094,7 +1094,7 @@ function parseForStatement(
         }
       } else if (optional(state, context, Token.ConstKeyword)) {
         declarations = parseVariableDeclarationList(state, context, Type.Const, Origin.ForStatement, false, scope);
-        if (checkIfExistInLexicalBindings(state, context, scope, true))
+        if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, true))
           report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
         init = { type: 'VariableDeclaration', kind, declarations };
       }
@@ -1277,6 +1277,7 @@ export function parseBindingIdentifier(
     context,
     scope,
     type,
+    origin,
     checkForDuplicates,
     (origin === Origin.Statement || origin === Origin.ForStatement || origin === Origin.Export) &&
       type === Type.Variable
@@ -1607,6 +1608,7 @@ export function parseFunctionDeclaration(
       context & Context.TopLevel && ((context & Context.Module) < 1 || context & Context.OptionsDisableWebCompat)
         ? Type.Variable
         : Type.Let,
+      origin,
       true
     );
 
@@ -1676,7 +1678,7 @@ function parseHostedClassDeclaration(
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
     name = state.tokenValue;
     validateBindingIdentifier(state, context, Type.ClassExprDecl);
-    addVariableAndDeduplicate(state, context, scope, Type.Let, true, name);
+    addVariableAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, name);
     id = parseIdentifier(state, context);
   }
 
@@ -1720,7 +1722,7 @@ export function parseHoistableFunctionDeclaration(
   if (state.token & Token.IsIdentifier) {
     name = state.tokenValue;
     validateBindingIdentifier(state, context, Type.Let);
-    addFunctionName(state, context, scope, Type.Let, true);
+    addFunctionName(state, context, scope, Type.Let, Origin.None, true);
     funcScope = createSubScope(funcScope, ScopeType.BlockStatement);
     id = parseIdentifier(state, context);
   }
@@ -1993,7 +1995,7 @@ export function parseLexicalDeclaration(
   const { token } = state;
   next(state, context);
   const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
-  if (checkIfExistInLexicalBindings(state, context, scope)) report(state, Errors.Unexpected);
+  if (checkIfExistInLexicalBindings(state, context, scope, origin, false)) report(state, Errors.Unexpected);
   consumeSemicolon(state, context);
   return {
     type: 'VariableDeclaration',
@@ -2175,7 +2177,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     ((state.token & Token.IsIdentifier) === Token.IsIdentifier || (state.token & Token.IsYield) === Token.IsYield)
   ) {
     const scope = createScope(ScopeType.ArgumentList);
-    addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
+    addVariableAndDeduplicate(state, context, scope, Type.ArgList, Origin.None, true, state.tokenValue);
     const arg = parseIdentifier(state, context);
     if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
     return parseArrowFunctionExpression(state, context, scope, [arg], true, Type.ConciseBody);
@@ -2197,7 +2199,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
       arrowScope = createScope(ScopeType.ArgumentList);
       params = [expr];
       type = Type.ConciseBody;
-      addVariableAndDeduplicate(state, context, arrowScope, Type.ArgList, true, tokenValue);
+      addVariableAndDeduplicate(state, context, arrowScope, Type.ArgList, Origin.None, true, tokenValue);
     }
     return parseArrowFunctionExpression(state, context, arrowScope, params, (type & Arrows.Async) > 0, type);
   }
@@ -3130,7 +3132,7 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
         : 0,
       Type.Variable
     );
-    addVariableAndDeduplicate(state, context, functionScope, Type.Variable, true, state.tokenValue);
+    addVariableAndDeduplicate(state, context, functionScope, Type.Variable, Origin.None, true, state.tokenValue);
     functionScope = createSubScope(functionScope, ScopeType.BlockStatement);
     firstRestricted = state.tokenValue;
     id = parseIdentifier(state, context);
@@ -3209,7 +3211,7 @@ function parseArrowFunctionExpression(
 
   if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
 
-  if (checkIfExistInLexicalBindings(state, context, scope, true)) report(state, Errors.AlreadyDeclared);
+  if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, true)) report(state, Errors.AlreadyDeclared);
 
   context =
     (context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
@@ -3345,7 +3347,7 @@ function parseClassDeclaration(state: ParserState, context: Context, scope: Scop
   let superClass: ESTree.Expression | null = null;
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
     validateBindingIdentifier(state, context | Context.Strict, Type.ClassExprDecl);
-    addVariableAndDeduplicate(state, context, scope, Type.Let, true, state.tokenValue);
+    addVariableAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, state.tokenValue);
     id = parseIdentifier(state, context);
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.Unexpected);
 
@@ -3381,7 +3383,7 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
   let superClass: ESTree.Expression | null = null;
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
     validateBindingIdentifier(state, context | Context.Strict, Type.ClassExprDecl);
-    addVariable(state, context, -1, Type.Let, false, false, state.tokenValue);
+    addVariable(state, context, -1, Type.Let, Origin.None, false, false, state.tokenValue);
     id = parseIdentifier(state, context);
   }
 
@@ -3727,7 +3729,7 @@ function parseObjectLiteral(
 
           if (tokenValue !== 'eval' || tokenValue !== 'arguments')
             validateBindingIdentifier(state, context, type, token);
-          addVariable(state, context, scope, type, false, false, tokenValue);
+          addVariable(state, context, scope, type, Origin.None, false, false, tokenValue);
 
           if (state.token === <Token>Token.Assign) {
             state.pendingCoverInitializeError = Errors.InvalidCoverInitializedName;
@@ -3747,7 +3749,7 @@ function parseObjectLiteral(
           }
 
           if ((state.token & Token.IsIdentifier) > 0)
-            addVariable(state, context, scope, type, false, false, tokenValue);
+            addVariable(state, context, scope, type, Origin.None, false, false, tokenValue);
           value = acquireGrammar(state, context, 0, parseAssignmentExpression);
         } else if (state.token === <Token>Token.LeftBracket) {
           key = parseComputedPropertyName(state, context);
@@ -3824,7 +3826,7 @@ function parseObjectLiteral(
             } else hasProto = true;
           }
           value = acquireGrammar(state, context, 0, parseAssignmentExpression);
-          addVariable(state, context, scope, type, false, false, tokenValue);
+          addVariable(state, context, scope, type, Origin.None, false, false, tokenValue);
         } else {
           state.bindable = state.assignable = false;
           value = parseMethodDeclaration(state, context, objState);
@@ -3940,7 +3942,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Obj
       Type.Variable
     );
 
-    addVariableAndDeduplicate(state, context, functionScope, Type.Variable, true, state.tokenValue);
+    addVariableAndDeduplicate(state, context, functionScope, Type.Variable, Origin.None, true, state.tokenValue);
     functionScope = createSubScope(functionScope, ScopeType.BlockStatement);
     firstRestricted = state.tokenValue;
     id = parseIdentifier(state, context);

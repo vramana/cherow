@@ -33,7 +33,7 @@ export const enum Context {
   SuperProperty = 1 << 18,
 
   SuperCall = 1 << 19,
-
+  AsyncFunc = 1 << 20,
   YieldContext = 1 << 21,
   AwaitContext = 1 << 22,
   InArgList = 1 << 23,
@@ -93,6 +93,7 @@ export const enum Origin {
   ClassExprDecl = 1 << 6,
   Declaration = 1 << 7,
   AsyncArrow = 1 << 8,
+  AsyncFunction = 1 << 9,
 }
 
 export const enum ScopeType {
@@ -296,6 +297,7 @@ export function consumeSemicolon(state: ParserState, context: Context): void | b
  * @param scope Parent scope
  * @param name Binding name
  * @param bindingType Binding type
+ * @param bindingType Binding origin
  * @param checkDuplicates
  * @param isVarDecl True if origin is a variable declaration
  */
@@ -305,6 +307,7 @@ export function addVariable(
   context: Context,
   scope: any,
   bindingType: Type,
+  origin: Origin,
   checkDuplicates: boolean,
   isVarDecl: boolean,
   key: string
@@ -324,7 +327,7 @@ export function addVariable(
         } else if (type === ScopeType.ForStatement) {
           report(state, Errors.AlreadyBoundAsLexical);
         } else if (type !== ScopeType.ArgumentList) {
-          if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
+          if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
             report(state, Errors.AlreadyBoundAsLexical, key);
           }
         }
@@ -350,10 +353,10 @@ export function addVariable(
     const lex = scope.lex;
 
     if (checkDuplicates) {
-      checkIfExistInLexicalParentScope(state, context, scope, '@' + key);
+      checkIfExistInLexicalParentScope(state, context, scope, origin, '@' + key);
 
       if (lex['@' + key] !== undefined) {
-        if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
+        if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
           report(state, Errors.AlreadyDeclared, key);
         }
       }
@@ -363,7 +366,7 @@ export function addVariable(
 
     if (x === undefined) x = 1;
     else if (checkDuplicates) {
-      if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
+      if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
         report(state, Errors.MultipleLexicals, key);
       }
     } else {
@@ -381,8 +384,10 @@ export function addVariable(
  * @param context
  */
 
-export function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context): boolean {
+export function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context, origin: Origin): boolean {
   return context & (Context.OptionsDisableWebCompat | Context.Strict)
+    ? true
+    : origin & Origin.AsyncFunction
     ? true
     : (scope.lex.funcs[key] === true) === false
     ? true
@@ -400,13 +405,14 @@ export function checkIfExistInLexicalBindings(
   state: ParserState,
   context: Context,
   scope: ScopeState,
-  skipParent: any = false
+  origin: Origin,
+  skipParent: any
 ) {
   const lex = scope.lex;
   for (const key in lex) {
     if (key[0] === '@' && key.length > 1) {
       if (lex[key] > 1) return true;
-      if (!skipParent) checkIfExistInLexicalParentScope(state, context, scope, key);
+      if (!skipParent) checkIfExistInLexicalParentScope(state, context, scope, origin, key);
     }
   }
   return false;
@@ -423,6 +429,7 @@ export function checkIfExistInLexicalParentScope(
   state: ParserState,
   context: Context,
   scope: ScopeState,
+  origin: Origin,
   key: string
 ): void {
   const lex = scope.lex;
@@ -437,14 +444,21 @@ export function checkIfExistInLexicalParentScope(
   }
 
   if (scope.lexVars[key] !== undefined) {
-    if (checkForDuplicateLexicals(scope, key, context) === true) {
+    if (checkForDuplicateLexicals(scope, key, context, origin) === true) {
       report(state, Errors.AlreadyDeclared, key.slice(1));
     }
   }
 }
 
-export function addFunctionName(state: any, context: Context, scope: any, bindingType: Type, isVarDecl: boolean) {
-  addVariable(state, context, scope, bindingType, true, isVarDecl, state.tokenValue);
+export function addFunctionName(
+  state: any,
+  context: Context,
+  scope: any,
+  bindingType: Type,
+  origin: Origin,
+  isVarDecl: boolean
+) {
+  addVariable(state, context, scope, bindingType, origin, true, isVarDecl, state.tokenValue);
   if ((context & Context.OptionsDisableWebCompat) === 0 && !scope.lex.funcs['@' + state.tokenValue]) {
     scope.lex.funcs['@' + state.tokenValue] = true;
   }
@@ -746,10 +760,11 @@ export function addVariableAndDeduplicate(
   context: Context,
   scope: ScopeState,
   type: Type,
+  origin: Origin,
   isVarDecl: boolean,
   name: string
 ): void {
-  addVariable(state, context, scope, type, true, isVarDecl, name);
+  addVariable(state, context, scope, type, origin, true, isVarDecl, name);
   if ((context & Context.OptionsDisableWebCompat) === 0) {
     scope.lex.funcs['#' + state.tokenValue] = false;
   }

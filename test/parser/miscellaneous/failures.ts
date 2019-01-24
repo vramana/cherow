@@ -23,6 +23,7 @@ describe('Miscellaneous - Failurea', () => {
     ['s = {"foo": this = x} = x', Context.Empty],
     ['s = {"foo": super = x} = x', Context.Empty],
     ['() => { new.target }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: async function f() {} }', Context.Empty],
     ['abc: async function a() {}', Context.Empty],
     ['foo: class X {}', Context.Empty],
     ["'use strict'; bar: function x() {}", Context.Empty],
