@@ -22,6 +22,16 @@ describe('Miscellaneous - Failurea', () => {
     ['s = {"foo": null = x} = x', Context.Empty],
     ['s = {"foo": this = x} = x', Context.Empty],
     ['s = {"foo": super = x} = x', Context.Empty],
+    ['0, { get a(param = null) {} };', Context.Empty],
+    ['0, { set a() {} };', Context.Empty],
+    ['0, { set a(...a) {} };', Context.Empty],
+    ['({ async foo(a, a) { } })', Context.Empty],
+    ['({ async foo(a, a) { } })', Context.Empty],
+    ['({ foo(a, a) { } })', Context.Empty],
+    ['class Foo { async foo(a, a) { } }', Context.Empty],
+    ['class Foo { foo(a, a) { } }', Context.Empty],
+    //    ['(async function f(x = 0, x) {});', Context.Empty],
+    //['(async function*(x = await 1) { });', Context.Empty],
     //['s = {"foo": yield = x} = x', Context.Empty],
     ['s = {"foo": yield /fail/g = x} = x', Context.Empty],
     ['function *g() {   s = {"foo": yield /brains/ = x} = x   }', Context.Empty],
@@ -100,7 +110,6 @@ describe('Miscellaneous - Failurea', () => {
     //[ 'async ({} + 1) => x;', Context.Empty],
     ['const a, [...x] = y', Context.Empty],
     ['const ...x = y', Context.Empty],
-    //[    'export let {...x} = y', Context.Module],
     ['({"x": 600..xyz}) => x', Context.Empty],
     ['({"x": 600}) => x', Context.Empty],
     ['({"x": 600} = x)', Context.Empty],
@@ -569,12 +578,41 @@ describe('Miscellaneous - Failurea', () => {
     ],
     ['if (true) function* g() {  } else function* _g() {}', Context.Empty],
     ['if (true) function* g() {  } else ;', Context.Empty],
+    ['for (let i = 0;;) { var i }', Context.Empty],
     ['for (let let in {}) { }', Context.Empty],
+    ['class a {} class a {}', Context.Empty],
+    ['{ class a {} class a {} }', Context.Empty],
+    ['{ let a; class a {} }', Context.Empty],
+    ['var await;', Context.Module],
+    ['var C = class yield {};', Context.Module],
+    ['{ async function a() {} async function a() {} }', Context.OptionsDisableWebCompat],
+    ['switch (0) { case 1: function* a() {} break; default: var a; }', Context.OptionsDisableWebCompat],
     [
       `let  // start of a LexicalDeclaration, *not* an ASI opportunity
     let;`,
       Context.Empty
     ],
+    [
+      `function* g() {
+      for (yield '' in {}; ; ) ;
+    }`,
+      Context.Empty
+    ],
+    [
+      `({
+        async
+        foo() { }
+      })`,
+      Context.Empty
+    ],
+    ['function f([x] = [1]) { "use strict"; }', Context.Empty],
+    ['function f(a=break){}', Context.Empty],
+    ['var enum = 123;', Context.Empty],
+    ['1 /= 1;', Context.Empty],
+    ['1 |= 1;', Context.Empty],
+    ['catch = 1', Context.Empty],
+    ['function* yield() {})', Context.Empty],
+    ['function* wrap() {\nfunction* yield() {}\n}', Context.Empty],
     ["'use strict'; let let", Context.Empty],
     ["'use strict'; const let", Context.Empty],
     ['class yield {}', Context.Empty],

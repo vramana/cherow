@@ -376,6 +376,214 @@ describe('Declarations - Let', () => {
         ]
       }
     ],
+    // Acorn issue #774
+    [
+      `while (false) async // ASI
+      {}`,
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'WhileStatement',
+            test: {
+              type: 'Literal',
+              value: false
+            },
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'async'
+              }
+            }
+          },
+          {
+            type: 'BlockStatement',
+            body: []
+          }
+        ]
+      }
+    ],
+    [
+      `for (var x in null) let // ASI
+      x = 1;`,
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'let'
+              }
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Literal',
+              value: null
+            }
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'Literal',
+                value: 1
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `for (var x of []) let // ASI
+      x = 1;`,
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'let'
+              }
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'ArrayExpression',
+              elements: []
+            },
+            await: false
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'Literal',
+                value: 1
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `while (false) let // ASI
+      x = 1;`,
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'WhileStatement',
+            test: {
+              type: 'Literal',
+              value: false
+            },
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'let'
+              }
+            }
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'Literal',
+                value: 1
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `while (false) let // ASI
+      {}`,
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'WhileStatement',
+            test: {
+              type: 'Literal',
+              value: false
+            },
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'let'
+              }
+            }
+          },
+          {
+            type: 'BlockStatement',
+            body: []
+          }
+        ]
+      }
+    ],
     [
       'function foo() { for (let in x) {} }',
       Context.OptionsDisableWebCompat,

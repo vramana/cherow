@@ -95,7 +95,9 @@ export const enum Errors {
   InvalidLHSInForLoop,
   NoExperimentalOption,
   TrailingCommaAfterRest,
-  StrictOctalLiteral
+  StrictOctalLiteral,
+  AccessorWrongArgs,
+  BadSetterRestParameter
 }
 
 /*@internal*/
@@ -200,7 +202,9 @@ export const errorMessages: {
   [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop',
   [Errors.NoExperimentalOption]: 'Enable the experimental option for V8 experimental features',
   [Errors.TrailingCommaAfterRest]: 'A trailing comma is not permitted after the rest element ',
-  [Errors.StrictOctalLiteral]: 'Legacy octal literals are not allowed in strict mode'
+  [Errors.StrictOctalLiteral]: 'Legacy octal literals are not allowed in strict mode',
+  [Errors.AccessorWrongArgs]: '%0 functions must have %1 argument%2',
+  [Errors.BadSetterRestParameter]: 'Setter function argument must not be a rest parameter'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

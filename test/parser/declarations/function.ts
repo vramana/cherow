@@ -21,6 +21,10 @@ describe('Declarations - Function', () => {
 
     // General
 
+    // ['function f([foo], [foo]){}', Context.Empty],
+    ['function f([foo] = x, [foo] = y){}', Context.Empty],
+    ['function f({foo} = x, {foo} = y){}', Context.Empty],
+    ['function f(b, a, b, a = x) {}', Context.Empty],
     ['let x = a; function x(){};', Context.Empty],
     ['const x = a; function x(){};', Context.Empty],
     // ['"use strict"; function eval(){}', Context.Strict],
@@ -361,7 +365,6 @@ describe('Declarations - Function', () => {
     'function f([foo,,bar]){}',
     'function f([foo,,bar] = x){}',
     'function f([foo], [foo]){}',
-    'function f([foo] = x, [foo] = y){}',
     'function f([foo], b){}',
     'function f([foo] = x, b){}',
     'function f([foo], b = y){}',
@@ -380,7 +383,6 @@ describe('Declarations - Function', () => {
     'function f([foo=a,bar=b] = x){}',
     'function f([...bar] = obj){}',
     'function f([foo, ...bar] = obj){}',
-    'function f({foo} = x, {foo} = y){}',
     'function f({foo} = x, b){}',
     'function f({foo} = x, b = y){}',
     'function f(x, {foo} = y){}',
@@ -423,7 +425,6 @@ describe('Declarations - Function', () => {
     'function f([foo,,bar]){}',
     'function f([foo,,bar] = x){}',
     'function f([foo], [foo]){}',
-    'function f([foo] = x, [foo] = y){}',
     'function f([foo], b){}',
     'function f([foo] = x, b){}',
     'function f([foo], b = y){}',
@@ -5015,56 +5016,6 @@ describe('Declarations - Function', () => {
         ]
       }
     ],
-    [
-      'function f(b, a, b, a = x) {}',
-      Context.Empty,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'FunctionDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'f'
-            },
-            params: [
-              {
-                type: 'Identifier',
-                name: 'b'
-              },
-              {
-                type: 'Identifier',
-                name: 'a'
-              },
-              {
-                type: 'Identifier',
-                name: 'b'
-              },
-              {
-                type: 'AssignmentPattern',
-                left: {
-                  type: 'Identifier',
-                  name: 'a'
-                },
-                right: {
-                  type: 'Identifier',
-                  name: 'x'
-                }
-              }
-            ],
-            body: {
-              type: 'BlockStatement',
-              body: []
-            },
-            generator: false,
-
-            async: false
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-
     [
       'var x; { let x; }',
       Context.Empty,

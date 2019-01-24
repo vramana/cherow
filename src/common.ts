@@ -1,5 +1,5 @@
 import * as ESTree from './estree';
-import { Token } from './token';
+import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
 import { Errors, report } from './errors';
 
@@ -62,7 +62,7 @@ export const enum Flags {
   HasPrivateName = 1 << 7,
   InArrowContext = 1 << 8,
   HasStrictReserved = 1 << 9,
-  StrictEvalArguments = 1 << 10,
+  StrictEvalArguments = 1 << 10
 }
 // prettier-ignore
 /**
@@ -281,8 +281,8 @@ export function expect(state: ParserState, context: Context, t: Token): void {
 export function consumeSemicolon(state: ParserState, context: Context): void | boolean {
   if ((state.token & Token.ASI) === Token.ASI) {
     optional(state, context, Token.Semicolon);
-  } else if ((state.flags & Flags.NewLine) === 0) {
-    report(state, Errors.Unexpected);
+  } else if ((state.flags & Flags.NewLine) !== Flags.NewLine) {
+    report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
   }
 }
 
@@ -440,15 +440,14 @@ export function addFunctionName(state: any, context: Context, scope: any, bindin
 }
 
 /**
+ * Validate function argument list for possible duplicates
  *
- * @param state
- * @param lex
- * @param wereSimpleArgs
+ * @param state Parser object
+ * @param arg Argument list
  */
-export function checkFunctionsArgForDuplicate(state: ParserState, lex: any, wereSimpleArgs: boolean) {
-  const w = wereSimpleArgs;
-  for (const key in lex) {
-    if (key[0] === '@' && key.length > 1 && lex[key] > 1) {
+export function validateFunctionArgs(state: ParserState, arg: any): void {
+  for (const key in arg) {
+    if (key[0] === '@' && key.length > 1 && arg[key] > 1) {
       report(state, Errors.AlreadyDeclared, key.slice(1));
     }
   }
@@ -545,6 +544,9 @@ export function reinterpret(ast: any) {
   }
 }
 
+export function nameIsArgumentsOrEval(value: string): boolean {
+  return value === 'eval' || value === 'arguments';
+}
 /**
  * Returns true if this is an valid identifier
  *
@@ -558,10 +560,10 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
 
     return (t & Token.IsIdentifier) === Token.IsIdentifier || (t & Token.Contextual) === Token.Contextual;
   }
+
   return (
     (t & Token.IsIdentifier) === Token.IsIdentifier ||
     (t & Token.Contextual) === Token.Contextual ||
-    (t && t !== Token.ImportKeyword && t & Token.Reserved) === Token.Reserved ||
     (t & Token.FutureReserved) === Token.FutureReserved
   );
 }
@@ -865,6 +867,6 @@ export function acquireGrammar<T>(
  * @param parser Parser object
  * @param context  Context masks
  */
-export function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean {
+export function isValidSimpleAssignment(node: ESTree.Node): boolean {
   return node.type === 'Identifier' || node.type === 'MemberExpression' ? true : false;
 }
