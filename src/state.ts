@@ -1840,7 +1840,6 @@ export function parseFormalParameters(
     report(state, Errors.AccessorWrongArgs, 'Getter', 'no', 's');
   }
   expect(state, context, Token.RightParen);
-
   if (hasComplexArgs || (context & (Context.Strict | Context.InMethod)) > 0) {
     validateFunctionArgs(state, scope.lex);
   }
@@ -3976,7 +3975,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Obj
 
   const body = parseFunctionBody(
     state,
-    context | Context.AllowNewTarget | Context.Strict,
+    context | Context.AllowNewTarget | Context.InMethod,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     Origin.None

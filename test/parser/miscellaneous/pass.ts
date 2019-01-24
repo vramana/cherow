@@ -41,6 +41,11 @@ describe('Miscellaneous - Passing tests', () => {
       static get 5() { return 5; }
       static set 6(_) {}
     }`,
+    `var obj = {
+      method(yield) {
+        return yield;
+      }
+    };`,
     `(function foo() { { let f = 2; { let y = 3; function f() { y = 2; } f(); } }})();`,
     // rest parameter shouldn't be shadowed
     '(function shadowingRestParameterDoesntBind(...x) { {  function x() {} } })(1);',
