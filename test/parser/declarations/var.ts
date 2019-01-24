@@ -18,6 +18,8 @@ describe('Declarations - Var', () => {
     ['{ let x; var x; }', Context.Empty],
     ['var {foo};', Context.Empty],
     ['var [foo]; ', Context.Empty],
+    ['var f; function f() {} ', Context.Module],
+    ['var f; function f() {} ', Context.Module | Context.OptionsDisableWebCompat],
     ['var [foo=a];', Context.Empty],
     ['var [foo], bar;', Context.Empty],
     ['var foo, [bar];', Context.Empty],

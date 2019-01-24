@@ -22,7 +22,16 @@ describe('Miscellaneous - Failurea', () => {
     ['s = {"foo": null = x} = x', Context.Empty],
     ['s = {"foo": this = x} = x', Context.Empty],
     ['s = {"foo": super = x} = x', Context.Empty],
+    ['() => { new.target }', Context.Empty],
+
+    ['new.target;', Context.Empty],
+    ['return;', Context.Empty],
+    ['() => { super(); }', Context.Empty],
+    ['yield;', Context.Strict],
+    ['() => { new.target }', Context.Empty],
+
     ['0, { get a(param = null) {} };', Context.Empty],
+
     ['0, { set a() {} };', Context.Empty],
     ['0, { set a(...a) {} };', Context.Empty],
     ['({ async foo(a, a) { } })', Context.Empty],

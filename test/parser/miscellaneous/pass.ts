@@ -144,6 +144,8 @@ describe('Miscellaneous - Passing tests', () => {
     }`,
     `let async = function(a){return {bind: "someMethodButIUseString"}};
     async(function (req, res) { }).bind;`,
+    'function f() { return 1; } function f() { return 2; }',
+    'function a(a, a) {}',
     '004',
     '004',
     '004',

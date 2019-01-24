@@ -34,7 +34,6 @@ export const enum Context {
 
   SuperCall = 1 << 19,
 
-  InGlobal = 1 << 20,
   YieldContext = 1 << 21,
   AwaitContext = 1 << 22,
   InArgList = 1 << 23,
