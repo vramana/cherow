@@ -178,10 +178,11 @@ export declare function checkForDuplicateLexicals(scope: ScopeState, key: string
 export declare function checkIfExistInLexicalBindings(state: ParserState, context: Context, scope: ScopeState, skipParent?: any): boolean;
 export declare function checkIfExistInLexicalParentScope(state: ParserState, context: Context, scope: ScopeState, key: any): void;
 export declare function addFunctionName(state: any, context: Context, scope: any, bindingType: Type, isVariableDecl: boolean): void;
-export declare function checkFunctionsArgForDuplicate(state: ParserState, lex: any, wereSimpleArgs: boolean): void;
+export declare function validateFunctionArgs(state: ParserState, arg: any): void;
 export declare function lookAheadOrScan<T>(state: ParserState, context: Context, callback: (state: ParserState, context: Context) => T, isLookahead: boolean): T;
 export declare function isLexical(state: ParserState, context: Context): boolean;
 export declare function reinterpret(ast: any): void;
+export declare function nameIsArgumentsOrEval(value: string): boolean;
 export declare function isValidIdentifier(context: Context, t: Token): boolean;
 export declare function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token?: Token): boolean;
 export declare function addToExportedNamesAndCheckForDuplicates(state: ParserState, exportedName: any): void;
@@ -199,5 +200,5 @@ export declare function nextTokenIsLeftParenOrPeriod(state: ParserState, context
 export declare function nextTokenIsLeftParen(parser: ParserState, context: Context): boolean;
 export declare function secludeGrammar<T>(state: ParserState, context: Context, minprec: number | undefined, callback: (state: ParserState, context: Context, precedence: number) => T): T;
 export declare function acquireGrammar<T>(state: ParserState, context: Context, minprec: number, callback: (state: ParserState, context: Context, precedence: number) => T): T;
-export declare function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean;
+export declare function isValidSimpleAssignment(node: ESTree.Node): boolean;
 //# sourceMappingURL=common.d.ts.map
