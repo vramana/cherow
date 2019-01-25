@@ -482,7 +482,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
   const specifiers: ESTree.Specifiers[] = [];
 
   // 'import' ModuleSpecifier ';'
-  if ((state.token & Token.IsIdentifier) === Token.IsIdentifier) {
+  if (state.token & Token.IsIdentifier) {
     // V8: 'VariableMode::kConst',
     // Cherow: 'Type.Const'
     validateBindingIdentifier(state, context, Type.Const);
@@ -562,6 +562,7 @@ function parseImportSpecifierOrNamedImports(
     const imported = parseIdentifier(state, context);
     let local: ESTree.Identifier;
     if (optional(state, context, Token.AsKeyword)) {
+      // TODO: (fkleuver): Need to validate for 'enum' and 'arguments' inside 'validateBindingIdentifier'
       validateBindingIdentifier(state, context, Type.Const);
       addVariable(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);
       local = parseIdentifier(state, context);

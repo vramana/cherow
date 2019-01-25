@@ -342,7 +342,20 @@ describe('Module - Export', () => {
     // Named generator function statement
     'function* g() { }; export default g',
     'class c { }; export default c',
-    "var _ = { method: function() { return 'method_result'; }, method2: function() { return 'method2_result'; } }; export default _"
+    "var _ = { method: function() { return 'method_result'; }, method2: function() { return 'method2_result'; } }; export default _",
+    `export{};
+    export {};
+    export {}
+    export { };
+    export
+    {
+
+    };
+    export//-
+    {//-
+    //-
+    };
+    export/**/{/**/};`
   ];
 
   for (const arg of programs) {
