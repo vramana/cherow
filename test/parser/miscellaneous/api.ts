@@ -12,7 +12,7 @@ describe('Expressions - API', () => {
         ranges: true,
         native: true,
         jsx: true,
-        webcompat: true,
+        webCompat: true,
         onComment: [],
         onToken: [],
         module: true
