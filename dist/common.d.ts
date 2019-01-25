@@ -23,7 +23,6 @@ export declare const enum Context {
     OptionsDirectives = 131072,
     SuperProperty = 262144,
     SuperCall = 524288,
-    InGlobal = 1048576,
     YieldContext = 2097152,
     AwaitContext = 4194304,
     InArgList = 8388608,
@@ -66,7 +65,8 @@ export declare const enum Origin {
     ArgList = 32,
     ClassExprDecl = 64,
     Declaration = 128,
-    AsyncArrow = 256
+    AsyncArrow = 256,
+    AsyncFunction = 512
 }
 export declare const enum ScopeType {
     None = 0,
@@ -170,18 +170,18 @@ export declare function unreachable(...values: never[]): never;
 export declare function pushComment(context: Context, array: any[]): any;
 export declare function pushToken(context: Context, array: any[]): any;
 export declare function finishNode<T extends ESTree.Node>(context: Context, start: number, end: number, node: T): T;
-export declare function optional(state: ParserState, context: Context, token: Token): boolean;
+export declare function optional(state: ParserState, context: Context, t: Token): boolean;
 export declare function expect(state: ParserState, context: Context, t: Token): void;
 export declare function consumeSemicolon(state: ParserState, context: Context): void | boolean;
-export declare function addVariable(state: ParserState, context: Context, scope: any, bindingType: Type, checkDuplicates: boolean, isVariableDecl: boolean, key: string): void;
-export declare function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context): boolean;
-export declare function checkIfExistInLexicalBindings(state: ParserState, context: Context, scope: ScopeState, skipParent?: any): boolean;
-export declare function checkIfExistInLexicalParentScope(state: ParserState, context: Context, scope: ScopeState, key: any): void;
-export declare function addFunctionName(state: any, context: Context, scope: any, bindingType: Type, isVariableDecl: boolean): void;
+export declare function addVariable(state: ParserState, context: Context, scope: any, bindingType: Type, origin: Origin, checkDuplicates: boolean, isVarDecl: boolean, key: string): void;
+export declare function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context, origin: Origin): boolean;
+export declare function checkIfExistInLexicalBindings(state: ParserState, context: Context, scope: ScopeState, origin: Origin, skipParent: any): boolean;
+export declare function checkIfExistInLexicalParentScope(state: ParserState, context: Context, scope: ScopeState, origin: Origin, key: string): void;
+export declare function addFunctionName(state: any, context: Context, scope: any, bindingType: Type, origin: Origin, isVarDecl: boolean): void;
 export declare function validateFunctionArgs(state: ParserState, arg: any): void;
 export declare function lookAheadOrScan<T>(state: ParserState, context: Context, callback: (state: ParserState, context: Context) => T, isLookahead: boolean): T;
 export declare function isLexical(state: ParserState, context: Context): boolean;
-export declare function reinterpret(ast: any): void;
+export declare function reinterpret(state: ParserState, ast: any): void;
 export declare function nameIsArgumentsOrEval(value: string): boolean;
 export declare function isValidIdentifier(context: Context, t: Token): boolean;
 export declare function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token?: Token): boolean;
@@ -193,12 +193,12 @@ export declare function addCrossingBoundary(state: ParserState): void;
 export declare function validateContinueLabel(state: ParserState, label: string): void;
 export declare function validateBreakStatement(state: ParserState, label: any): void;
 export declare function getLabel(state: ParserState, label: string, iterationStatement?: boolean, crossBoundary?: boolean): LabelState;
-export declare function addVariableAndDeduplicate(state: ParserState, context: Context, scope: ScopeState, type: Type, isVariableDecl: boolean, name: string): void;
+export declare function addVariableAndDeduplicate(state: ParserState, context: Context, scope: ScopeState, type: Type, origin: Origin, isVarDecl: boolean, name: string): void;
 export declare function createScope(type: ScopeType): ScopeState;
 export declare function createSubScope(parent: ScopeState, type: ScopeType): ScopeState;
 export declare function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Context): boolean;
 export declare function nextTokenIsLeftParen(parser: ParserState, context: Context): boolean;
 export declare function secludeGrammar<T>(state: ParserState, context: Context, minprec: number | undefined, callback: (state: ParserState, context: Context, precedence: number) => T): T;
 export declare function acquireGrammar<T>(state: ParserState, context: Context, minprec: number, callback: (state: ParserState, context: Context, precedence: number) => T): T;
-export declare function isValidSimpleAssignment(node: ESTree.Node): boolean;
+export declare function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean;
 //# sourceMappingURL=common.d.ts.map

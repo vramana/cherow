@@ -273,7 +273,13 @@ const errorMessages = {
     [92]: 'A trailing comma is not permitted after the rest element ',
     [93]: 'Legacy octal literals are not allowed in strict mode',
     [94]: '%0 functions must have %1 argument%2',
-    [95]: 'Setter function argument must not be a rest parameter'
+    [95]: 'Setter function argument must not be a rest parameter',
+    [96]: '%0  statement must be nested within an iteration statement',
+    [97]: '`let \n [` is a restricted production at the start of a statement',
+    [98]: '%0 is already bound as a lexical binding',
+    [99]: 'The lexical binding %0 has been bound multiple times',
+    [101]: 'Cannot use `let` or `const` with the same name as bound to a parameter',
+    [100]: 'Double declaration of the same binding name in a `catch` var'
 };
 function constructError(index, line, column, description) {
     const error = new SyntaxError(`Line ${line}, column ${column}: ${description}`);
@@ -5065,17 +5071,20 @@ function pushToken(context, array) {
         array.push(tokens);
     };
 }
-function optional(state, context, token) {
-    if (state.token !== token)
-        return false;
-    next(state, context);
-    return true;
+function optional(state, context, t) {
+    if (state.token === t) {
+        next(state, context);
+        return true;
+    }
+    return false;
 }
 function expect(state, context, t) {
-    if (state.token !== t) {
-        report(state, 0);
+    if (state.token === t) {
+        next(state, context);
     }
-    next(state, context);
+    else {
+        report(state, 1, KeywordDescTable[state.token & 255]);
+    }
 }
 function consumeSemicolon(state, context) {
     if ((state.token & 536870912) === 536870912) {
@@ -5085,16 +5094,16 @@ function consumeSemicolon(state, context) {
         report(state, 1, KeywordDescTable[state.token & 255]);
     }
 }
-function addVariable(state, context, scope, bindingType, checkDuplicates, isVariableDecl, key) {
+function addVariable(state, context, scope, bindingType, origin, checkDuplicates, isVarDecl, key) {
     if (scope === -1)
         return;
-    if ((bindingType & 2) === 2) {
+    if (bindingType & 2) {
         let lex = scope.lex;
         while (lex) {
             const type = lex.type;
             if (lex['@' + key] !== undefined) {
                 if (type === 4) {
-                    if (isVariableDecl && (context & 16) === 0) {
+                    if (isVarDecl && (context & 16) === 0) {
                         state.inCatch = true;
                     }
                     else {
@@ -5102,21 +5111,23 @@ function addVariable(state, context, scope, bindingType, checkDuplicates, isVari
                     }
                 }
                 else if (type === 2) {
-                    report(state, 41);
+                    report(state, 98);
                 }
                 else if (type !== 5) {
-                    if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
-                        report(state, 41);
+                    if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
+                        report(state, 98, key);
                     }
                 }
             }
             lex = lex['@'];
         }
         let x = scope.var['@' + key];
-        if (x === undefined)
+        if (x === undefined) {
             x = 1;
-        else
+        }
+        else {
             ++x;
+        }
         scope.var['@' + key] = x;
         let lexVars = scope.lexVars;
         while (lexVars) {
@@ -5127,9 +5138,9 @@ function addVariable(state, context, scope, bindingType, checkDuplicates, isVari
     else {
         const lex = scope.lex;
         if (checkDuplicates) {
-            checkIfExistInLexicalParentScope(state, context, scope, '@' + key);
+            checkIfExistInLexicalParentScope(state, context, scope, origin, '@' + key);
             if (lex['@' + key] !== undefined) {
-                if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
+                if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
                     report(state, 41, key);
                 }
             }
@@ -5138,56 +5149,56 @@ function addVariable(state, context, scope, bindingType, checkDuplicates, isVari
         if (x === undefined)
             x = 1;
         else if (checkDuplicates) {
-            if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
-                report(state, 41, key);
+            if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
+                report(state, 99, key);
             }
         }
-        else
+        else {
             ++x;
+        }
         lex['@' + key] = x;
     }
 }
-function checkForDuplicateLexicals(scope, key, context) {
-    if (context & 16)
-        return true;
-    if ((scope.lex.funcs[key] === true) === false)
-        return true;
-    if (context & 1024)
-        return true;
-    return false;
+function checkForDuplicateLexicals(scope, key, context, origin) {
+    return context & (16 | 1024)
+        ? true
+        : origin & 512
+            ? true
+            : (scope.lex.funcs[key] === true) === false
+                ? true
+                : false;
 }
-function checkIfExistInLexicalBindings(state, context, scope, skipParent = false) {
+function checkIfExistInLexicalBindings(state, context, scope, origin, skipParent) {
     const lex = scope.lex;
     for (const key in lex) {
         if (key[0] === '@' && key.length > 1) {
-            if (lex[key] > 1) {
+            if (lex[key] > 1)
                 return true;
-            }
             if (!skipParent)
-                checkIfExistInLexicalParentScope(state, context, scope, key);
+                checkIfExistInLexicalParentScope(state, context, scope, origin, key);
         }
     }
     return false;
 }
-function checkIfExistInLexicalParentScope(state, context, scope, key) {
+function checkIfExistInLexicalParentScope(state, context, scope, origin, key) {
     const lex = scope.lex;
     const lexParent = lex['@'];
-    if (lexParent !== undefined) {
-        if (lexParent.type === 5 && lexParent[key] !== undefined) {
-            report(state, 41, key.slice(1));
+    if (lexParent !== undefined && lexParent[key] !== undefined) {
+        if (lexParent.type === 5) {
+            report(state, 101);
         }
-        if (lexParent.type === 4 && lexParent[key] !== undefined) {
-            report(state, 41, key.slice(1));
+        else if (lexParent.type === 4) {
+            report(state, 100);
         }
     }
     if (scope.lexVars[key] !== undefined) {
-        if (checkForDuplicateLexicals(scope, key, context) === true) {
+        if (checkForDuplicateLexicals(scope, key, context, origin) === true) {
             report(state, 41, key.slice(1));
         }
     }
 }
-function addFunctionName(state, context, scope, bindingType, isVariableDecl) {
-    addVariable(state, context, scope, bindingType, true, isVariableDecl, state.tokenValue);
+function addFunctionName(state, context, scope, bindingType, origin, isVarDecl) {
+    addVariable(state, context, scope, bindingType, origin, true, isVarDecl, state.tokenValue);
     if ((context & 16) === 0 && !scope.lex.funcs['@' + state.tokenValue]) {
         scope.lex.funcs['@' + state.tokenValue] = true;
     }
@@ -5230,11 +5241,11 @@ function isLexical(state, context) {
         (token & 12288) === 12288 ||
         token === 131084 ||
         token === 131091 ||
-        state.token === 2265194 ||
-        state.token === 667757 ||
+        state.token & 2097152 ||
+        state.token & 524288 ||
         token === 402821192);
 }
-function reinterpret(ast) {
+function reinterpret(state, ast) {
     switch (ast.type) {
         case 'ArrayExpression':
             ast.type = 'ArrayPattern';
@@ -5242,27 +5253,29 @@ function reinterpret(ast) {
             for (let i = 0, n = elements.length; i < n; ++i) {
                 const element = elements[i];
                 if (element)
-                    reinterpret(element);
+                    reinterpret(state, element);
             }
             break;
         case 'ObjectExpression':
             ast.type = 'ObjectPattern';
             const properties = ast.properties;
             for (let i = 0, n = properties.length; i < n; ++i) {
-                reinterpret(properties[i]);
+                reinterpret(state, properties[i]);
             }
             break;
         case 'AssignmentExpression':
             ast.type = 'AssignmentPattern';
+            if (ast.operator !== '=')
+                report(state, 0);
             delete ast.operator;
-            reinterpret(ast.left);
+            reinterpret(state, ast.left);
             break;
         case 'Property':
-            reinterpret(ast.value);
+            reinterpret(state, ast.value);
             break;
         case 'SpreadElement':
             ast.type = 'RestElement';
-            reinterpret(ast.argument);
+            reinterpret(state, ast.argument);
     }
 }
 function nameIsArgumentsOrEval(value) {
@@ -5285,7 +5298,7 @@ function validateBindingIdentifier(state, context, type, token = state.token) {
         report(state, 73);
     if ((token & 36864) === 36864) {
         if (context & 1024)
-            report(state, 0);
+            report(state, 72);
     }
     if ((token & 20480) === 20480) {
         report(state, 72);
@@ -5349,14 +5362,13 @@ function validateContinueLabel(state, label) {
             report(state, 0);
         }
         else {
-            report(state, 0);
+            report(state, 96, 'continue');
         }
     }
 }
 function validateBreakStatement(state, label) {
-    const lblstate = getLabel(state, `@${label}`);
-    if ((lblstate & 1) !== 1)
-        report(state, 0);
+    if ((getLabel(state, `@${label}`) & 1) !== 1)
+        report(state, 96);
 }
 function getLabel(state, label, iterationStatement = false, crossBoundary = false) {
     if (!iterationStatement && state.labelSet && state.labelSet[label] === true) {
@@ -5385,8 +5397,8 @@ function getLabel(state, label, iterationStatement = false, crossBoundary = fals
     }
     return 0;
 }
-function addVariableAndDeduplicate(state, context, scope, type, isVariableDecl, name) {
-    addVariable(state, context, scope, type, true, isVariableDecl, name);
+function addVariableAndDeduplicate(state, context, scope, type, origin, isVarDecl, name) {
+    addVariable(state, context, scope, type, origin, true, isVarDecl, name);
     if ((context & 16) === 0) {
         scope.lex.funcs['#' + state.tokenValue] = false;
     }
@@ -5448,7 +5460,7 @@ function acquireGrammar(state, context, minprec, callback) {
     state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
     return result;
 }
-function isValidSimpleAssignment(node) {
+function isValidSimpleAssignmentTarget(node) {
     return node.type === 'Identifier' || node.type === 'MemberExpression' ? true : false;
 }
 
@@ -5551,12 +5563,12 @@ function parseStatementListItem(state, context, scope) {
         case 1060972:
             return parseAsyncFunctionOrExpressionStatement(state, context, scope);
         default:
-            return parseStatement(state, context, scope, 1);
+            return parseStatement(state, (context | 4096) ^ 4096, scope, 1);
     }
 }
 function parseAsyncFunctionOrExpressionStatement(state, context, scope) {
     return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-        ? parseFunctionDeclaration(state, context, scope, 0, true)
+        ? parseFunctionDeclaration(state, context, scope, 512, true)
         : parseExpressionOrLabelledStatement(state, context, scope, 2);
 }
 function parseLetOrExpressionStatement(state, context, scope) {
@@ -5645,7 +5657,7 @@ function parseExportDeclaration(state, context, scope) {
         }
         addToExportedNamesAndCheckForDuplicates(state, 'default');
         addToExportedBindings(state, '*default*');
-        addVariable(state, context, scope, 0, true, false, '*default*');
+        addVariable(state, context, scope, 0, 0, true, false, '*default*');
         return {
             type: 'ExportDefaultDeclaration',
             declaration
@@ -5722,12 +5734,12 @@ function parseExportDeclaration(state, context, scope) {
             break;
         case 402821192:
             declaration = parseLexicalDeclaration(state, context, 4, 4, scope);
-            if (checkIfExistInLexicalBindings(state, context, scope))
+            if (checkIfExistInLexicalBindings(state, context, scope, 0, false))
                 report(state, 0);
             break;
         case 402804809:
             declaration = parseLexicalDeclaration(state, context, 8, 4, scope);
-            if (checkIfExistInLexicalBindings(state, context, scope))
+            if (checkIfExistInLexicalBindings(state, context, scope, 0, false))
                 report(state, 0);
             break;
         case 268587079:
@@ -5755,7 +5767,7 @@ function parseImportDeclaration(state, context, scope) {
     const specifiers = [];
     if ((state.token & 274432) === 274432) {
         validateBindingIdentifier(state, context, 8);
-        addVariable(state, context, scope, 0, true, false, state.tokenValue);
+        addVariable(state, context, scope, 0, 0, true, false, state.tokenValue);
         specifiers.push({
             type: 'ImportDefaultSpecifier',
             local: parseIdentifier(state, context)
@@ -5804,12 +5816,12 @@ function parseImportSpecifierOrNamedImports(state, context, scope, specifiers) {
         let local;
         if (optional(state, context, 16920683)) {
             validateBindingIdentifier(state, context, 8);
-            addVariable(state, context, scope, 8, true, false, state.tokenValue);
+            addVariable(state, context, scope, 8, 0, true, false, state.tokenValue);
             local = parseIdentifier(state, context);
         }
         else {
             validateBindingIdentifier(state, context, 8, token);
-            addVariable(state, context, scope, 8, true, false, tokenValue);
+            addVariable(state, context, scope, 8, 0, true, false, tokenValue);
             local = imported;
         }
         specifiers.push({
@@ -5826,7 +5838,7 @@ function parseImportNamespace(state, context, scope, specifiers) {
     next(state, context);
     expect(state, context, 16920683);
     validateBindingIdentifier(state, context, 8);
-    addVariable(state, context, scope, 8, true, false, state.tokenValue);
+    addVariable(state, context, scope, 8, 0, true, false, state.tokenValue);
     const local = parseIdentifier(state, context);
     specifiers.push({
         type: 'ImportNamespaceSpecifier',
@@ -5922,7 +5934,7 @@ function parseSwitchStatement(state, context, scope) {
     };
 }
 function parseReturnStatement(state, context) {
-    if (!(context & (64 | 134217728)))
+    if ((context & (64 | 134217728)) < 1)
         report(state, 55);
     next(state, context | 32768);
     const argument = (state.token & 536870912) < 1 && (state.flags & 1) < 1
@@ -6030,7 +6042,7 @@ function parseCatchBlock(state, context, scope) {
         param = parseBindingIdentifierOrPattern(state, context, catchScope, 1, 8, false);
         if (state.token === 8388637)
             report(state, 0);
-        if (checkIfExistInLexicalBindings(state, context, catchScope, true))
+        if (checkIfExistInLexicalBindings(state, context, catchScope, 0, true))
             report(state, 45, state.tokenValue);
         expect(state, context, 16);
         secondScope = createSubScope(catchScope, 1);
@@ -6085,7 +6097,7 @@ function parseForStatement(state, context, scope) {
     let right;
     let isPattern = false;
     if (state.token !== 536870929) {
-        if ((state.token & 268435456) !== 0) {
+        if ((state.token & 268435456) > 0) {
             const kind = KeywordDescTable[state.token & 255];
             if (optional(state, context, 268587079)) {
                 init = {
@@ -6109,7 +6121,7 @@ function parseForStatement(state, context, scope) {
             }
             else if (optional(state, context, 402804809)) {
                 declarations = parseVariableDeclarationList(state, context, 8, 2, false, scope);
-                if (checkIfExistInLexicalBindings(state, context, scope, true))
+                if (checkIfExistInLexicalBindings(state, context, scope, 0, true))
                     report(state, 45, state.tokenValue);
                 init = { type: 'VariableDeclaration', kind, declarations };
             }
@@ -6126,7 +6138,7 @@ function parseForStatement(state, context, scope) {
             if (!state.assignable || init.type === 'AssignmentExpression') {
                 report(state, 90);
             }
-            reinterpret(init);
+            reinterpret(state, init);
         }
         right = parseAssignmentExpression(state, context);
         expect(state, context, 16);
@@ -6147,7 +6159,7 @@ function parseForStatement(state, context, scope) {
             if (!state.assignable || init.type === 'AssignmentExpression') {
                 report(state, 89);
             }
-            reinterpret(init);
+            reinterpret(state, init);
         }
         right = parseExpression(state, context);
         expect(state, context, 16);
@@ -6235,7 +6247,7 @@ function parseBindingIdentifier(state, context, scope, type, origin, checkForDup
     else if (name === 'enum')
         report(state, 0);
     validateBindingIdentifier(state, context, type);
-    addVariable(state, context, scope, type, checkForDuplicates, (origin === 1 || origin === 2 || origin === 4) &&
+    addVariable(state, context, scope, type, origin, checkForDuplicates, (origin === 1 || origin === 2 || origin === 4) &&
         type === 2
         ? true
         : false, name);
@@ -6376,7 +6388,7 @@ function parseFunctionDeclaration(state, context, scope, origin, isAsync) {
     let funcScope = createScope(1);
     let id = null;
     let firstRestricted;
-    if (state.token !== 131083 && state.token & 274432) {
+    if (state.token & 274432) {
         validateBindingIdentifier(state, ((context | (2097152 | 4194304)) ^ (2097152 | 4194304)) |
             (context & 1024
                 ? 2097152
@@ -6386,14 +6398,13 @@ function parseFunctionDeclaration(state, context, scope, origin, isAsync) {
                         ? 4194304
                         : context & 4194304
                             ? 4194304
-                            : 0), (context & 2048) !== 2048 && (context & 4096) === 4096
-            ? 2
-            : 4);
-        if (origin & 1)
+                            : 0), context & 4096 && (context & 2048) < 1 ? 2 : 4);
+        if (origin & 1) {
             scope = createSubScope(scope, 1);
-        addFunctionName(state, context, scope, (context & 2048) !== 2048 && (context & 4096) === 4096
+        }
+        addFunctionName(state, context, scope, context & 4096 && ((context & 2048) < 1 || context & 16)
             ? 2
-            : 4, true);
+            : 4, origin, true);
         funcScope = createSubScope(funcScope, 1);
         firstRestricted = state.tokenValue;
         id = parseIdentifier(state, context);
@@ -6401,21 +6412,31 @@ function parseFunctionDeclaration(state, context, scope, origin, isAsync) {
     else if (!(context & 512))
         report(state, 0);
     context =
-        (context | 4194304 | 2097152 | 8388608) ^
-            (4194304 | 2097152 | 8388608);
+        (context |
+            4194304 |
+            2097152 |
+            8388608 |
+            262144 |
+            524288 |
+            16777216) ^
+            (4194304 |
+                2097152 |
+                8388608 |
+                262144 |
+                524288 |
+                16777216);
     if (isAsync)
         context |= 4194304;
     if (isGenerator)
         context |= 2097152;
-    context = (context | 262144) ^ 262144;
     const paramScoop = createSubScope(funcScope, 5);
-    const params = parseFormalParameters(state, context | 67108864, paramScoop, 32, 0);
+    const params = parseFormalParameters(state, context | 67108864 | 8388608, paramScoop, 32, 0);
     const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), firstRestricted, origin);
     return {
         type: 'FunctionDeclaration',
         params,
         body,
-        async: (context & 4194304) !== 0,
+        async: (context & 4194304) > 0,
         generator: isGenerator,
         id
     };
@@ -6429,7 +6450,7 @@ function parseHostedClassDeclaration(state, context, scope, isNotDefault) {
     if (state.token & 274432 && state.token !== 20564) {
         name = state.tokenValue;
         validateBindingIdentifier(state, context, 16);
-        addVariableAndDeduplicate(state, context, scope, 4, true, name);
+        addVariableAndDeduplicate(state, context, scope, 4, 0, true, name);
         id = parseIdentifier(state, context);
     }
     if (isNotDefault)
@@ -6459,7 +6480,7 @@ function parseHoistableFunctionDeclaration(state, context, scope, isNotDefault, 
     if (state.token & 274432) {
         name = state.tokenValue;
         validateBindingIdentifier(state, context, 4);
-        addFunctionName(state, context, scope, 4, true);
+        addFunctionName(state, context, scope, 4, 0, true);
         funcScope = createSubScope(funcScope, 1);
         id = parseIdentifier(state, context);
     }
@@ -6467,21 +6488,20 @@ function parseHoistableFunctionDeclaration(state, context, scope, isNotDefault, 
         addToExportedNamesAndCheckForDuplicates(state, name);
     addToExportedBindings(state, name);
     context =
-        (context | 4194304 | 2097152 | 8388608) ^
-            (4194304 | 2097152 | 8388608);
+        (context | 4194304 | 2097152 | 8388608 | 262144) ^
+            (4194304 | 2097152 | 8388608 | 262144);
     if (isAsync)
         context |= 4194304;
     if (isGenerator)
         context |= 2097152;
-    context = (context | 262144) ^ 262144;
     const paramScoop = createSubScope(funcScope, 5);
-    const params = parseFormalParameters(state, context | 67108864, paramScoop, 32, 0);
+    const params = parseFormalParameters(state, context | 67108864 | 8388608, paramScoop, 32, 0);
     const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), undefined, 0);
     return {
         type: 'FunctionDeclaration',
         params,
         body,
-        async: (context & 4194304) !== 0,
+        async: (context & 4194304) > 0,
         generator: isGenerator,
         id
     };
@@ -6526,7 +6546,7 @@ function parseFormalParameters(state, context, scope, origin, objState) {
         report(state, 94, 'Getter', 'no', 's');
     }
     expect(state, context, 16);
-    if (hasComplexArgs || (context & (1024 | 33554432)) !== 0) {
+    if (hasComplexArgs || (context & (1024 | 33554432)) > 0) {
         validateFunctionArgs(state, scope.lex);
     }
     return params;
@@ -6543,7 +6563,7 @@ function parseFunctionBody(state, context, scope, firstRestricted, origin) {
     const body = [];
     expect(state, context, 131084);
     const isStrict = (context & 1024) === 1024;
-    context = (context | 4096 | 134217728 | 1048576) ^ 1048576;
+    context = context | (4096 | 134217728);
     while (state.token === 131075) {
         if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
             if (state.flags & 64)
@@ -6564,9 +6584,8 @@ function parseFunctionBody(state, context, scope, firstRestricted, origin) {
     state.flags =
         (state.flags | (1024 | 512)) ^
             (1024 | 512);
-    if (!isStrict && (context & 1024) !== 0 && (context & 1048576) < 1) {
+    if (!isStrict && (context & 1024) > 0)
         validateFunctionArgs(state, scope.lex['@']);
-    }
     if (state.token !== 536870927) {
         const previousSwitchStatement = state.switchStatement;
         const previousIterationStatement = state.iterationStatement;
@@ -6602,7 +6621,7 @@ function parseLexicalDeclaration(state, context, type, origin, scope) {
     const { token } = state;
     next(state, context);
     const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
-    if (checkIfExistInLexicalBindings(state, context, scope))
+    if (checkIfExistInLexicalBindings(state, context, scope, origin, false))
         report(state, 0);
     consumeSemicolon(state, context);
     return {
@@ -6633,7 +6652,7 @@ function parseVariableDeclaration(state, context, type, origin, checkForDuplicat
     if (optional(state, context | 32768, 8388637)) {
         init = secludeGrammar(state, context, 0, parseAssignmentExpression);
         if (isInOrOf(state) && (origin & 2 || isBinding)) {
-            if ((type & 2) === 0 || context & (16 | 1024) || isBinding) {
+            if ((type & 2) < 1 || context & (16 | 1024) || isBinding) {
                 report(state, 0);
             }
         }
@@ -6688,7 +6707,7 @@ function parseAssignmentExpression(state, context) {
         (state.flags & 1) < 1 &&
         ((state.token & 274432) === 274432 || (state.token & 2097152) === 2097152)) {
         const scope = createScope(5);
-        addVariableAndDeduplicate(state, context, scope, 1, true, state.tokenValue);
+        addVariableAndDeduplicate(state, context, scope, 1, 0, true, state.tokenValue);
         const arg = parseIdentifier(state, context);
         if (state.flags & 1)
             report(state, 0);
@@ -6696,24 +6715,27 @@ function parseAssignmentExpression(state, context) {
     }
     if (state.token === 131082) {
         let { type, scope: arrowScope, params } = expr;
-        state.bindable = state.assignable = false;
         if (type & (2 | 4)) {
             if (state.flags & 1)
                 report(state, 0);
             state.pendingCoverInitializeError = null;
-            return parseArrowFunctionExpression(state, context, arrowScope, params, (type & 4) !== 0, 0);
+            state.bindable = state.assignable = false;
         }
-        if ((token & 36864) === 36864) {
-            state.flags |= 512;
+        else {
+            if ((token & 36864) === 36864) {
+                state.flags |= 512;
+            }
+            else if (tokenValue === 'eval' || tokenValue === 'arguments') {
+                if (context & 1024)
+                    report(state, 85);
+                state.flags |= 1024;
+            }
+            arrowScope = createScope(5);
+            params = [expr];
+            type = 64;
+            addVariableAndDeduplicate(state, context, arrowScope, 1, 0, true, tokenValue);
         }
-        else if (tokenValue === 'eval' || tokenValue === 'arguments') {
-            if (context & 1024)
-                report(state, 85);
-            state.flags |= 1024;
-        }
-        arrowScope = createScope(5);
-        addVariableAndDeduplicate(state, context, arrowScope, 1, true, tokenValue);
-        return parseArrowFunctionExpression(state, context, arrowScope, [expr], false, 64);
+        return parseArrowFunctionExpression(state, context, arrowScope, params, (type & 4) > 0, type);
     }
     if ((state.token & 8388608) === 8388608) {
         if (context & 1024 && nameIsArgumentsOrEval(expr.name)) {
@@ -6722,10 +6744,10 @@ function parseAssignmentExpression(state, context) {
         else if (state.token === 8388637) {
             if (!state.assignable)
                 report(state, 84);
-            reinterpret(expr);
+            reinterpret(state, expr);
         }
         else {
-            if (!state.assignable || !isValidSimpleAssignment(expr))
+            if (!state.assignable || !isValidSimpleAssignmentTarget(expr))
                 report(state, 84);
             state.bindable = state.assignable = false;
         }
@@ -7065,9 +7087,8 @@ function parseArgumentList(state, context) {
         else {
             expressions.push(secludeGrammar(state, context, 0, parseAssignmentExpression));
         }
-        if (state.token === 16)
+        if (!optional(state, context | 32768, 18))
             break;
-        expect(state, context | 32768, 18);
     }
     expect(state, context, 16);
     return expressions;
@@ -7170,17 +7191,19 @@ function parsePrimaryExpression(state, context) {
             if (context & 1024)
                 report(state, 86);
             next(state, context);
-            if (state.flags & 1) {
-                if (state.token === 131091)
-                    report(state, 1, 'let');
+            if (state.flags & 1 && state.token === 131091) {
+                report(state, 97);
             }
-            const node = {
-                type: 'Identifier',
-                name: 'let'
-            };
-            if (context & 8)
-                node.raw = 'let';
-            return node;
+            return context & 8
+                ? {
+                    type: 'Identifier',
+                    name: 'let',
+                    raw: 'let'
+                }
+                : {
+                    type: 'Identifier',
+                    name: 'let'
+                };
         }
         case 20561:
             return parseDoExpression(state, context);
@@ -7195,7 +7218,7 @@ function parsePrimaryExpression(state, context) {
     }
 }
 function parseDoExpression(state, context) {
-    if ((context & 128) === 0)
+    if ((context & 128) < 1)
         report(state, 91);
     expect(state, context, 20561);
     return {
@@ -7220,7 +7243,7 @@ function parseArrayLiteral(state, context) {
                 report(state, 0);
             if (argument.type !== 'ArrayExpression' &&
                 argument.type !== 'ObjectExpression' &&
-                !isValidSimpleAssignment(argument)) {
+                !isValidSimpleAssignmentTarget(argument)) {
                 state.bindable = state.assignable = false;
             }
             elements.push({
@@ -7264,21 +7287,31 @@ function parseFunctionExpression(state, context, isAsync) {
                 : 0 | (context & 2048) || isGenerator
                     ? 4194304
                     : 0, 2);
-        addVariableAndDeduplicate(state, context, functionScope, 2, true, state.tokenValue);
+        addVariableAndDeduplicate(state, context, functionScope, 2, 0, true, state.tokenValue);
         functionScope = createSubScope(functionScope, 1);
         firstRestricted = state.tokenValue;
         id = parseIdentifier(state, context);
     }
     context =
-        (context | 4194304 | 2097152 | 8388608) ^
-            (4194304 | 2097152 | 8388608);
+        (context |
+            4194304 |
+            2097152 |
+            8388608 |
+            262144 |
+            524288 |
+            16777216) ^
+            (4194304 |
+                2097152 |
+                8388608 |
+                262144 |
+                524288 |
+                16777216);
     if (isAsync)
         context |= 4194304;
     if (isGenerator)
         context |= 2097152;
-    context = (context | 262144) ^ 262144;
     const paramScoop = createSubScope(functionScope, 5);
-    const params = parseFormalParameters(state, context | 67108864, paramScoop, 32, 0);
+    const params = parseFormalParameters(state, context | 67108864 | 8388608, paramScoop, 32, 0);
     const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), firstRestricted, 0);
     return {
         type: 'FunctionExpression',
@@ -7296,11 +7329,11 @@ function parseArrowFunctionExpression(state, context, scope, params, isAsync, ty
     else {
         expect(state, context, 131082);
         for (let i = 0; i < params.length; ++i)
-            reinterpret(params[i]);
+            reinterpret(state, params[i]);
     }
     if (state.flags & 1)
         report(state, 0);
-    if (checkIfExistInLexicalBindings(state, context, scope, true))
+    if (checkIfExistInLexicalBindings(state, context, scope, 0, true))
         report(state, 41);
     context =
         (context | 4194304 | 2097152 | 8388608) ^
@@ -7396,7 +7429,7 @@ function parseParenthesizedExpression(state, context) {
         };
     }
     expect(state, context, 16);
-    if ((state.flags & 1) === 0 && state.token === 131082) {
+    if ((state.flags & 1) < 1 && state.token === 131082) {
         if (!state.bindable)
             report(state, 88);
         state.bindable = false;
@@ -7408,7 +7441,7 @@ function parseParenthesizedExpression(state, context) {
         };
     }
     state.bindable = false;
-    if (!isValidSimpleAssignment(expr))
+    if (!isValidSimpleAssignmentTarget(expr))
         state.assignable = false;
     return expr;
 }
@@ -7419,7 +7452,7 @@ function parseClassDeclaration(state, context, scope) {
     let superClass = null;
     if (state.token & 274432 && state.token !== 20564) {
         validateBindingIdentifier(state, context | 1024, 16);
-        addVariableAndDeduplicate(state, context, scope, 4, true, state.tokenValue);
+        addVariableAndDeduplicate(state, context, scope, 4, 0, true, state.tokenValue);
         id = parseIdentifier(state, context);
     }
     else if (!(context & 512))
@@ -7446,7 +7479,7 @@ function parseClassExpression(state, context) {
     let superClass = null;
     if (state.token & 274432 && state.token !== 20564) {
         validateBindingIdentifier(state, context | 1024, 16);
-        addVariable(state, context, -1, 4, false, false, state.tokenValue);
+        addVariable(state, context, -1, 4, 0, false, false, state.tokenValue);
         id = parseIdentifier(state, context);
     }
     if (optional(state, context, 20564)) {
@@ -7537,8 +7570,8 @@ function parseClassBodyAndElementList(state, context, origin) {
                     type: 'FieldDefinition',
                     key,
                     value,
-                    computed: (objState & 2) !== 0,
-                    static: (objState & 32) !== 0
+                    computed: (objState & 2) > 0,
+                    static: (objState & 32) > 0
                 });
             }
             else {
@@ -7720,8 +7753,8 @@ function parseClassBodyAndElementList(state, context, origin) {
                 type: 'FieldDefinition',
                 key: key,
                 value,
-                computed: (objState & 2) !== 0,
-                static: (objState & 32) !== 0
+                computed: (objState & 2) > 0,
+                static: (objState & 32) > 0
             }
             : {
                 type: 'MethodDefinition',
@@ -7732,8 +7765,8 @@ function parseClassBodyAndElementList(state, context, origin) {
                         : objState & 512
                             ? 'set'
                             : 'method',
-                static: (objState & 32) !== 0,
-                computed: (objState & 2) !== 0,
+                static: (objState & 32) > 0,
+                computed: (objState & 2) > 0,
                 key,
                 value
             });
@@ -7769,15 +7802,15 @@ function parseObjectLiteral(state, context, scope, type) {
                 token = state.token;
                 tokenValue = state.tokenValue;
                 objState = 0;
-                const newLine = (state.flags & 1) !== 0;
                 key = parseIdentifier(state, context);
+                const newLine = (state.flags & 1) > 0;
                 if (state.token === 18 ||
                     state.token === 536870927 ||
                     state.token === 8388637) {
                     objState |= 4;
                     if (tokenValue !== 'eval' || tokenValue !== 'arguments')
                         validateBindingIdentifier(state, context, type, token);
-                    addVariable(state, context, scope, type, false, false, tokenValue);
+                    addVariable(state, context, scope, type, 0, false, false, tokenValue);
                     if (state.token === 8388637) {
                         state.pendingCoverInitializeError = 87;
                         expect(state, context, 8388637);
@@ -7795,8 +7828,8 @@ function parseObjectLiteral(state, context, scope, type) {
                         else
                             hasProto = true;
                     }
-                    if ((state.token & 274432) !== 0)
-                        addVariable(state, context, scope, type, false, false, tokenValue);
+                    if ((state.token & 274432) > 0)
+                        addVariable(state, context, scope, type, 0, false, false, tokenValue);
                     value = acquireGrammar(state, context, 0, parseAssignmentExpression);
                 }
                 else if (state.token === 131091) {
@@ -7826,7 +7859,7 @@ function parseObjectLiteral(state, context, scope, type) {
                 else {
                     if (optional(state, context, 21105203))
                         objState |= 8;
-                    if ((state.token & 274432) !== 0) {
+                    if ((state.token & 274432) > 0) {
                         key = parseIdentifier(state, context);
                         if (state.token !== 131083)
                             report(state, 0);
@@ -7893,7 +7926,7 @@ function parseObjectLiteral(state, context, scope, type) {
                             hasProto = true;
                     }
                     value = acquireGrammar(state, context, 0, parseAssignmentExpression);
-                    addVariable(state, context, scope, type, false, false, tokenValue);
+                    addVariable(state, context, scope, type, 0, false, false, tokenValue);
                 }
                 else {
                     state.bindable = state.assignable = false;
@@ -7962,9 +7995,9 @@ function parseObjectLiteral(state, context, scope, type) {
                 key,
                 value,
                 kind: !(objState & 768) ? 'init' : objState & 512 ? 'set' : 'get',
-                computed: (objState & 2) !== 0,
-                method: (objState & 1) !== 0,
-                shorthand: (objState & 4) !== 0
+                computed: (objState & 2) > 0,
+                method: (objState & 1) > 0,
+                shorthand: (objState & 4) > 0
             });
         }
         optional(state, context, 18);
@@ -8000,54 +8033,60 @@ function parsePropertyMethod(state, context, objState) {
     if (state.token & 274432) {
         validateBindingIdentifier(state, context & 1024
             ? 2097152
-            : (objState & 8) !== 0
+            : (objState & 8) > 0
                 ? 2097152
-                : 0 | (context & 2048) || (objState & 8) !== 0
+                : 0 | (context & 2048) || (objState & 8) > 0
                     ? 4194304
                     : 0, 2);
-        addVariableAndDeduplicate(state, context, functionScope, 2, true, state.tokenValue);
+        addVariableAndDeduplicate(state, context, functionScope, 2, 0, true, state.tokenValue);
         functionScope = createSubScope(functionScope, 1);
         firstRestricted = state.tokenValue;
         id = parseIdentifier(state, context);
     }
     context =
-        (context | 4194304 | 2097152 | 8388608) ^
-            (4194304 | 2097152 | 8388608);
+        (context |
+            262144 |
+            4194304 |
+            2097152 |
+            8388608 |
+            ((objState & 64) === 0 ? 16777216 | 524288 : 0)) ^
+            (4194304 |
+                2097152 |
+                8388608 |
+                ((objState & 64) < 1 ? 16777216 | 524288 : 0));
     if (objState & 16)
         context |= 4194304;
     if (objState & 8)
         context |= 2097152;
-    if (objState & 64) {
+    if (objState & 64)
         context |= 16777216;
-    }
-    else {
-        context = (context | (16777216 | 524288)) ^ (16777216 | 524288);
-    }
-    context |= 262144;
     const paramScoop = createSubScope(functionScope, 5);
-    const params = parseFormalParameters(state, context | 67108864 | 33554432, paramScoop, 32, objState);
-    const body = parseFunctionBody(state, context | 67108864 | 1024, createSubScope(paramScoop, 1), firstRestricted, 0);
+    const params = parseFormalParameters(state, context | 67108864 | 33554432 | 8388608, paramScoop, 32, objState);
+    const body = parseFunctionBody(state, context | 67108864 | 33554432, createSubScope(paramScoop, 1), firstRestricted, 0);
     return {
         type: 'FunctionExpression',
         params,
         body,
-        async: (objState & 16) !== 0,
-        generator: (objState & 8) !== 0,
+        async: (objState & 16) > 0,
+        generator: (objState & 8) > 0,
         id
     };
 }
 function parseLiteral(state, context, value) {
-    const { tokenRaw } = state;
+    const { tokenRaw: raw } = state;
     if (context & 1024 && state.flags & 8)
         report(state, 93);
     next(state, context);
-    const node = {
-        type: 'Literal',
-        value
-    };
-    if (context & 8)
-        node.raw = tokenRaw;
-    return node;
+    return context & 8
+        ? {
+            type: 'Literal',
+            value,
+            raw
+        }
+        : {
+            type: 'Literal',
+            value
+        };
 }
 function parseThisExpression(state, context) {
     next(state, context);
@@ -8056,15 +8095,18 @@ function parseThisExpression(state, context) {
     };
 }
 function parseIdentifier(state, context) {
-    const { tokenRaw, tokenValue } = state;
+    const { tokenRaw: raw, tokenValue: name } = state;
     next(state, context);
-    const node = {
-        type: 'Identifier',
-        name: tokenValue
-    };
-    if (context & 8)
-        node.raw = tokenRaw;
-    return node;
+    return context & 8
+        ? {
+            type: 'Identifier',
+            name,
+            raw
+        }
+        : {
+            type: 'Identifier',
+            name
+        };
 }
 function parseRegularExpressionLiteral(state, context) {
     const { tokenRegExp: regex, tokenValue: value } = state;
