@@ -170,7 +170,7 @@ table[Chars.Plus] = state => {
 table[Chars.Comma] = scanChar;
 OneCharPunc[Chars.Comma] = Token.Comma;
 
-// `-`, `--`, `-=`
+// `-`, `--`, `-=`, `-->`
 table[Chars.Hyphen] = (state, context) => {
   state.index++;
   state.column++;
@@ -180,7 +180,7 @@ table[Chars.Hyphen] = (state, context) => {
       state.index++;
       state.column++;
       if (
-        (context & Context.OptionsWebCompat) === 0 &&
+        context & Context.OptionsWebCompat &&
         ((state.flags & Flags.NewLine || state.startIndex === 0) && consumeOpt(state, Chars.GreaterThan))
       ) {
         return skipSingleHTMLComment(state, context, CommentType.HTMLClose);
