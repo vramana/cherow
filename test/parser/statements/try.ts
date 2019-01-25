@@ -8,9 +8,6 @@ describe('Statements - Try', () => {
     ['try {} catch (a, a) { }', Context.Empty],
     ['try {} catch ([a,a]) { }', Context.Empty],
     ['try {} catch ([a] = b) { }', Context.Empty],
-    ['try {} catch ([a] = b) { }', Context.Empty],
-    ['try {} catch ([a] = b) { }', Context.Empty],
-    ['try {} catch ([a] = b) { }', Context.Empty],
     ['try {} catch (fkleuver) { const fkleuver = 1; } ', Context.Empty],
     ['try {} catch (foo) { var foo; }', Context.Empty],
     ['try {} catch (foo) { let foo; }', Context.Empty],
@@ -23,14 +20,19 @@ describe('Statements - Try', () => {
     ['try {} catch (e) { for (var e in y) {} }', Context.Empty],
     ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
     ['try {} catch (e) { let e = x; }', Context.Empty],
-    ['try {} catch (e) { const e = x; }', Context.Empty],
-    ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
+    ['try {} catch (e) { var e = x; }', Context.Empty],
+    ['try {} catch (e) { for (var e of y) {} }', Context.OptionsWebCompat],
     ['try {} catch (e) { let e = x; }', Context.Empty],
     ['try {} catch (e) { const e = x; }', Context.Empty],
-    ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
-    ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
     ['try {} catch(e) { var e; }', Context.Empty],
-    ['try {} catch (e) { let e = x; }', Context.Empty]
+    ['try {} catch (e) { let e = x; }', Context.Empty],
+    ['try { } catch (x) { for (var x of []) {} }', Context.Strict],
+    ['try { } catch (x) { let x; }', Context.Strict],
+    ['function f() { try {} catch (e) { function e(){} } }', Context.Strict],
+    ['try { } catch ([x, x]) {}', Context.Strict],
+    ['try { } catch (x) { for (var x of []) {} }', Context.Empty],
+    ['try { } catch (x) { let x; }', Context.Empty],
+    ['function f() { try {} catch (e) { function e(){} } }', Context.Empty]
   ]);
 
   const invalidSyntax: any = [
@@ -77,6 +79,198 @@ describe('Statements - Try', () => {
   }
 
   pass('Statements - Try (pass)', [
+    [
+      `try {
+      var x = 2;
+      probeTry = function() { return x; };
+      throw [];
+    } catch ([_ = (eval('var x = 3;'), probeParam = function() { return x; })]) {
+      var x = 4;
+      probeBlock = function() { return x; };
+    }`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'TryStatement',
+            block: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'VariableDeclaration',
+                  kind: 'var',
+                  declarations: [
+                    {
+                      type: 'VariableDeclarator',
+                      init: {
+                        type: 'Literal',
+                        value: 2
+                      },
+                      id: {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    }
+                  ]
+                },
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'probeTry'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'ReturnStatement',
+                            argument: {
+                              type: 'Identifier',
+                              name: 'x'
+                            }
+                          }
+                        ]
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    }
+                  }
+                },
+                {
+                  type: 'ThrowStatement',
+                  argument: {
+                    type: 'ArrayExpression',
+                    elements: []
+                  }
+                }
+              ]
+            },
+            handler: {
+              type: 'CatchClause',
+              param: {
+                type: 'ArrayPattern',
+                elements: [
+                  {
+                    type: 'AssignmentPattern',
+                    left: {
+                      type: 'Identifier',
+                      name: '_'
+                    },
+                    right: {
+                      type: 'SequenceExpression',
+                      expressions: [
+                        {
+                          type: 'CallExpression',
+                          callee: {
+                            type: 'Identifier',
+                            name: 'eval'
+                          },
+                          arguments: [
+                            {
+                              type: 'Literal',
+                              value: 'var x = 3;'
+                            }
+                          ]
+                        },
+                        {
+                          type: 'AssignmentExpression',
+                          left: {
+                            type: 'Identifier',
+                            name: 'probeParam'
+                          },
+                          operator: '=',
+                          right: {
+                            type: 'FunctionExpression',
+                            params: [],
+                            body: {
+                              type: 'BlockStatement',
+                              body: [
+                                {
+                                  type: 'ReturnStatement',
+                                  argument: {
+                                    type: 'Identifier',
+                                    name: 'x'
+                                  }
+                                }
+                              ]
+                            },
+                            async: false,
+                            generator: false,
+                            id: null
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'VariableDeclaration',
+                    kind: 'var',
+                    declarations: [
+                      {
+                        type: 'VariableDeclarator',
+                        init: {
+                          type: 'Literal',
+                          value: 4
+                        },
+                        id: {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'AssignmentExpression',
+                      left: {
+                        type: 'Identifier',
+                        name: 'probeBlock'
+                      },
+                      operator: '=',
+                      right: {
+                        type: 'FunctionExpression',
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          body: [
+                            {
+                              type: 'ReturnStatement',
+                              argument: {
+                                type: 'Identifier',
+                                name: 'x'
+                              }
+                            }
+                          ]
+                        },
+                        async: false,
+                        generator: false,
+                        id: null
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            finalizer: null
+          }
+        ]
+      }
+    ],
     [
       'try {try { let e; } catch { let e; } finally { let e; }} catch (e) { }',
       Context.Empty,

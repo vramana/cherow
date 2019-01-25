@@ -23,6 +23,37 @@ describe('Module - Export', () => {
     'export {a}; export {b as a};',
     'var a,b; export {b, a}; export {a};',
     'var a,b; export {a, b}; export {a};',
+    `export default var x = null;
+     export default var x = null;`,
+    `export function f() {}
+     export function *f() {}`,
+    `export class f() {}
+     export function *f() {}`,
+    `export function f() {}
+     export class f() {}`,
+    `export async function *f() {}
+     export function *f() {}`,
+    `export default async function *f() {}
+     export function *f() {}`,
+    `export async function *f() {}
+     export default function *f() {}`,
+    `export const f = g;
+     export let f;`,
+    `var x;
+     export default x;
+     export * as default from './early-dup-export-start-as-dflt.js';`,
+    `label: {
+      label: 0;
+    }`,
+    `let x;
+    const x;`,
+    `export { unresolvable };`,
+    `var x;
+    export { x as z };
+    export * as z from './early-dup-export-as-star-as.js';`,
+    `var x;
+    export default x;
+    export * as default from './early-dup-export-start-as-dflt.js';`,
     'var a,b; export {a}; export {a, b};',
     'export {b as a}; export {a};',
     'export {a}; export {b as a};',

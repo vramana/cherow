@@ -56,7 +56,26 @@ describe('Expressions - Switch', () => {
     ['switch (0) { case 1: class f {} default: const f = 0 }', Context.Empty],
     ['switch (0) { case 1: async function* f() {} default: class f {} }', Context.Empty],
     ['switch (0) { case 1: async function f() {} default: function f() {} }', Context.Empty],
-
+    ['switch (0) { case 1: let f; default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: let f; default: const f = 0 }', Context.Empty],
+    ['switch (0) { case 1: let f; default: function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: let f; default: let f }', Context.Empty],
+    ['switch (0) { case 1: var f; default: async function f() {} }', Context.Empty],
+    ['switch (0) { case 1: var f; default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: var f; default: let f }', Context.Empty],
+    ['switch (0) { case 1: function* f() {} default: function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: function f() {} default: async function f() {} }', Context.Empty],
+    ['switch (0) { case 1: function f() {} default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: const f = 0; default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: const f = 0; default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: class f {} default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: class f {} default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: var f }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: let f }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: const f = 0 }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: function f() {} }', Context.Empty],
     [
       `function SwitchTest(value){
       var result = 0;
@@ -78,6 +97,68 @@ describe('Expressions - Switch', () => {
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      'switch (0) { case 1: var f; default: var f }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Literal',
+              value: 0
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Literal',
+                  value: 1
+                },
+                consequent: [
+                  {
+                    type: 'VariableDeclaration',
+                    kind: 'var',
+                    declarations: [
+                      {
+                        type: 'VariableDeclarator',
+                        init: null,
+                        id: {
+                          type: 'Identifier',
+                          name: 'f'
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                type: 'SwitchCase',
+                test: null,
+                consequent: [
+                  {
+                    type: 'VariableDeclaration',
+                    kind: 'var',
+                    declarations: [
+                      {
+                        type: 'VariableDeclarator',
+                        init: null,
+                        id: {
+                          type: 'Identifier',
+                          name: 'f'
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
     [
       '"use strict"; switch(x) { case 1: }',
       Context.OptionsRaw | Context.OptionsDirectives,
