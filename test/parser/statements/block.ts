@@ -8,12 +8,51 @@ describe('Statements - Block', () => {
     ['if{};else{}', Context.Empty],
     ['try{};catch{};finally{}', Context.Empty],
     ['try{};catch(){}', Context.Empty],
+    ['{ async function f() {} async function f() {} }', Context.Empty],
+    ['{ async function f() {} async function* f() {} }', Context.Empty],
+    ['{ async function f() {} const f = 0 }', Context.Empty],
+    ['{ async function f() {} function f() {} }', Context.Empty],
+    ['{ async function f() {} function* f() {} }', Context.Empty],
+    ['{ async function f() {} let f }', Context.OptionsWebCompat],
+    ['{ async function* f() {} const f = 0 }', Context.Empty],
+    ['{ async function* f() {} function f() {} }', Context.Empty],
+    ['{ async function* f() {} let f }', Context.Empty],
+    ['function f(){} function f(){}', Context.Module],
+    ['{ function f(){} function f(){} }', Context.Empty],
+    ['let x; { var x; }', Context.Empty],
+    ['function x() { { class f {}; var f; } }', Context.Empty],
+    ['function x() { { const f = 0; var f; } }', Context.Empty],
+    ['function x() { { function f() {}; var f; } }', Context.Empty],
+    ['function x() { { function* f() {}; var f; } }', Context.Empty],
+    ['{ function f() {} async function f() {} }', Context.Empty],
+    ['{ function f() {} { var f; } }', Context.Empty],
+    ['{ function f() {} async function f() {} }', Context.Empty],
+    ['{ function f() {} async function* f() {} }', Context.Empty],
+    ['{ function f() {} class f {} }', Context.Empty],
+    ['{ function f() {} function f() {} }', Context.Empty],
+    ['{ function f() {} let f }', Context.Empty],
+    ['{ function* f() {} async function f() {} }', Context.Empty],
+    ['{ function* f() {} function* f() {} }', Context.Empty],
+    ['{ function* f() {} let f }', Context.Empty],
+    ['{ { var f; } async function f() {}; }', Context.Empty],
+    ['{ { var f; } async function* f() {}; }', Context.Empty],
+    ['{ { var f; } class f {}; }', Context.Empty],
+    ['{ { var f; } function f() {} }', Context.Empty],
+    ['{ { var f; } function* f() {}; }', Context.Empty],
+    ['{ class f {}; { var f; } }', Context.Empty],
+    ['{ function f() {} { var f; } }', Context.Empty],
+    ['{ let f; function f() {} }', Context.Empty],
+    ['{ var f; function f() {} }', Context.Empty],
+    ['{ function* f() {}; var f; }', Context.Empty],
+    ['{ let f; var f; }', Context.Empty],
+    ['{ async function* f() {}; var f; }', Context.Empty],
+    ['{ let f; var f }', Context.Empty],
     ['{ if (x) function f() {} ; function f() {} }', Context.Empty],
     [' { function a() {} } { let a; function a() {}; }', Context.Empty],
     ['{ function f() {} ; function f() {} }', Context.Empty],
     ['function f(){ var f = 123; if (true) function f(){} }', Context.Empty],
     ['{ var f = 123; if (true) function f(){} }', Context.Empty],
-    ['{ function f() {} ; function f() {} }', Context.Empty],
+    ['{ if (x) function f() {} ; function f() {} }', Context.Empty],
     ['{ function f() {} ; function f() {} }', Context.Empty],
     ['{ let a; class a {} }', Context.Empty],
     ['{ async function a() {} async function a() {} }', Context.Empty],
@@ -55,12 +94,16 @@ describe('Statements - Block', () => {
     ['{ function* f() {} class f {} }', Context.Empty],
     ['{ function* f() {} async function* f() {} }', Context.Empty],
     ['{ function f() {} function* f() {} }', Context.Empty],
-
     ['{ class f {}; var f; }', Context.Empty],
     ['{ var f; async function f() {} }', Context.Empty],
     ['{ var f; class f {} }', Context.Empty],
     ['{ let f; function* f() {} }', Context.Empty],
     ['{ let f; { var f; } }', Context.Empty],
+    ['for (let x, y in {}) { }', Context.Empty],
+    ['for (let x = 3, y = 4 in {}) { }', Context.Empty],
+    ['for (let x, y = 4 in {}) { }', Context.Empty],
+    ['for (let x = 3 in {}) { }', Context.Empty],
+    ['do function g() {} while (false)', Context.Strict],
     ['{ const f = 0; { var f; } }', Context.Empty],
     ['{ function* f() {} var f }', Context.Empty],
     ['function x() { { async function f() {}; var f; } }', Context.Empty],
@@ -76,6 +119,183 @@ describe('Statements - Block', () => {
   fail('Statements - Block (fail)', inValids);
 
   pass('Statements - Block (pass)', [
+    [
+      'function f() {} var f;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'var f; function f() {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            ]
+          },
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '{ var f; var f }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'VariableDeclaration',
+                kind: 'var',
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    init: null,
+                    id: {
+                      type: 'Identifier',
+                      name: 'f'
+                    }
+                  }
+                ]
+              },
+              {
+                type: 'VariableDeclaration',
+                kind: 'var',
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    init: null,
+                    id: {
+                      type: 'Identifier',
+                      name: 'f'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'function x() { { var f; var f } }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'VariableDeclaration',
+                      kind: 'var',
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          init: null,
+                          id: {
+                            type: 'Identifier',
+                            name: 'f'
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      type: 'VariableDeclaration',
+                      kind: 'var',
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          init: null,
+                          id: {
+                            type: 'Identifier',
+                            name: 'f'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        ]
+      }
+    ],
     [
       '{}',
       Context.Empty,

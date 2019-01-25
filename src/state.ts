@@ -1607,9 +1607,7 @@ export function parseFunctionDeclaration(
       state,
       context,
       scope,
-      context & Context.TopLevel && ((context & Context.Module) < 1 || (context & Context.OptionsWebCompat) === 0)
-        ? Type.Variable
-        : Type.Let,
+      context & Context.TopLevel && (context & Context.Module) < 1 ? Type.Variable : Type.Let,
       origin,
       true
     );

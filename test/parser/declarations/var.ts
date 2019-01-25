@@ -331,44 +331,6 @@ describe('Declarations - Var', () => {
       }
     ],
     [
-      'var f; function f() {}',
-      Context.Module | Context.Empty,
-      {
-        body: [
-          {
-            declarations: [
-              {
-                id: {
-                  name: 'f',
-                  type: 'Identifier'
-                },
-                init: null,
-                type: 'VariableDeclarator'
-              }
-            ],
-            kind: 'var',
-            type: 'VariableDeclaration'
-          },
-          {
-            async: false,
-            body: {
-              body: [],
-              type: 'BlockStatement'
-            },
-            generator: false,
-            id: {
-              name: 'f',
-              type: 'Identifier'
-            },
-            params: [],
-            type: 'FunctionDeclaration'
-          }
-        ],
-        sourceType: 'module',
-        type: 'Program'
-      }
-    ],
-    [
       'for (var {x, y = z} of obj);',
       Context.Empty,
       {

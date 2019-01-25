@@ -48,8 +48,6 @@ describe('Miscellaneous - Annex B', () => {
     //    `"use strict"; label: function f(){}`,
     'if (x) function f() { return 23; } else function f() { return 42; }',
     'if (x) function f() {}',
-    `var foo = [23]
-                    -->[0];`,
     'x = -1 <!--x;',
     'if (true) function f() {  } else function _f() {}',
     'if (true) function f() { return "foo"; } else function _f() {}',
@@ -124,10 +122,6 @@ switch (1) {
                             function f() {  }
                         }
                         }`,
-    `/*
-                          */--> foo`,
-    `var foo = [23]
-                          -->[0];`,
     `var x = 0;
                           x = -1 <!--x;`,
     'if (true) function f() {} else function _f() {}',
@@ -263,7 +257,22 @@ switch (1) {
     'function *f() {} function *f() {}',
     '{ function f() {} function f() {} }',
     'if (true) function f() { initialBV = f; f = 123; currentBV = f; return "decl"; } else function _f() {}',
-    'if (true) function f() { initialBV = f; f = 123; currentBV = f; return "decl"; } else function _f() {}'
+    'if (true) function f() { initialBV = f; f = 123; currentBV = f; return "decl"; } else function _f() {}',
+    'switch (0) { default: let f; {function f() {  } }}',
+    '{ let f = 123; { function f() {  }} }',
+    'try { throw {}; } catch ({ f }) { { function f() {  } } }',
+    '{ function f() { return 1; } { function f() { return 2; } }  }',
+    '{ if (x) function f() {} ; function f() {} }',
+    'var f = 123; if (true) function f() {  } else function _f() {}',
+    'if (true) function f() {  } else function _f() {}',
+    ' try { throw null;} catch (f) {if (true) function f() { return 123; } else ; }',
+    'for (let f in { key: 0 }) {if (true) function f() {  } else ; }',
+    '{ if (x) function f() {} ; function f() {} }',
+    'for (let f of [0]) { if (true) function f() {  } else ; }',
+    '{ function f() {} } if (true) function f() {}',
+    'for (let f; ; ) { if (true) function f() {  } break; }',
+    'if (true) function f() {  } else function _f() {}',
+    'switch (0) { default: let f; if (false) ; else function f() {  } }'
   ]) {
     it(`${arg}`, () => {
       t.doesNotThrow(() => {
