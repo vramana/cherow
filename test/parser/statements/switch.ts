@@ -501,6 +501,92 @@ describe('Expressions - Switch', () => {
       }
     ],
     [
+      `let x
+  switch (x) {
+  case 1:
+    function a() {}
+  case 2:
+    function a() {}
+  }`,
+      Context.OptionsWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          },
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Literal',
+                  value: 1
+                },
+                consequent: [
+                  {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: {
+                      type: 'Identifier',
+                      name: 'a'
+                    }
+                  }
+                ]
+              },
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Literal',
+                  value: 2
+                },
+                consequent: [
+                  {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: {
+                      type: 'Identifier',
+                      name: 'a'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+
+    [
       'switch (A) {case B: C; case D: E;}',
       Context.Empty,
       {

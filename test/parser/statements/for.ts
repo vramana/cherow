@@ -1384,7 +1384,7 @@ describe('Statements - For', () => {
     ],
     [
       'for (var a = b in c);',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1421,7 +1421,7 @@ describe('Statements - For', () => {
     ],
     [
       'for (var a = ++b in c);',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1463,7 +1463,7 @@ describe('Statements - For', () => {
     ],
     [
       'for (var a = 0 in stored = a, {});',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1517,7 +1517,7 @@ describe('Statements - For', () => {
     ],
     [
       'for (var a = (++effects, -1) in x);',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1670,7 +1670,7 @@ describe('Statements - For', () => {
     ],
     [
       'for (var a = (++effects, -1) in stored = a, {a: 0, b: 1, c: 2});',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',

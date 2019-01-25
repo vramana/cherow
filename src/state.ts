@@ -2031,7 +2031,7 @@ export function parseVariableDeclarationList(
   }
 
   if (origin & Origin.ForStatement && isInOrOf(state) && bindingCount > 1) {
-    report(state, Errors.Unexpected);
+    report(state, Errors.ForInOfLoopMultiBindings, KeywordDescTable[state.token & Token.Type]);
   }
   return list;
 }
@@ -2072,12 +2072,16 @@ function parseVariableDeclaration(
     init = secludeGrammar(state, context, 0, parseAssignmentExpression);
     if (isInOrOf(state) && (origin & Origin.ForStatement || isBinding)) {
       // https://github.com/tc39/test262/blob/master/test/annexB/language/statements/for-in/strict-initializer.js
-      if ((type & Type.Variable) < 1 || context & (Context.OptionsWebCompat | Context.Strict) || isBinding) {
-        report(state, Errors.Unexpected);
+      if (
+        (type & Type.Variable) < 1 ||
+        ((context & Context.OptionsWebCompat) === 0 || context & Context.Strict) ||
+        isBinding
+      ) {
+        report(state, Errors.ForInOfLoopInitializer);
       }
     }
   } else if ((type & Type.Const || isBinding) && !isInOrOf(state)) {
-    report(state, Errors.Unexpected, type & Type.Const ? 'const' : 'destructuring');
+    report(state, Errors.DeclarationMissingInitializer, type & Type.Const ? 'const' : 'destructuring');
   }
 
   return {
@@ -2559,13 +2563,22 @@ export function parseMetaProperty(state: ParserState, context: Context, id: ESTr
 function parseSuperExpression(state: ParserState, context: Context): ESTree.Super {
   next(state, context);
   state.assignable = state.bindable = false;
-  if (state.token === Token.LeftBracket || state.token === Token.Period) {
-    // new super() is never allowed.
-    // super() is only allowed in derived constructor
-    if ((context & Context.SuperProperty) < 1) report(state, Errors.InvalidSuperProperty);
-    state.assignable = true;
-  } else if ((context & Context.SuperCall) < 1 && state.token === Token.LeftParen) {
-    report(state, Errors.SuperNoConstructor);
+
+  switch (state.token) {
+    case Token.LeftParen:
+      // The super property has to be within a class constructor
+      if ((context & Context.SuperCall) < 1) report(state, Errors.SuperNoConstructor);
+      break;
+    case Token.LeftBracket:
+    case Token.Period:
+      // new super() is never allowed.
+      // super() is only allowed in derived constructor
+
+      if ((context & Context.SuperProperty) < 1) report(state, Errors.InvalidSuperProperty);
+      state.assignable = true;
+      break;
+    default:
+      report(state, Errors.UnexpectedToken, 'super');
   }
 
   return { type: 'Super' };

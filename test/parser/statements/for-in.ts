@@ -490,7 +490,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var a = b in c);',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         body: [

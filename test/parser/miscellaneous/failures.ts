@@ -35,7 +35,8 @@ describe('Miscellaneous - Failurea', () => {
     ['() => { super(); }', Context.Empty],
     ['yield;', Context.Strict],
     ['() => { new.target }', Context.Empty],
-
+    ['super', Context.Empty],
+    ['super', Context.Strict],
     ['0, { get a(param = null) {} };', Context.Empty],
 
     ['0, { set a() {} };', Context.Empty],
