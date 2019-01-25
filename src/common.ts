@@ -600,18 +600,19 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
 export function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token = state.token) {
   if (context & Context.Strict && token === Token.StaticKeyword) report(state, Errors.InvalidStrictStatic);
 
+  if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
+    report(state, Errors.AwaitOutsideAsync);
+  }
+  if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
+    report(state, Errors.DisallowedInContext, 'yield');
+  }
+
   if ((token & Token.FutureReserved) === Token.FutureReserved) {
     if (context & Context.Strict) report(state, Errors.InvalidStrictReservedWord);
   }
 
   if ((token & Token.Reserved) === Token.Reserved) {
     report(state, Errors.InvalidStrictReservedWord);
-  }
-  if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
-    report(state, Errors.AwaitOutsideAsync);
-  }
-  if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
-    report(state, Errors.DisallowedInContext);
   }
 
   if (token === Token.LetKeyword) {

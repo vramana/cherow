@@ -19,7 +19,7 @@ describe('Declarations - Var', () => {
     ['{ let x; var x; }', Context.Empty],
     ['var {foo};', Context.Empty],
     ['var [foo]; ', Context.Empty],
-    //['var f; function f() {} ', Context.Module],
+    ['var f; function f() {} ', Context.Module],
     ['var [foo=a];', Context.Empty],
     ['var [foo], bar;', Context.Empty],
     ['var foo, [bar];', Context.Empty],
@@ -248,9 +248,9 @@ describe('Declarations - Var', () => {
     'with',
     'null',
     'true',
-    'false'
+    'false',
     // future reserved keyword,
-    //  'enum',
+    'enum'
   ];
 
   for (const arg of reservedKeywords) {

@@ -102,7 +102,7 @@ describe('Declarations - Function', () => {
     ['"use strict"; function super() {}', Context.Empty],
     ['"use strict"; function interface() {}', Context.Empty],
     ['"use strict"; function *super() {}', Context.Empty],
-
+    // ['function *f(){ return function(x = yield y){}; }', Context.Empty],
     ['try function foo() {} catch (e) {}', Context.Empty],
     ['do function foo() {} while (0);', Context.Empty],
     ['for (;false;) function foo() {}', Context.Empty],

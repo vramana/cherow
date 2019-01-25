@@ -61,7 +61,7 @@ describe('Expressions - Object', () => {
     ['({async get : 0})', Context.Strict],
     ['({*get x(){}})', Context.Strict],
 
-    // ['({get foo( +})', Context.Strict],
+    ['({get foo( +})', Context.Strict],
     // ['({static x: 0})', Context.Strict],
     // ['({static x(){}})', Context.Strict],
     // ['({static async x(){}})', Context.Strict],
@@ -83,7 +83,7 @@ describe('Expressions - Object', () => {
     ['({ async set x(y){} })', Context.Empty],
     ['({ async get : 0 })', Context.Empty],
     ['({ *set x(y){} })', Context.Empty],
-    //    ['({ get *x(){} })', Context.Empty],
+    //['({ get *x(){} })', Context.Empty],
     ['({ *x: 0 })', Context.Empty],
     ['({ ... })', Context.Empty],
     ['({ , })', Context.Empty],
@@ -118,8 +118,6 @@ describe('Expressions - Object', () => {
     ["x = {'__proto__': 1, __proto__: 2}", Context.Empty],
     ['({ __proto__: b, "__proto__": c})', Context.Empty]
   ];
-
-  // [      '{ function a() {} ; function b() {} }', Context.Empty,   {}],
 
   fail('Expressions - Object', inValids);
 

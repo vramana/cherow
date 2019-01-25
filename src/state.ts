@@ -1054,7 +1054,6 @@ function parseForStatement(
   next(state, context);
 
   const forAwait = context & Context.AwaitContext ? optional(state, context, Token.AwaitKeyword) : false;
-
   scope = createSubScope(scope, ScopeType.ForStatement);
 
   expect(state, context, Token.LeftParen);
@@ -1640,7 +1639,7 @@ export function parseFunctionDeclaration(
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
   const params = parseFormalParameters(
     state,
-    context | Context.AllowNewTarget | Context.InArgList,
+    context | Context.AllowNewTarget,
     paramScoop,
     Origin.ArgList,
     Modifiers.None
@@ -1742,7 +1741,7 @@ export function parseHoistableFunctionDeclaration(
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
   const params = parseFormalParameters(
     state,
-    context | Context.AllowNewTarget | Context.InArgList,
+    context | Context.AllowNewTarget,
     paramScoop,
     Origin.ArgList,
     Modifiers.None
@@ -1807,6 +1806,7 @@ export function parseFormalParameters(
   expect(state, context, Token.LeftParen);
   const params: any[] = [];
   state.flags &= ~Flags.SimpleParameterList;
+  context = context | Context.InArgList;
   if (state.token === (Token.Comma as any)) report(state, Errors.Unexpected);
   let hasComplexArgs = false;
   while (state.token !== Token.RightParen) {
@@ -1938,6 +1938,9 @@ export function parseFunctionBody(
   }
 
   expect(state, origin & Origin.Declaration ? context | Context.AllowPossibleRegEx : context, Token.RightBrace);
+
+  // Either '=' or '=>' after blockstatement
+  if (state.token === Token.Assign || state.token === Token.Arrow) report(state, Errors.Unexpected);
 
   return {
     type: 'BlockStatement',
@@ -2132,6 +2135,10 @@ export function parseSequenceExpression(
 function parseYieldExpression(state: ParserState, context: Context): ESTree.YieldExpression | ESTree.Identifier {
   // YieldExpression ::
   //   'yield' ([no line terminator] '*'? AssignmentExpression)?
+  if (context & Context.InArgList) {
+    // https://tc39.github.io/ecma262/#sec-generator-function-definitions-static-semantics-early-errors
+    report(state, Errors.YieldInParameter);
+  }
   expect(state, context | Context.AllowPossibleRegEx, Token.YieldKeyword);
   let argument: ESTree.Expression | null = null;
   let delegate = false; // yield*
@@ -3171,7 +3178,7 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
 
   const params = parseFormalParameters(
     state,
-    context | Context.AllowNewTarget | Context.InArgList,
+    context | Context.AllowNewTarget,
     paramScoop,
     Origin.ArgList,
     Modifiers.None
@@ -3368,7 +3375,7 @@ function parseClassDeclaration(state: ParserState, context: Context, scope: Scop
 
   context |= Context.SuperProperty;
 
-  const body = parseClassBodyAndElementList(state, context, Origin.Declaration);
+  const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.Declaration);
 
   return {
     type: 'ClassDeclaration',
@@ -3404,7 +3411,7 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
 
   context |= Context.SuperProperty;
 
-  const body = parseClassBodyAndElementList(state, context, Origin.None);
+  const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.None);
 
   return {
     type: 'ClassExpression',
@@ -3876,7 +3883,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
 
   const params = parseFormalParameters(
     state,
-    context | Context.AllowNewTarget | Context.InMethod | Context.InArgList,
+    context | Context.AllowNewTarget | Context.InMethod,
     paramScoop,
     Origin.ArgList,
     objState

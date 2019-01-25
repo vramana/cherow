@@ -164,6 +164,29 @@ describe('Expressions - Class', () => {
     ['class foo {f(){ const x = y; function x(){} }}', Context.Empty],
     ['class foo {f(){ function x(){} const x = y; }}', Context.Empty],
     ['0, class { static method(...x = []) { } };', Context.Empty],
+    // 'Class' is always in strict mode so this should "always" fail
+    ['(class { get [yield]() { return "get yield"; }})', Context.Strict],
+    [
+      '(class { get [yield]() { return "get yield"; }}) (class { get [yield]() { return "get yield"; }})',
+      Context.Empty
+    ],
+    ['function foo() { (class { get [yield]() { return get yield"; }}) }', Context.Empty],
+    [
+      '(class { set [yield](param) { yieldSet = param; }}) (class { set [yield](param) { yieldSet = param; }})',
+      Context.Empty
+    ],
+    [
+      `var C = class { static async *gen() {
+      return {
+           ...(function() {
+              var yield;
+           }()),
+        }
+  }}`,
+      Context.Empty
+    ],
+    ['var foo = (class { set [yield](param) { yieldSet = param; }})', Context.Empty],
+    ['function foo() { (class { set [yield](param) { yieldSet = param; }}', Context.Empty],
     ['(class { adf&/()})', Context.Empty],
     ['(class { adf &/()})', Context.Empty],
     ['(class b {)', Context.Empty],
@@ -369,8 +392,6 @@ describe('Expressions - Class', () => {
     "set 'character\tescape'(param) { stringSet = param; }",
     'set 0(param) { stringSet = param; }',
     'set 1E+9(param) { stringSet = param; }',
-    "get [yield]() { return 'get yield'; }",
-    'set [yield](param) { yieldSet = param; }',
     '*method() {}',
     'static async *method(a,) {}',
     'static async *gen() { yield * []; }',

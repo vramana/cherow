@@ -106,7 +106,9 @@ export const enum Errors {
   BoundLexicalAsParam,
   ForInOfLoopInitializer,
   DeclarationMissingInitializer,
-  ForInOfLoopMultiBindings
+  ForInOfLoopMultiBindings,
+  AwaitInParameter,
+  YieldInParameter
 }
 
 /*@internal*/
@@ -222,7 +224,9 @@ export const errorMessages: {
   [Errors.DoubleDeclBinding]: 'Double declaration of the same binding name in a `catch` var',
   [Errors.DeclarationMissingInitializer]: 'Missing initializer in %0 declaration',
   [Errors.ForInOfLoopInitializer]: "'for-%0' loop variable declaration may not have an initializer",
-  [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.'
+  [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
+  [Errors.AwaitInParameter]: 'Await expression not allowed in formal parameter',
+  [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
