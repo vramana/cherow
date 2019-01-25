@@ -2218,7 +2218,7 @@ describe('Expressions - Object', () => {
                 {
                   type: 'MethodDefinition',
                   kind: 'get',
-                  static: true,
+                  static: false,
                   computed: false,
                   key: {
                     type: 'Identifier',

@@ -48,12 +48,9 @@ describe('Declarations - Class', () => {
   }
   const invalidDeclarations = [
     'class',
-    'class name',
     'class name extends',
-    'class extends',
+    'class extends'
     //'class name {',
-    'class name { m }',
-    'class name { m; n }'
     //'class name { get x() }',
     //'class name { set x() {) }',
     // 'class {}',

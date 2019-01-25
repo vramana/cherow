@@ -110,7 +110,7 @@ export const enum LabelledState {
   Disallow = 1 << 1
 }
 
-export const enum ObjectState {
+export const enum Modifiers {
   None = 0,
   Method = 1 << 0,
   Computed = 1 << 1,

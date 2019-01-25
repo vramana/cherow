@@ -112,7 +112,6 @@ describe('Miscellaneous - Failurea', () => {
     ['var eval; () => { try { } catch (super) { } }', Context.Empty],
     ['var eval; () => { ++super; }', Context.Empty],
     ['{function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
-    ['class x {foo}', Context.OptionsDisableWebCompat],
     ['for (const let;;);', Context.Empty],
     ['for (let [a, let] = x;;);', Context.Empty],
     ['for (let [let = y] = x;;);', Context.Empty],
