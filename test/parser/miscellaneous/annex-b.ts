@@ -272,7 +272,24 @@ switch (1) {
     '{ function f() {} } if (true) function f() {}',
     'for (let f; ; ) { if (true) function f() {  } break; }',
     'if (true) function f() {  } else function _f() {}',
-    'switch (0) { default: let f; if (false) ; else function f() {  } }'
+    'switch (0) { default: let f; if (false) ; else function f() {  } }',
+    'switch (0) { default: let f; if (false) ; else function f() {  } }',
+    `/*
+    */-->
+    counter += 1;`,
+    `/*
+    */-->the comment extends to these characters`,
+    `0/*
+    */-->`,
+    `0/* optional FirstCommentLine
+    */-->the comment extends to these characters`,
+    `0/*
+    optional
+    MultiLineCommentChars */-->the comment extends to these characters`,
+    `0/*
+    */ /* optional SingleLineDelimitedCommentSequence */-->the comment extends to these characters`,
+    `0/*
+    */ /**/ /* second optional SingleLineDelimitedCommentSequence */-->the comment extends to these characters`
   ]) {
     it(`${arg}`, () => {
       t.doesNotThrow(() => {
