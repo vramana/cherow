@@ -45,6 +45,7 @@ describe('Next - Import meta', () => {
     '({[import(y=x)]: x} = {})',
     'async () => { await import(x) }',
     'const importResult = import("test.js");',
+    'let Layout = () => import("../foo/bar/zoo.js")',
     'import("lib.js").then(doThis);',
     'function* a() { yield import("http"); }',
     '"use strict"; import("test.js");',

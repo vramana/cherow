@@ -24,15 +24,12 @@ describe('Expressions - Object', () => {
 
     ['({f(){ let x; var x; }})', Context.Empty],
     ['({f(){ var x; let x; }})', Context.Empty],
+    ['({f(){ function x(){} const x = y; }})', Context.Strict],
     ['({f(){ const x = y; var x; }})', Context.Empty],
     ['({f(){ var x; const x = y; }})', Context.Empty],
     ['({f(){ let x; function x(){} }})', Context.Empty],
-    ['({f(){ function x(){} let x; }})', Context.Empty],
     ['({f(){ const x = y; function x(){} }})', Context.Empty],
-    ['({f(){ function x(){} const x = y; }})', Context.Empty],
-    ['x = {f(){ function x(){} let x; }}', Context.Empty],
     ['x = {f(){ const x = y; function x(){} }}', Context.Empty],
-    ['x = {f(){ function x(){} const x = y; }}', Context.Empty],
     ['x = {f(){ const x = y; var x; }}', Context.Empty],
     ['x = {f(){ var x; const x = y; }}', Context.Empty],
     ['x = {f(){ var x; let x; }}', Context.Empty],
@@ -481,6 +478,230 @@ describe('Expressions - Object', () => {
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      '({f(){ function x(){} const x = y; }})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclaration',
+                          kind: 'const',
+                          declarations: [
+                            {
+                              type: 'VariableDeclarator',
+                              init: {
+                                type: 'Identifier',
+                                name: 'y'
+                              },
+                              id: {
+                                type: 'Identifier',
+                                name: 'x'
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({f(){ function x(){} const x = y; }})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclaration',
+                          kind: 'const',
+                          declarations: [
+                            {
+                              type: 'VariableDeclarator',
+                              init: {
+                                type: 'Identifier',
+                                name: 'y'
+                              },
+                              id: {
+                                type: 'Identifier',
+                                name: 'x'
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {f(){ function x(){} const x = y; }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'FunctionDeclaration',
+                            params: [],
+                            body: {
+                              type: 'BlockStatement',
+                              body: []
+                            },
+                            async: false,
+                            generator: false,
+                            id: {
+                              type: 'Identifier',
+                              name: 'x'
+                            }
+                          },
+                          {
+                            type: 'VariableDeclaration',
+                            kind: 'const',
+                            declarations: [
+                              {
+                                type: 'VariableDeclarator',
+                                init: {
+                                  type: 'Identifier',
+                                  name: 'y'
+                                },
+                                id: {
+                                  type: 'Identifier',
+                                  name: 'x'
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     [
       '({"a":b}=obj);',
       Context.Empty,
@@ -5597,6 +5818,59 @@ describe('Expressions - Object', () => {
             }
           }
         ]
+      }
+    ],
+    [
+      `var obj = {
+        async *method() {
+        }
+      };`,
+      Context.Empty,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'obj',
+                  type: 'Identifier'
+                },
+                init: {
+                  properties: [
+                    {
+                      computed: false,
+                      key: {
+                        name: 'method',
+                        type: 'Identifier'
+                      },
+                      kind: 'init',
+                      method: true,
+                      shorthand: false,
+                      type: 'Property',
+                      value: {
+                        async: true,
+                        body: {
+                          body: [],
+                          type: 'BlockStatement'
+                        },
+                        generator: true,
+                        id: null,
+                        params: [],
+                        type: 'FunctionExpression'
+                      }
+                    }
+                  ],
+                  type: 'ObjectExpression'
+                },
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [

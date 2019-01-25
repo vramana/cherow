@@ -18,6 +18,7 @@ describe('Declarations - Var', () => {
     ['{ let x; var x; }', Context.Empty],
     ['var {foo};', Context.Empty],
     ['var [foo]; ', Context.Empty],
+    ['var f; function f() {} ', Context.Module],
     ['var [foo=a];', Context.Empty],
     ['var [foo], bar;', Context.Empty],
     ['var foo, [bar];', Context.Empty],
@@ -290,6 +291,82 @@ describe('Declarations - Var', () => {
   }
 
   pass('Declarations - Var (pass)', [
+    [
+      'var f; function f() {}',
+      Context.Empty,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'f',
+                  type: 'Identifier'
+                },
+                init: null,
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          },
+          {
+            async: false,
+            body: {
+              body: [],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'var f; function f() {}',
+      Context.Module | Context.OptionsDisableWebCompat,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'f',
+                  type: 'Identifier'
+                },
+                init: null,
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          },
+          {
+            async: false,
+            body: {
+              body: [],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
+      }
+    ],
     [
       'for (var {x, y = z} of obj);',
       Context.Empty,
