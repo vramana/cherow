@@ -13,7 +13,7 @@ export const enum Context {
   OptionsRanges = 1 << 1,
   OptionsJSX = 1 << 2,
   OptionsRaw = 1 << 3,
-  OptionsDisableWebCompat = 1 << 4,
+  OptionsWebCompat = 1 << 4,
   OptionsLoc = 1 << 5,
   OptionsGlobalReturn = 1 << 6,
   OptionsExperimental = 1 << 7,
@@ -320,7 +320,7 @@ export function addVariable(
       const type = lex.type;
       if (lex['@' + key] !== undefined) {
         if (type === ScopeType.CatchClause) {
-          if (isVarDecl && (context & Context.OptionsDisableWebCompat) === 0) {
+          if (isVarDecl && context & Context.OptionsWebCompat) {
             state.inCatch = true;
           } else {
             report(state, Errors.InvalidCatchVarBinding, key);
@@ -386,7 +386,9 @@ export function addVariable(
  */
 
 export function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context, origin: Origin): boolean {
-  return context & (Context.OptionsDisableWebCompat | Context.Strict)
+  return context & Context.Strict
+    ? true
+    : (context & Context.OptionsWebCompat) === 0
     ? true
     : origin & Origin.AsyncFunction
     ? true
@@ -460,7 +462,7 @@ export function addFunctionName(
   isVarDecl: boolean
 ) {
   addVariable(state, context, scope, bindingType, origin, true, isVarDecl, state.tokenValue);
-  if ((context & Context.OptionsDisableWebCompat) === 0 && !scope.lex.funcs['@' + state.tokenValue]) {
+  if (context & Context.OptionsWebCompat && !scope.lex.funcs['@' + state.tokenValue]) {
     scope.lex.funcs['@' + state.tokenValue] = true;
   }
 }
@@ -766,7 +768,7 @@ export function addVariableAndDeduplicate(
   name: string
 ): void {
   addVariable(state, context, scope, type, origin, true, isVarDecl, name);
-  if ((context & Context.OptionsDisableWebCompat) === 0) {
+  if (context & Context.OptionsWebCompat) {
     scope.lex.funcs['#' + state.tokenValue] = false;
   }
 }

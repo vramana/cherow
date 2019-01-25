@@ -297,7 +297,7 @@ describe('Miscellaneous - Grammar', () => {
   ]) {
     it(`${arg}`, () => {
       t.doesNotThrow(() => {
-        parseSource(`${arg}`, undefined, Context.OptionsDisableWebCompat);
+        parseSource(`${arg}`, undefined, Context.Empty);
       });
     });
   }

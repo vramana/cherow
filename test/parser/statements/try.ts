@@ -5,31 +5,31 @@ import { parseSource } from '../../../src/cherow';
 
 describe('Statements - Try', () => {
   fail('Statements - Try (fail)', [
-    ['try {} catch (a, a) { }', Context.OptionsDisableWebCompat],
-    ['try {} catch ([a,a]) { }', Context.OptionsDisableWebCompat],
-    ['try {} catch ([a] = b) { }', Context.OptionsDisableWebCompat],
-    ['try {} catch ([a] = b) { }', Context.OptionsDisableWebCompat],
-    ['try {} catch ([a] = b) { }', Context.OptionsDisableWebCompat],
-    ['try {} catch ([a] = b) { }', Context.OptionsDisableWebCompat],
-    ['try {} catch (fkleuver) { const fkleuver = 1; } ', Context.OptionsDisableWebCompat],
-    ['try {} catch (foo) { var foo; }', Context.OptionsDisableWebCompat],
+    ['try {} catch (a, a) { }', Context.Empty],
+    ['try {} catch ([a,a]) { }', Context.Empty],
+    ['try {} catch ([a] = b) { }', Context.Empty],
+    ['try {} catch ([a] = b) { }', Context.Empty],
+    ['try {} catch ([a] = b) { }', Context.Empty],
+    ['try {} catch ([a] = b) { }', Context.Empty],
+    ['try {} catch (fkleuver) { const fkleuver = 1; } ', Context.Empty],
+    ['try {} catch (foo) { var foo; }', Context.Empty],
     ['try {} catch (foo) { let foo; }', Context.Empty],
-    ['try {} catch (foo) { try {} catch (_) { var foo; } }', Context.OptionsDisableWebCompat],
-    ['try {} catch ([foo]) { var foo; }', Context.OptionsDisableWebCompat],
-    ['try {} catch ({ foo }) { var foo; }', Context.OptionsDisableWebCompat],
+    ['try {} catch (foo) { try {} catch (_) { var foo; } }', Context.Empty],
+    ['try {} catch ([foo]) { var foo; }', Context.Empty],
+    ['try {} catch ({ foo }) { var foo; }', Context.Empty],
     ['try {} catch ({ a: foo, b: { c: [foo] } }) {}', Context.Empty],
-    ['try {} catch (foo) { function foo() {} }', Context.OptionsDisableWebCompat],
-    ['try {} catch (e) { for (var e;;) {} }', Context.OptionsDisableWebCompat],
-    ['try {} catch (e) { for (var e in y) {} }', Context.OptionsDisableWebCompat],
-    ['try {} catch (e) { for (var e of y) {} }', Context.OptionsDisableWebCompat],
-    ['try {} catch (e) { let e = x; }', Context.OptionsDisableWebCompat],
-    ['try {} catch (e) { const e = x; }', Context.OptionsDisableWebCompat],
+    ['try {} catch (foo) { function foo() {} }', Context.Empty],
+    ['try {} catch (e) { for (var e;;) {} }', Context.Empty],
+    ['try {} catch (e) { for (var e in y) {} }', Context.Empty],
+    ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
+    ['try {} catch (e) { let e = x; }', Context.Empty],
+    ['try {} catch (e) { const e = x; }', Context.Empty],
     ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
     ['try {} catch (e) { let e = x; }', Context.Empty],
     ['try {} catch (e) { const e = x; }', Context.Empty],
     ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
     ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
-    ['try {} catch(e) { var e; }', Context.OptionsDisableWebCompat],
+    ['try {} catch(e) { var e; }', Context.Empty],
     ['try {} catch (e) { let e = x; }', Context.Empty]
   ]);
 
@@ -873,7 +873,7 @@ describe('Statements - Try', () => {
     ],
     [
       'try {} catch (e) { var e = x; }',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1116,7 +1116,7 @@ describe('Statements - Try', () => {
     ],
     [
       'try {} catch (e) { for (var e in y) {} }',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1171,7 +1171,7 @@ describe('Statements - Try', () => {
     ],
     [
       'try {} catch (e) { for (let e of y) {} }',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1227,7 +1227,7 @@ describe('Statements - Try', () => {
     ],
     [
       'try {} catch (e) { for (const e of y) {} }',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',

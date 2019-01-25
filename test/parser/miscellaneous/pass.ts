@@ -1249,7 +1249,6 @@ h({ name: "bar", val: 42 })`,
     'for ({x=y} in a) b',
     'for ({x=y} of a) b',
     '(...my_var) => { }',
-    '{ if (x) function f() {} ; function f() {} }',
     '([a, my_var, b]) => my_var;',
     'function *g() {x={     ...yield,    };}',
     'function *g() {x={     ...yield yield    };}',
@@ -1393,19 +1392,6 @@ h({ name: "bar", val: 42 })`,
     'a(1, 2, ...[],);',
     'a(...[], 2, ...[],);',
 
-    'var f; function f() {}',
-    'function f() {} var f;',
-    'function* f() {} function* f() {}',
-    'var f; function* f() {}',
-    'function* f() {} var f;',
-    'function f() {} function* f() {}',
-    'if (true) function foo() {}',
-    'if (false) {} else function f() { };',
-    'label: function f() { }',
-    'label: if (true) function f() { }',
-    'label: if (true) {} else function f() { }',
-    'label: label2: function f() { }',
-    'function* f() {} function f() {}',
     "'use strict';(function(...[...[a, b, ...c]]){ return args;})",
     "function fn() { 'use strict';} fn(...([1, 2, 3]));",
     "function fn() { 'use strict';} fn(...'123', ...'456');",
@@ -2202,13 +2188,10 @@ let b = 2;
    */
   let arr2 = [...arr];`,
     `const { data: { courses: oldCourses = [] } = {} } = getState();`,
-    'if (x) function f() { return 23; } else function f() { return 42; }',
-    'if (x) function f() {}',
+
     `var foo = [23]
   -->[0];`,
     'x = -1 <!--x;',
-    'if (true) function f() {  } else function _f() {}',
-    'if (true) function f() { return "foo"; } else function _f() {}',
     'for (let f of [0]) {}',
     'for (let f; ; ) {}',
     'for (let f; ; ) {}',
@@ -2238,12 +2221,6 @@ switch (1) {
     `{
   function f() { return 'declaration'; }
 }`,
-    'if (true) function f() {} else function _f() {}',
-    'if (false) function _f() {} else function f() { }',
-    `for (let f; ; ) {
-  if (false) ; else function f() {  }
-    break;
-  }`,
     `try {
 throw {};
 } catch ({ f }) {
@@ -2252,8 +2229,6 @@ case 1:
 function f() {  }
 }
 }`,
-    'if (true) function f() {  } else function _f() {}',
-    'if (true) function f() {  } else function _f() {}',
     `switch (1) {
   default:
     function f() {  }

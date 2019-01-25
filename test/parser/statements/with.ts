@@ -3,13 +3,13 @@ import { pass, fail } from '../../test-utils';
 
 describe('Statements - With', () => {
   const inValids: Array<[string, Context]> = [
-    ['with(1) b: function a(){}', Context.OptionsDisableWebCompat],
-    // ['with ({}) async function f() {}', Context.OptionDisablesWebCompat],
-    ['with ({}) function f() {}', Context.OptionsDisableWebCompat],
-    ['with ({}) let x;', Context.OptionsDisableWebCompat],
-    ['while 1 break;', Context.OptionsDisableWebCompat],
-    [`while '' break;`, Context.OptionsDisableWebCompat],
-    ['while (false) label1: label2: function f() {}', Context.OptionsDisableWebCompat],
+    ['with(1) b: function a(){}', Context.Empty],
+    ['with ({}) async function f() {}', Context.Empty],
+    ['with ({}) function f() {}', Context.Empty],
+    ['with ({}) let x;', Context.Empty],
+    ['while 1 break;', Context.Empty],
+    [`while '' break;`, Context.Empty],
+    ['while (false) label1: label2: function f() {}', Context.Empty],
     [
       `while({1}){
       break ;

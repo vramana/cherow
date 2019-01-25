@@ -722,7 +722,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
  */
 
 function parseConsequentOrAlternate(state: ParserState, context: Context, scope: ScopeState): any {
-  return context & (Context.OptionsDisableWebCompat | Context.Strict) || state.token !== Token.FunctionKeyword
+  return context & Context.Strict || (context & Context.OptionsWebCompat) === 0 || state.token !== Token.FunctionKeyword
     ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow)
     : parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
 }
@@ -1204,8 +1204,10 @@ export function parseExpressionOrLabelledStatement(
     addLabel(state, tokenValue);
     let body: any = null;
     if (
-      (context & (Context.OptionsDisableWebCompat | Context.Strict)) < 1 &&
-      ((state.token as Token) === Token.FunctionKeyword && label === LabelledState.AllowAsLabelled)
+      (state.token as Token) === Token.FunctionKeyword &&
+      (context & Context.Strict) === 0 &&
+      context & Context.OptionsWebCompat &&
+      label === LabelledState.AllowAsLabelled
     ) {
       body = parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
     } else body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label);
@@ -1605,7 +1607,7 @@ export function parseFunctionDeclaration(
       state,
       context,
       scope,
-      context & Context.TopLevel && ((context & Context.Module) < 1 || context & Context.OptionsDisableWebCompat)
+      context & Context.TopLevel && ((context & Context.Module) < 1 || (context & Context.OptionsWebCompat) === 0)
         ? Type.Variable
         : Type.Let,
       origin,
@@ -2072,7 +2074,7 @@ function parseVariableDeclaration(
     init = secludeGrammar(state, context, 0, parseAssignmentExpression);
     if (isInOrOf(state) && (origin & Origin.ForStatement || isBinding)) {
       // https://github.com/tc39/test262/blob/master/test/annexB/language/statements/for-in/strict-initializer.js
-      if ((type & Type.Variable) < 1 || context & (Context.OptionsDisableWebCompat | Context.Strict) || isBinding) {
+      if ((type & Type.Variable) < 1 || context & (Context.OptionsWebCompat | Context.Strict) || isBinding) {
         report(state, Errors.Unexpected);
       }
     }
@@ -3438,6 +3440,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
       case Token.AsyncKeyword:
         if (state.token !== Token.LeftParen && (state.flags & Flags.NewLine) === 0) {
           if (optional(state, context, Token.Multiply)) modifier |= Modifiers.Generator;
+          tokenValue = state.tokenValue;
           if (state.token & Token.IsIdentifier) {
             key = parseIdentifier(state, context);
             if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
@@ -3525,7 +3528,8 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
 
   if (tokenValue === 'constructor') {
     if ((modifier & Modifiers.Static) === 0) {
-      if (modifier & (Modifiers.GetSet | Modifiers.Generator)) report(state, Errors.InvalidConstructor, 'accessor');
+      if (modifier & (Modifiers.GetSet | Modifiers.Async | Modifiers.Generator))
+        report(state, Errors.InvalidConstructor, 'accessor');
       if ((context & Context.SuperCall) === 0 && (modifier & Modifiers.Computed) === 0) {
         if (state.flags & Flags.HasConstructor) report(state, Errors.DuplicateConstructor);
         else state.flags |= Flags.HasConstructor;

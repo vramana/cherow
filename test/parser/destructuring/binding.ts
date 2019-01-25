@@ -361,7 +361,7 @@ pass('Destructuring - Binding (pass)', [
 
   [
     '{ if (x) function f() {} ; function f() {} }',
-    Context.Empty,
+    Context.OptionsWebCompat,
     {
       type: 'Program',
       sourceType: 'script',

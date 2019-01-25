@@ -7,292 +7,292 @@ describe('Declarations - Let', () => {
   fail('Declarations - Let (fail)', [
     // Bindings
 
-    ['const a = b, a = c', Context.OptionsDisableWebCompat],
-    ['const a = b; const a = c', Context.OptionsDisableWebCompat],
-    ['let a = b; const a = c', Context.OptionsDisableWebCompat],
-    ['const a = b; let a = c', Context.OptionsDisableWebCompat],
-    ['var x = a; let x = b;', Context.OptionsDisableWebCompat],
-    ['var x = a; const x = b;', Context.OptionsDisableWebCompat],
-    ['let x = a; let x = b;', Context.OptionsDisableWebCompat],
-    ['let x = a; const x = b;', Context.OptionsDisableWebCompat],
-    ['var x; let x;', Context.OptionsDisableWebCompat],
-    ['let x; var x;', Context.OptionsDisableWebCompat],
-    ['let x; { var x; }', Context.OptionsDisableWebCompat],
-    ['let x; {var x}', Context.OptionsDisableWebCompat],
-    ['{ let f; let f; }', Context.OptionsDisableWebCompat],
-    ['{ let f; function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ let f; const f = b; }', Context.OptionsDisableWebCompat],
+    ['const a = b, a = c', Context.Empty],
+    ['const a = b; const a = c', Context.Empty],
+    ['let a = b; const a = c', Context.Empty],
+    ['const a = b; let a = c', Context.Empty],
+    ['var x = a; let x = b;', Context.Empty],
+    ['var x = a; const x = b;', Context.Empty],
+    ['let x = a; let x = b;', Context.Empty],
+    ['let x = a; const x = b;', Context.Empty],
+    ['var x; let x;', Context.Empty],
+    ['let x; var x;', Context.Empty],
+    ['let x; { var x; }', Context.Empty],
+    ['let x; {var x}', Context.Empty],
+    ['{ let f; let f; }', Context.Empty],
+    ['{ let f; function f() {} }', Context.Empty],
+    ['{ let f; const f = b; }', Context.Empty],
 
     // Bindings - Blockstatement
 
-    ['let x; { var x; var y; }', Context.OptionsDisableWebCompat],
-    ['let x; { var x; }', Context.OptionsDisableWebCompat],
-    ['let let = 1', Context.OptionsDisableWebCompat],
-    ['let [foo];', Context.OptionsDisableWebCompat],
-    ['let [foo = x];', Context.OptionsDisableWebCompat],
-    ['let [foo], bar;', Context.OptionsDisableWebCompat],
-    ['let foo, [bar];', Context.OptionsDisableWebCompat],
-    ['let [foo:bar] = obj;', Context.OptionsDisableWebCompat],
-    ['let [({x: 1})] = [];', Context.OptionsDisableWebCompat],
-    ['let [(x)] = [];"', Context.OptionsDisableWebCompat],
-    ['let [({x: 1}) = y] = [];', Context.OptionsDisableWebCompat],
-    ['let [(x) = y] = [];', Context.OptionsDisableWebCompat],
-    ['var [({x: 1})] = [];', Context.OptionsDisableWebCompat],
-    ['var [(x)] = [];', Context.OptionsDisableWebCompat],
-    ['var [({x: 1}) = y] = [];', Context.OptionsDisableWebCompat],
-    ['var [(x) = y] = [];', Context.OptionsDisableWebCompat],
-    ['let {a: a} of []', Context.OptionsDisableWebCompat],
-    ['let {[Symbol.iterator]: a} of []', Context.OptionsDisableWebCompat],
-    ['(let {"a": a = 1} of [])', Context.OptionsDisableWebCompat],
-    ['let {0: a = 1} of []', Context.OptionsDisableWebCompat],
-    ['const [a] of []', Context.OptionsDisableWebCompat],
-    ['const {0: a} of []', Context.OptionsDisableWebCompat],
-    ['const {a: a = 1} of []', Context.OptionsDisableWebCompat],
-    ['a: let a', Context.OptionsDisableWebCompat],
-    ['const const;', Context.OptionsDisableWebCompat],
-    ['for (const let = 1;;;) {}', Context.OptionsDisableWebCompat],
-    ['for (let let;;;) {}', Context.OptionsDisableWebCompat],
-    ['for (let [let];;;) {}', Context.OptionsDisableWebCompat],
-    ['for (let x, y, z, let = 1;;;) {}', Context.OptionsDisableWebCompat],
-    ['for (let [let];;;) {}', Context.OptionsDisableWebCompat],
-    ['for (let x = 0 in y){}', Context.OptionsDisableWebCompat],
-    ['"use strict"; const const = 1;', Context.OptionsDisableWebCompat],
-    ['let x,;', Context.OptionsDisableWebCompat],
-    ['"use strict"; const let = 1;', Context.OptionsDisableWebCompat],
-    ['const x = 0,', Context.OptionsDisableWebCompat],
+    ['let x; { var x; var y; }', Context.Empty],
+    ['let x; { var x; }', Context.Empty],
+    ['let let = 1', Context.Empty],
+    ['let [foo];', Context.Empty],
+    ['let [foo = x];', Context.Empty],
+    ['let [foo], bar;', Context.Empty],
+    ['let foo, [bar];', Context.Empty],
+    ['let [foo:bar] = obj;', Context.Empty],
+    ['let [({x: 1})] = [];', Context.Empty],
+    ['let [(x)] = [];"', Context.Empty],
+    ['let [({x: 1}) = y] = [];', Context.Empty],
+    ['let [(x) = y] = [];', Context.Empty],
+    ['var [({x: 1})] = [];', Context.Empty],
+    ['var [(x)] = [];', Context.Empty],
+    ['var [({x: 1}) = y] = [];', Context.Empty],
+    ['var [(x) = y] = [];', Context.Empty],
+    ['let {a: a} of []', Context.Empty],
+    ['let {[Symbol.iterator]: a} of []', Context.Empty],
+    ['(let {"a": a = 1} of [])', Context.Empty],
+    ['let {0: a = 1} of []', Context.Empty],
+    ['const [a] of []', Context.Empty],
+    ['const {0: a} of []', Context.Empty],
+    ['const {a: a = 1} of []', Context.Empty],
+    ['a: let a', Context.Empty],
+    ['const const;', Context.Empty],
+    ['for (const let = 1;;;) {}', Context.Empty],
+    ['for (let let;;;) {}', Context.Empty],
+    ['for (let [let];;;) {}', Context.Empty],
+    ['for (let x, y, z, let = 1;;;) {}', Context.Empty],
+    ['for (let [let];;;) {}', Context.Empty],
+    ['for (let x = 0 in y){}', Context.Empty],
+    ['"use strict"; const const = 1;', Context.Empty],
+    ['let x,;', Context.Empty],
+    ['"use strict"; const let = 1;', Context.Empty],
+    ['const x = 0,', Context.Empty],
     [
       `const x = 0,
     y = 1,`,
-      Context.OptionsDisableWebCompat
+      Context.Empty
     ],
-    ['let [... ...foo] = obj;', Context.OptionsDisableWebCompat],
-    ['let [...] = obj;', Context.OptionsDisableWebCompat],
-    ['let [.x] = obj; ', Context.OptionsDisableWebCompat],
-    ['let [..x] = obj;', Context.OptionsDisableWebCompat],
-    ['let [foo];', Context.OptionsDisableWebCompat],
-    ['let [foo=a];', Context.OptionsDisableWebCompat],
-    ['let [foo], bar;', Context.OptionsDisableWebCompat],
-    ['let foo, [bar]; ', Context.OptionsDisableWebCompat],
-    ['let {,} = x;', Context.OptionsDisableWebCompat],
-    ['let {,,} = x; ', Context.OptionsDisableWebCompat],
-    ['let {,,foo} = x;', Context.OptionsDisableWebCompat],
-    ['let {foo,,bar} = x;', Context.OptionsDisableWebCompat],
-    ['let\nfoo()', Context.OptionsDisableWebCompat],
-    ['let [...foo, bar] = obj;', Context.OptionsDisableWebCompat],
-    ['let [...foo,] = obj;', Context.OptionsDisableWebCompat],
-    ['let [...foo,,] = obj;', Context.OptionsDisableWebCompat],
-    ['let [...[foo, bar],] = obj;', Context.OptionsDisableWebCompat],
-    ['let [...[foo, bar],,] = obj;', Context.OptionsDisableWebCompat],
-    ['let [...bar = foo] = obj;', Context.OptionsDisableWebCompat],
-    ['let [... ...foo] = obj;', Context.OptionsDisableWebCompat],
-    ['let [...] = obj;', Context.OptionsDisableWebCompat],
-    ['let [.x] = obj;', Context.OptionsDisableWebCompat],
-    ['let [..x] = obj;', Context.OptionsDisableWebCompat],
-    ['let {,} = obj;', Context.OptionsDisableWebCompat],
-    ['let {,,} = obj;', Context.OptionsDisableWebCompat],
-    ['let {x,,} = obj;', Context.OptionsDisableWebCompat],
-    ['let {,x} = obj;', Context.OptionsDisableWebCompat],
-    ['let {,,x} = obj;', Context.OptionsDisableWebCompat],
-    ['let {x,, y} = obj;', Context.OptionsDisableWebCompat],
-    ['let {x};', Context.OptionsDisableWebCompat],
-    ['let {x}, {y} = z;', Context.OptionsDisableWebCompat],
-    ['let x, {y};', Context.OptionsDisableWebCompat],
-    ['let {x}, y;', Context.OptionsDisableWebCompat],
-    ['let x = y, {z};', Context.OptionsDisableWebCompat],
-    ['let {x:y};', Context.OptionsDisableWebCompat],
-    ['let {x=y};', Context.OptionsDisableWebCompat],
-    ['let {x:y=z};', Context.OptionsDisableWebCompat],
-    ['let {x:y=z} = obj, {a:b=c};', Context.OptionsDisableWebCompat],
-    ['let {x:y=z}, {a:b=c} = obj;', Context.OptionsDisableWebCompat],
-    ['let {a:=c} = z;', Context.OptionsDisableWebCompat],
-    ['let {[x]} = z;', Context.OptionsDisableWebCompat],
-    ['let {[x]};', Context.OptionsDisableWebCompat],
-    ['let {[x]: y};', Context.OptionsDisableWebCompat],
-    ['let {[x] = y} = z;', Context.OptionsDisableWebCompat],
-    ['let {[x]: y = z};', Context.OptionsDisableWebCompat],
-    ['for (let\nfoo();;);', Context.OptionsDisableWebCompat],
-    ['for (let foo);', Context.OptionsDisableWebCompat],
-    ['for (let foo, bar);', Context.OptionsDisableWebCompat],
-    ['for (let foo = bar);', Context.OptionsDisableWebCompat],
-    ['for (let foo = bar, zoo = boo);', Context.OptionsDisableWebCompat],
-    ['for (let\nfoo);', Context.OptionsDisableWebCompat],
-    ['for (let\nfoo());', Context.OptionsDisableWebCompat],
-    ['for (let foo, bar in x);', Context.OptionsDisableWebCompat],
-    ['for (let foo = bar in x);', Context.OptionsDisableWebCompat],
-    ['for (let foo = bar, zoo = boo in x);', Context.OptionsDisableWebCompat],
-    ['for (let\nfoo() in x);', Context.OptionsDisableWebCompat],
-    ['for (let foo, bar of x);', Context.OptionsDisableWebCompat],
-    ['for (let foo = bar of x);', Context.OptionsDisableWebCompat],
-    ['for (let\nfoo() of x);', Context.OptionsDisableWebCompat],
-    ['for (let [foo];;);', Context.OptionsDisableWebCompat],
-    ['for (let [foo = x];;);', Context.OptionsDisableWebCompat],
-    ['for (let [foo], bar;;);', Context.OptionsDisableWebCompat],
-    ['for (let foo, [bar];;);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo, bar] = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo,] = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo,,] = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let [...[foo, bar],] = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let [...[foo, bar],,] = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let [...bar = foo] = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let [... ...foo] = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let [...] = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let [.x] = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let [..x] = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let {,} = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let {,,} = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let {x,,} = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let {x,, y} = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let {x};;);', Context.OptionsDisableWebCompat],
-    ['for (let {x}, {y} = z;;);', Context.OptionsDisableWebCompat],
-    ['for (let x, {y};;);', Context.OptionsDisableWebCompat],
-    ['for (let {x}, y;;);', Context.OptionsDisableWebCompat],
-    ['for (let x = y, {z};;);', Context.OptionsDisableWebCompat],
-    ['for (let {x=y};;);', Context.OptionsDisableWebCompat],
-    ['for (let {x:y=z};;);', Context.OptionsDisableWebCompat],
-    ['for (let {x:y=z} = obj, {a:b=c};;);', Context.OptionsDisableWebCompat],
-    ['for (let {x:y=z}, {a:b=c} = obj;;);', Context.OptionsDisableWebCompat],
-    ['for (let {a:=c} = z;;);', Context.OptionsDisableWebCompat],
-    ['for (let {[x]} = z;;);', Context.OptionsDisableWebCompat],
-    ['for (let {[x]};;);', Context.OptionsDisableWebCompat],
-    ['for (let {[x] = y} = z;;);', Context.OptionsDisableWebCompat],
-    ['for (let {[x]: y = z};;);', Context.OptionsDisableWebCompat],
-    ['for (let [] = x);', Context.OptionsDisableWebCompat],
-    ['for (let [,] = x);', Context.OptionsDisableWebCompat],
-    ['for (let [,,] = x);', Context.OptionsDisableWebCompat],
-    ['for (let [foo] = arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo,] = arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo,,] = arr);', Context.OptionsDisableWebCompat],
-    ['for (let [,foo] = arr);', Context.OptionsDisableWebCompat],
-    ['for (let [,,foo] = arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo,,bar] = arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo] = arr, [bar] = arr2);', Context.OptionsDisableWebCompat],
-    ['for (let [foo] = arr, bar);', Context.OptionsDisableWebCompat],
-    ['for (let foo, [bar] = arr2);', Context.OptionsDisableWebCompat],
-    ['for (let foo = arr, [bar] = arr2);', Context.OptionsDisableWebCompat],
-    ['for (let [foo, bar=b] = arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo=a, bar=b] = arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo]);', Context.OptionsDisableWebCompat],
-    ['for (let [foo], bar);', Context.OptionsDisableWebCompat],
-    ['for (let foo, [bar]);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo] = obj);', Context.OptionsDisableWebCompat],
-    ['for (let [foo, ...bar] = obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo, bar] = obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo,] = obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo,,] = obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...[foo, bar],] = obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...[foo, bar],,] = obj);', Context.OptionsDisableWebCompat],
-    ['let [...bar = foo] = obj;', Context.OptionsDisableWebCompat],
-    ['let [... ...foo] = obj;', Context.OptionsDisableWebCompat],
-    ['let [...] = obj;', Context.OptionsDisableWebCompat],
-    ['let [.x] = obj;', Context.OptionsDisableWebCompat],
-    ['let [..x] = obj;', Context.OptionsDisableWebCompat],
-    ['for (let {} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,x} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,,x} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x, y} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x,, y} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x} = a, {y} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x} = a, y = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x} = a, obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x = y} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x = y, z} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x, y = z} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x = y, z = a} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x : y} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x : y, z} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x : y, z : a} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x : y = z} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x : y, z, a : b = c} = obj)', Context.OptionsDisableWebCompat],
-    ['for (let {x}, {y} = z);', Context.OptionsDisableWebCompat],
-    ['for (let x, {y});', Context.OptionsDisableWebCompat],
-    ['for (let {x});', Context.OptionsDisableWebCompat],
-    ['for (let {x}, y);', Context.OptionsDisableWebCompat],
-    ['for (let x = y, {z});', Context.OptionsDisableWebCompat],
-    ['for (let {x}, y);', Context.OptionsDisableWebCompat],
-    ['for (let {x:y});', Context.OptionsDisableWebCompat],
-    ['for (let {x:y=z} = obj, {a:b=c});', Context.OptionsDisableWebCompat],
-    ['for (let {x:y=z});', Context.OptionsDisableWebCompat],
-    ['for (let {x:y=z}, {a:b=c} = obj);', Context.OptionsDisableWebCompat],
-    ['for (let {a:=c} = z);', Context.OptionsDisableWebCompat],
-    ['for (let {[x]: y} = z);', Context.OptionsDisableWebCompat],
-    ['for (let {[x]: y});', Context.OptionsDisableWebCompat],
-    ['for (let {[x] = y} = z);', Context.OptionsDisableWebCompat],
-    ['for (let {[x]: y = z});', Context.OptionsDisableWebCompat],
-    ['for (let {[x]: y = z} = a);', Context.OptionsDisableWebCompat],
-    ['for (let {a, [x]: y} = a);', Context.OptionsDisableWebCompat],
-    ['for (let [foo] = arr, [bar] in arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo], bar in arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo] = arr, bar in arr);', Context.OptionsDisableWebCompat],
-    ['for (let foo, [bar] in arr);', Context.OptionsDisableWebCompat],
-    ['for (let foo = arr, [bar] in arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo = x]);', Context.OptionsDisableWebCompat],
-    ['for (let foo, [bar]);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo,] in obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo,,] in obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...[foo, bar],,] in obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...[foo, bar],] in obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...] in obj);', Context.OptionsDisableWebCompat],
-    ['for (let [... ...foo] in obj);', Context.OptionsDisableWebCompat],
-    ['for (let [.x] in obj);', Context.OptionsDisableWebCompat],
-    ['for (let [..x] in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,,} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,x} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,,x} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x,, y} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x} = a, {y} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x} = a, y in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x} = a, obj in obj2);', Context.OptionsDisableWebCompat],
-    ['for (let x = a, {y} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let x, {y} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x}, {y} in z);', Context.OptionsDisableWebCompat],
-    ['for (let x, {y});', Context.OptionsDisableWebCompat],
-    ['for (let {x}, y);', Context.OptionsDisableWebCompat],
-    ['for (let x = y, {z});', Context.OptionsDisableWebCompat],
-    ['for (let {x}, y);', Context.OptionsDisableWebCompat],
-    ['for (let {x:y});', Context.OptionsDisableWebCompat],
-    ['for (let {x=y});', Context.OptionsDisableWebCompat],
-    ['for (let {x:y=z});', Context.OptionsDisableWebCompat],
-    ['for (let {x:y=z} = obj, {a:b=c});', Context.OptionsDisableWebCompat],
-    ['for (let {x:y=z}, {a:b=c} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {a:=c} in z);', Context.OptionsDisableWebCompat],
-    ['for (let {[x]} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let {[x] = y} in obj);', Context.OptionsDisableWebCompat],
-    ['for (let [foo], bar of arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo] = arr, bar of arr);', Context.OptionsDisableWebCompat],
-    ['for (let foo, [bar] of arr);', Context.OptionsDisableWebCompat],
-    ['for (let [foo = x]);', Context.OptionsDisableWebCompat],
-    ['for (let [foo], bar);', Context.OptionsDisableWebCompat],
-    ['for (let foo, [bar]);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo, bar] of obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo,] of obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...foo,,] of obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...[foo, bar],] of obj);', Context.OptionsDisableWebCompat],
-    ['for (let [...[foo, bar],,] of obj);', Context.OptionsDisableWebCompat],
-    ['for (let [.x] of obj);', Context.OptionsDisableWebCompat],
-    ['for (let [... ...foo] of obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,} of obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,,} of obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,x} of obj);', Context.OptionsDisableWebCompat],
-    ['for (let {,,x} of obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x,, y} of obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x} = a, {y} of obj);', Context.OptionsDisableWebCompat],
-    ['for (let {x} = a, obj of obj2);', Context.OptionsDisableWebCompat],
-    ['for (let {x});', Context.OptionsDisableWebCompat],
-    ['for (let {x}, {y} of z);', Context.OptionsDisableWebCompat],
-    ['for (let x, {y});', Context.OptionsDisableWebCompat],
-    ['for (let {x=y});', Context.OptionsDisableWebCompat],
-    ['for (let {x:y=z});', Context.OptionsDisableWebCompat],
-    ['for (let {[x] = y} of obj);', Context.OptionsDisableWebCompat],
-    ['class x { foo() { let[foo]; }}', Context.OptionsDisableWebCompat],
-    ['_ => { let[foo]; }', Context.OptionsDisableWebCompat],
-    ['let\n{foo};', Context.OptionsDisableWebCompat],
-    ['function f(){ let\n{foo}; }', Context.OptionsDisableWebCompat],
-    ['_ => let {foo};', Context.OptionsDisableWebCompat],
-    ['_ => { let\n{foo}; }', Context.OptionsDisableWebCompat],
-    ['class x { foo() { let\n{foo}; }}', Context.OptionsDisableWebCompat],
-    ['if (true) let x = 1;', Context.OptionsDisableWebCompat]
+    ['let [... ...foo] = obj;', Context.Empty],
+    ['let [...] = obj;', Context.Empty],
+    ['let [.x] = obj; ', Context.Empty],
+    ['let [..x] = obj;', Context.Empty],
+    ['let [foo];', Context.Empty],
+    ['let [foo=a];', Context.Empty],
+    ['let [foo], bar;', Context.Empty],
+    ['let foo, [bar]; ', Context.Empty],
+    ['let {,} = x;', Context.Empty],
+    ['let {,,} = x; ', Context.Empty],
+    ['let {,,foo} = x;', Context.Empty],
+    ['let {foo,,bar} = x;', Context.Empty],
+    ['let\nfoo()', Context.Empty],
+    ['let [...foo, bar] = obj;', Context.Empty],
+    ['let [...foo,] = obj;', Context.Empty],
+    ['let [...foo,,] = obj;', Context.Empty],
+    ['let [...[foo, bar],] = obj;', Context.Empty],
+    ['let [...[foo, bar],,] = obj;', Context.Empty],
+    ['let [...bar = foo] = obj;', Context.Empty],
+    ['let [... ...foo] = obj;', Context.Empty],
+    ['let [...] = obj;', Context.Empty],
+    ['let [.x] = obj;', Context.Empty],
+    ['let [..x] = obj;', Context.Empty],
+    ['let {,} = obj;', Context.Empty],
+    ['let {,,} = obj;', Context.Empty],
+    ['let {x,,} = obj;', Context.Empty],
+    ['let {,x} = obj;', Context.Empty],
+    ['let {,,x} = obj;', Context.Empty],
+    ['let {x,, y} = obj;', Context.Empty],
+    ['let {x};', Context.Empty],
+    ['let {x}, {y} = z;', Context.Empty],
+    ['let x, {y};', Context.Empty],
+    ['let {x}, y;', Context.Empty],
+    ['let x = y, {z};', Context.Empty],
+    ['let {x:y};', Context.Empty],
+    ['let {x=y};', Context.Empty],
+    ['let {x:y=z};', Context.Empty],
+    ['let {x:y=z} = obj, {a:b=c};', Context.Empty],
+    ['let {x:y=z}, {a:b=c} = obj;', Context.Empty],
+    ['let {a:=c} = z;', Context.Empty],
+    ['let {[x]} = z;', Context.Empty],
+    ['let {[x]};', Context.Empty],
+    ['let {[x]: y};', Context.Empty],
+    ['let {[x] = y} = z;', Context.Empty],
+    ['let {[x]: y = z};', Context.Empty],
+    ['for (let\nfoo();;);', Context.Empty],
+    ['for (let foo);', Context.Empty],
+    ['for (let foo, bar);', Context.Empty],
+    ['for (let foo = bar);', Context.Empty],
+    ['for (let foo = bar, zoo = boo);', Context.Empty],
+    ['for (let\nfoo);', Context.Empty],
+    ['for (let\nfoo());', Context.Empty],
+    ['for (let foo, bar in x);', Context.Empty],
+    ['for (let foo = bar in x);', Context.Empty],
+    ['for (let foo = bar, zoo = boo in x);', Context.Empty],
+    ['for (let\nfoo() in x);', Context.Empty],
+    ['for (let foo, bar of x);', Context.Empty],
+    ['for (let foo = bar of x);', Context.Empty],
+    ['for (let\nfoo() of x);', Context.Empty],
+    ['for (let [foo];;);', Context.Empty],
+    ['for (let [foo = x];;);', Context.Empty],
+    ['for (let [foo], bar;;);', Context.Empty],
+    ['for (let foo, [bar];;);', Context.Empty],
+    ['for (let [...foo, bar] = obj;;);', Context.Empty],
+    ['for (let [...foo,] = obj;;);', Context.Empty],
+    ['for (let [...foo,,] = obj;;);', Context.Empty],
+    ['for (let [...[foo, bar],] = obj;;);', Context.Empty],
+    ['for (let [...[foo, bar],,] = obj;;);', Context.Empty],
+    ['for (let [...bar = foo] = obj;;);', Context.Empty],
+    ['for (let [... ...foo] = obj;;);', Context.Empty],
+    ['for (let [...] = obj;;);', Context.Empty],
+    ['for (let [.x] = obj;;);', Context.Empty],
+    ['for (let [..x] = obj;;);', Context.Empty],
+    ['for (let {,} = obj;;);', Context.Empty],
+    ['for (let {,,} = obj;;);', Context.Empty],
+    ['for (let {x,,} = obj;;);', Context.Empty],
+    ['for (let {x,, y} = obj;;);', Context.Empty],
+    ['for (let {x};;);', Context.Empty],
+    ['for (let {x}, {y} = z;;);', Context.Empty],
+    ['for (let x, {y};;);', Context.Empty],
+    ['for (let {x}, y;;);', Context.Empty],
+    ['for (let x = y, {z};;);', Context.Empty],
+    ['for (let {x=y};;);', Context.Empty],
+    ['for (let {x:y=z};;);', Context.Empty],
+    ['for (let {x:y=z} = obj, {a:b=c};;);', Context.Empty],
+    ['for (let {x:y=z}, {a:b=c} = obj;;);', Context.Empty],
+    ['for (let {a:=c} = z;;);', Context.Empty],
+    ['for (let {[x]} = z;;);', Context.Empty],
+    ['for (let {[x]};;);', Context.Empty],
+    ['for (let {[x] = y} = z;;);', Context.Empty],
+    ['for (let {[x]: y = z};;);', Context.Empty],
+    ['for (let [] = x);', Context.Empty],
+    ['for (let [,] = x);', Context.Empty],
+    ['for (let [,,] = x);', Context.Empty],
+    ['for (let [foo] = arr);', Context.Empty],
+    ['for (let [foo,] = arr);', Context.Empty],
+    ['for (let [foo,,] = arr);', Context.Empty],
+    ['for (let [,foo] = arr);', Context.Empty],
+    ['for (let [,,foo] = arr);', Context.Empty],
+    ['for (let [foo,,bar] = arr);', Context.Empty],
+    ['for (let [foo] = arr, [bar] = arr2);', Context.Empty],
+    ['for (let [foo] = arr, bar);', Context.Empty],
+    ['for (let foo, [bar] = arr2);', Context.Empty],
+    ['for (let foo = arr, [bar] = arr2);', Context.Empty],
+    ['for (let [foo, bar=b] = arr);', Context.Empty],
+    ['for (let [foo=a, bar=b] = arr);', Context.Empty],
+    ['for (let [foo]);', Context.Empty],
+    ['for (let [foo], bar);', Context.Empty],
+    ['for (let foo, [bar]);', Context.Empty],
+    ['for (let [...foo] = obj);', Context.Empty],
+    ['for (let [foo, ...bar] = obj);', Context.Empty],
+    ['for (let [...foo, bar] = obj);', Context.Empty],
+    ['for (let [...foo,] = obj);', Context.Empty],
+    ['for (let [...foo,,] = obj);', Context.Empty],
+    ['for (let [...[foo, bar],] = obj);', Context.Empty],
+    ['for (let [...[foo, bar],,] = obj);', Context.Empty],
+    ['let [...bar = foo] = obj;', Context.Empty],
+    ['let [... ...foo] = obj;', Context.Empty],
+    ['let [...] = obj;', Context.Empty],
+    ['let [.x] = obj;', Context.Empty],
+    ['let [..x] = obj;', Context.Empty],
+    ['for (let {} = obj);', Context.Empty],
+    ['for (let {,} = obj);', Context.Empty],
+    ['for (let {,x} = obj);', Context.Empty],
+    ['for (let {,,x} = obj);', Context.Empty],
+    ['for (let {x, y} = obj);', Context.Empty],
+    ['for (let {x,, y} = obj);', Context.Empty],
+    ['for (let {x} = a, {y} = obj);', Context.Empty],
+    ['for (let {x} = a, y = obj);', Context.Empty],
+    ['for (let {x} = a, obj);', Context.Empty],
+    ['for (let {x = y} = obj);', Context.Empty],
+    ['for (let {x = y, z} = obj);', Context.Empty],
+    ['for (let {x, y = z} = obj);', Context.Empty],
+    ['for (let {x = y, z = a} = obj);', Context.Empty],
+    ['for (let {x : y} = obj);', Context.Empty],
+    ['for (let {x : y, z} = obj);', Context.Empty],
+    ['for (let {x : y, z : a} = obj);', Context.Empty],
+    ['for (let {x : y = z} = obj);', Context.Empty],
+    ['for (let {x : y, z, a : b = c} = obj)', Context.Empty],
+    ['for (let {x}, {y} = z);', Context.Empty],
+    ['for (let x, {y});', Context.Empty],
+    ['for (let {x});', Context.Empty],
+    ['for (let {x}, y);', Context.Empty],
+    ['for (let x = y, {z});', Context.Empty],
+    ['for (let {x}, y);', Context.Empty],
+    ['for (let {x:y});', Context.Empty],
+    ['for (let {x:y=z} = obj, {a:b=c});', Context.Empty],
+    ['for (let {x:y=z});', Context.Empty],
+    ['for (let {x:y=z}, {a:b=c} = obj);', Context.Empty],
+    ['for (let {a:=c} = z);', Context.Empty],
+    ['for (let {[x]: y} = z);', Context.Empty],
+    ['for (let {[x]: y});', Context.Empty],
+    ['for (let {[x] = y} = z);', Context.Empty],
+    ['for (let {[x]: y = z});', Context.Empty],
+    ['for (let {[x]: y = z} = a);', Context.Empty],
+    ['for (let {a, [x]: y} = a);', Context.Empty],
+    ['for (let [foo] = arr, [bar] in arr);', Context.Empty],
+    ['for (let [foo], bar in arr);', Context.Empty],
+    ['for (let [foo] = arr, bar in arr);', Context.Empty],
+    ['for (let foo, [bar] in arr);', Context.Empty],
+    ['for (let foo = arr, [bar] in arr);', Context.Empty],
+    ['for (let [foo = x]);', Context.Empty],
+    ['for (let foo, [bar]);', Context.Empty],
+    ['for (let [...foo,] in obj);', Context.Empty],
+    ['for (let [...foo,,] in obj);', Context.Empty],
+    ['for (let [...[foo, bar],,] in obj);', Context.Empty],
+    ['for (let [...[foo, bar],] in obj);', Context.Empty],
+    ['for (let [...] in obj);', Context.Empty],
+    ['for (let [... ...foo] in obj);', Context.Empty],
+    ['for (let [.x] in obj);', Context.Empty],
+    ['for (let [..x] in obj);', Context.Empty],
+    ['for (let {,} in obj);', Context.Empty],
+    ['for (let {,,} in obj);', Context.Empty],
+    ['for (let {,x} in obj);', Context.Empty],
+    ['for (let {,,x} in obj);', Context.Empty],
+    ['for (let {x,, y} in obj);', Context.Empty],
+    ['for (let {x} = a, {y} in obj);', Context.Empty],
+    ['for (let {x} = a, y in obj);', Context.Empty],
+    ['for (let {x} = a, obj in obj2);', Context.Empty],
+    ['for (let x = a, {y} in obj);', Context.Empty],
+    ['for (let x, {y} in obj);', Context.Empty],
+    ['for (let {x}, {y} in z);', Context.Empty],
+    ['for (let x, {y});', Context.Empty],
+    ['for (let {x}, y);', Context.Empty],
+    ['for (let x = y, {z});', Context.Empty],
+    ['for (let {x}, y);', Context.Empty],
+    ['for (let {x:y});', Context.Empty],
+    ['for (let {x=y});', Context.Empty],
+    ['for (let {x:y=z});', Context.Empty],
+    ['for (let {x:y=z} = obj, {a:b=c});', Context.Empty],
+    ['for (let {x:y=z}, {a:b=c} in obj);', Context.Empty],
+    ['for (let {a:=c} in z);', Context.Empty],
+    ['for (let {[x]} in obj);', Context.Empty],
+    ['for (let {[x] = y} in obj);', Context.Empty],
+    ['for (let [foo], bar of arr);', Context.Empty],
+    ['for (let [foo] = arr, bar of arr);', Context.Empty],
+    ['for (let foo, [bar] of arr);', Context.Empty],
+    ['for (let [foo = x]);', Context.Empty],
+    ['for (let [foo], bar);', Context.Empty],
+    ['for (let foo, [bar]);', Context.Empty],
+    ['for (let [...foo, bar] of obj);', Context.Empty],
+    ['for (let [...foo,] of obj);', Context.Empty],
+    ['for (let [...foo,,] of obj);', Context.Empty],
+    ['for (let [...[foo, bar],] of obj);', Context.Empty],
+    ['for (let [...[foo, bar],,] of obj);', Context.Empty],
+    ['for (let [.x] of obj);', Context.Empty],
+    ['for (let [... ...foo] of obj);', Context.Empty],
+    ['for (let {,} of obj);', Context.Empty],
+    ['for (let {,,} of obj);', Context.Empty],
+    ['for (let {,x} of obj);', Context.Empty],
+    ['for (let {,,x} of obj);', Context.Empty],
+    ['for (let {x,, y} of obj);', Context.Empty],
+    ['for (let {x} = a, {y} of obj);', Context.Empty],
+    ['for (let {x} = a, obj of obj2);', Context.Empty],
+    ['for (let {x});', Context.Empty],
+    ['for (let {x}, {y} of z);', Context.Empty],
+    ['for (let x, {y});', Context.Empty],
+    ['for (let {x=y});', Context.Empty],
+    ['for (let {x:y=z});', Context.Empty],
+    ['for (let {[x] = y} of obj);', Context.Empty],
+    ['class x { foo() { let[foo]; }}', Context.Empty],
+    ['_ => { let[foo]; }', Context.Empty],
+    ['let\n{foo};', Context.Empty],
+    ['function f(){ let\n{foo}; }', Context.Empty],
+    ['_ => let {foo};', Context.Empty],
+    ['_ => { let\n{foo}; }', Context.Empty],
+    ['class x { foo() { let\n{foo}; }}', Context.Empty],
+    ['if (true) let x = 1;', Context.Empty]
   ]);
 
   for (const arg of [
@@ -347,7 +347,7 @@ describe('Declarations - Let', () => {
   ]) {
     it(`${arg}`, () => {
       t.doesNotThrow(() => {
-        parseSource(`${arg}`, undefined, Context.OptionsDisableWebCompat);
+        parseSource(`${arg}`, undefined, Context.Empty);
       });
     });
 
@@ -361,7 +361,7 @@ describe('Declarations - Let', () => {
   pass('Statements - Let (pass)', [
     [
       'let;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -380,7 +380,7 @@ describe('Declarations - Let', () => {
     [
       `while (false) async // ASI
       {}`,
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -409,7 +409,7 @@ describe('Declarations - Let', () => {
     [
       `for (var x in null) let // ASI
       x = 1;`,
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -463,7 +463,7 @@ describe('Declarations - Let', () => {
     [
       `for (var x of []) let // ASI
       x = 1;`,
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -518,7 +518,7 @@ describe('Declarations - Let', () => {
     [
       `while (false) let // ASI
       x = 1;`,
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -558,7 +558,7 @@ describe('Declarations - Let', () => {
     [
       `while (false) let // ASI
       {}`,
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -586,7 +586,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'function foo() { for (let in x) {} }',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -626,7 +626,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let in x) {}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -651,7 +651,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let.let = foo',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -805,7 +805,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -822,7 +822,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let = 1',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -847,7 +847,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let = b',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         body: [
           {
@@ -872,7 +872,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let foo, bar',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -904,7 +904,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let [] = x;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -931,7 +931,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let [,] = x;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -958,7 +958,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let [foo=a] = arr;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -997,7 +997,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let [foo=a, bar] = arr;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1040,7 +1040,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let [...foo] = obj;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1075,7 +1075,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let [foo, ...bar] = obj;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1114,7 +1114,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let [x, ...[foo, bar]] = obj;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1162,7 +1162,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let {} = obj;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1189,7 +1189,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let {x} = obj;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1232,7 +1232,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let {x,} = obj;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1275,7 +1275,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let {x, y} = obj;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1333,7 +1333,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let {x} = a, {y} = obj;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1403,7 +1403,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let {x} = a, y = obj;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1457,7 +1457,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let foo;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1482,7 +1482,7 @@ describe('Declarations - Let', () => {
 
     [
       'let a, [...x] = y',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1525,7 +1525,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let {...x} = y',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1560,7 +1560,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'var let;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1584,7 +1584,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'var [let] = x;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1616,7 +1616,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'var {let} = x;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1659,7 +1659,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let.foo;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1684,7 +1684,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let();',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1703,7 +1703,7 @@ describe('Declarations - Let', () => {
         ]
       }
     ],
-    /** ['let {let: foo} = x;', Context.OptionsDisableWebCompat, {
+    /** ['let {let: foo} = x;', Context.Empty, {
       "type": "Program",
       "sourceType": "script",
       "body": [
@@ -1743,7 +1743,7 @@ describe('Declarations - Let', () => {
       ]
     }],
 
-    ['let {a, let: foo} = x;', Context.OptionsDisableWebCompat, {
+    ['let {a, let: foo} = x;', Context.Empty, {
       "type": "Program",
       "sourceType": "script",
       "body": [
@@ -1799,7 +1799,7 @@ describe('Declarations - Let', () => {
     }],*/
     [
       'for (var let;;);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1831,7 +1831,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let;;);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1853,7 +1853,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (;let;);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1875,7 +1875,7 @@ describe('Declarations - Let', () => {
     ],
     [
       '_ => { let: foo; }',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1919,7 +1919,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let: let;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1943,7 +1943,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'if (x) let;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1968,7 +1968,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [...[foo, bar]] in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2019,7 +2019,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [x, ...[foo, bar]] in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2074,7 +2074,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [a=[...b], ...c] in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2135,7 +2135,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2169,7 +2169,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {x,} in obj);  ',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2219,7 +2219,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {x = y} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2276,7 +2276,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {x, y = z} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2348,7 +2348,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {x = y, z = a} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2427,7 +2427,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {x : y} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2477,7 +2477,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {x, y : z} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2542,7 +2542,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {x : y = z} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2599,7 +2599,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {x : y, z, a : b = c} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2686,7 +2686,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {[x]: y} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2736,7 +2736,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {[x]: y = z} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2793,7 +2793,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let {a, [x]: y} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2858,7 +2858,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [] of x);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2893,7 +2893,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [,] of x);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2928,7 +2928,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [foo,] of arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2968,7 +2968,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [foo,,] of arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -3009,7 +3009,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [foo,,bar] of arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -3054,7 +3054,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [foo=a] of arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -3101,7 +3101,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [foo, bar=b] of arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -3152,7 +3152,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [foo=a, bar=b] of arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -3210,7 +3210,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [...[foo, bar]] of obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -3262,7 +3262,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'for (let [a=[...b], ...c] of obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -3324,7 +3324,7 @@ describe('Declarations - Let', () => {
     ],
     [
       'let foo = bar;',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [

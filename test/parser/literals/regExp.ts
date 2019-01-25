@@ -339,7 +339,7 @@ pass('Literal - Regexp (pass)', [
   ],
   [
     '/a(?<=x)b/',
-    Context.OptionsDisableWebCompat,
+    Context.Empty,
     {
       body: [
         {

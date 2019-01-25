@@ -56,8 +56,8 @@ export interface Options {
   // Enabled tokenizing
   tokenize?: boolean;
 
-  // Disable web compability (AnnexB)
-  disableWebCompat?: boolean;
+  // Enable web compability (AnnexB)
+  webCompat?: boolean;
 
   onComment?: OnComment;
 
@@ -103,7 +103,7 @@ export function parseSource(source: string, options: Options | void, context: Co
     // The flag to enable "native" NodeJS / V8 features
     if (options.native) context |= Context.OptionsNative;
     // The flag to disable web compability (AnnexB)
-    if (options.disableWebCompat) context |= Context.OptionsDisableWebCompat;
+    if (options.webCompat) context |= Context.OptionsWebCompat;
     // The flag to enable stage 3 support (ESNext)
     if (options.next) context |= Context.OptionsNext;
     // The flag to enable start and end offsets to each node

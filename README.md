@@ -110,7 +110,7 @@ The second argument allows you to specify various options:
 | `loc`             | Attach line/column location information to each node |
 | `ranges`          | Append start and end offsets to each node |
 | `globalReturn`    | Allow return in the global scope |
-| `disableWebCompat` | Allows parsing without AnnexB |
+| `webcompat`       | Enable web compability (*AnnexB*) |
 | `impliedStrict`   | Enable strict mode initial enforcement |
 | `next`            | Enable stage 3 support (*ESNext*)  |
 | `jsx`             | Enable React JSX parsing  |

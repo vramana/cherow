@@ -51,7 +51,7 @@ function run(isModule: boolean) {
   }
 
   fail('fails on Mongolian vowel separator', '\u180Ea', Context.Empty);
-  fail('fails on Mongolian vowel separator without webcompat', '\u180Ea', Context.OptionsDisableWebCompat);
+  fail('fails on Mongolian vowel separator without webcompat', '\u180Ea', Context.Empty);
   fail('fails on unclosed multiline comment', '/*', Context.Empty);
   fail('fails on unexpected character', '€', Context.Empty);
   // FIXME! script & module
