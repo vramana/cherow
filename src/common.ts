@@ -60,7 +60,8 @@ export const enum Flags {
   HasPrivateName = 1 << 7,
   InArrowContext = 1 << 8,
   HasStrictReserved = 1 << 9,
-  StrictEvalArguments = 1 << 10
+  StrictEvalArguments = 1 << 10,
+  HasConstructor = 1 << 11
 }
 // prettier-ignore
 /**
@@ -122,6 +123,7 @@ export const enum Modifiers {
   ClassField = 1 << 7,
   Getter = 1 << 8,
   Setter = 1 << 9,
+  Extends = 1 << 10,
   GetSet = Getter | Setter
 }
 

@@ -3402,32 +3402,18 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
   };
 }
 
-function parsePrivateName(state: ParserState, context: Context, objState: Modifiers): any {
-  next(state, context);
-  if (objState & Modifiers.Static && state.tokenValue === 'prototype') {
-    report(state, Errors.PrivateStaticPrototype);
-  }
-  if (state.tokenValue === 'constructor') report(state, Errors.PrivateFieldConstructor);
-  return {
-    type: 'PrivateName',
-    name: state.tokenValue
-  };
-}
-
 export function parseClassBodyAndElementList(state: ParserState, context: Context, origin: Origin): ESTree.ClassBody {
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftBrace);
   const body: any[] = [];
-  let constructorCount = 0; // track the occurance of construcors
 
   while (state.token !== Token.RightBrace) {
     if (optional(state, context, Token.Semicolon)) continue;
     body.push(parseClassElementList(state, context, Modifiers.None));
   }
-  if (constructorCount > 1) {
-    report(state, Errors.DuplicateConstructor);
-  }
 
   expect(state, origin & Origin.Declaration ? context | Context.AllowPossibleRegEx : context, Token.RightBrace);
+
+  state.flags &= ~Flags.HasConstructor;
 
   return {
     type: 'ClassBody',
@@ -3437,9 +3423,9 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
 
 function parseClassElementList(state: ParserState, context: Context, modifier: Modifiers): any {
   let key: ESTree.Identifier | ESTree.Literal | ESTree.Expression | void;
+  let { token, tokenValue } = state;
 
   if (state.token & Token.IsIdentifier) {
-    let { token, tokenValue } = state;
     key = parseIdentifier(state, context);
     switch (token) {
       // 'static'
@@ -3469,6 +3455,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
       // 'get'
       case Token.GetKeyword:
         if (state.token !== Token.LeftParen) {
+          tokenValue = state.tokenValue;
           if (state.token & Token.IsIdentifier) {
             key = parseIdentifier(state, context);
           } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
@@ -3485,6 +3472,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
       // 'set'
       case Token.SetKeyword:
         if (state.token !== Token.LeftParen) {
+          tokenValue = state.tokenValue;
           if (state.token & Token.IsIdentifier) {
             key = parseIdentifier(state, context);
           } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
@@ -3500,7 +3488,6 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
         break;
       default: // ignore
     }
-    if (tokenValue === 'constructor') modifier |= Modifiers.Constructor;
   } else if (state.token === Token.LeftBracket) {
     modifier |= Modifiers.Computed;
     key = parseComputedPropertyName(state, context);
@@ -3509,6 +3496,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
     key = parseLiteral(state, context, state.tokenValue);
   } else if (state.token === Token.Multiply) {
     next(state, context);
+    tokenValue = state.tokenValue;
     if (state.token & Token.IsIdentifier) {
       key = parseIdentifier(state, context);
     } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
@@ -3519,6 +3507,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
     } else {
       report(state, Errors.Unexpected);
     }
+
     modifier |= Modifiers.Generator;
   } else if (state.token === Token.Semicolon) {
     next(state, context);
@@ -3532,6 +3521,17 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
     state.tokenValue === 'prototype'
   ) {
     report(state, Errors.StaticPrototype);
+  }
+
+  if (tokenValue === 'constructor') {
+    if ((modifier & Modifiers.Static) === 0) {
+      if (modifier & (Modifiers.GetSet | Modifiers.Generator)) report(state, Errors.InvalidConstructor, 'accessor');
+      if ((context & Context.SuperCall) === 0 && (modifier & Modifiers.Computed) === 0) {
+        if (state.flags & Flags.HasConstructor) report(state, Errors.DuplicateConstructor);
+        else state.flags |= Flags.HasConstructor;
+      }
+    }
+    modifier |= Modifiers.Constructor;
   }
 
   if (state.token !== Token.LeftParen) report(state, Errors.Unexpected);
