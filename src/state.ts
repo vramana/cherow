@@ -3000,9 +3000,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.DoKeyword:
       return parseDoExpression(state, context);
     case Token.YieldKeyword:
-      if (context & (Context.YieldContext | Context.Strict)) {
-        report(state, Errors.DisallowedInContext, KeywordDescTable[state.token & Token.Type]);
-      }
+      if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.DisallowedInContext);
     // falls through
     default:
       if (isValidIdentifier(context, state.token)) {

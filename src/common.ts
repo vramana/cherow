@@ -98,11 +98,11 @@ export const enum Origin {
 
 export const enum ScopeType {
   None = 0,
-  BlockStatement = 1 << 0,
-  ForStatement = 1 << 1,
-  SwitchStatement = 1 << 2,
-  CatchClause = 1 << 3,
-  ArgumentList = 1 << 4
+  BlockStatement = 1,
+  ForStatement = 2,
+  SwitchStatement = 3,
+  CatchClause = 4,
+  ArgumentList = 5
 }
 
 export const enum LabelledState {
@@ -319,15 +319,15 @@ export function addVariable(
     while (lex) {
       const type = lex.type;
       if (lex['@' + key] !== undefined) {
-        if (type & ScopeType.CatchClause) {
+        if (type === ScopeType.CatchClause) {
           if (isVarDecl && context & Context.OptionsWebCompat) {
             state.inCatch = true;
           } else {
             report(state, Errors.InvalidCatchVarBinding, key);
           }
-        } else if (type & ScopeType.ForStatement) {
-          report(state, Errors.AlreadyBoundAsLexical, key);
-        } else if ((type & ScopeType.ArgumentList) === 0) {
+        } else if (type === ScopeType.ForStatement) {
+          report(state, Errors.AlreadyBoundAsLexical);
+        } else if (type !== ScopeType.ArgumentList) {
           if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
             report(state, Errors.AlreadyBoundAsLexical, key);
           }
@@ -337,7 +337,13 @@ export function addVariable(
     }
 
     let x = scope.var['@' + key];
-    x = x === undefined ? 1 : ++x;
+
+    if (x === undefined) {
+      x = 1;
+    } else {
+      ++x;
+    }
+
     scope.var['@' + key] = x;
     let lexVars = scope.lexVars;
     while (lexVars) {
@@ -345,24 +351,30 @@ export function addVariable(
       lexVars = lexVars['@'];
     }
   } else {
+    const lex = scope.lex;
+
     if (checkDuplicates) {
       checkIfExistInLexicalParentScope(state, context, scope, origin, '@' + key);
-      if (scope.lex['@' + key] !== undefined && checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
-        report(state, Errors.AlreadyDeclared, key);
+
+      if (lex['@' + key] !== undefined) {
+        if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
+          report(state, Errors.AlreadyDeclared, key);
+        }
       }
     }
 
-    if (scope.lex['@' + key] === undefined) {
-      scope.lex['@' + key] = 1;
-    } else if (checkDuplicates) {
+    let x = lex['@' + key];
+
+    if (x === undefined) x = 1;
+    else if (checkDuplicates) {
       if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
         report(state, Errors.MultipleLexicals, key);
       }
     } else {
-      ++scope.lex['@' + key];
+      ++x;
     }
 
-    scope.lex['@' + key] = scope.lex['@' + key];
+    lex['@' + key] = x;
   }
 }
 
@@ -427,9 +439,9 @@ export function checkIfExistInLexicalParentScope(
 
   const lexParent = lex['@'];
   if (lexParent !== undefined && lexParent[key] !== undefined) {
-    if (lexParent.type & ScopeType.ArgumentList) {
+    if (lexParent.type === ScopeType.ArgumentList) {
       report(state, Errors.BoundLexicalAsParam);
-    } else if (lexParent.type & ScopeType.CatchClause) {
+    } else if (lexParent.type === ScopeType.CatchClause) {
       report(state, Errors.DoubleDeclBinding);
     }
   }

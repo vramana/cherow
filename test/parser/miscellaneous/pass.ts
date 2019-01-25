@@ -2188,9 +2188,6 @@ let b = 2;
    */
   let arr2 = [...arr];`,
     `const { data: { courses: oldCourses = [] } = {} } = getState();`,
-
-    `var foo = [23]
-  -->[0];`,
     'x = -1 <!--x;',
     'for (let f of [0]) {}',
     'for (let f; ; ) {}',
