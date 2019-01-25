@@ -3137,13 +3137,9 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   if (state.token & Token.IsIdentifier) {
     validateBindingIdentifier(
       state,
-      context & Context.Strict
-        ? Context.YieldContext
-        : isGenerator
-        ? Context.YieldContext
-        : 0 | (context & Context.Module) || isGenerator
-        ? Context.AwaitContext
-        : 0,
+      ((context | (Context.YieldContext | Context.AwaitContext)) ^ (Context.YieldContext | Context.AwaitContext)) |
+        (context & Context.Strict ? Context.YieldContext : isGenerator ? Context.YieldContext : 0) |
+        (context & Context.Module ? Context.AwaitContext : isAsync ? Context.AwaitContext : 0),
       Type.Variable
     );
     addVariableAndDeduplicate(state, context, functionScope, Type.Variable, Origin.None, true, state.tokenValue);
