@@ -28,7 +28,7 @@
       'change #jsx': 'onJsxChange',
       'change #directives': 'onDirectivesChange',
       'change #attachComment': 'onAttachComment',
-      'change #early': 'onearly',
+      'change #webCompat': 'onwebCompat',
       'change #module': 'onModuleChange',
     },
 
@@ -50,7 +50,7 @@
       this.$jsx = this.$el.find('#jsx');
       this.$directives = this.$el.find('#directives');
       this.$attachComment = this.$el.find('#attachComment');
-      this.$early = this.$el.find('#early');
+      this.$webCompat = this.$el.find('#webCompat');
       
       
       EventBus.on('resize:window', this.onWindowResize);
@@ -62,7 +62,7 @@
       this.onModuleChange();
       this.onDirectivesChange();
       this.onAttachComment();
-      this.onearly();
+      this.onwebCompat();
       this.onJsxChange();
       this.parseURL();
       this.parse();
@@ -100,8 +100,8 @@
       this._options.attachComment = this.$attachComment.prop('checked');
       this.parse();
     },
-    onearly: function(event) {
-      this._options.early = this.$early.prop('checked');
+    onwebCompat: function(event) {
+      this._options.webCompat = this.$webCompat.prop('checked');
       this.parse();
     },
     onModuleChange: function(event) {
@@ -148,7 +148,7 @@
         jsx: this._options.jsx,
         directives: this._options.directives,
         attachComment: this._options.attachComment,
-        early: this._options.early
+        webCompat: this._options.webCompat
       };
       var href = location.href.replace(/[?#].*$/, '');
       var url = href + '?' + Util.buildParams(params);
@@ -179,8 +179,8 @@
         this.$attachComment.prop('checked', true).change();
       }
 
-      if (params.early === 'true') {
-        this.$early.prop('checked', true).change();
+      if (params.webCompat === 'true') {
+        this.$webCompat.prop('checked', true).change();
       }
       
       if (params.jsx === 'true') {
