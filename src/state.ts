@@ -1587,15 +1587,8 @@ export function parseFunctionDeclaration(
     validateBindingIdentifier(
       state,
       ((context | (Context.YieldContext | Context.AwaitContext)) ^ (Context.YieldContext | Context.AwaitContext)) |
-        (context & Context.Strict
-          ? Context.YieldContext
-          : context & Context.YieldContext
-          ? Context.YieldContext
-          : 0 | (context & Context.Module)
-          ? Context.AwaitContext
-          : context & Context.AwaitContext
-          ? Context.AwaitContext
-          : 0),
+        (context & Context.Strict ? Context.YieldContext : context & Context.YieldContext ? Context.YieldContext : 0) |
+        (context & Context.Module ? Context.AwaitContext : context & Context.AwaitContext ? Context.AwaitContext : 0),
       context & Context.TopLevel && (context & Context.Module) < 1 ? Type.Variable : Type.Let
     );
 
@@ -2330,7 +2323,7 @@ function parseAwaitExpression(
   state: ParserState,
   context: Context
 ): ESTree.AwaitExpression | ESTree.Identifier | ESTree.ArrowFunctionExpression {
-  // state.assignable = state.bindable = false;
+  if (context & Context.InArgList) report(state, Errors.Unexpected);
   next(state, context | Context.AllowPossibleRegEx);
   return {
     type: 'AwaitExpression',

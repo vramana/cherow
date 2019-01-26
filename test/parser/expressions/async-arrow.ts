@@ -51,7 +51,7 @@ describe('Expressions - Async arrow', () => {
     ['cherow => { let cherow;}', Context.Empty],
     ['cherow => { const cherow; }', Context.Empty],
     ['cherow => let cherow;', Context.Empty],
-    // ['async (a, ...b, ...c) => {}', Context.Empty],
+    ['async (a, ...b, ...c) => {}', Context.Empty],
     ['async\n(a, b) => {}', Context.Empty],
     // ['new async() => {}', Context.Empty],
     ['({ async\nf(){} })', Context.Empty],
