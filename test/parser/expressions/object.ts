@@ -61,7 +61,7 @@ describe('Expressions - Object', () => {
     ['({async get : 0})', Context.Strict],
     ['({*get x(){}})', Context.Strict],
 
-    // ['({get foo( +})', Context.Strict],
+    ['({get foo( +})', Context.Strict],
     // ['({static x: 0})', Context.Strict],
     // ['({static x(){}})', Context.Strict],
     // ['({static async x(){}})', Context.Strict],
@@ -83,7 +83,7 @@ describe('Expressions - Object', () => {
     ['({ async set x(y){} })', Context.Empty],
     ['({ async get : 0 })', Context.Empty],
     ['({ *set x(y){} })', Context.Empty],
-    //    ['({ get *x(){} })', Context.Empty],
+    //['({ get *x(){} })', Context.Empty],
     ['({ *x: 0 })', Context.Empty],
     ['({ ... })', Context.Empty],
     ['({ , })', Context.Empty],
@@ -118,8 +118,6 @@ describe('Expressions - Object', () => {
     ["x = {'__proto__': 1, __proto__: 2}", Context.Empty],
     ['({ __proto__: b, "__proto__": c})', Context.Empty]
   ];
-
-  // [      '{ function a() {} ; function b() {} }', Context.Empty,   {}],
 
   fail('Expressions - Object', inValids);
 
@@ -480,7 +478,7 @@ describe('Expressions - Object', () => {
   const valids: Array<[string, Context, any]> = [
     [
       '({f(){ function x(){} const x = y; }})',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -552,7 +550,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({f(){ function x(){} const x = y; }})',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -624,7 +622,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {f(){ function x(){} const x = y; }}',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -2218,7 +2216,7 @@ describe('Expressions - Object', () => {
                 {
                   type: 'MethodDefinition',
                   kind: 'get',
-                  static: true,
+                  static: false,
                   computed: false,
                   key: {
                     type: 'Identifier',
@@ -4610,7 +4608,7 @@ describe('Expressions - Object', () => {
 
     [
       'x = {__proto__: 1, __proto__}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -4666,7 +4664,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {__proto__(){}, __proto__: 2}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -4730,7 +4728,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {__proto__(){}, __proto__(){}}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -4802,7 +4800,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {async __proto__(){}, *__proto__(){}}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -4874,7 +4872,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {...y}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -4907,7 +4905,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {x, ...y}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -4955,7 +4953,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {a, ...y, b}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5018,7 +5016,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {...y, b}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5066,7 +5064,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {...a,}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5099,7 +5097,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {...a=b}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5140,7 +5138,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {...a + b}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5181,7 +5179,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {...[a, b]}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5223,7 +5221,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {...{a, b}}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5287,7 +5285,7 @@ describe('Expressions - Object', () => {
     ],
     [
       'x = {...a, ...b}',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5327,7 +5325,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({...a} = x)',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5360,7 +5358,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({...[a, b]} = x)',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         body: [
           {
@@ -5402,7 +5400,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({...[a, b]}) => x',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5448,7 +5446,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({...{a, b}}) => x',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5516,7 +5514,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '(z = {...x.y} = z) => z',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5576,7 +5574,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({...x=y});',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5609,7 +5607,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({...x+=y});',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5642,7 +5640,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({...x, ...y});',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5674,7 +5672,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({...x.y} = z)',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -5715,7 +5713,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({[foo]: x} = y)',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -5756,7 +5754,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({[foo]: bar} = baz)',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -5797,7 +5795,7 @@ describe('Expressions - Object', () => {
     ],
     [
       '({...x});',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',

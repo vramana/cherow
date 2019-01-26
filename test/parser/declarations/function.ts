@@ -44,9 +44,9 @@ describe('Declarations - Function', () => {
 
     // Block scope
 
-    ['{ function f() {} { var f; } }', Context.OptionsDisableWebCompat],
-    ['{ function* f() {} function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ function f() {} var f; }', Context.OptionsDisableWebCompat],
+    ['{ function f() {} { var f; } }', Context.Empty],
+    ['{ function* f() {} function f() {} }', Context.Empty],
+    ['{ function f() {} var f; }', Context.Empty],
 
     // Duplicate function args with explicit directive
 
@@ -66,18 +66,18 @@ describe('Declarations - Function', () => {
 
     // General
 
-    ['{ function f(){} function f(){} }', Context.OptionsDisableWebCompat],
-    ['function f(x) { let x }', Context.OptionsDisableWebCompat],
+    ['{ function f(){} function f(){} }', Context.Empty],
+    ['function f(x) { let x }', Context.Empty],
     ['function f(x) { const x = y }', Context.Empty],
     ['function f(){ let x; var x; }', Context.Empty],
     ['function f(){ var x; let x; }', Context.Empty],
     ['function f(){ const x = y; var x; }', Context.Empty],
     ['function f(){ var x; const x = y; }', Context.Empty],
     ['function f(){ let x; function x(){} }', Context.Empty],
-    ['function f(){ function x(){} let x; }', Context.OptionsDisableWebCompat],
+    ['function f(){ function x(){} let x; }', Context.Empty],
     ['function f(){ const x = y; function x(){} }', Context.Empty],
-    ['function f(){ function x(){} const x = y; }', Context.OptionsDisableWebCompat],
-    ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat], // Fails only Without AnnexB
+    ['function f(){ function x(){} const x = y; }', Context.Empty],
+    ['{ function f() {} ; function f() {} }', Context.Empty], // Fails only Without AnnexB
     ['{ function f() {} ; function f() {} }', Context.Strict], // throws if no AnnexB and in strict mode only
     ['{ if (x) function f() {} ; function f() {} }', Context.Strict], // throws if no AnnexB and in strict mode only
     ['switch (x) {case a: function f(){}; break; case b: function f(){}; break; }', Context.Strict | Context.Module], // throws if no AnnexB and in strict mode only
@@ -102,7 +102,7 @@ describe('Declarations - Function', () => {
     ['"use strict"; function super() {}', Context.Empty],
     ['"use strict"; function interface() {}', Context.Empty],
     ['"use strict"; function *super() {}', Context.Empty],
-
+    // ['function *f(){ return function(x = yield y){}; }', Context.Empty],
     ['try function foo() {} catch (e) {}', Context.Empty],
     ['do function foo() {} while (0);', Context.Empty],
     ['for (;false;) function foo() {}', Context.Empty],
@@ -146,9 +146,6 @@ describe('Declarations - Function', () => {
     'if (true) function foo() {}',
     'if (false) {} else function f() { };',
     'label: function f() { }',
-    'label: if (true) function f() { }',
-    'label: if (true) {} else function f() { }',
-    'label: label2: function f() { }',
     'function f() { ++(yield); }',
     'function f(a, a) {}',
     'function f(a, a) { function f(a, a) {} }',
@@ -446,7 +443,7 @@ describe('Declarations - Function', () => {
   for (const arg of programs) {
     it(`${arg}`, () => {
       t.doesNotThrow(() => {
-        parseSource(`${arg}`, undefined, Context.Empty);
+        parseSource(`${arg}`, undefined, Context.OptionsWebCompat);
       });
     });
   }

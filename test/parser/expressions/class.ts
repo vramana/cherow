@@ -1,5 +1,5 @@
-import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import { Context } from '../../../src/common';
 import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
@@ -29,6 +29,8 @@ describe('Expressions - Class', () => {
     '*method([...{ x }, y]) {}',
     '*method([...[x], y]) {}',
     'async "constructor"(){}',
+    'static async *gen() { var await; }',
+    'static async *gen() { await: ; }',
     'static async *method([...{ x }, y] = [1, 2, 3]) {}',
     'static async *method([...x, y] = [1, 2, 3]) {}',
     'static async *method([...[x], y] = [1, 2, 3]) {}',
@@ -158,9 +160,33 @@ describe('Expressions - Class', () => {
     ['class foo {f(){ var x; const x = y; }}', Context.Empty],
     ['class foo {f(){ let x; function x(){} }}', Context.Empty],
     ['class foo {f(){ function x(){} let x; }}', Context.Empty],
+    ['class C { static async method(...x = []) {}}', Context.Empty],
     ['class foo {f(){ const x = y; function x(){} }}', Context.Empty],
     ['class foo {f(){ function x(){} const x = y; }}', Context.Empty],
     ['0, class { static method(...x = []) { } };', Context.Empty],
+    // 'Class' is always in strict mode so this should "always" fail
+    ['(class { get [yield]() { return "get yield"; }})', Context.Strict],
+    [
+      '(class { get [yield]() { return "get yield"; }}) (class { get [yield]() { return "get yield"; }})',
+      Context.Empty
+    ],
+    ['function foo() { (class { get [yield]() { return get yield"; }}) }', Context.Empty],
+    [
+      '(class { set [yield](param) { yieldSet = param; }}) (class { set [yield](param) { yieldSet = param; }})',
+      Context.Empty
+    ],
+    [
+      `var C = class { static async *gen() {
+      return {
+           ...(function() {
+              var yield;
+           }()),
+        }
+  }}`,
+      Context.Empty
+    ],
+    ['var foo = (class { set [yield](param) { yieldSet = param; }})', Context.Empty],
+    ['function foo() { (class { set [yield](param) { yieldSet = param; }}', Context.Empty],
     ['(class { adf&/()})', Context.Empty],
     ['(class { adf &/()})', Context.Empty],
     ['(class b {)', Context.Empty],
@@ -196,17 +222,22 @@ describe('Expressions - Class', () => {
     ['class x { async [x]s){}}', Context.Empty],
     ['class X extends function(){ with(obj); } {}', Context.Empty],
     ['class let {}`;', Context.Empty],
+    ['class A {get constructor(){}}', Context.Empty],
+    ['class A {set constructor(x){}}', Context.Empty],
+    ['class A {*constructor(){}}', Context.Empty],
     ['class A {async get foo(){}}', Context.Empty],
     ['class A {* get foo(){}}', Context.Empty],
     ['class A {async set foo(x){}}', Context.Empty],
     ['class A {* set foo(x){}}', Context.Empty],
-    //  ['class A {async get "foo"(){}}', Context.Empty],
-    // ['class A {* get "foo"(){}}', Context.Empty],
-    //['class A {async set "foo"(x){}}', Context.Empty],
-    //['class A {* set "foo"(x){}}', Context.Empty],
-    // ['class A {async get 7(){}}', Context.Empty],
+    ['class A {async get "foo"(){}}', Context.Empty],
+    ['class A {* get "foo"(){}}', Context.Empty],
+    ['class A {async set "foo"(x){}}', Context.Empty],
+    ['class A {* set "foo"(x){}}', Context.Empty],
+    ['class A {async get 7(){}}', Context.Empty],
     ['class A {* get 8(){}}', Context.Empty],
-    // ['class A {async set 11(x){}}', Context.Empty],
+    ['class A {async set 11(x){}}', Context.Empty],
+    ['class A {* set 12(x){}}', Context.Empty],
+    ['var C = class { static async *gen() { yield: ; }}', Context.Empty],
     ['class A {* set 12(x){}}', Context.Empty],
     ['typeof class{}\n/foo/', Context.Empty],
     [
@@ -228,10 +259,10 @@ describe('Expressions - Class', () => {
       Context.Empty
     ],
     ['var C = class let {};', Context.Empty],
-    //  ['class A {* get [x](){}}', Context.Empty],
-    //['class A {async get [x](){}}', Context.Empty],
-    //['class A {* set [foo](x){}}', Context.Empty],
-    //['class A {async get [foo](){}}', Context.Empty],
+    ['class A {* get [x](){}}', Context.Empty],
+    ['class A {async get [x](){}}', Context.Empty],
+    ['class A {* set [foo](x){}}', Context.Empty],
+    ['class A {async get [foo](){}}', Context.Empty],
     ['class x{get *foo(){}}', Context.Empty],
     ['class x{get *[x](){}}', Context.Empty],
     ['class x{get *"foo"(){}}', Context.Empty],
@@ -246,6 +277,8 @@ describe('Expressions - Class', () => {
     ['class x{static get *[x](){}}`;', Context.Empty],
     ['class x{static get *"foo"(){}}', Context.Empty],
     ['class x{static get *555(){}}', Context.Empty],
+    ['0, class { static method(...x = []) {} };', Context.Empty],
+    ['0, class { static method(...a,) {} };', Context.Empty],
     ['class x{static get *%x(){}}', Context.Empty],
     ['class x{static set *foo(a){}}', Context.Empty],
     ['class x{static set *[x](a){}}', Context.Empty],
@@ -254,14 +287,20 @@ describe('Expressions - Class', () => {
     ['class x{static set *%x(a){}}', Context.Empty],
     ['class x{static async *%x(a){}}', Context.Empty],
     ['class x{static async *%x(a){}}', Context.Empty],
-    ['async *get 8(){}', Context.Empty],
-    ['static *async 8(){}', Context.Empty],
-    ['static *get 8(){}', Context.Empty],
-    ['static *set 8(y){}', Context.Empty],
-    ['static *"x"(){}', Context.Empty],
-    ['static *async "x"(){}', Context.Empty],
-    ['static *get "x"(){}', Context.Empty],
-    ['static *set "x"(y){}', Context.Empty],
+    ['class x{async *get 8(){}}', Context.Empty],
+    ['class x{static *async 8(){}}', Context.Empty],
+    ['class x{static *get 8(){}}', Context.Empty],
+    ['class x{static *set 8(y){}}', Context.Empty],
+    ['class x{static *async "x"(){}}', Context.Empty],
+    ['class x{static *get "x"(){}}', Context.Empty],
+    ['(class { static *get [x](){}})', Context.Empty],
+    ['(class { static *get [x](){}}) (class { static *get [x](){}})', Context.Empty],
+    ['var foo = (class { static *get [x](){}})', Context.Empty],
+    ['(class { static *set [x](y){}})', Context.Empty],
+    ['function foo() { (class { static *get [x](){}}) }', Context.Empty],
+    ['(class { static *set [x](y){}}) (class { static *set [x](y){}})', Context.Empty],
+    ['var foo = (class { static *set [x](y){}})', Context.Empty],
+    ['function foo() { (class { static *set [x](y){}}) }', Context.Empty],
     ['class A { ["async"] a() {} }', Context.Empty],
     ['class A { ["get"] a() {} }', Context.Empty],
     ['class A { static *prototype() {} }', Context.Empty],
@@ -270,13 +309,11 @@ describe('Expressions - Class', () => {
     ['class A { static set prototype(_) {} }', Context.Empty],
     ['class A { static *prototype() {} }', Context.Empty],
     ['static get prototype() {}', Context.Empty],
-
     ['class A { static prototype() {} }', Context.Empty],
     ['class A { static *prototype() {} }', Context.Empty],
     ['class A { static prototype() {} }', Context.Empty],
-
-    ['static *get [x](){}', Context.Empty],
-    ['static *set [x](y){}', Context.Empty]
+    ['class A { static *get [x](){} }', Context.Empty],
+    ['class A { static *set [x](y){}}', Context.Empty]
   ];
 
   fail('Expressions - Class', inValids);
@@ -287,6 +324,11 @@ describe('Expressions - Class', () => {
     'yield() {}',
     'await() {}',
     'async() {}',
+    'static set ["prototype"](x) {}',
+    'static get ["prototype"]() {}',
+    '["prototype"]() {}',
+    'static set ["prototype"](x) {}',
+    'static async *method(a, b = 39,) {}',
     'static *method({ x: y = 33 }) {}',
     'static *method({ x: y = function a() {} }) {}',
     'static *method({ w: [x, y, z] = [4, 5, 6] }) {}',
@@ -301,6 +343,19 @@ describe('Expressions - Class', () => {
     'static *method([,]) {}',
     'static *method([x]) {}',
     'static *method([[x, y, z] = [4, 5, 6]]) {}',
+    'static *"x"(){}',
+    'static get 0x10() { return "get string"; }',
+    'static set 0x10(param) { stringSet = param; }',
+    'static get 1E+9() { return "get string"; }',
+    'static set 1E+9(param) { stringSet = param; }',
+    'static get 0o10() { return "get string"; }',
+    'static set 0o10(param) { stringSet = param; }',
+    'static get 0() { return "get string"; }',
+    'static set 0(param) { stringSet = param; }',
+    'static get ""() { return "get string"; }',
+    'static set ""(param) { stringSet = param; }',
+    'static get [_ = "str" + "ing"]() { return "get string"; }',
+    'static set [_ = "str" + "ing"](param) { stringSet = param; }',
     ' *method({ x, }) {}',
     '*method({ cls = class {}, xCls = class X {}, xCls2 = class { static name() {} } }) {}',
     '*method({ w: [x, y, z] = [4, 5, 6] } = {}) {}',
@@ -337,8 +392,6 @@ describe('Expressions - Class', () => {
     "set 'character\tescape'(param) { stringSet = param; }",
     'set 0(param) { stringSet = param; }',
     'set 1E+9(param) { stringSet = param; }',
-    "get [yield]() { return 'get yield'; }",
-    'set [yield](param) { yieldSet = param; }',
     '*method() {}',
     'static async *method(a,) {}',
     'static async *gen() { yield * []; }',
@@ -411,8 +464,6 @@ describe('Expressions - Class', () => {
     'static async "x"(){}',
     'static get "x"(){}',
     'static set "x"(y){}',
-    'static *get [x](){}',
-    'static *set [x](y){}',
     '*method([x]) {}',
     '*method([[] = function() { a += 1; return function*() {}; }()]) {}',
     '*method([x = 23]) {}',
@@ -448,9 +499,9 @@ describe('Expressions - Class', () => {
     });
   }
 
-  pass('Expressions - Class (pass)', [
+  pass('Declarations - Var (pass)', [
     [
-      'class Some { render=( )=>{ return null; } }',
+      `class x{async static(){}}`,
       Context.Empty,
       {
         type: 'Program',
@@ -460,39 +511,208 @@ describe('Expressions - Class', () => {
             type: 'ClassDeclaration',
             id: {
               type: 'Identifier',
-              name: 'Some'
+              name: 'x'
             },
             superClass: null,
             body: {
               type: 'ClassBody',
               body: [
                 {
-                  type: 'FieldDefinition',
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
                   key: {
                     type: 'Identifier',
-                    name: 'render'
+                    name: 'static'
                   },
                   value: {
-                    type: 'ArrowFunctionExpression',
+                    type: 'FunctionExpression',
+                    params: [],
                     body: {
                       type: 'BlockStatement',
-                      body: [
-                        {
-                          type: 'ReturnStatement',
-                          argument: {
-                            type: 'Literal',
-                            value: null
-                          }
-                        }
-                      ]
+                      body: []
                     },
-                    params: [],
-                    id: null,
-                    async: false,
-                    expression: false
-                  },
+                    async: true,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `class x{*static(){}}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
                   computed: false,
-                  static: false
+                  key: {
+                    type: 'Identifier',
+                    name: 'static'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: true,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `class x{*static(){}}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'static'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: true,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `class x{static *static(){}}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: true,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'static'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: true,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `class x{get(){}}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'get'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  }
                 }
               ]
             }
@@ -542,368 +762,6 @@ describe('Expressions - Class', () => {
         ],
         sourceType: 'script',
         type: 'Program'
-      }
-    ],
-    [
-      'class a { async *get(){} }',
-      Context.Empty,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'get',
-                    type: 'Identifier'
-                  },
-                  kind: 'method',
-                  static: false,
-                  type: 'MethodDefinition',
-                  value: {
-                    async: true,
-                    body: {
-                      body: [],
-                      type: 'BlockStatement'
-                    },
-                    generator: true,
-                    id: null,
-                    params: [],
-                    type: 'FunctionExpression'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'a',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      `class A { async\nfoo() {}    }`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'FieldDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'async'
-                  },
-                  value: null,
-                  computed: false,
-                  static: false
-                },
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `x = class{} / foo`,
-      Context.Empty,
-      {
-        body: [
-          {
-            expression: {
-              left: {
-                name: 'x',
-                type: 'Identifier'
-              },
-              operator: '=',
-              right: {
-                left: {
-                  body: {
-                    body: [],
-                    type: 'ClassBody'
-                  },
-                  id: null,
-                  superClass: null,
-                  type: 'ClassExpression'
-                },
-                operator: '/',
-                right: {
-                  name: 'foo',
-                  type: 'Identifier'
-                },
-                type: 'BinaryExpression'
-              },
-              type: 'AssignmentExpression'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      `class A {static static(){};};`,
-      Context.Empty,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'static'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: true
-                }
-              ]
-            }
-          },
-          {
-            type: 'EmptyStatement'
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `x = class{}
-          / foo / g`,
-      Context.Empty,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'AssignmentExpression',
-              left: {
-                type: 'Identifier',
-                name: 'x'
-              },
-              operator: '=',
-              right: {
-                type: 'BinaryExpression',
-                left: {
-                  type: 'BinaryExpression',
-                  left: {
-                    type: 'ClassExpression',
-                    id: null,
-                    superClass: null,
-                    body: {
-                      type: 'ClassBody',
-                      body: []
-                    }
-                  },
-                  right: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  operator: '/'
-                },
-                right: {
-                  type: 'Identifier',
-                  name: 'g'
-                },
-                operator: '/'
-              }
-            }
-          }
-        ]
-      }
-    ],
-    [
-      '(x = class{} / foo)',
-      Context.Empty,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'AssignmentExpression',
-              left: {
-                type: 'Identifier',
-                name: 'x'
-              },
-              operator: '=',
-              right: {
-                type: 'BinaryExpression',
-                left: {
-                  type: 'ClassExpression',
-                  id: null,
-                  superClass: null,
-                  body: {
-                    type: 'ClassBody',
-                    body: []
-                  }
-                },
-                right: {
-                  type: 'Identifier',
-                  name: 'foo'
-                },
-                operator: '/'
-              }
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `(x = class{}
-                / foo / g)`,
-      Context.Empty,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'AssignmentExpression',
-              left: {
-                type: 'Identifier',
-                name: 'x'
-              },
-              operator: '=',
-              right: {
-                type: 'BinaryExpression',
-                left: {
-                  type: 'BinaryExpression',
-                  left: {
-                    type: 'ClassExpression',
-                    id: null,
-                    superClass: null,
-                    body: {
-                      type: 'ClassBody',
-                      body: []
-                    }
-                  },
-                  right: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  operator: '/'
-                },
-                right: {
-                  type: 'Identifier',
-                  name: 'g'
-                },
-                operator: '/'
-              }
-            }
-          }
-        ]
-      }
-    ],
-    [
-      'class A extends B { *get() {} }',
-      Context.Empty,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: {
-              type: 'Identifier',
-              name: 'B'
-            },
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'get'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
       }
     ],
     [
@@ -1055,6 +913,213 @@ describe('Expressions - Class', () => {
       }
     ],
     [
+      'var C = class { async *gen() { yield [...yield yield]; }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ClassExpression',
+                  id: null,
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        kind: 'method',
+                        static: false,
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          name: 'gen'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                  type: 'YieldExpression',
+                                  argument: {
+                                    type: 'ArrayExpression',
+                                    elements: [
+                                      {
+                                        type: 'SpreadElement',
+                                        argument: {
+                                          type: 'YieldExpression',
+                                          argument: {
+                                            type: 'YieldExpression',
+                                            argument: null,
+                                            delegate: false
+                                          },
+                                          delegate: false
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  delegate: false
+                                }
+                              }
+                            ]
+                          },
+                          async: true,
+                          generator: true,
+                          id: null
+                        }
+                      }
+                    ]
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'C'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'var C = class { async *gen() { yield [...yield]; }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ClassExpression',
+                  id: null,
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        kind: 'method',
+                        static: false,
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          name: 'gen'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                  type: 'YieldExpression',
+                                  argument: {
+                                    type: 'ArrayExpression',
+                                    elements: [
+                                      {
+                                        type: 'SpreadElement',
+                                        argument: {
+                                          type: 'YieldExpression',
+                                          argument: null,
+                                          delegate: false
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  delegate: false
+                                }
+                              }
+                            ]
+                          },
+                          async: true,
+                          generator: true,
+                          id: null
+                        }
+                      }
+                    ]
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'C'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'class C {static async method(a, b,) {}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'C'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: true,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'method'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
       'class C { *get(v) {}}',
       Context.Empty,
       {
@@ -1099,6 +1164,130 @@ describe('Expressions - Class', () => {
                 }
               ]
             }
+          }
+        ]
+      }
+    ],
+    [
+      `var C = class { static async *gen() {
+        callCount += 1;
+        yield {
+            ...yield,
+            y: 1,
+            ...yield yield,
+          };
+    }}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ClassExpression',
+                  id: null,
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        kind: 'method',
+                        static: true,
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          name: 'gen'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                  type: 'AssignmentExpression',
+                                  left: {
+                                    type: 'Identifier',
+                                    name: 'callCount'
+                                  },
+                                  operator: '+=',
+                                  right: {
+                                    type: 'Literal',
+                                    value: 1
+                                  }
+                                }
+                              },
+                              {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                  type: 'YieldExpression',
+                                  argument: {
+                                    type: 'ObjectExpression',
+                                    properties: [
+                                      {
+                                        type: 'SpreadElement',
+                                        argument: {
+                                          type: 'YieldExpression',
+                                          argument: null,
+                                          delegate: false
+                                        }
+                                      },
+                                      {
+                                        type: 'Property',
+                                        key: {
+                                          type: 'Identifier',
+                                          name: 'y'
+                                        },
+                                        value: {
+                                          type: 'Literal',
+                                          value: 1
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false
+                                      },
+                                      {
+                                        type: 'SpreadElement',
+                                        argument: {
+                                          type: 'YieldExpression',
+                                          argument: {
+                                            type: 'YieldExpression',
+                                            argument: null,
+                                            delegate: false
+                                          },
+                                          delegate: false
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  delegate: false
+                                }
+                              }
+                            ]
+                          },
+                          async: true,
+                          generator: true,
+                          id: null
+                        }
+                      }
+                    ]
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'C'
+                }
+              }
+            ]
           }
         ]
       }
@@ -1441,7 +1630,6 @@ describe('Expressions - Class', () => {
         ]
       }
     ],
-
     [
       '(class C { set foo(x) {} set foo(x) {} })',
       Context.Empty,
@@ -3177,7 +3365,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'constructor',
@@ -3229,7 +3416,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'method',
@@ -3281,7 +3467,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'method',
@@ -3333,7 +3518,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'get',
@@ -3385,7 +3569,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'get',
@@ -3450,7 +3633,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'set',
@@ -3515,7 +3697,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'set',
@@ -3567,7 +3748,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'method',
@@ -3619,7 +3799,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'method',
@@ -3671,7 +3850,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'get',
@@ -3723,7 +3901,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'get',
@@ -3788,7 +3965,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'set',
@@ -3853,7 +4029,6 @@ describe('Expressions - Class', () => {
                               ]
                             },
                             generator: false,
-
                             async: false
                           },
                           kind: 'set',
@@ -3865,7 +4040,6 @@ describe('Expressions - Class', () => {
                 ]
               },
               generator: false,
-
               async: false
             }
           }
@@ -6562,7 +6736,388 @@ describe('Expressions - Class', () => {
       }
     ],
     [
-      '(class A {static get 6(){}})',
+      '(class A {async foo(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: true
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {*foo(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: true,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {get foo(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'get',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {get set(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'set'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'get',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {set foo(x){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'set',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {set get(x){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'get'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'set',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {set(){} get(){} async(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'set'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  },
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'get'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  },
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'async'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {"x"(){}})',
       Context.Empty,
       {
         type: 'Program',
@@ -6583,7 +7138,1646 @@ describe('Expressions - Class', () => {
                     type: 'MethodDefinition',
                     key: {
                       type: 'Literal',
-                      value: 6
+                      value: 'x'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {"constructor"(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 'constructor'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'constructor',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {async "foo"(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: true
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {*"foo"(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: true,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {get "foo"(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'get',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {get "set"(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'get',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Literal',
+                      value: 'set'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(class A {set "foo"(x){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'set',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {set "get"(x){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 'get'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'set',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {"set"(){} "get"(){} "async"(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Literal',
+                      value: 'set'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    }
+                  },
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Literal',
+                      value: 'get'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    }
+                  },
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Literal',
+                      value: 'async'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(class A {1(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Literal',
+                      value: 1
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(class A {async 3(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 3
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: true
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {*4(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 4
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: true,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {async * 34(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Literal',
+                      value: 34
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: true,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(class A {get 5(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 5
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'get',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {set 9(x){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 9
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'set',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {[a](){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: true,
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(class A {*[foo](){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    computed: true,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: true,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {get [foo](){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    computed: true,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'get',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {set [foo](x){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    computed: true,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'set',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class x { *[y](){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    computed: true,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: true,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class x { get [y](){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    computed: true,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'get',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class x { set [y](z){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    computed: true,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'z'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'set',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class x { async *[y](){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: true,
+                    key: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: true,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(class x{*foo(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: true,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class x{*[x](){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    computed: true,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: true,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class x{*"foo"(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: true,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class x{*555(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 555
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: true,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class x{async *foo(a){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'a'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: true,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(class x{async *[x](a){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: true,
+                    key: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'a'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: true,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(class x{async *"foo"(a){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'a'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: true,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(class x{async *555(a){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Literal',
+                      value: 555
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'a'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: true,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      '(class A {static a(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: true,
+                    computed: false,
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(class A {static constructor(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'constructor'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: true
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {static get foo(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     computed: false,
                     value: {
@@ -6609,7 +8803,7 @@ describe('Expressions - Class', () => {
       }
     ],
     [
-      '(class A {static set 10(x){}})',
+      '(class A {static set foo(x){}})',
       Context.Empty,
       {
         type: 'Program',
@@ -6629,8 +8823,8 @@ describe('Expressions - Class', () => {
                   {
                     type: 'MethodDefinition',
                     key: {
-                      type: 'Literal',
-                      value: 10
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     computed: false,
                     value: {
@@ -6661,7 +8855,7 @@ describe('Expressions - Class', () => {
       }
     ],
     [
-      '(class A {static [a](){}})',
+      '(class A {static "x"(){}})',
       Context.Empty,
       {
         type: 'Program',
@@ -6681,10 +8875,10 @@ describe('Expressions - Class', () => {
                   {
                     type: 'MethodDefinition',
                     key: {
-                      type: 'Identifier',
-                      name: 'a'
+                      type: 'Literal',
+                      value: 'x'
                     },
-                    computed: true,
+                    computed: false,
                     value: {
                       type: 'FunctionExpression',
                       id: null,
@@ -6707,9 +8901,176 @@ describe('Expressions - Class', () => {
         sourceType: 'script'
       }
     ],
+    /* [
+      'typeof class{}\n/foo/g',
+      Context.Empty,
+      {}],
+      [
+        'typeof class{}\n/foo/g',
+        Context.Empty,
+        {}],
+        [
+          'typeof class{}\n/foo/g',
+          Context.Empty,
+          {}],
+          [
+            'typeof class{}\n/foo/g',
+            Context.Empty,
+            {}],
+            [
+              'typeof class{}\n/foo/g',
+              Context.Empty,
+              {}],*/
+    [
+      'typeof class{}\n/foo/g',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                left: {
+                  argument: {
+                    body: {
+                      body: [],
+                      type: 'ClassBody'
+                    },
+                    id: null,
+                    superClass: null,
+                    type: 'ClassExpression'
+                  },
+                  operator: 'typeof',
+                  prefix: true,
+                  type: 'UnaryExpression'
+                },
+                operator: '/',
+                right: {
+                  name: 'foo',
+                  type: 'Identifier'
+                },
+                type: 'BinaryExpression'
+              },
+              operator: '/',
+              right: {
+                name: 'g',
+                type: 'Identifier'
+              },
+              type: 'BinaryExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
 
     [
-      '(class A {constructor(){}})',
+      '(class{} \n / foo / g)',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                left: {
+                  body: {
+                    body: [],
+                    type: 'ClassBody'
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+                },
+                operator: '/',
+                right: {
+                  name: 'foo',
+                  type: 'Identifier'
+                },
+                type: 'BinaryExpression'
+              },
+              operator: '/',
+              right: {
+                name: 'g',
+                type: 'Identifier'
+              },
+              type: 'BinaryExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'class x{}\n/foo/g',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              body: [],
+              type: 'ClassBody'
+            },
+            id: {
+              name: 'x',
+              type: 'Identifier'
+            },
+            superClass: null,
+            type: 'ClassDeclaration'
+          },
+          {
+            expression: {
+              regex: {
+                flags: 'g',
+                pattern: 'foo'
+              },
+              type: 'Literal',
+              value: /foo/g
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'class x{}\n/foo/',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              body: [],
+              type: 'ClassBody'
+            },
+            id: {
+              name: 'x',
+              type: 'Identifier'
+            },
+            superClass: null,
+            type: 'ClassDeclaration'
+          },
+          {
+            expression: {
+              regex: {
+                flags: '',
+                pattern: 'foo'
+              },
+              type: 'Literal',
+              value: /foo/
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '(class A {static "constructor"(){}})',
       Context.Empty,
       {
         type: 'Program',
@@ -6729,12 +9090,12 @@ describe('Expressions - Class', () => {
                 body: [
                   {
                     type: 'MethodDefinition',
-                    kind: 'constructor',
-                    static: false,
+                    kind: 'method',
+                    static: true,
                     computed: false,
                     key: {
-                      type: 'Identifier',
-                      name: 'constructor'
+                      type: 'Literal',
+                      value: 'constructor'
                     },
                     value: {
                       type: 'FunctionExpression',
@@ -6756,374 +9117,46 @@ describe('Expressions - Class', () => {
       }
     ],
     [
-      `class A { static constructor() {} }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'constructor',
-                    type: 'Identifier'
-                  },
-                  kind: 'method',
-                  static: true,
-                  type: 'MethodDefinition',
-                  value: {
-                    async: false,
-                    body: {
-                      body: [],
-                      type: 'BlockStatement'
-                    },
-                    generator: false,
-                    id: null,
-                    params: [],
-                    type: 'FunctionExpression'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      `class A { static get constructor() {} }`,
-      Context.OptionsNext,
+      '(class A {static get "foo"(){}})',
+      Context.Empty,
       {
         type: 'Program',
         body: [
           {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'constructor'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'get',
-                  static: true
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A { static set constructor(_) {} }`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'constructor'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: '_'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'set',
-                  static: true
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A { static *constructor() {} }`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'constructor'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: true,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: true
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    /*
-     [`class A { constructor() {}; static constructor() {} }`, Context.OptionsNext, {
-      "type": "Program",
-      "body": [
-          {
-              "type": "ClassDeclaration",
-              "id": {
-                  "type": "Identifier",
-                  "name": "A"
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
               },
-              "superClass": null,
-              "body": {
-                  "type": "ClassBody",
-                  "body": [
-                      {
-                          "type": "MethodDefinition",
-                          "key": {
-                              "type": "Identifier",
-                              "name": "constructor"
-                          },
-                          "computed": false,
-                          "value": {
-                              "type": "FunctionExpression",
-                              "id": null,
-                              "params": [],
-                              "body": {
-                                  "type": "BlockStatement",
-                                  "body": []
-                              },
-                              "generator": false,
-                              "async": false
-                          },
-                          "kind": "constructor",
-                          "static": false
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
                       },
-                      {
-                          "type": "MethodDefinition",
-                          "key": {
-                              "type": "Identifier",
-                              "name": "constructor"
-                          },
-                          "computed": false,
-                          "value": {
-                              "type": "FunctionExpression",
-                              "id": null,
-                              "params": [],
-                              "body": {
-                                  "type": "BlockStatement",
-                                  "body": []
-                              },
-                              "generator": false,
-                              "async": false
-                          },
-                          "kind": "method",
-                          "static": true
-                      }
-                  ]
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'get',
+                    static: true
+                  }
+                ]
               }
-          }
-      ],
-      "sourceType": "script"
-  }],*/
-    [
-      `class A {static a(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'a'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {static constructor(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'constructor'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {async foo(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: true
-                  },
-                  kind: 'method',
-                  static: false
-                }
-              ]
             }
           }
         ],
@@ -7131,8 +9164,107 @@ describe('Expressions - Class', () => {
       }
     ],
     [
-      `class A {*foo(){}}`,
-      Context.OptionsNext,
+      '(class A {static set "foo"(x){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'set',
+                    static: true
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(class A {static 2(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: {
+                type: 'Identifier',
+                name: 'A'
+              },
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    key: {
+                      type: 'Literal',
+                      value: 2
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+                      async: false
+                    },
+                    kind: 'method',
+                    static: true
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'class A extends B { *get() {} }',
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -7143,7 +9275,10 @@ describe('Expressions - Class', () => {
               type: 'Identifier',
               name: 'A'
             },
-            superClass: null,
+            superClass: {
+              type: 'Identifier',
+              name: 'B'
+            },
             body: {
               type: 'ClassBody',
               body: [
@@ -7152,479 +9287,31 @@ describe('Expressions - Class', () => {
                   kind: 'method',
                   static: false,
                   computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {get foo(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'get',
-                  static: false
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A {static get foo(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'get',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-
-    [
-      `class A {set foo(x){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'set',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'x'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {static set foo(x){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'x'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'set',
-                  static: true
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-
-    [
-      `class A { #static = foo }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'static',
-                    type: 'PrivateName'
-                  },
-                  static: false,
-                  type: 'FieldDefinition',
-                  value: {
-                    name: 'foo',
-                    type: 'Identifier'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A { #static }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'static',
-                    type: 'PrivateName'
-                  },
-                  static: false,
-                  type: 'FieldDefinition',
-                  value: null
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      `class A { foo }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'foo',
-                    type: 'Identifier'
-                  },
-                  static: false,
-                  type: 'FieldDefinition',
-                  value: null
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      `class A { foo = bar }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'foo',
-                    type: 'Identifier'
-                  },
-                  static: false,
-                  type: 'FieldDefinition',
-                  value: {
-                    name: 'bar',
-                    type: 'Identifier'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      `class A { static }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'static',
-                    type: 'Identifier'
-                  },
-                  static: true,
-                  type: 'FieldDefinition',
-                  value: null
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A {set(){} get(){} async(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'set'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: false
-                },
-                {
-                  type: 'MethodDefinition',
                   key: {
                     type: 'Identifier',
                     name: 'get'
                   },
-                  computed: false,
                   value: {
                     type: 'FunctionExpression',
-                    id: null,
                     params: [],
                     body: {
                       type: 'BlockStatement',
                       body: []
                     },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: false
-                },
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'async'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: false
+                    async: false,
+                    generator: true,
+                    id: null
+                  }
                 }
               ]
             }
           }
-        ],
-        sourceType: 'script'
+        ]
       }
     ],
-
     [
-      `class A { 123(){}}`,
-      Context.OptionsNext,
+      'class a { async *get(){} }',
+      Context.Empty,
       {
         body: [
           {
@@ -7633,19 +9320,19 @@ describe('Expressions - Class', () => {
                 {
                   computed: false,
                   key: {
-                    type: 'Literal',
-                    value: 123
+                    name: 'get',
+                    type: 'Identifier'
                   },
                   kind: 'method',
                   static: false,
                   type: 'MethodDefinition',
                   value: {
-                    async: false,
+                    async: true,
                     body: {
                       body: [],
                       type: 'BlockStatement'
                     },
-                    generator: false,
+                    generator: true,
                     id: null,
                     params: [],
                     type: 'FunctionExpression'
@@ -7655,1059 +9342,7 @@ describe('Expressions - Class', () => {
               type: 'ClassBody'
             },
             id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A {static "x"(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Literal',
-                    value: 'x'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: true
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-
-    [
-      `class A {static "constructor"(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 'constructor'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {async "foo"(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: true
-                  },
-                  kind: 'method',
-                  static: false
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A {*"foo"(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: true,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: false
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A {get "foo"(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'get',
-                  static: false
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A {get "set"(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'get',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 'set'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {static get "foo"(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'get',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {set "foo"(x){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'set',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'x'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {static set "foo"(x){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'x'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'set',
-                  static: true
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A {"set"(){} "get"(){} "async"(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Literal',
-                    value: 'set'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: false
-                },
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Literal',
-                    value: 'get'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: false
-                },
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Literal',
-                    value: 'async'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: false
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A {1(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 1
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {static 2(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 2
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {async 3(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 3
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {*4(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 4
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {async * 34(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 34
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {get 5(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'get',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 5
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {static get 6(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Literal',
-                    value: 6
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'get',
-                  static: true
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A {set 9(x){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'set',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 9
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'x'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {static set 10(x){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'set',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 10
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'x'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {static [a](){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'a'
-                  },
-                  computed: true,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: true
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-
-    [
-      `class A { static [foo] }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: true,
-                  key: {
-                    name: 'foo',
-                    type: 'Identifier'
-                  },
-                  static: true,
-                  type: 'FieldDefinition',
-                  value: null
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A { static [foo] = bar }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: true,
-                  key: {
-                    name: 'foo',
-                    type: 'Identifier'
-                  },
-                  static: true,
-                  type: 'FieldDefinition',
-                  value: {
-                    name: 'bar',
-                    type: 'Identifier'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A { [foo] = bar }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: true,
-                  key: {
-                    name: 'foo',
-                    type: 'Identifier'
-                  },
-                  static: false,
-                  type: 'FieldDefinition',
-                  value: {
-                    name: 'bar',
-                    type: 'Identifier'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
+              name: 'a',
               type: 'Identifier'
             },
             superClass: null,
@@ -8719,16 +9354,17 @@ describe('Expressions - Class', () => {
       }
     ],
     [
-      `class A {async [foo](){}}`,
-      Context.OptionsNext,
+      `class x{ "garin"(donna){} }`,
+      Context.Empty,
       {
         type: 'Program',
+        sourceType: 'script',
         body: [
           {
             type: 'ClassDeclaration',
             id: {
               type: 'Identifier',
-              name: 'A'
+              name: 'x'
             },
             superClass: null,
             body: {
@@ -8736,152 +9372,19 @@ describe('Expressions - Class', () => {
               body: [
                 {
                   type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  computed: true,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: true
-                  },
                   kind: 'method',
-                  static: false
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A {get [foo](){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  computed: true,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'get',
-                  static: false
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A {static get [foo](){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  computed: true,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'get',
-                  static: true
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A {set [foo](x){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'set',
                   static: false,
-                  computed: true,
+                  computed: false,
                   key: {
-                    type: 'Identifier',
-                    name: 'foo'
+                    type: 'Literal',
+                    value: 'garin'
                   },
                   value: {
                     type: 'FunctionExpression',
                     params: [
                       {
                         type: 'Identifier',
-                        name: 'x'
+                        name: 'donna'
                       }
                     ],
                     body: {
@@ -8900,57 +9403,8 @@ describe('Expressions - Class', () => {
       }
     ],
     [
-      `class A {static set [foo](x){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'set',
-                  static: true,
-                  computed: true,
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'x'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x { *[y](){}}`,
-      Context.OptionsNext,
+      `class x{ async [garin](){}}`,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -8972,51 +9426,7 @@ describe('Expressions - Class', () => {
                   computed: true,
                   key: {
                     type: 'Identifier',
-                    name: 'y'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x { async [y](){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: true,
-                  key: {
-                    type: 'Identifier',
-                    name: 'y'
+                    name: 'garin'
                   },
                   value: {
                     type: 'FunctionExpression',
@@ -9037,52 +9447,8 @@ describe('Expressions - Class', () => {
       }
     ],
     [
-      `class x { get [y](){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'get',
-                  static: false,
-                  computed: true,
-                  key: {
-                    type: 'Identifier',
-                    name: 'y'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x { set [y](z){}}`,
-      Context.OptionsNext,
+      `class x{ set "garin"(a){}}`,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -9101,17 +9467,17 @@ describe('Expressions - Class', () => {
                   type: 'MethodDefinition',
                   kind: 'set',
                   static: false,
-                  computed: true,
+                  computed: false,
                   key: {
-                    type: 'Identifier',
-                    name: 'y'
+                    type: 'Literal',
+                    value: 'garin'
                   },
                   value: {
                     type: 'FunctionExpression',
                     params: [
                       {
                         type: 'Identifier',
-                        name: 'z'
+                        name: 'a'
                       }
                     ],
                     body: {
@@ -9130,8 +9496,8 @@ describe('Expressions - Class', () => {
       }
     ],
     [
-      `class x {static *[y](){}}`,
-      Context.OptionsNext,
+      `class x{ get "garin"(){}}`,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -9148,12 +9514,12 @@ describe('Expressions - Class', () => {
               body: [
                 {
                   type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: true,
+                  kind: 'get',
+                  static: false,
+                  computed: false,
                   key: {
-                    type: 'Identifier',
-                    name: 'y'
+                    type: 'Literal',
+                    value: 'garin'
                   },
                   value: {
                     type: 'FunctionExpression',
@@ -9163,50 +9529,6 @@ describe('Expressions - Class', () => {
                       body: []
                     },
                     async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x { static async [y](){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: true,
-                  key: {
-                    type: 'Identifier',
-                    name: 'y'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
                     generator: false,
                     id: null
                   }
@@ -9218,8 +9540,8 @@ describe('Expressions - Class', () => {
       }
     ],
     [
-      `class x { static get [y](){}}`,
-      Context.OptionsNext,
+      `class x{ static get [garin](){}}`,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -9241,7 +9563,7 @@ describe('Expressions - Class', () => {
                   computed: true,
                   key: {
                     type: 'Identifier',
-                    name: 'y'
+                    name: 'garin'
                   },
                   value: {
                     type: 'FunctionExpression',
@@ -9261,474 +9583,15 @@ describe('Expressions - Class', () => {
         ]
       }
     ],
+    /*
+      [
+        `class x{static static(){}}`,
+        Context.Empty,
+        {}],
+        */
     [
-      `class x { static set [y](z){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'set',
-                  static: true,
-                  computed: true,
-                  key: {
-                    type: 'Identifier',
-                    name: 'y'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'z'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: false,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x { async *[y](){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: true,
-                  key: {
-                    type: 'Identifier',
-                    name: 'y'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{*foo(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{*[x](){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: true,
-                  key: {
-                    type: 'Identifier',
-                    name: 'x'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{*"foo"(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{*555(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 555
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{async *foo(a){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'a'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{async *[x](a){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: true,
-                  key: {
-                    type: 'Identifier',
-                    name: 'x'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'a'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{async *"foo"(a){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'a'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{async *555(a){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: false,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 555
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'a'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{static *foo(){}}`,
-      Context.OptionsNext,
+      `class x{static static(){}}`,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -9748,880 +9611,70 @@ describe('Expressions - Class', () => {
                   kind: 'method',
                   static: true,
                   computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{static *[x](){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: true,
-                  key: {
-                    type: 'Identifier',
-                    name: 'x'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{static *"foo"(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{static *555(){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 555
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: false,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{static async *foo(a){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'a'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{static async *[x](a){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: true,
-                  key: {
-                    type: 'Identifier',
-                    name: 'x'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'a'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class x{static async *"foo"(a){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 'foo'
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'a'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-
-    [
-      `class x{static async *555(a){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  kind: 'method',
-                  static: true,
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 555
-                  },
-                  value: {
-                    type: 'FunctionExpression',
-                    params: [
-                      {
-                        type: 'Identifier',
-                        name: 'a'
-                      }
-                    ],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    async: true,
-                    generator: true,
-                    id: null
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    [
-      `class A {"x"(){}}`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    type: 'Literal',
-                    value: 'x'
-                  },
-                  kind: 'method',
-                  static: false,
-                  type: 'MethodDefinition',
-                  value: {
-                    async: false,
-                    body: {
-                      body: [],
-                      type: 'BlockStatement'
-                    },
-                    generator: false,
-                    id: null,
-                    params: [],
-                    type: 'FunctionExpression'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A {*[foo](){}}`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo'
-                  },
-                  computed: true,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: true,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: false
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A { static async() {} }`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
-                  key: {
-                    type: 'Identifier',
-                    name: 'async'
-                  },
-                  computed: false,
-                  value: {
-                    type: 'FunctionExpression',
-                    id: null,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      body: []
-                    },
-                    generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: true
-                }
-              ]
-            }
-          }
-        ],
-        sourceType: 'script'
-      }
-    ],
-    [
-      `class A { static() {} }`,
-      Context.OptionsNext,
-      {
-        type: 'Program',
-        body: [
-          {
-            type: 'ClassDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'A'
-            },
-            superClass: null,
-            body: {
-              type: 'ClassBody',
-              body: [
-                {
-                  type: 'MethodDefinition',
                   key: {
                     type: 'Identifier',
                     name: 'static'
                   },
-                  computed: false,
                   value: {
                     type: 'FunctionExpression',
-                    id: null,
                     params: [],
                     body: {
                       type: 'BlockStatement',
                       body: []
                     },
+                    async: false,
                     generator: false,
-                    async: false
-                  },
-                  kind: 'method',
-                  static: false
+                    id: null
+                  }
                 }
               ]
             }
           }
-        ],
-        sourceType: 'script'
+        ]
       }
     ],
     [
-      `class A { static async #a() { } }`,
-      Context.OptionsNext,
+      `class x{static(){}}`,
+      Context.Empty,
       {
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'a',
-                    type: 'PrivateName'
-                  },
-                  static: true,
-                  type: 'FieldDefinition',
-                  value: {
-                    async: true,
-                    body: {
-                      body: [],
-                      type: 'BlockStatement'
-                    },
-                    generator: false,
-                    id: null,
-                    params: [],
-                    type: 'FunctionExpression'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
+            type: 'ClassDeclaration',
             id: {
-              name: 'A',
-              type: 'Identifier'
+              type: 'Identifier',
+              name: 'x'
             },
             superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      `class A { static #async = await }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
             body: {
+              type: 'ClassBody',
               body: [
                 {
-                  computed: false,
-                  key: {
-                    name: 'async',
-                    type: 'PrivateName'
-                  },
-                  static: true,
-                  type: 'FieldDefinition',
-                  value: {
-                    name: 'await',
-                    type: 'Identifier'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A { static #async }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'async',
-                    type: 'PrivateName'
-                  },
-                  static: true,
-                  type: 'FieldDefinition',
-                  value: null
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A { static async = await }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'async',
-                    type: 'Identifier'
-                  },
-                  static: true,
-                  type: 'FieldDefinition',
-                  value: {
-                    name: 'await',
-                    type: 'Identifier'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      `class A { static async }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'async',
-                    type: 'Identifier'
-                  },
-                  static: true,
-                  type: 'FieldDefinition',
-                  value: null
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A { static = await }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'static',
-                    type: 'Identifier'
-                  },
-                  static: true,
-                  type: 'FieldDefinition',
-                  value: {
-                    name: 'await',
-                    type: 'Identifier'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      `class A { static }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'static',
-                    type: 'Identifier'
-                  },
-                  static: true,
-                  type: 'FieldDefinition',
-                  value: null
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A { static set foo(bar) {} }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
-                  computed: false,
-                  key: {
-                    name: 'foo',
-                    type: 'Identifier'
-                  },
-                  kind: 'set',
-                  static: true,
                   type: 'MethodDefinition',
-                  value: {
-                    async: false,
-                    body: {
-                      body: [],
-                      type: 'BlockStatement'
-                    },
-                    generator: false,
-                    id: null,
-                    params: [
-                      {
-                        name: 'bar',
-                        type: 'Identifier'
-                      }
-                    ],
-                    type: 'FunctionExpression'
-                  }
-                }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-
-    [
-      `class A { static get foo() {} }`,
-      Context.OptionsNext,
-      {
-        body: [
-          {
-            body: {
-              body: [
-                {
+                  kind: 'method',
+                  static: false,
                   computed: false,
                   key: {
-                    name: 'foo',
-                    type: 'Identifier'
+                    type: 'Identifier',
+                    name: 'static'
                   },
-                  kind: 'get',
-                  static: true,
-                  type: 'MethodDefinition',
                   value: {
-                    async: false,
-                    body: {
-                      body: [],
-                      type: 'BlockStatement'
-                    },
-                    generator: false,
-                    id: null,
+                    type: 'FunctionExpression',
                     params: [],
-                    type: 'FunctionExpression'
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
                   }
                 }
-              ],
-              type: 'ClassBody'
-            },
-            id: {
-              name: 'A',
-              type: 'Identifier'
-            },
-            superClass: null,
-            type: 'ClassDeclaration'
+              ]
+            }
           }
-        ],
-        sourceType: 'script',
-        type: 'Program'
+        ]
       }
     ]
   ]);

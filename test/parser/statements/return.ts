@@ -3,10 +3,10 @@ import { pass, fail } from '../../test-utils';
 
 describe('Statements - Return', () => {
   const inValids: Array<[string, Context]> = [
-    ['return;', Context.OptionsDisableWebCompat],
-    ['{ return; }', Context.OptionsDisableWebCompat],
-    ['returif (false) { return; };', Context.OptionsDisableWebCompat],
-    ['do { return; } while(0);', Context.OptionsDisableWebCompat]
+    ['return;', Context.Empty],
+    ['{ return; }', Context.Empty],
+    ['returif (false) { return; };', Context.Empty],
+    ['do { return; } while(0);', Context.Empty]
   ];
 
   fail('Statements - Return (fail)', inValids);
@@ -25,40 +25,6 @@ describe('Statements - Return', () => {
         ],
         sourceType: 'script',
         type: 'Program'
-      }
-    ],
-    // Should only pass with AnnexB
-    [
-      'if (a) function a(){}',
-      Context.Empty,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'IfStatement',
-            test: {
-              type: 'Identifier',
-              name: 'a'
-            },
-            consequent: {
-              type: 'FunctionDeclaration',
-              params: [],
-              body: {
-                type: 'BlockStatement',
-                body: []
-              },
-              async: false,
-              generator: false,
-
-              id: {
-                type: 'Identifier',
-                name: 'a'
-              }
-            },
-            alternate: null
-          }
-        ]
       }
     ],
     [

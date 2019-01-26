@@ -103,7 +103,12 @@ export const enum Errors {
   AlreadyBoundAsLexical,
   MultipleLexicals,
   DoubleDeclBinding,
-  BoundLexicalAsParam
+  BoundLexicalAsParam,
+  ForInOfLoopInitializer,
+  DeclarationMissingInitializer,
+  ForInOfLoopMultiBindings,
+  AwaitInParameter,
+  YieldInParameter
 }
 
 /*@internal*/
@@ -216,7 +221,12 @@ export const errorMessages: {
   [Errors.AlreadyBoundAsLexical]: '%0 is already bound as a lexical binding',
   [Errors.MultipleLexicals]: 'The lexical binding %0 has been bound multiple times',
   [Errors.BoundLexicalAsParam]: 'Cannot use `let` or `const` with the same name as bound to a parameter',
-  [Errors.DoubleDeclBinding]: 'Double declaration of the same binding name in a `catch` var'
+  [Errors.DoubleDeclBinding]: 'Double declaration of the same binding name in a `catch` var',
+  [Errors.DeclarationMissingInitializer]: 'Missing initializer in %0 declaration',
+  [Errors.ForInOfLoopInitializer]: "'for-%0' loop variable declaration may not have an initializer",
+  [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
+  [Errors.AwaitInParameter]: 'Await expression not allowed in formal parameter',
+  [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

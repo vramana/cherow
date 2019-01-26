@@ -3,79 +3,299 @@ import { pass, fail } from '../../test-utils';
 
 describe('Statements - Block', () => {
   const inValids: Array<[string, Context]> = [
-    ['y={x;};', Context.OptionsDisableWebCompat],
-    ['do{};while()', Context.OptionsDisableWebCompat],
-    ['if{};else{}', Context.OptionsDisableWebCompat],
-    ['try{};catch{};finally{}', Context.OptionsDisableWebCompat],
-    ['try{};catch(){}', Context.OptionsDisableWebCompat],
-    ['{ if (x) function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
-    [' { function a() {} } { let a; function a() {}; }', Context.OptionsDisableWebCompat],
-    ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
-    ['function f(){ var f = 123; if (true) function f(){} }', Context.OptionsDisableWebCompat],
-    ['{ var f = 123; if (true) function f(){} }', Context.OptionsDisableWebCompat],
-    ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ let a; class a {} }', Context.OptionsDisableWebCompat],
-    ['{ async function a() {} async function a() {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: function* a() {} break; default: var a; }', Context.OptionsDisableWebCompat],
-    ['for (let x; false; ) { var x; }', Context.OptionsDisableWebCompat],
-    ['for (let x of []) { var x;  }', Context.OptionsDisableWebCompat],
-    ['for (const x in {}) { var x; }', Context.OptionsDisableWebCompat],
-    ['{ async function f() {} let f }', Context.OptionsDisableWebCompat],
-    ['{ async function* f() {} async function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ async function* f() {} var f }', Context.OptionsDisableWebCompat],
-    ['{ class f {} const f = 0 }', Context.OptionsDisableWebCompat],
-    ['{ const f = 0; async function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ const f = 0; let f }', Context.OptionsDisableWebCompat],
-    ['{ function f() {} async function* f() {} }', Context.OptionsDisableWebCompat],
-    ['{ function f() {} function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ { var f; } async function f() {}; }', Context.OptionsDisableWebCompat],
-    ['{ { var f; } class f {}; }', Context.OptionsDisableWebCompat],
-    ['{ let f; async function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ let a; class a {} }', Context.OptionsDisableWebCompat],
-    ['{ let f; let f }', Context.OptionsDisableWebCompat],
-    ['{ var f; async function* f() {} }', Context.OptionsDisableWebCompat],
-    ['{ var f; const f = 0 }', Context.OptionsDisableWebCompat],
-    ['{ var f; function* f() {} }', Context.OptionsDisableWebCompat],
-    ['{ async function f() {}; var f; }', Context.OptionsDisableWebCompat],
-    ['{ const f = 0; var f; }', Context.OptionsDisableWebCompat],
-    ['{ function* f() {}; var f; }', Context.OptionsDisableWebCompat],
-    ['{ function* f() {}; var f; }', Context.OptionsDisableWebCompat],
-    ['{ let f; var f; }', Context.OptionsDisableWebCompat],
-    ['{ let f; const f = 0 }', Context.OptionsDisableWebCompat],
-    ['{ let f; async function* f() {} }', Context.OptionsDisableWebCompat],
-    ['{ function* f() {}; { var f; } }', Context.OptionsDisableWebCompat],
-    ['{ async function* f() {}; { var f; } }', Context.OptionsDisableWebCompat],
-    ['{ async function f() {}; { var f; } }', Context.OptionsDisableWebCompat],
-    ['{ { var f; } let f; }', Context.OptionsDisableWebCompat],
-    ['{ { var f; } function* f() {}; }', Context.OptionsDisableWebCompat],
-    ['{ { var f; } function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ { var f; } const f = 0; }', Context.OptionsDisableWebCompat],
-    ['{ { var f; } async function* f() {}; } ', Context.OptionsDisableWebCompat],
-    ['{ function* f() {} class f {} }', Context.OptionsDisableWebCompat],
-    ['{ function* f() {} async function* f() {} }', Context.OptionsDisableWebCompat],
-    ['{ function f() {} function* f() {} }', Context.OptionsDisableWebCompat],
-
-    ['{ class f {}; var f; }', Context.OptionsDisableWebCompat],
-    ['{ var f; async function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ var f; class f {} }', Context.OptionsDisableWebCompat],
-    ['{ let f; function* f() {} }', Context.OptionsDisableWebCompat],
-    ['{ let f; { var f; } }', Context.OptionsDisableWebCompat],
-    ['{ const f = 0; { var f; } }', Context.OptionsDisableWebCompat],
-    ['{ function* f() {} var f }', Context.OptionsDisableWebCompat],
-    ['function x() { { async function f() {}; var f; } }', Context.OptionsDisableWebCompat],
-    ['{ const f = 0; const f = 0 }', Context.OptionsDisableWebCompat],
-    ['{ class f {} var f }', Context.OptionsDisableWebCompat],
-    ['{ async function f() {} var f }', Context.OptionsDisableWebCompat],
-    ['{ async function f() {} const f = 0 }', Context.OptionsDisableWebCompat],
-    ['{ async function f() {} class f {} }', Context.OptionsDisableWebCompat],
-    ['{ async function f() {} async function* f() {} }', Context.OptionsDisableWebCompat],
-    ['{ async function f() {} async function f() {} }', Context.OptionsDisableWebCompat]
+    ['y={x;};', Context.Empty],
+    ['do{};while()', Context.Empty],
+    ['if{};else{}', Context.Empty],
+    ['try{};catch{};finally{}', Context.Empty],
+    ['try{};catch(){}', Context.Empty],
+    ['{ async function f() {} async function f() {} }', Context.Empty],
+    ['{ async function f() {} async function* f() {} }', Context.Empty],
+    ['{ async function f() {} const f = 0 }', Context.Empty],
+    ['{ async function f() {} function f() {} }', Context.Empty],
+    ['{ async function f() {} function* f() {} }', Context.Empty],
+    ['{ async function f() {} let f }', Context.OptionsWebCompat],
+    ['{ async function* f() {} const f = 0 }', Context.Empty],
+    ['{ async function* f() {} function f() {} }', Context.Empty],
+    ['{ async function* f() {} let f }', Context.Empty],
+    ['function f(){} function f(){}', Context.Module],
+    ['{ function f(){} function f(){} }', Context.Empty],
+    ['let x; { var x; }', Context.Empty],
+    ['function x() { { class f {}; var f; } }', Context.Empty],
+    ['function x() { { const f = 0; var f; } }', Context.Empty],
+    ['function x() { { function f() {}; var f; } }', Context.Empty],
+    ['function x() { { function* f() {}; var f; } }', Context.Empty],
+    ['{ function f() {} async function f() {} }', Context.Empty],
+    ['{ function f() {} { var f; } }', Context.Empty],
+    ['{ function f() {} async function f() {} }', Context.Empty],
+    ['{ function f() {} async function* f() {} }', Context.Empty],
+    ['{ function f() {} class f {} }', Context.Empty],
+    ['{ function f() {} function f() {} }', Context.Empty],
+    ['{ function f() {} let f }', Context.Empty],
+    ['{ function* f() {} async function f() {} }', Context.Empty],
+    ['{ function* f() {} function* f() {} }', Context.Empty],
+    ['{ function* f() {} let f }', Context.Empty],
+    ['{ { var f; } async function f() {}; }', Context.Empty],
+    ['{ { var f; } async function* f() {}; }', Context.Empty],
+    ['{ { var f; } class f {}; }', Context.Empty],
+    ['{ { var f; } function f() {} }', Context.Empty],
+    ['{ { var f; } function* f() {}; }', Context.Empty],
+    ['{ class f {}; { var f; } }', Context.Empty],
+    ['{ function f() {} { var f; } }', Context.Empty],
+    ['{ let f; function f() {} }', Context.Empty],
+    ['{ var f; function f() {} }', Context.Empty],
+    ['{ function* f() {}; var f; }', Context.Empty],
+    ['{ let f; var f; }', Context.Empty],
+    ['{ async function* f() {}; var f; }', Context.Empty],
+    ['{ let f; var f }', Context.Empty],
+    ['{ if (x) function f() {} ; function f() {} }', Context.Empty],
+    [' { function a() {} } { let a; function a() {}; }', Context.Empty],
+    ['{ function f() {} ; function f() {} }', Context.Empty],
+    ['function f(){ var f = 123; if (true) function f(){} }', Context.Empty],
+    ['{ var f = 123; if (true) function f(){} }', Context.Empty],
+    ['{ if (x) function f() {} ; function f() {} }', Context.Empty],
+    ['{ function f() {} ; function f() {} }', Context.Empty],
+    ['{ let a; class a {} }', Context.Empty],
+    ['{ async function a() {} async function a() {} }', Context.Empty],
+    ['switch (0) { case 1: function* a() {} break; default: var a; }', Context.Empty],
+    ['for (let x; false; ) { var x; }', Context.Empty],
+    ['for (let x of []) { var x;  }', Context.Empty],
+    ['for (const x in {}) { var x; }', Context.Empty],
+    ['{ async function f() {} let f }', Context.Empty],
+    ['{ async function* f() {} async function f() {} }', Context.Empty],
+    ['{ async function* f() {} var f }', Context.Empty],
+    ['{ class f {} const f = 0 }', Context.Empty],
+    ['{ const f = 0; async function f() {} }', Context.Empty],
+    ['{ const f = 0; let f }', Context.Empty],
+    ['{ function f() {} async function* f() {} }', Context.Empty],
+    ['{ function f() {} function f() {} }', Context.Empty],
+    ['{ { var f; } async function f() {}; }', Context.Empty],
+    ['{ { var f; } class f {}; }', Context.Empty],
+    ['{ let f; async function f() {} }', Context.Empty],
+    ['{ let a; class a {} }', Context.Empty],
+    ['{ let f; let f }', Context.Empty],
+    ['{ var f; async function* f() {} }', Context.Empty],
+    ['{ var f; const f = 0 }', Context.Empty],
+    ['{ var f; function* f() {} }', Context.Empty],
+    ['{ async function f() {}; var f; }', Context.Empty],
+    ['{ const f = 0; var f; }', Context.Empty],
+    ['{ function* f() {}; var f; }', Context.Empty],
+    ['{ function* f() {}; var f; }', Context.Empty],
+    ['{ let f; var f; }', Context.Empty],
+    ['{ let f; const f = 0 }', Context.Empty],
+    ['{ let f; async function* f() {} }', Context.Empty],
+    ['{ function* f() {}; { var f; } }', Context.Empty],
+    ['{ async function* f() {}; { var f; } }', Context.Empty],
+    ['{ async function f() {}; { var f; } }', Context.Empty],
+    ['{ { var f; } let f; }', Context.Empty],
+    ['{ { var f; } function* f() {}; }', Context.Empty],
+    ['{ { var f; } function f() {} }', Context.Empty],
+    ['{ { var f; } const f = 0; }', Context.Empty],
+    ['{ { var f; } async function* f() {}; } ', Context.Empty],
+    ['{ function* f() {} class f {} }', Context.Empty],
+    ['{ function* f() {} async function* f() {} }', Context.Empty],
+    ['{ function f() {} function* f() {} }', Context.Empty],
+    ['{ class f {}; var f; }', Context.Empty],
+    ['{ var f; async function f() {} }', Context.Empty],
+    ['{ var f; class f {} }', Context.Empty],
+    ['{ let f; function* f() {} }', Context.Empty],
+    ['{ let f; { var f; } }', Context.Empty],
+    ['for (let x, y in {}) { }', Context.Empty],
+    ['for (let x = 3, y = 4 in {}) { }', Context.Empty],
+    ['for (let x, y = 4 in {}) { }', Context.Empty],
+    ['for (let x = 3 in {}) { }', Context.Empty],
+    ['do function g() {} while (false)', Context.Strict],
+    ['{ const f = 0; { var f; } }', Context.Empty],
+    ['{ function* f() {} var f }', Context.Empty],
+    ['function x() { { async function f() {}; var f; } }', Context.Empty],
+    ['{ const f = 0; const f = 0 }', Context.Empty],
+    ['{ class f {} var f }', Context.Empty],
+    ['{ async function f() {} var f }', Context.Empty],
+    ['{ async function f() {} const f = 0 }', Context.Empty],
+    ['{ async function f() {} class f {} }', Context.Empty],
+    ['{ async function f() {} async function* f() {} }', Context.Empty],
+    ['{ async function f() {} async function f() {} }', Context.Empty]
   ];
 
   fail('Statements - Block (fail)', inValids);
 
   pass('Statements - Block (pass)', [
+    [
+      'function f() {} var f;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'var f; function f() {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            ]
+          },
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '{ var f; var f }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'VariableDeclaration',
+                kind: 'var',
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    init: null,
+                    id: {
+                      type: 'Identifier',
+                      name: 'f'
+                    }
+                  }
+                ]
+              },
+              {
+                type: 'VariableDeclaration',
+                kind: 'var',
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    init: null,
+                    id: {
+                      type: 'Identifier',
+                      name: 'f'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'function x() { { var f; var f } }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'VariableDeclaration',
+                      kind: 'var',
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          init: null,
+                          id: {
+                            type: 'Identifier',
+                            name: 'f'
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      type: 'VariableDeclaration',
+                      kind: 'var',
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          init: null,
+                          id: {
+                            type: 'Identifier',
+                            name: 'f'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        ]
+      }
+    ],
     [
       '{}',
       Context.Empty,
@@ -472,7 +692,7 @@ describe('Statements - Block', () => {
     ],
     [
       '{ function f() {} ; function f() {} }',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -520,7 +740,7 @@ describe('Statements - Block', () => {
     ],
     [
       '{ if (x) function f() {} ; function f() {} }',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -678,7 +898,7 @@ describe('Statements - Block', () => {
     ],
     [
       '{ var f = 123; if (true) function f(){} }',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',

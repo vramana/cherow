@@ -20,6 +20,8 @@ describe('Expressions - Labeled', () => {
     ['"use strict"; super: while(true) { break super; }', Context.Empty],
     ['"use strict"; package: while(true) { break package; }', Context.Empty],
     ['(mylabel): while(true) { break mylabel;', Context.Empty]
+    // ['foo: function f() {}', Context.OptionsWebCompat],
+
     // ['"use strict"; eval: while(true) { break eval; }', Context.Empty],
     // ['"use strict"; arguments: while(true) { break arguments; }', Context.Empty],
   ];
@@ -83,7 +85,7 @@ describe('Expressions - Labeled', () => {
     ],
     [
       'a: function foo() {}',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',

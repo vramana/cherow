@@ -4,12 +4,12 @@ import { pass, fail } from '../../test-utils';
 describe('Statements - if', () => {
   const inValids: Array<[string, Context]> = [
     // Bindings
-    ['if (a) function(){}', Context.OptionsDisableWebCompat],
-    ['if (a) class A {}', Context.OptionsDisableWebCompat],
-    ['if (true) function* g() {  } else function* _g() {}', Context.OptionsDisableWebCompat],
-    ['if (true) function* g() {  } else ;', Context.OptionsDisableWebCompat],
-    ['if (true) function* g() {  }', Context.OptionsDisableWebCompat],
-    ['if (false) ; else function* g() {  }', Context.OptionsDisableWebCompat]
+    ['if (a) function(){}', Context.Empty],
+    ['if (a) class A {}', Context.Empty],
+    ['if (true) function* g() {  } else function* _g() {}', Context.Empty],
+    ['if (true) function* g() {  } else ;', Context.Empty],
+    ['if (true) function* g() {  }', Context.Empty],
+    ['if (false) ; else function* g() {  }', Context.Empty]
   ];
 
   fail('Statements - If (fail)', inValids);
@@ -19,7 +19,7 @@ describe('Statements - if', () => {
     // Should only pass with AnnexB
     [
       'if (a) function a(){}',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         sourceType: 'script',
@@ -109,5 +109,5 @@ describe('Statements - if', () => {
     //['if (foo) a; if (bar) b; else c;', Context.OptionDisablesWebCompat, {}]
   ];
 
-  pass('Statements - Block (pass)', valids);
+  pass('Statements - If (pass)', valids);
 });

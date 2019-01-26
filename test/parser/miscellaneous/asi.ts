@@ -119,7 +119,7 @@ describe('Miscellaneous - ASI', () => {
 
     it(`${arg}`, () => {
       t.throws(() => {
-        parseSource(`${arg}`, undefined, Context.OptionsDisableWebCompat);
+        parseSource(`${arg}`, undefined, Context.Empty);
       });
     });
 

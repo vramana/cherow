@@ -32,9 +32,9 @@ describe('Expressions - Async', () => {
     //["(async function foo4() { } => 1)",Context.Empty],
     //["(async function() { } foo5 => 1)",Context.Empty],
     //["(async function() { } () => 1)",Context.Empty],
-    //["(async function() { } => 1)",Context.Empty],
+    ['(async function() { } => 1)', Context.Empty],
     //  ["(async.foo6 => 1)",Context.Empty],
-    ///['(async.foo7 foo8 => 1)', Context.Empty],
+    //['(async.foo7 foo8 => 1)', Context.Empty],
     //    ["(async.foo9 () => 1)",Context.Empty],
     //  ["(async().foo10 => 1)",Context.Empty],
     ///['(async().foo11 foo12 => 1)', Context.Empty],
@@ -63,14 +63,14 @@ describe('Expressions - Async', () => {
     ['async \n function(){}', Context.Empty],
     ['(async \n function(){})', Context.Empty],
     ['async function(){}', Context.Empty],
-    //['if (async \n () => x) x', Context.Empty],
+    ['if (async \n () => x) x', Context.Empty],
     ['export async \n function(){}', Context.Module],
     // ['export async \n a => b', Context.Module],
     // ['async \n => async', Context.Empty],
     //  ['(async \n => async)', Context.Empty],
     ['let async => async', Context.Empty],
-    ['let async \n => async', Context.Empty]
-    //['let f = async \n (g) => g', Context.Empty]
+    ['let async \n => async', Context.Empty],
+    ['let f = async \n (g) => g', Context.Empty]
   ];
   fail('Expressions - Async', inValids);
 

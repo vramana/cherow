@@ -43,7 +43,7 @@ describe('Expressions - Exponentiation', () => {
     ['++-x ** 10', Context.Empty],
     ['--+O.p ** 10', Context.Empty],
     ['--+x ** 10', Context.Empty],
-    // ["[ x ] **= [ 2 ]", Context.Empty],
+    ['[ x ] **= [ 2 ]', Context.Empty],
     ['[ x **= 2 ] = [ 2 ]', Context.Empty],
     ['{ x } **= { x: 2 }', Context.Empty],
     ['{ x: x **= 2 ] = { x: 2 }', Context.Empty]

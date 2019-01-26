@@ -92,10 +92,11 @@ describe('Expressions - Template', () => {
     ['`\\u{110000}`', Context.Empty],
     ['`\\u{110000}${0}right`', Context.Empty],
     ['`left${0}\\u{110000}`', Context.Empty],
-    ['`left${0}\\u{110000}${1}right`', Context.Empty]
+    ['`left${0}\\u{110000}${1}right`', Context.Empty],
     //['`\\1``\\2`', Context.Empty]
-
-    // ["`foo${1 if}`",Context.Empty],
+    // Issue #309
+    ['`${yield}`', Context.Strict]
+    //["`foo${1 if}`",Context.Empty],
   ];
   fail('Expressions - Template', inValids);
 

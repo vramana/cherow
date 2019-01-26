@@ -24,9 +24,9 @@ describe('Expressions - Async arrow', () => {
     'async (()) => 0',
     'async(,)',
     '"use strict"; async (foo, bar eval) => {};',
-    'async() => { await: ; };'
-    //  `async
-    //(a) => await a`
+    'async() => { await: ; };',
+    `async
+    (a) => await a`
   ];
 
   for (const arg of invalidSyntax) {
@@ -54,7 +54,7 @@ describe('Expressions - Async arrow', () => {
     // ['async (a, ...b, ...c) => {}', Context.Empty],
     ['async\n(a, b) => {}', Context.Empty],
     // ['new async() => {}', Context.Empty],
-    // ['({ async\nf(){} })', Context.Empty],
+    ['({ async\nf(){} })', Context.Empty],
     // ['async ((a)) => {}', Context.Empty],
     ['({ async get a(){} })', Context.Empty],
     ['async a => {} ()', Context.Empty],

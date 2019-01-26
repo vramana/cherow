@@ -180,7 +180,7 @@ table[Chars.Hyphen] = (state, context) => {
       state.index++;
       state.column++;
       if (
-        (context & Context.OptionsDisableWebCompat) === 0 &&
+        context & Context.OptionsWebCompat &&
         ((state.flags & Flags.NewLine || state.startIndex === 0) && consumeOpt(state, Chars.GreaterThan))
       ) {
         return skipSingleHTMLComment(state, context, CommentType.HTMLClose);

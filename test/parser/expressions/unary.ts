@@ -12,14 +12,14 @@ fail('Expressions - Unary (fail)', [
   ['"use strict"; delete foo + 1;', Context.Strict],
   ['"use strict"; delete eval;', Context.Strict],
   ['"use strict"; delete (foo);', Context.Strict],
-  ['"use strict"; delete interface;', Context.Strict]
+  ['"use strict"; delete interface;', Context.Strict],
   // ['typeof async () => x', Context.Empty],
   // ['typeof async \n () => x', Context.Empty],
   // ['let x = typeof async \n (x) => x', Context.Empty],
   // ['let x = typeof async (x) \n => x', Context.Empty],
   // ['delete async \n () => x', Context.Empty],
   // ['delete async () \n => x', Context.Empty],
-  // ['let x = delete async \n (x) => x', Context.Empty],
+  ['let x = delete async \n (x) => x', Context.Empty]
   // ['let x = delete async (x) \n => x', Context.Empty]
 ]);
 

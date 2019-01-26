@@ -3,63 +3,79 @@ import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Switch', () => {
   fail('Statements - Return (fail)', [
-    ['switch (x) { case a: let foo; break; case b: let foo; break; }', Context.OptionsDisableWebCompat],
-    ['switch (x) { case a: let foo; break; default: let foo; break; }', Context.OptionsDisableWebCompat],
-    ['switch (x) { case a: let foo; break; case b: var foo; break; }', Context.OptionsDisableWebCompat],
-    ['switch (x) { case a: var foo; break; case b: let foo; break; }', Context.OptionsDisableWebCompat],
-    ['switch (x) { case a: let foo; break; case b: const foo = x; break; }', Context.OptionsDisableWebCompat],
-    ['switch (x) { case a: const foo = x; break; case b: let foo; break; }', Context.OptionsDisableWebCompat],
-    ['switch (x) { case a: const foo = x; break; case b: const foo = x; break; }', Context.OptionsDisableWebCompat],
-    ['switch (x) { case a: const foo = x; break; case b: var foo = x; break; }', Context.OptionsDisableWebCompat],
-    ['switch (x) { case a: var foo = x; break; case b: const foo = x; break; }', Context.OptionsDisableWebCompat],
-    ['switch (x) { case 0: var foo = 1 } let foo = 1;', Context.OptionsDisableWebCompat],
+    ['switch (x) { case a: let foo; break; case b: let foo; break; }', Context.Empty],
+    ['switch (x) { case a: let foo; break; default: let foo; break; }', Context.Empty],
+    ['switch (x) { case a: let foo; break; case b: var foo; break; }', Context.Empty],
+    ['switch (x) { case a: var foo; break; case b: let foo; break; }', Context.Empty],
+    ['switch (x) { case a: let foo; break; case b: const foo = x; break; }', Context.Empty],
+    ['switch (x) { case a: const foo = x; break; case b: let foo; break; }', Context.Empty],
+    ['switch (x) { case a: const foo = x; break; case b: const foo = x; break; }', Context.Empty],
+    ['switch (x) { case a: const foo = x; break; case b: var foo = x; break; }', Context.Empty],
+    ['switch (x) { case a: var foo = x; break; case b: const foo = x; break; }', Context.Empty],
+    ['switch (x) { case 0: var foo = 1 } let foo = 1;', Context.Empty],
     ['switch (x) {case a: const f = x; break; case b: function f(){}; break; }', Context.Empty],
     ['switch (x) {case a: function f(){}; break; case b: let f; break; }', Context.Empty],
-    ['switch (x) {case a: function f(){}; break; case b: let f; break; }', Context.OptionsDisableWebCompat],
-    ['switch (x) {case a: async function f(){}; break; case b: let f; break; }', Context.OptionsDisableWebCompat],
+    ['switch (x) {case a: function f(){}; break; case b: let f; break; }', Context.Empty],
+    ['switch (x) {case a: async function f(){}; break; case b: let f; break; }', Context.Empty],
     ['switch (0) { case 1: async function* f() {} default: async function f() {} }', Context.Empty],
     ['switch (0) { case 1: async function* f() {} default: async function* f() {} }', Context.Empty],
     ['switch (0) { case 1: async function* f() {} default: const f = 0 }', Context.Empty],
     ['switch (0) { case 1: async function* f() {} default: let f }', Context.Empty],
     ['switch (0) { case 1: class f {} default: async function f() {} }', Context.Empty],
     ['switch (0) { case 1: async function f() {} default: async function f() {} }', Context.Empty],
-    ['switch (x) {case a: function f(){}; break; case b: async function f(){} }', Context.OptionsDisableWebCompat],
-    [
-      'switch (x) {case a: async function f(){}; break; case b: async function f(){} }',
-      Context.OptionsDisableWebCompat
-    ],
-    ['switch (x) {case a: async function *f(){}; break; case b: function f(){} }', Context.OptionsDisableWebCompat],
-    ['switch (x) {case a: function *f(){}; break; case b: async function f(){} }', Context.OptionsDisableWebCompat],
-    ['()?c:d=>{}=>{}', Context.OptionsDisableWebCompat],
-    ['switch(x) { default: default: }', Context.OptionsDisableWebCompat],
-    ['switch(x) { default: break; default: break; }', Context.OptionsDisableWebCompat],
-    ['switch(x) { case y: break; case z: break; default: default: }', Context.OptionsDisableWebCompat],
-    ['switch(x) { default: default: case y: break; case z: break; }', Context.OptionsDisableWebCompat],
-    ['switch(x) { default: break; case y: break; case z: break; default: break; }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: async function f() {} default: async function f() {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: async function f() {} default: async function* f() {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: async function f() {} default: class f {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: async function f() {} default: var f }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: async function f() {} default: var f }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: async function* f() {} default: const f = 0 }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: async function* f() {} default: let f }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: const f = 0; default: var f }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: function f() {} default: function f() {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: function* f() {} default: class f {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: let f; default: async function* f() {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: var f; default: const f = 0 }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: var f; default: let f }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: function* f() {} default: async function* f() {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: function f() {} default: var f }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: function f() {} default: function* f() {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: function f() {} default: const f = 0 }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: function f() {} default: class f {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: const f = 0; default: let f }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: class f {} default: function* f() {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: class f {} default: const f = 0 }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: async function* f() {} default: class f {} }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: async function f() {} default: function f() {} }', Context.OptionsDisableWebCompat],
-
+    ['switch (x) {case a: function f(){}; break; case b: async function f(){} }', Context.Empty],
+    ['switch (x) {case a: async function f(){}; break; case b: async function f(){} }', Context.Empty],
+    ['switch (x) {case a: async function *f(){}; break; case b: function f(){} }', Context.Empty],
+    ['switch (x) {case a: function *f(){}; break; case b: async function f(){} }', Context.Empty],
+    ['()?c:d=>{}=>{}', Context.Empty],
+    ['switch(x) { default: default: }', Context.Empty],
+    ['switch(x) { default: break; default: break; }', Context.Empty],
+    ['switch(x) { case y: break; case z: break; default: default: }', Context.Empty],
+    ['switch(x) { default: default: case y: break; case z: break; }', Context.Empty],
+    ['switch(x) { default: break; case y: break; case z: break; default: break; }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: async function f() {} }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: var f }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: var f }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: const f = 0 }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: let f }', Context.Empty],
+    ['switch (0) { case 1: const f = 0; default: var f }', Context.Empty],
+    ['switch (0) { case 1: function f() {} default: function f() {} }', Context.Empty],
+    ['switch (0) { case 1: function* f() {} default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: let f; default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: var f; default: const f = 0 }', Context.Empty],
+    ['switch (0) { case 1: var f; default: let f }', Context.Empty],
+    ['switch (0) { case 1: function* f() {} default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: function f() {} default: var f }', Context.Empty],
+    ['switch (0) { case 1: function f() {} default: function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: function f() {} default: const f = 0 }', Context.Empty],
+    ['switch (0) { case 1: function f() {} default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: const f = 0; default: let f }', Context.Empty],
+    ['switch (0) { case 1: class f {} default: function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: class f {} default: const f = 0 }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: function f() {} }', Context.Empty],
+    ['switch (0) { case 1: let f; default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: let f; default: const f = 0 }', Context.Empty],
+    ['switch (0) { case 1: let f; default: function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: let f; default: let f }', Context.Empty],
+    ['switch (0) { case 1: var f; default: async function f() {} }', Context.Empty],
+    ['switch (0) { case 1: var f; default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: var f; default: let f }', Context.Empty],
+    ['switch (0) { case 1: function* f() {} default: function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: function f() {} default: async function f() {} }', Context.Empty],
+    ['switch (0) { case 1: function f() {} default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: const f = 0; default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: const f = 0; default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: class f {} default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: class f {} default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: var f }', Context.Empty],
+    ['switch (0) { case 1: async function* f() {} default: async function* f() {} }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: let f }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: const f = 0 }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: class f {} }', Context.Empty],
+    ['switch (0) { case 1: async function f() {} default: function f() {} }', Context.Empty],
     [
       `function SwitchTest(value){
       var result = 0;
@@ -75,12 +91,74 @@ describe('Expressions - Switch', () => {
       }
       return result;
     }`,
-      Context.OptionsDisableWebCompat
+      Context.Empty
     ]
   ]);
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      'switch (0) { case 1: var f; default: var f }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Literal',
+              value: 0
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Literal',
+                  value: 1
+                },
+                consequent: [
+                  {
+                    type: 'VariableDeclaration',
+                    kind: 'var',
+                    declarations: [
+                      {
+                        type: 'VariableDeclarator',
+                        init: null,
+                        id: {
+                          type: 'Identifier',
+                          name: 'f'
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                type: 'SwitchCase',
+                test: null,
+                consequent: [
+                  {
+                    type: 'VariableDeclaration',
+                    kind: 'var',
+                    declarations: [
+                      {
+                        type: 'VariableDeclarator',
+                        init: null,
+                        id: {
+                          type: 'Identifier',
+                          name: 'f'
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
     [
       '"use strict"; switch(x) { case 1: }',
       Context.OptionsRaw | Context.OptionsDirectives,
@@ -422,6 +500,92 @@ describe('Expressions - Switch', () => {
         sourceType: 'script'
       }
     ],
+    [
+      `let x
+  switch (x) {
+  case 1:
+    function a() {}
+  case 2:
+    function a() {}
+  }`,
+      Context.OptionsWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          },
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Literal',
+                  value: 1
+                },
+                consequent: [
+                  {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: {
+                      type: 'Identifier',
+                      name: 'a'
+                    }
+                  }
+                ]
+              },
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Literal',
+                  value: 2
+                },
+                consequent: [
+                  {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: {
+                      type: 'Identifier',
+                      name: 'a'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+
     [
       'switch (A) {case B: C; case D: E;}',
       Context.Empty,

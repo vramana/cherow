@@ -6,14 +6,14 @@ import { parseSource } from '../../../src/cherow';
 describe('Statements - For in', () => {
   fail('Statements - For in (fail)', [
     ['for (let in x) {}', Context.Strict],
-    ['for (let x;;) { var x; }', Context.OptionsDisableWebCompat],
-    ['for (const x = y;;) { var x; }', Context.OptionsDisableWebCompat],
-    ['for (let x in y) { var x; }', Context.OptionsDisableWebCompat],
-    ['for (const x in y) { var x; }', Context.OptionsDisableWebCompat],
-    ['for (let x of y) { var x; }', Context.OptionsDisableWebCompat],
-    ['for (const a;;);', Context.OptionsDisableWebCompat],
-    ['for (const a,b,c;;);', Context.OptionsDisableWebCompat],
-    ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.OptionsDisableWebCompat],
+    ['for (let x;;) { var x; }', Context.Empty],
+    ['for (const x = y;;) { var x; }', Context.Empty],
+    ['for (let x in y) { var x; }', Context.Empty],
+    ['for (const x in y) { var x; }', Context.Empty],
+    ['for (let x of y) { var x; }', Context.Empty],
+    ['for (const a;;);', Context.Empty],
+    ['for (const a,b,c;;);', Context.Empty],
+    ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.Empty],
     ['for (const let in {}) {}', Context.Empty],
     ['for (let let of {}) {}', Context.Empty],
     ['for(var [] = 0 in {});', Context.Empty],
@@ -206,7 +206,7 @@ describe('Statements - For in', () => {
   const valids: Array<[string, Context, any]> = [
     [
       'for (var {x : y} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -256,7 +256,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [foo, bar=b] of arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -308,7 +308,7 @@ describe('Statements - For in', () => {
 
     [
       'for (var {[x]: y} of obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -360,7 +360,7 @@ describe('Statements - For in', () => {
 
     [
       'for (var {x = y} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -417,7 +417,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [] in x);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -451,7 +451,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [foo,] in arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -490,7 +490,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var a = b in c);',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         type: 'Program',
         body: [
@@ -527,7 +527,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (a in b);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -697,7 +697,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [foo,,bar] in arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -741,7 +741,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [,foo] in arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -781,7 +781,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [foo,bar] in arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -824,7 +824,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [foo,,] in arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -864,7 +864,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [foo=a, bar=b] in arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -921,7 +921,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [,] in x);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -955,7 +955,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [foo] in arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -994,7 +994,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [foo=a] in arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1040,7 +1040,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [foo=a, bar] in arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1090,7 +1090,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [foo, bar=b] in arr);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1140,7 +1140,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var [...foo] in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1182,7 +1182,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var {} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1216,7 +1216,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var {x,} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1266,7 +1266,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var {x, y} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         sourceType: 'script',
@@ -1331,7 +1331,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var {x} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [
@@ -1381,7 +1381,7 @@ describe('Statements - For in', () => {
     ],
     [
       'for (var {x = y} in obj);',
-      Context.OptionsDisableWebCompat,
+      Context.Empty,
       {
         type: 'Program',
         body: [

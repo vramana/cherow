@@ -13,7 +13,7 @@ describe('Expressions - Comments', () => {
   pass('Expressions - Comments (pass)', [
     [
       'var x = 42;/*\n*/-->is eol-comment\nvar y = 37;\n',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         body: [
           {
@@ -57,7 +57,7 @@ describe('Expressions - Comments', () => {
     ],
     [
       '\n/*precomment*/-->eol-comment\nvar y = 37;\n',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         body: [
           {
@@ -84,7 +84,7 @@ describe('Expressions - Comments', () => {
     ],
     [
       '\n-->is eol-comment\nvar y = 37;\n',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         body: [
           {
@@ -111,7 +111,7 @@ describe('Expressions - Comments', () => {
     ],
     [
       '-->',
-      Context.Empty,
+      Context.OptionsWebCompat,
       {
         body: [],
         sourceType: 'script',

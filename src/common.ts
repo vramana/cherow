@@ -13,7 +13,7 @@ export const enum Context {
   OptionsRanges = 1 << 1,
   OptionsJSX = 1 << 2,
   OptionsRaw = 1 << 3,
-  OptionsDisableWebCompat = 1 << 4,
+  OptionsWebCompat = 1 << 4,
   OptionsLoc = 1 << 5,
   OptionsGlobalReturn = 1 << 6,
   OptionsExperimental = 1 << 7,
@@ -60,7 +60,8 @@ export const enum Flags {
   HasPrivateName = 1 << 7,
   InArrowContext = 1 << 8,
   HasStrictReserved = 1 << 9,
-  StrictEvalArguments = 1 << 10
+  StrictEvalArguments = 1 << 10,
+  HasConstructor = 1 << 11
 }
 // prettier-ignore
 /**
@@ -110,7 +111,7 @@ export const enum LabelledState {
   Disallow = 1 << 1
 }
 
-export const enum ObjectState {
+export const enum Modifiers {
   None = 0,
   Method = 1 << 0,
   Computed = 1 << 1,
@@ -122,6 +123,7 @@ export const enum ObjectState {
   ClassField = 1 << 7,
   Getter = 1 << 8,
   Setter = 1 << 9,
+  Extends = 1 << 10,
   GetSet = Getter | Setter
 }
 
@@ -318,7 +320,7 @@ export function addVariable(
       const type = lex.type;
       if (lex['@' + key] !== undefined) {
         if (type === ScopeType.CatchClause) {
-          if (isVarDecl && (context & Context.OptionsDisableWebCompat) === 0) {
+          if (isVarDecl && context & Context.OptionsWebCompat) {
             state.inCatch = true;
           } else {
             report(state, Errors.InvalidCatchVarBinding, key);
@@ -384,7 +386,9 @@ export function addVariable(
  */
 
 export function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context, origin: Origin): boolean {
-  return context & (Context.OptionsDisableWebCompat | Context.Strict)
+  return context & Context.Strict
+    ? true
+    : (context & Context.OptionsWebCompat) === 0
     ? true
     : origin & Origin.AsyncFunction
     ? true
@@ -458,7 +462,7 @@ export function addFunctionName(
   isVarDecl: boolean
 ) {
   addVariable(state, context, scope, bindingType, origin, true, isVarDecl, state.tokenValue);
-  if ((context & Context.OptionsDisableWebCompat) === 0 && !scope.lex.funcs['@' + state.tokenValue]) {
+  if (context & Context.OptionsWebCompat && !scope.lex.funcs['@' + state.tokenValue]) {
     scope.lex.funcs['@' + state.tokenValue] = true;
   }
 }
@@ -596,18 +600,19 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
 export function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token = state.token) {
   if (context & Context.Strict && token === Token.StaticKeyword) report(state, Errors.InvalidStrictStatic);
 
+  if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
+    report(state, Errors.AwaitOutsideAsync);
+  }
+  if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
+    report(state, Errors.DisallowedInContext, 'yield');
+  }
+
   if ((token & Token.FutureReserved) === Token.FutureReserved) {
     if (context & Context.Strict) report(state, Errors.InvalidStrictReservedWord);
   }
 
   if ((token & Token.Reserved) === Token.Reserved) {
     report(state, Errors.InvalidStrictReservedWord);
-  }
-  if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
-    report(state, Errors.AwaitOutsideAsync);
-  }
-  if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
-    report(state, Errors.DisallowedInContext);
   }
 
   if (token === Token.LetKeyword) {
@@ -764,7 +769,7 @@ export function addVariableAndDeduplicate(
   name: string
 ): void {
   addVariable(state, context, scope, type, origin, true, isVarDecl, name);
-  if ((context & Context.OptionsDisableWebCompat) === 0) {
+  if (context & Context.OptionsWebCompat) {
     scope.lex.funcs['#' + state.tokenValue] = false;
   }
 }

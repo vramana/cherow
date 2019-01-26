@@ -30,6 +30,8 @@ describe('Module - Import', () => {
     'import { a } from;',
     "import { a } 'foo';",
     "import , from 'foo';",
+    `for (let x = 0; false;)
+     import v from './decl-pos-import-for-let.js';`,
     "import a , from 'foo';",
     "import a { b, c } from 'foo';",
     'import { null } from "null',

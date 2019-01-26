@@ -6,7 +6,6 @@ import { parseSource } from '../../../src/cherow';
 describe('Expressions - Assignment', () => {
   for (const arg of [
     '0, [[(x, y)]] = [[]];',
-    // `0, [arguments] = [];`,
     `0, [...x = 1] = [];`,
     '(function*() { 0, { yield } = {}; });',
     '1 = 1;',
