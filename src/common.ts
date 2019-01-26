@@ -817,17 +817,6 @@ export function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Contex
 }
 
 /**
- * Validates if the next token in the stream is left parenthesis.
- *
- * @param parser Parser object
- * @param context  Context masks
- */
-export function nextTokenIsLeftParen(parser: ParserState, context: Context): boolean {
-  next(parser, context);
-  return parser.token === Token.LeftParen;
-}
-
-/**
  * Bit fiddle current grammar state and keep track of the state during the parse and restore
  * it back to original state after finish parsing or throw.
  *

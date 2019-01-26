@@ -31,7 +31,6 @@ import {
   createScope,
   Modifiers,
   nextTokenIsLeftParenOrPeriod,
-  nextTokenIsLeftParen,
   acquireGrammar,
   secludeGrammar,
   nameIsArgumentsOrEval
@@ -382,19 +381,17 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       const exportedBindings: string[] = [];
 
       expect(state, context, Token.LeftBrace);
-      while (state.token !== <Token>Token.RightBrace) {
+      while (state.token & Token.IsIdentifier) {
         const tokenValue = state.tokenValue;
-        const token = state.token;
         const local = parseIdentifier(state, context);
         let exported: any;
         if (state.token === <Token>Token.AsKeyword) {
           next(state, context);
-          if (!(state.token & Token.IsIdentifier)) report(state, Errors.Unexpected);
+          if ((state.token & Token.IsIdentifier) === 0) report(state, Errors.InvalidKeywordAsAlias);
           exportedNames.push(state.tokenValue);
           exportedBindings.push(tokenValue);
           exported = parseIdentifier(state, context);
         } else {
-          validateBindingIdentifier(state, context, Type.Const, token);
           exportedNames.push(state.tokenValue);
           exportedBindings.push(state.tokenValue);
           exported = local;
@@ -411,11 +408,10 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
       expect(state, context, Token.RightBrace);
 
-      if (state.token === <Token>Token.FromKeyword) {
-        next(state, context);
+      if (optional(state, context, Token.FromKeyword)) {
         //  The left hand side can't be a keyword where there is no
         // 'from' keyword since it references a local binding.
-        if (state.token !== <Token>Token.StringLiteral) report(state, Errors.Unexpected);
+        if (state.token !== <Token>Token.StringLiteral) report(state, Errors.InvalidExport);
         source = parseLiteral(state, context, state.tokenValue);
       } else {
         let i = 0;
@@ -440,11 +436,13 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       break;
     case Token.LetKeyword:
       declaration = parseLexicalDeclaration(state, context, Type.Let, Origin.Export, scope);
-      if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, false)) report(state, Errors.Unexpected);
+      if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, false))
+        report(state, Errors.DuplicateExportBinding, 'let');
       break;
     case Token.ConstKeyword:
       declaration = parseLexicalDeclaration(state, context, Type.Const, Origin.Export, scope);
-      if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, false)) report(state, Errors.Unexpected);
+      if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, false))
+        report(state, Errors.DuplicateExportBinding, 'const');
       break;
     case Token.VarKeyword:
       declaration = parseVariableStatement(state, context, Type.Variable, Origin.Export, scope);
@@ -453,10 +451,14 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       declaration = parseHoistableFunctionDeclaration(state, context, scope, true, false);
       break;
     case Token.AsyncKeyword:
-      declaration = parseAsyncFunctionOrAssignmentExpression(state, context, scope, false);
-      break;
+      next(state, context);
+      if ((state.flags & Flags.NewLine) === 0 && (state.token as Token) === Token.FunctionKeyword) {
+        declaration = parseHoistableFunctionDeclaration(state, context, scope, false, true);
+        break;
+      }
+    // falls through
     default:
-      report(state, Errors.Unexpected);
+      report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
   }
 
   return {
@@ -962,9 +964,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
   let secondScope: ScopeState = scope;
   if (optional(state, context, Token.LeftParen)) {
     const catchScope = createSubScope(scope, ScopeType.CatchClause);
-    if (state.token === Token.RightParen) report(state, Errors.Unexpected);
     param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.ArgList, Origin.CatchClause, false);
-    if (state.token === Token.Assign) report(state, Errors.Unexpected);
     if (checkIfExistInLexicalBindings(state, context, catchScope, Origin.None, true))
       report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
     expect(state, context, Token.RightParen);
@@ -1266,7 +1266,9 @@ export function parseBindingIdentifier(
   origin: Origin,
   checkForDuplicates: boolean
 ): ESTree.Identifier {
-  const name = state.tokenValue;
+  const { tokenValue: name, token } = state;
+  if ((state.token & Token.IsIdentifier) === 0)
+    report(state, Errors.UnexpectedToken, KeywordDescTable[token & Token.Type]);
 
   // TODO: (fkleuver) This should be tokens in 'token.ts', and validated inside 'validateBindingIdentifier'
   if (context & Context.Strict) {
@@ -2323,11 +2325,12 @@ function parseAwaitExpression(
   state: ParserState,
   context: Context
 ): ESTree.AwaitExpression | ESTree.Identifier | ESTree.ArrowFunctionExpression {
-  if (context & Context.InArgList) report(state, Errors.Unexpected);
+  state.assignable = false;
+  if (context & Context.InArgList) report(state, Errors.AwaitInParameter);
   next(state, context | Context.AllowPossibleRegEx);
   return {
     type: 'AwaitExpression',
-    argument: parseUnaryExpression(state, context)
+    argument: secludeGrammar(state, context, 0, parseUnaryExpression)
   };
 }
 
@@ -2449,7 +2452,7 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
   //   (NewExpression | MemberExpression) ...
   const expr: any =
     context & Context.OptionsNext && state.token === Token.ImportKeyword
-      ? parseCallImportOrMetaProperty(state, context)
+      ? parseCallImportOrMetaProperty(state, context, false)
       : state.token === Token.SuperKeyword
       ? parseSuperExpression(state, context)
       : parseMemberExpression(state, context, parsePrimaryExpression(state, context));
@@ -2519,13 +2522,14 @@ function parseCallExpression(state: ParserState, context: Context, callee: any |
  * @param context Context masks
  */
 
-function parseCallImportOrMetaProperty(state: ParserState, context: Context): ESTree.Expression {
+function parseCallImportOrMetaProperty(state: ParserState, context: Context, isNew: boolean): ESTree.Expression {
   const id = parseIdentifier(state, context);
   // Import.meta - Stage 3 proposal
   if (optional(state, context, Token.Period)) {
     if (context & Context.Module && state.tokenValue === 'meta') return parseMetaProperty(state, context, id);
     report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
-  }
+  } else if (isNew && state.token === Token.LeftParen)
+    report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
 
   const expr = parseImportExpression();
   return parseCallExpression(state, context, expr);
@@ -2904,17 +2908,10 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
       ? report(state, Errors.Unexpected)
       : parseMetaProperty(state, context, id);
   }
-  let callee;
-
-  if (context & Context.OptionsNext && state.token === Token.ImportKeyword) {
-    // Invalid: '"new import(x)"'
-    if (lookAheadOrScan(state, context, nextTokenIsLeftParen, true))
-      report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
-    // Fixes cases like ''new import.meta','
-    callee = parseCallImportOrMetaProperty(state, context);
-  } else {
-    callee = secludeGrammar(state, context, 0, parseMemberExpressionOrHigher);
-  }
+  let callee =
+    context & Context.OptionsNext && state.token === Token.ImportKeyword
+      ? parseCallImportOrMetaProperty(state, context, true)
+      : secludeGrammar(state, context, parsePrimaryExpression(state, context), parseMemberExpression);
 
   return {
     type: 'NewExpression',
@@ -2923,9 +2920,6 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
   };
 }
 
-function parseMemberExpressionOrHigher(state: ParserState, context: Context): any {
-  return parseMemberExpression(state, context, parsePrimaryExpression(state, context));
-}
 /**
  * Parse primary expression
  *
@@ -3395,8 +3389,7 @@ function parseClassDeclaration(state: ParserState, context: Context, scope: Scop
  */
 function parseClassExpression(state: ParserState, context: Context): ESTree.ClassExpression {
   next(state, context);
-  context = (context | (Context.Strict | Context.InConstructor)) ^ (Context.Strict | Context.InConstructor);
-
+  context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
   let id: ESTree.Expression | null = null;
   let superClass: ESTree.Expression | null = null;
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
