@@ -2848,6 +2848,9 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
 function parseSpreadElement(state: ParserState, context: Context, origin: Origin): ESTree.SpreadElement {
   expect(state, context | Context.AllowPossibleRegEx, Token.Ellipsis);
   if (origin & Origin.ObjectExpression && (state.token === Token.LeftBracket || state.token === Token.LeftBrace)) {
+    // Fixes cases where '{' or '[' directly follows after '...' in object expr. E.g. '({...{a, b}} = x):'
+    // This has to be done before we parse out the 'AssignmentExpression' because none
+    // of this should be 'bindable' or 'assignable'
     state.bindable = state.assignable = false;
   }
   const argument = acquireGrammar(state, context, 0, parseAssignmentExpression);
