@@ -1818,19 +1818,17 @@ export function parseFormalParameters(
   let hasComplexArgs = false;
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
-      state.flags |= Flags.SimpleParameterList;
+      hasComplexArgs = true;
       if (objState & Modifiers.Setter) report(state, Errors.BadSetterRestParameter);
       params.push(parseRestElement(state, context, scope, Type.ArgList, Origin.None));
       break; //rest parameter must be the last
     }
-    if ((state.token & Token.Identifier) !== Token.Identifier) state.flags |= Flags.SimpleParameterList;
 
+    if ((state.token & Token.Identifier) !== Token.Identifier) hasComplexArgs = true;
     let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
     if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
-      state.flags |= Flags.SimpleParameterList;
-      if ((state.token & Token.Identifier) === Token.Identifier) {
-        hasComplexArgs = true;
-      } else if (state.token & Token.IsYield && context & (Context.Strict | Context.YieldContext))
+      hasComplexArgs = true;
+      if (state.token & Token.IsYield && context & (Context.Strict | Context.YieldContext))
         report(state, Errors.Unexpected);
       left = parseAssignmentPattern(state, context, left);
     }
@@ -1851,7 +1849,7 @@ export function parseFormalParameters(
   if (hasComplexArgs || (context & (Context.Strict | Context.InMethod)) > 0) {
     validateFunctionArgs(state, scope.lex);
   }
-
+  if (hasComplexArgs) state.flags |= Flags.SimpleParameterList;
   return params;
 }
 
