@@ -179,6 +179,12 @@ function parseAsyncFunctionOrAssignmentExpression(
 function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): any {
   state.assignable = state.bindable = true;
   switch (state.token) {
+    case Token.ExportKeyword:
+      report(state, Errors.InvalidImportExportSloppy, KeywordDescTable[state.token & Token.Type]);
+    case Token.ImportKeyword:
+      return (context & Context.OptionsNext) !== 0
+        ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.AllowAsLabelled)
+        : report(state, Errors.InvalidImportExportSloppy, KeywordDescTable[state.token & Token.Type]);
     case Token.FunctionKeyword:
       return parseFunctionDeclaration(state, context, scope, Origin.Declaration, false);
     case Token.ClassKeyword:
@@ -411,7 +417,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       if (optional(state, context, Token.FromKeyword)) {
         //  The left hand side can't be a keyword where there is no
         // 'from' keyword since it references a local binding.
-        if (state.token !== <Token>Token.StringLiteral) report(state, Errors.InvalidExport);
+        if (state.token !== <Token>Token.StringLiteral) report(state, Errors.InvalidExportImportSource, 'Export');
         source = parseLiteral(state, context, state.tokenValue);
       } else {
         let i = 0;
@@ -488,7 +494,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
     // V8: 'VariableMode::kConst',
     // Cherow: 'Type.Const'
     validateBindingIdentifier(state, context, Type.Const);
-    addVariable(state, context, scope, Type.None, Origin.None, true, false, state.tokenValue);
+    addVariableAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
     specifiers.push({
       type: 'ImportDefaultSpecifier',
       local: parseIdentifier(state, context)
@@ -500,7 +506,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
         parseImportNamespace(state, context, scope, specifiers);
       } else if (state.token === Token.LeftBrace) {
         parseImportSpecifierOrNamedImports(state, context, scope, specifiers);
-      } else report(state, Errors.Unexpected);
+      } else report(state, Errors.InvalidDefaultImport);
     }
 
     source = parseModuleSpecifier(state, context);
@@ -557,22 +563,20 @@ function parseImportSpecifierOrNamedImports(
   //   IdentifierName 'as' BindingIdentifier
   expect(state, context, Token.LeftBrace);
 
-  while (state.token !== Token.RightBrace) {
-    const tokenValue = state.tokenValue;
-    const token = state.token;
-    if (!(state.token & Token.IsIdentifier)) report(state, Errors.Unexpected);
+  while (state.token & Token.IsIdentifier) {
+    const { token, tokenValue } = state;
     const imported = parseIdentifier(state, context);
     let local: ESTree.Identifier;
     if (optional(state, context, Token.AsKeyword)) {
-      // TODO: (fkleuver): Need to validate for 'enum' and 'arguments' inside 'validateBindingIdentifier'
+      if ((state.token & Token.IsIdentifier) === 0) report(state, Errors.InvalidKeywordAsAlias);
       validateBindingIdentifier(state, context, Type.Const);
-      addVariable(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);
+      addVariableAndDeduplicate(state, context, scope, Type.Const, Origin.None, false, state.tokenValue);
       local = parseIdentifier(state, context);
     } else {
       // An import name that is a keyword is a syntax error if it is not followed
       // by the keyword 'as'.
       validateBindingIdentifier(state, context, Type.Const, token);
-      addVariable(state, context, scope, Type.Const, Origin.None, true, false, tokenValue);
+      addVariableAndDeduplicate(state, context, scope, Type.Const, Origin.None, false, tokenValue);
       local = imported;
     }
 
@@ -628,7 +632,7 @@ function parseModuleSpecifier(state: ParserState, context: Context): ESTree.Lite
   // ModuleSpecifier :
   //   StringLiteral
   expect(state, context, Token.FromKeyword);
-  if (state.token !== Token.StringLiteral) report(state, Errors.Unexpected);
+  if (state.token !== Token.StringLiteral) report(state, Errors.InvalidExportImportSource, 'Import');
   return parseLiteral(state, context, state.tokenValue);
 }
 

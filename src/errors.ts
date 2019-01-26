@@ -110,8 +110,10 @@ export const enum Errors {
   AwaitInParameter,
   YieldInParameter,
   InvalidKeywordAsAlias,
-  InvalidExport,
-  DuplicateExportBinding
+  DuplicateExportBinding,
+  InvalidDefaultImport,
+  InvalidExportImportSource,
+  InvalidImportExportSloppy
 }
 
 /*@internal*/
@@ -231,8 +233,10 @@ export const errorMessages: {
   [Errors.AwaitInParameter]: 'Await expression not allowed in formal parameter',
   [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
   [Errors.InvalidKeywordAsAlias]: 'Only a identifier can be used to indicate alias',
-  [Errors.InvalidExport]: 'Export source must be a string',
-  [Errors.DuplicateExportBinding]: "'%0' export binding already bound"
+  [Errors.DuplicateExportBinding]: "'%0' export binding already bound",
+  [Errors.InvalidDefaultImport]: "Only '*' or '{...}' can be imported after default",
+  [Errors.InvalidExportImportSource]: '%0 source must be string',
+  [Errors.InvalidImportExportSloppy]: ' The %0 keyword can only be used with the module goal'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

@@ -75,11 +75,10 @@ describe('Module - Export', () => {
     export default null;`,
     'switch(0) { case 1: export default null; default: }',
     'switch(0) { case 1: export default null; default: }',
-    // "export default (async function await() {})",
+    'export default (async function await() {})',
     'export default async function await() {}',
     'export async function await() {}',
-    // "export async function() {}",
-    // "export async",
+    'export async',
     'export async\nfunction async() { await 1; }',
     'export }',
     'var foo, bar; export { foo bar };',
@@ -220,9 +219,6 @@ describe('Module - Export', () => {
     ['export let [x] = y; export {x};', Context.Strict | Context.Module],
     ['export {x}; export let [...x] = y;', Context.Strict | Context.Module],
     ['export {x}; export let {...x} = y;', Context.Strict | Context.Module],
-    ['var x, y; export default x; export {y as default};', Context.Strict | Context.Module],
-    ['var x, y; export default x; export {y as default};', Context.Strict | Context.Module],
-    ['var x, y; export default x; export {y as default};', Context.Strict | Context.Module],
     ['var a; export {a, a}', Context.Strict | Context.Module],
     ['var a, b; export {a, b, a}', Context.Strict | Context.Module],
     ['var a, b; export {b, a, a}', Context.Strict | Context.Module],
@@ -240,7 +236,6 @@ describe('Module - Export', () => {
     ['var a,b; export {b, a}; export {a};', Context.Strict | Context.Module],
     ['var a,b; export {a}; export {a, b};', Context.Strict | Context.Module],
     ['export {b as a}; export {a};', Context.Strict | Context.Module],
-    ['export {a}; export {b as a};', Context.Strict | Context.Module],
     ['var a; export {b as a};', Context.Strict | Context.Module],
     ['export {a as b};', Context.Strict | Context.Module],
     ['export let foo; export let foo;', Context.Strict | Context.Module],
@@ -368,6 +363,74 @@ describe('Module - Export', () => {
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      'var a,b; export {a}; export {b};',
+      Context.Strict | Context.Module | Context.OptionsNext,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'a',
+                  type: 'Identifier'
+                },
+                init: null,
+                type: 'VariableDeclarator'
+              },
+              {
+                id: {
+                  name: 'b',
+                  type: 'Identifier'
+                },
+                init: null,
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          },
+          {
+            declaration: null,
+            source: null,
+            specifiers: [
+              {
+                exported: {
+                  name: 'a',
+                  type: 'Identifier'
+                },
+                local: {
+                  name: 'a',
+                  type: 'Identifier'
+                },
+                type: 'ExportSpecifier'
+              }
+            ],
+            type: 'ExportNamedDeclaration'
+          },
+          {
+            declaration: null,
+            source: null,
+            specifiers: [
+              {
+                exported: {
+                  name: 'b',
+                  type: 'Identifier'
+                },
+                local: {
+                  name: 'b',
+                  type: 'Identifier'
+                },
+                type: 'ExportSpecifier'
+              }
+            ],
+            type: 'ExportNamedDeclaration'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
+      }
+    ],
     [
       'export default async () => y',
       Context.Strict | Context.Module | Context.OptionsNext,
