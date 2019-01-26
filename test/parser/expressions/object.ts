@@ -64,9 +64,9 @@ describe('Expressions - Object', () => {
     ['({*get x(){}})', Context.Strict],
 
     ['({get foo( +})', Context.Strict],
-    // ['({static x: 0})', Context.Strict],
-    // ['({static x(){}})', Context.Strict],
-    // ['({static async x(){}})', Context.Strict],
+    ['({static x: 0})', Context.Strict],
+    //['({static x(){}})', Context.Strict],
+    ['({static async x(){}})', Context.Strict],
     ['({*x: 0})', Context.Empty],
     ['({*get x(){}})', Context.Empty],
     ['*async x(){}', Context.Empty],
@@ -147,6 +147,41 @@ describe('Expressions - Object', () => {
     it(`"use strict"; ({ ${arg} })`, () => {
       t.doesNotThrow(() => {
         parseSource(`"use strict"; ({ ${arg} })`, undefined, Context.OptionsNext);
+      });
+    });
+  }
+
+  for (const arg of [
+    '__proto__: {}, __proto__: {}',
+    '__proto__: {}, "__proto__": {}',
+    '__proto__: {}, "__\x70roto__": {}',
+    '__proto__: {}, a: 1, __proto__: {}'
+  ]) {
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`({${arg}});`, undefined, Context.Empty);
+      });
+
+      t.throws(() => {
+        parseSource(`({"use strict"; ${arg}});`, undefined, Context.Empty);
+      });
+    });
+  }
+
+  for (const arg of [
+    "__proto__: {}, ['__proto__']: {}",
+    '__proto__: {}, __proto__() {}',
+    '__proto__: {}, get __proto__() {}',
+    '__proto__: {}, set __proto__(v) {}',
+    '__proto__: {}, __proto__'
+  ]) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`({${arg}});`, undefined, Context.Empty);
+      });
+
+      t.doesNotThrow(() => {
+        parseSource(`"use strict"; ({${arg}});`, undefined, Context.Empty);
       });
     });
   }

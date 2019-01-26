@@ -122,6 +122,35 @@ describe('Module - Import', () => {
     'import { foo as bar, ',
     'import { foo as switch } from "module";',
     'import { foo, , } from "module";',
+    'import from;',
+    "import from 'm.js';",
+    'import { };',
+    'import {;',
+    'import };',
+    'import { , };',
+    "import { , } from 'm.js';",
+    'import { a } from;',
+    "import { a } 'm.js';",
+    "import , from 'm.js';",
+    "import a , from 'm.js';",
+    "import a { b, c } from 'm.js';",
+    //    "import arguments from 'm.js';",
+    //    "import eval from 'm.js';",
+    //  "import { arguments } from 'm.js';",
+    //    "import { eval } from 'm.js';",
+    //"import { a as arguments } from 'm.js';",
+    "import { for } from 'm.js';",
+    "import { y as yield } from 'm.js'",
+    "import { s as static } from 'm.js'",
+    "import { l as let } from 'm.js'",
+    "import { a as await } from 'm.js';",
+    //"import { a as enum } from 'm.js';",
+    "import { x }, def from 'm.js';",
+    "import def, def2 from 'm.js';",
+    "import * as x, def from 'm.js';",
+    "import * as x, * as y from 'm.js';",
+    "import {x}, {y} from 'm.js';",
+    "import * as x, {y} from 'm.js';",
     `for (const y in [])
           import v from './foo`
   ];
@@ -134,7 +163,7 @@ describe('Module - Import', () => {
     });
   }
 
-  const inValids: Array<[string, Context]> = [
+  fail('Module - Import (fail)', [
     ['import foo', Context.Strict | Context.Module],
     ['import', Context.Strict | Context.Module],
     ['import;', Context.Strict | Context.Module],
@@ -223,9 +252,7 @@ describe('Module - Import', () => {
     ['import * from "foo"', Context.Strict | Context.Module],
     ['import { null } from "null"', Context.Strict | Context.Module],
     ['import foo, from "bar";', Context.Strict | Context.Module]
-  ];
-
-  fail('Module - Export (fail)', inValids);
+  ]);
 
   const programs = [
     "import 'foo';",
@@ -236,6 +263,22 @@ describe('Module - Import', () => {
     "import thing from 'foo';",
     "import thing, * as rest from 'foo';",
     "import thing, { a, b, c } from 'foo';",
+    "import 'somemodule.js';",
+    "import { } from 'm.js';",
+    "import { a } from 'm.js';",
+    "import { a, b as d, c, } from 'm.js';",
+    "import * as thing from 'm.js';",
+    "import thing from 'm.js';",
+    "import thing, * as rest from 'm.js';",
+    "import thing, { a, b, c } from 'm.js';",
+    "import { arguments as a } from 'm.js';",
+    "import { for as f } from 'm.js';",
+    "import { yield as y } from 'm.js';",
+    "import { static as s } from 'm.js';",
+    "import { let as l } from 'm.js';",
+    "import thing from 'a.js'; export {thing};",
+    "import {thing} from 'a.js'; export {thing};",
+    "import * as thing from 'a.js'; export {thing};",
     "import { arguments as a } from 'baz';",
     "import { for as f } from 'foo';",
     "import { yield as y } from 'foo';",

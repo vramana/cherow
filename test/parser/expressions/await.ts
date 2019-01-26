@@ -1,7 +1,84 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Await', () => {
+  // Tests 'await' with module goal
+
+  for (const arg of [
+    'await;',
+    'await: ;',
+    'var await;',
+    'var [await] = [];',
+    'var { await } = {};',
+    'var { x: await } = {};',
+    '{ var await; }',
+    'let await;',
+    'let [await] = [];',
+    'let { await } = {};',
+    'let { x: await } = {};',
+    '{ let await; }',
+    'const await = null;',
+    'const [await] = [];',
+    'const { await } = {};',
+    'const { x: await } = {};',
+    '{ const await = null; }',
+    'function await() {}',
+    'function f(await) {}',
+    'function* await() {}',
+    'function* g(await) {}',
+    '(function await() {});',
+    '(function (await) {});',
+    '(function* await() {});',
+    '(function* (await) {});',
+    '(await) => {};',
+    'await => {};',
+    'class await {}',
+    'class C { constructor(await) {} }',
+    'class C { m(await) {} }',
+    'class C { static m(await) {} }',
+    'class C { *m(await) {} }',
+    'class C { static *m(await) {} }',
+    '(class await {})',
+    '(class { constructor(await) {} });',
+    '(class { m(await) {} });',
+    '(class { static m(await) {} });',
+    '(class { *m(await) {} });',
+    '(class { static *m(await) {} });',
+    '({ m(await) {} });',
+    '({ *m(await) {} });',
+    '({ set p(await) {} });',
+    'try {} catch (await) {}',
+    'try {} catch (await) {} finally {}'
+  ]) {
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
+
+  // Tests 'await' with module goal
+
+  for (const arg of [
+    '({}).await;',
+    '({ await: null });',
+    '({ await() {} });',
+    '({ get await() {} });',
+    '({ set await(x) {} });',
+    '(class { await() {} });',
+    '(class { static await() {} });',
+    '(class { *await() {} });',
+    '(class { static *await() {} });'
+  ]) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+  }
+
   const inValids: Array<[string, Context]> = [
     //['function call(foo=await bar){}', Context.Empty],
     //['function call(foo=await bar=10){}', Context.Empty],

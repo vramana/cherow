@@ -4,6 +4,33 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Declarations - Function', () => {
+  // Tests for duplicate params
+  for (const arg of [
+    'a, a',
+    'a, a, a',
+    'b, a, a',
+    'a, b, c, c',
+    'a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, w'
+  ]) {
+    it(`(function(${arg}){})();`, () => {
+      t.throws(() => {
+        parseSource(`'use strict';(function(${arg}){})();`, undefined, Context.Empty);
+      });
+    });
+
+    it(`(function(${arg}){})();`, () => {
+      t.throws(() => {
+        parseSource(`(function(${arg})) { 'use strict'; })();`, undefined, Context.Empty);
+      });
+    });
+
+    it(`(function(${arg}){})();`, () => {
+      t.throws(() => {
+        parseSource(`function fn(${arg}) { 'use strict'; }; fn();`, undefined, Context.Empty);
+      });
+    });
+  }
+
   const inValids: Array<[string, Context]> = [
     // Acorn
     ['let foo = 1; function x(foo) {} { var foo = 1; }', Context.Empty],
@@ -162,6 +189,14 @@ describe('Declarations - Function', () => {
     'function f(arg) {g(arg); g(() => arguments[0] = 42); g(arg)}',
     'function foo() { label: function bar() { } }',
     'function foo () {"use strict";}',
+    'function f() {} function f() {}',
+    'var f; function f() {}',
+    'function f() {} var f;',
+    'function* f() {} function* f() {}',
+    'var f; function* f() {}',
+    'function* f() {} var f;',
+    'function f() {} function* f() {}',
+    'function* f() {} function f() {}',
     'function __func(){};',
     '"use strict"; (function(){}).hasOwnProperty("icefapper");',
     'function __func(){ delete arguments; return arguments; }',

@@ -1533,11 +1533,19 @@ function parseAssignmentProperty(
   let value;
   let computed = false;
   let shorthand = false;
+
   // single name binding
-  if (token & Token.Keyword) {
-    key = parseBindingIdentifier(state, context, scope, type, origin, verifyDuplicates);
+  if ((token & Token.Keyword) === Token.Keyword) {
+    const { tokenValue, token } = state;
+    key = parseIdentifier(state, context);
     shorthand = !optional(state, context, Token.Colon);
     if (shorthand) {
+      validateBindingIdentifier(state, context, type, token);
+      if (origin === Origin.Export) {
+        addToExportedNamesAndCheckForDuplicates(state, state.tokenValue);
+        addToExportedBindings(state, state.tokenValue);
+      }
+      addVariable(state, context, scope, type, origin, false, false, tokenValue);
       const hasInitializer = optional(state, context, Token.Assign);
       value = hasInitializer ? parseAssignmentPattern(state, context, key) : key;
     } else value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);
