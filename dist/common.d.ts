@@ -7,7 +7,7 @@ export declare const enum Context {
     OptionsRanges = 2,
     OptionsJSX = 4,
     OptionsRaw = 8,
-    OptionsDisableWebCompat = 16,
+    OptionsWebCompat = 16,
     OptionsLoc = 32,
     OptionsGlobalReturn = 64,
     OptionsExperimental = 128,
@@ -44,7 +44,8 @@ export declare const enum Flags {
     HasPrivateName = 128,
     InArrowContext = 256,
     HasStrictReserved = 512,
-    StrictEvalArguments = 1024
+    StrictEvalArguments = 1024,
+    HasConstructor = 2048
 }
 export declare const enum Type {
     None = 0,
@@ -81,7 +82,7 @@ export declare const enum LabelledState {
     AllowAsLabelled = 1,
     Disallow = 2
 }
-export declare const enum ObjectState {
+export declare const enum Modifiers {
     None = 0,
     Method = 1,
     Computed = 2,
@@ -93,6 +94,7 @@ export declare const enum ObjectState {
     ClassField = 128,
     Getter = 256,
     Setter = 512,
+    Extends = 1024,
     GetSet = 768
 }
 export declare const enum Arrows {

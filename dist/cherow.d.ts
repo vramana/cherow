@@ -16,7 +16,7 @@ export interface Options {
     experimental?: boolean;
     native?: boolean;
     tokenize?: boolean;
-    disableWebCompat?: boolean;
+    webCompat?: boolean;
     onComment?: OnComment;
     onToken?: OnToken;
     directives?: boolean;

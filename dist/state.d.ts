@@ -1,5 +1,5 @@
 import * as ESTree from './estree';
-import { Context, LabelledState, OnComment, OnToken, ParserState, Type, Origin, ScopeState, ObjectState } from './common';
+import { Context, LabelledState, OnComment, OnToken, ParserState, Type, Origin, ScopeState, Modifiers } from './common';
 export declare function create(source: string, onComment: OnComment | void, onToken: OnToken | void): ParserState;
 export declare function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[];
 export declare function parseStatementList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[];
@@ -44,7 +44,7 @@ export declare function parseHoistableFunctionDeclaration(state: ParserState, co
     generator: boolean;
     id: ESTree.Identifier | null;
 };
-export declare function parseFormalParameters(state: ParserState, context: Context, scope: ScopeState, origin: Origin, objState: ObjectState): any;
+export declare function parseFormalParameters(state: ParserState, context: Context, scope: ScopeState, origin: Origin, objState: Modifiers): any;
 export declare function parseRestElement(state: ParserState, context: Context, scope: ScopeState, type: Type, origin: Origin): any;
 export declare function parseFunctionBody(state: ParserState, context: Context, scope: ScopeState, firstRestricted: string | undefined, origin: Origin): ESTree.BlockStatement;
 export declare function parseVariableStatement(state: ParserState, context: Context, type: Type, origin: Origin, scope: ScopeState): ESTree.VariableDeclaration;

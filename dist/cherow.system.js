@@ -291,7 +291,12 @@ System.register('cherow', [], function (exports, module) {
           [98]: '%0 is already bound as a lexical binding',
           [99]: 'The lexical binding %0 has been bound multiple times',
           [101]: 'Cannot use `let` or `const` with the same name as bound to a parameter',
-          [100]: 'Double declaration of the same binding name in a `catch` var'
+          [100]: 'Double declaration of the same binding name in a `catch` var',
+          [103]: 'Missing initializer in %0 declaration',
+          [102]: "'for-%0' loop variable declaration may not have an initializer",
+          [104]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
+          [105]: 'Await expression not allowed in formal parameter',
+          [106]: 'Yield expression not allowed in formal parameter'
       };
       function constructError(index, line, column, description) {
           const error = new SyntaxError(`Line ${line}, column ${column}: ${description}`);
@@ -4827,7 +4832,7 @@ System.register('cherow', [], function (exports, module) {
               if (next === 45) {
                   state.index++;
                   state.column++;
-                  if ((context & 16) === 0 &&
+                  if (context & 16 &&
                       ((state.flags & 1 || state.startIndex === 0) && consumeOpt(state, 62))) {
                       return skipSingleHTMLComment(state, context, 3);
                   }
@@ -5115,7 +5120,7 @@ System.register('cherow', [], function (exports, module) {
                   const type = lex.type;
                   if (lex['@' + key] !== undefined) {
                       if (type === 4) {
-                          if (isVarDecl && (context & 16) === 0) {
+                          if (isVarDecl && context & 16) {
                               state.inCatch = true;
                           }
                           else {
@@ -5172,13 +5177,15 @@ System.register('cherow', [], function (exports, module) {
           }
       }
       function checkForDuplicateLexicals(scope, key, context, origin) {
-          return context & (16 | 1024)
+          return context & 1024
               ? true
-              : origin & 512
+              : (context & 16) === 0
                   ? true
-                  : (scope.lex.funcs[key] === true) === false
+                  : origin & 512
                       ? true
-                      : false;
+                      : (scope.lex.funcs[key] === true) === false
+                          ? true
+                          : false;
       }
       function checkIfExistInLexicalBindings(state, context, scope, origin, skipParent) {
           const lex = scope.lex;
@@ -5211,7 +5218,7 @@ System.register('cherow', [], function (exports, module) {
       }
       function addFunctionName(state, context, scope, bindingType, origin, isVarDecl) {
           addVariable(state, context, scope, bindingType, origin, true, isVarDecl, state.tokenValue);
-          if ((context & 16) === 0 && !scope.lex.funcs['@' + state.tokenValue]) {
+          if (context & 16 && !scope.lex.funcs['@' + state.tokenValue]) {
               scope.lex.funcs['@' + state.tokenValue] = true;
           }
       }
@@ -5308,18 +5315,18 @@ System.register('cherow', [], function (exports, module) {
       function validateBindingIdentifier(state, context, type, token = state.token) {
           if (context & 1024 && token === 36969)
               report(state, 73);
+          if (context & (4194304 | 2048) && token & 524288) {
+              report(state, 71);
+          }
+          if (context & (2097152 | 1024) && token & 2097152) {
+              report(state, 67, 'yield');
+          }
           if ((token & 36864) === 36864) {
               if (context & 1024)
                   report(state, 72);
           }
           if ((token & 20480) === 20480) {
               report(state, 72);
-          }
-          if (context & (4194304 | 2048) && token & 524288) {
-              report(state, 71);
-          }
-          if (context & (2097152 | 1024) && token & 2097152) {
-              report(state, 67);
           }
           if (token === 402821192) {
               if (type & 16)
@@ -5411,7 +5418,7 @@ System.register('cherow', [], function (exports, module) {
       }
       function addVariableAndDeduplicate(state, context, scope, type, origin, isVarDecl, name) {
           addVariable(state, context, scope, type, origin, true, isVarDecl, name);
-          if ((context & 16) === 0) {
+          if (context & 16) {
               scope.lex.funcs['#' + state.tokenValue] = false;
           }
       }
@@ -5777,7 +5784,7 @@ System.register('cherow', [], function (exports, module) {
           expect(state, context, 151641);
           let source;
           const specifiers = [];
-          if ((state.token & 274432) === 274432) {
+          if (state.token & 274432) {
               validateBindingIdentifier(state, context, 8);
               addVariable(state, context, scope, 0, 0, true, false, state.tokenValue);
               specifiers.push({
@@ -5909,7 +5916,7 @@ System.register('cherow', [], function (exports, module) {
           };
       }
       function parseConsequentOrAlternate(state, context, scope) {
-          return context & (16 | 1024) || state.token !== 151639
+          return context & 1024 || (context & 16) === 0 || state.token !== 151639
               ? parseStatement(state, (context | 4096) ^ 4096, scope, 2)
               : parseFunctionDeclaration(state, context, scope, 1, false);
       }
@@ -6221,8 +6228,10 @@ System.register('cherow', [], function (exports, module) {
               }
               addLabel(state, tokenValue);
               let body = null;
-              if ((context & (16 | 1024)) < 1 &&
-                  (state.token === 151639 && label === 1)) {
+              if (state.token === 151639 &&
+                  (context & 1024) === 0 &&
+                  context & 16 &&
+                  label === 1) {
                   body = parseFunctionDeclaration(state, context, scope, 1, false);
               }
               else
@@ -6414,9 +6423,7 @@ System.register('cherow', [], function (exports, module) {
               if (origin & 1) {
                   scope = createSubScope(scope, 1);
               }
-              addFunctionName(state, context, scope, context & 4096 && ((context & 2048) < 1 || context & 16)
-                  ? 2
-                  : 4, origin, true);
+              addFunctionName(state, context, scope, context & 4096 && (context & 2048) < 1 ? 2 : 4, origin, true);
               funcScope = createSubScope(funcScope, 1);
               firstRestricted = state.tokenValue;
               id = parseIdentifier(state, context);
@@ -6442,7 +6449,7 @@ System.register('cherow', [], function (exports, module) {
           if (isGenerator)
               context |= 2097152;
           const paramScoop = createSubScope(funcScope, 5);
-          const params = parseFormalParameters(state, context | 67108864 | 8388608, paramScoop, 32, 0);
+          const params = parseFormalParameters(state, context | 67108864, paramScoop, 32, 0);
           const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), firstRestricted, origin);
           return {
               type: 'FunctionDeclaration',
@@ -6507,7 +6514,7 @@ System.register('cherow', [], function (exports, module) {
           if (isGenerator)
               context |= 2097152;
           const paramScoop = createSubScope(funcScope, 5);
-          const params = parseFormalParameters(state, context | 67108864 | 8388608, paramScoop, 32, 0);
+          const params = parseFormalParameters(state, context | 67108864, paramScoop, 32, 0);
           const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), undefined, 0);
           return {
               type: 'FunctionDeclaration',
@@ -6522,6 +6529,7 @@ System.register('cherow', [], function (exports, module) {
           expect(state, context, 131083);
           const params = [];
           state.flags &= ~64;
+          context = context | 8388608;
           if (state.token === 18)
               report(state, 0);
           let hasComplexArgs = false;
@@ -6613,6 +6621,8 @@ System.register('cherow', [], function (exports, module) {
               state.iterationStatement = previousIterationStatement;
           }
           expect(state, origin & 128 ? context | 32768 : context, 536870927);
+          if (state.token === 8388637 || state.token === 131082)
+              report(state, 0);
           return {
               type: 'BlockStatement',
               body
@@ -6650,7 +6660,7 @@ System.register('cherow', [], function (exports, module) {
               ++bindingCount;
           }
           if (origin & 2 && isInOrOf(state) && bindingCount > 1) {
-              report(state, 0);
+              report(state, 104, KeywordDescTable[state.token & 255]);
           }
           return list;
       }
@@ -6664,13 +6674,15 @@ System.register('cherow', [], function (exports, module) {
           if (optional(state, context | 32768, 8388637)) {
               init = secludeGrammar(state, context, 0, parseAssignmentExpression);
               if (isInOrOf(state) && (origin & 2 || isBinding)) {
-                  if ((type & 2) < 1 || context & (16 | 1024) || isBinding) {
-                      report(state, 0);
+                  if ((type & 2) < 1 ||
+                      ((context & 16) === 0 || context & 1024) ||
+                      isBinding) {
+                      report(state, 102);
                   }
               }
           }
           else if ((type & 8 || isBinding) && !isInOrOf(state)) {
-              report(state, 0, type & 8 ? 'const' : 'destructuring');
+              report(state, 103, type & 8 ? 'const' : 'destructuring');
           }
           return {
               type: 'VariableDeclarator',
@@ -6695,6 +6707,9 @@ System.register('cherow', [], function (exports, module) {
           };
       }
       function parseYieldExpression(state, context) {
+          if (context & 8388608) {
+              report(state, 106);
+          }
           expect(state, context | 32768, 2265194);
           let argument = null;
           let delegate = false;
@@ -6964,13 +6979,19 @@ System.register('cherow', [], function (exports, module) {
       function parseSuperExpression(state, context) {
           next(state, context);
           state.assignable = state.bindable = false;
-          if (state.token === 131091 || state.token === 13) {
-              if ((context & 262144) < 1)
-                  report(state, 59);
-              state.assignable = true;
-          }
-          else if ((context & 524288) < 1 && state.token === 131083) {
-              report(state, 58);
+          switch (state.token) {
+              case 131083:
+                  if ((context & 524288) < 1)
+                      report(state, 58);
+                  break;
+              case 131091:
+              case 13:
+                  if ((context & 262144) < 1)
+                      report(state, 59);
+                  state.assignable = true;
+                  break;
+              default:
+                  report(state, 1, 'super');
           }
           return { type: 'Super' };
       }
@@ -7220,8 +7241,9 @@ System.register('cherow', [], function (exports, module) {
               case 20561:
                   return parseDoExpression(state, context);
               case 2265194:
-                  if (context & (2097152 | 1024))
-                      report(state, 67);
+                  if (context & (2097152 | 1024)) {
+                      report(state, 67, KeywordDescTable[state.token & 255]);
+                  }
               default:
                   if (isValidIdentifier(context, state.token)) {
                       return parseIdentifier(state, context | 65536);
@@ -7292,13 +7314,9 @@ System.register('cherow', [], function (exports, module) {
           let id = null;
           let firstRestricted;
           if (state.token & 274432) {
-              validateBindingIdentifier(state, context & 1024
-                  ? 2097152
-                  : isGenerator
-                      ? 2097152
-                      : 0 | (context & 2048) || isGenerator
-                          ? 4194304
-                          : 0, 2);
+              validateBindingIdentifier(state, ((context | (2097152 | 4194304)) ^ (2097152 | 4194304)) |
+                  (context & 1024 ? 2097152 : isGenerator ? 2097152 : 0) |
+                  (context & 2048 ? 4194304 : isAsync ? 4194304 : 0), 2);
               addVariableAndDeduplicate(state, context, functionScope, 2, 0, true, state.tokenValue);
               functionScope = createSubScope(functionScope, 1);
               firstRestricted = state.tokenValue;
@@ -7323,7 +7341,7 @@ System.register('cherow', [], function (exports, module) {
           if (isGenerator)
               context |= 2097152;
           const paramScoop = createSubScope(functionScope, 5);
-          const params = parseFormalParameters(state, context | 67108864 | 8388608, paramScoop, 32, 0);
+          const params = parseFormalParameters(state, context | 67108864, paramScoop, 32, 0);
           const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), firstRestricted, 0);
           return {
               type: 'FunctionExpression',
@@ -7476,7 +7494,7 @@ System.register('cherow', [], function (exports, module) {
           else
               context = (context | 524288) ^ 524288;
           context |= 262144;
-          const body = parseClassBodyAndElementList(state, context, 128);
+          const body = parseClassBodyAndElementList(state, context | 1024, 128);
           return {
               type: 'ClassDeclaration',
               id,
@@ -7501,7 +7519,7 @@ System.register('cherow', [], function (exports, module) {
           else
               context = (context | 524288) ^ 524288;
           context |= 262144;
-          const body = parseClassBodyAndElementList(state, context, 0);
+          const body = parseClassBodyAndElementList(state, context | 1024, 0);
           return {
               type: 'ClassExpression',
               id,
@@ -7509,287 +7527,162 @@ System.register('cherow', [], function (exports, module) {
               body
           };
       }
-      function parsePrivateName(state, context, objState) {
-          next(state, context);
-          if (objState & 32 && state.tokenValue === 'prototype') {
-              report(state, 79);
-          }
-          if (state.tokenValue === 'constructor')
-              report(state, 77);
-          return {
-              type: 'PrivateName',
-              name: state.tokenValue
-          };
-      }
       function parseClassBodyAndElementList(state, context, origin) {
           expect(state, context | 32768, 131084);
           const body = [];
-          let value = null;
-          let key;
-          let objState = 0;
-          const token = state.token;
-          const tokenValue = state.tokenValue;
-          let constructorCount = 0;
           while (state.token !== 536870927) {
               if (optional(state, context, 536870929))
                   continue;
-              if ((state.token & 36969) === 36969) {
-                  key = parseIdentifier(state, context);
-                  if ((state.token & 131083) === 131083) {
-                      value = parseMethodDeclaration(state, context, objState);
-                  }
-                  else if (state.token === 131091) {
-                      objState |= 2 | 32;
-                      key = parseComputedPropertyName(state, context);
-                      if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
-                          objState |= 2 | 128;
-                          if (optional(state, context, 8388637)) {
-                              value = parseAssignmentExpression(state, context);
-                          }
-                      }
-                      else {
-                          value = parseMethodDeclaration(state, context, objState);
-                      }
-                  }
-                  else if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
-                      objState |= 128 | 32;
-                      if (optional(state, context, 8388637))
-                          value = parseIdentifier(state, context);
-                  }
-                  else if (context & 1 && (state.token & 119) === 119) {
-                      objState |= 32;
-                      key = parsePrivateName(state, context, objState);
-                      if (optional(state, context, 8388637)) {
-                          objState |= 128;
-                          value = parseAssignmentExpression(state, context);
-                      }
-                      else if (state.token === 131083) {
-                          value = parseMethodDeclaration(state, context, objState);
-                      }
-                      else
-                          objState |= 128;
-                  }
-                  else {
-                      objState |= 32;
-                  }
-              }
-              if (state.token & 1048576) {
-                  key = parseIdentifier(state, context);
-                  if (state.flags & 1) {
-                      if ((context & 1) < 1)
-                          report(state, 80);
-                      body.push({
-                          type: 'FieldDefinition',
-                          key,
-                          value,
-                          computed: (objState & 2) > 0,
-                          static: (objState & 32) > 0
-                      });
-                  }
-                  else {
-                      if ((state.token & 131083) === 131083) {
-                          value = parseMethodDeclaration(state, context, objState);
-                      }
-                      else if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
-                          objState |= 128 | 16;
-                          if (optional(state, context, 8388637))
-                              value = parseAssignmentExpression(state, context);
-                      }
-                      else if (context & 1 && (state.token & 119) === 119) {
-                          objState |= 128;
-                          key = parsePrivateName(state, context, objState);
-                          if (optional(state, context, 8388637)) {
-                              value = parseAssignmentExpression(state, context);
-                          }
-                          else if ((state.token & 131083) !== 131083) {
-                              report(state, 0);
-                          }
-                          objState |= 16;
-                          value = parseMethodDeclaration(state, context, objState);
-                      }
-                      else
-                          objState |= 16;
-                  }
-              }
-              if (optional(state, context, 21105203)) {
-                  objState |= 8;
-              }
-              if (state.token & 274432) {
-                  if ((state.token & 12399) === 12399) {
-                      key = parseIdentifier(state, context);
-                      if ((state.token & 131083) === 131083) {
-                          value = parseMethodDeclaration(state, context, objState);
-                      }
-                      else if (state.token & 274432) {
-                          if (objState & (8 | 16))
-                              report(state, 0);
-                          if (state.tokenValue === 'prototype')
-                              report(state, 62);
-                          objState = (objState & ~(2 | 512)) | 256;
-                          key = parseIdentifier(state, context);
-                          if ((state.token & 131083) === 131083) {
-                              value = parseMethodDeclaration(state, context, objState);
-                          }
-                      }
-                      else if (state.token === 131074 || state.token === 131075) {
-                          if (objState & 8)
-                              report(state, 1, KeywordDescTable[state.token & 255]);
-                          objState = (objState & ~(2 | 512)) | 256;
-                          key = parseLiteral(state, context, state.tokenValue);
-                          if ((state.token & 131083) === 131083) {
-                              value = parseMethodDeclaration(state, context, objState);
-                          }
-                      }
-                      else if ((state.token & 131091) === 131091) {
-                          objState = (objState & ~512) | (256 | 2);
-                          key = parseComputedPropertyName(state, context);
-                          value = parseMethodDeclaration(state, context, objState);
-                      }
-                  }
-                  else if ((state.token & 12400) === 12400) {
-                      key = parseIdentifier(state, context);
-                      if ((state.token & 131083) === 131083) {
-                          value = parseMethodDeclaration(state, context, objState);
-                      }
-                      else if (state.token & 274432) {
-                          if (state.tokenValue === 'prototype')
-                              report(state, 62);
-                          if (objState & (8 | 16))
-                              report(state, 0);
-                          objState = (objState & ~(256 | 2)) | 512;
-                          key = parseIdentifier(state, context);
-                          if ((state.token & 131083) === 131083) {
-                              value = parseMethodDeclaration(state, context, objState);
-                          }
-                      }
-                      else if (state.token === 131074 || state.token === 131075) {
-                          if (objState & 8)
-                              report(state, 1, KeywordDescTable[state.token & 255]);
-                          objState = (objState & ~(256 | 2)) | 512;
-                          key = parseLiteral(state, context, state.tokenValue);
-                          if ((state.token & 131083) === 131083) {
-                              value = parseMethodDeclaration(state, context, objState);
-                          }
-                      }
-                      else if ((state.token & 131091) === 131091) {
-                          objState = (objState & ~256) | (512 | 2);
-                          key = parseComputedPropertyName(state, context);
-                          value = parseMethodDeclaration(state, context, objState);
-                      }
-                  }
-                  else {
-                      if (state.tokenValue === 'constructor') {
-                          if ((objState & 32) < 1)
-                              objState |= 64;
-                          ++constructorCount;
-                      }
-                      if (objState & 32 && state.tokenValue === 'prototype') {
-                          report(state, 62);
-                      }
-                      key = parseIdentifier(state, context);
-                      objState &= ~(256 | 128 | 2);
-                      if ((state.token & 131083) === 131083) {
-                          value = parseMethodDeclaration(state, context, objState);
-                      }
-                      else if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
-                          objState |= 128;
-                          if (optional(state, context, 8388637))
-                              value = parseAssignmentExpression(state, context);
-                      }
-                      else if (context & 1 && (state.token & 119) === 119) {
-                          objState |= 128;
-                          key = parsePrivateName(state, context, objState);
-                          if (optional(state, context, 8388637)) {
-                              value = parseAssignmentExpression(state, context);
-                          }
-                          else if ((state.token & 131083) !== 131083) {
-                              report(state, 0);
-                          }
-                          value = parseMethodDeclaration(state, context, objState);
-                      }
-                      else
-                          report(state, 0);
-                  }
-              }
-              else if (state.token === 131074 || state.token === 131075) {
-                  if (state.tokenValue === 'constructor') {
-                      if (objState & (8 | 16))
-                          report(state, 63, 'generator');
-                      if ((objState & 32) < 1)
-                          objState |= 64;
-                      ++constructorCount;
-                  }
-                  key = parseLiteral(state, context, state.tokenValue);
-                  if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
-                      objState |= 128;
-                      if (optional(state, context, 8388637)) {
-                          value = parseAssignmentExpression(state, context);
-                      }
-                  }
-                  else
-                      value = parseMethodDeclaration(state, context, objState & ~(512 | 256));
-              }
-              else if ((state.token & 131091) === 131091) {
-                  objState |= 2;
-                  key = parseComputedPropertyName(state, context);
-                  if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
-                      objState |= 128;
-                      if (optional(state, context, 8388637)) {
-                          value = parseAssignmentExpression(state, context);
-                      }
-                  }
-                  else {
-                      objState &= ~128;
-                      if (state.token !== 131083)
-                          report(state, 81);
-                      value = parseMethodDeclaration(state, context, objState);
-                  }
-              }
-              else if (context & 1 && (state.token & 119) === 119) {
-                  key = parsePrivateName(state, context, objState);
-                  if (optional(state, context, 8388637)) {
-                      objState |= 128;
-                      value = parseAssignmentExpression(state, context);
-                  }
-                  else if ((state.token & 131083) === 131083) {
-                      value = parseMethodDeclaration(state, context, objState);
-                  }
-                  else
-                      objState |= 128;
-              }
-              else if ((state.token & 536870912) < 1)
-                  report(state, 0);
-              optional(state, context, 18);
-              body.push(objState & 128
-                  ? {
-                      type: 'FieldDefinition',
-                      key: key,
-                      value,
-                      computed: (objState & 2) > 0,
-                      static: (objState & 32) > 0
-                  }
-                  : {
-                      type: 'MethodDefinition',
-                      kind: objState & 64
-                          ? 'constructor'
-                          : objState & 256
-                              ? 'get'
-                              : objState & 512
-                                  ? 'set'
-                                  : 'method',
-                      static: (objState & 32) > 0,
-                      computed: (objState & 2) > 0,
-                      key,
-                      value
-                  });
-          }
-          if (constructorCount > 1) {
-              report(state, 60);
+              body.push(parseClassElementList(state, context, 0));
           }
           expect(state, origin & 128 ? context | 32768 : context, 536870927);
+          state.flags &= ~2048;
           return {
               type: 'ClassBody',
               body
+          };
+      }
+      function parseClassElementList(state, context, modifier) {
+          let key;
+          let { token, tokenValue } = state;
+          if (state.token & 274432) {
+              key = parseIdentifier(state, context);
+              switch (token) {
+                  case 36969:
+                      if ((modifier & 32) === 0 && state.token !== 131083) {
+                          return parseClassElementList(state, context, 32);
+                      }
+                      break;
+                  case 1060972:
+                      if (state.token !== 131083 && (state.flags & 1) === 0) {
+                          if (optional(state, context, 21105203))
+                              modifier |= 8;
+                          tokenValue = state.tokenValue;
+                          if (state.token & 274432) {
+                              key = parseIdentifier(state, context);
+                              if (state.flags & 1)
+                                  report(state, 0);
+                          }
+                          else if (state.token === 131074 || state.token === 131075) {
+                              key = parseLiteral(state, context, state.tokenValue);
+                          }
+                          else if (state.token === 131091) {
+                              modifier |= 2;
+                              key = parseComputedPropertyName(state, context);
+                          }
+                          else {
+                              report(state, 0);
+                          }
+                          modifier |= 16;
+                      }
+                      break;
+                  case 12399:
+                      if (state.token !== 131083) {
+                          tokenValue = state.tokenValue;
+                          if (state.token & 274432) {
+                              key = parseIdentifier(state, context);
+                          }
+                          else if (state.token === 131074 || state.token === 131075) {
+                              key = parseLiteral(state, context, state.tokenValue);
+                          }
+                          else if (state.token === 131091) {
+                              modifier |= 2;
+                              key = parseComputedPropertyName(state, context);
+                          }
+                          else {
+                              report(state, 0);
+                          }
+                          modifier |= 256;
+                      }
+                      break;
+                  case 12400:
+                      if (state.token !== 131083) {
+                          tokenValue = state.tokenValue;
+                          if (state.token & 274432) {
+                              key = parseIdentifier(state, context);
+                          }
+                          else if (state.token === 131074 || state.token === 131075) {
+                              key = parseLiteral(state, context, state.tokenValue);
+                          }
+                          else if (state.token === 131091) {
+                              modifier |= 2;
+                              key = parseComputedPropertyName(state, context);
+                          }
+                          else {
+                              report(state, 0);
+                          }
+                          modifier |= 512;
+                      }
+                      break;
+                  default:
+              }
+          }
+          else if (state.token === 131091) {
+              modifier |= 2;
+              key = parseComputedPropertyName(state, context);
+          }
+          else if (state.token === 131074 || state.token === 131075) {
+              if (state.tokenValue === 'constructor')
+                  modifier |= 64;
+              key = parseLiteral(state, context, state.tokenValue);
+          }
+          else if (state.token === 21105203) {
+              next(state, context);
+              tokenValue = state.tokenValue;
+              if (state.token & 274432) {
+                  key = parseIdentifier(state, context);
+              }
+              else if (state.token === 131074 || state.token === 131075) {
+                  key = parseLiteral(state, context, state.tokenValue);
+              }
+              else if (state.token === 131091) {
+                  modifier |= 2;
+                  key = parseComputedPropertyName(state, context);
+              }
+              else {
+                  report(state, 0);
+              }
+              modifier |= 8;
+          }
+          else if (state.token === 536870929) {
+              next(state, context);
+          }
+          else {
+              report(state, 1, KeywordDescTable[state.token & 255]);
+          }
+          if ((modifier & 2) === 0 &&
+              modifier & (32 | 768) &&
+              state.tokenValue === 'prototype') {
+              report(state, 62);
+          }
+          if (tokenValue === 'constructor') {
+              if ((modifier & 32) === 0) {
+                  if (modifier & (768 | 16 | 8))
+                      report(state, 63, 'accessor');
+                  if ((context & 524288) === 0 && (modifier & 2) === 0) {
+                      if (state.flags & 2048)
+                          report(state, 60);
+                      else
+                          state.flags |= 2048;
+                  }
+              }
+              modifier |= 64;
+          }
+          if (state.token !== 131083)
+              report(state, 0);
+          return {
+              type: 'MethodDefinition',
+              kind: (modifier & 32) === 0 && modifier & 64
+                  ? 'constructor'
+                  : modifier & 256
+                      ? 'get'
+                      : modifier & 512
+                          ? 'set'
+                          : 'method',
+              static: (modifier & 32) !== 0,
+              computed: (modifier & 2) !== 0,
+              key,
+              value: parseMethodDeclaration(state, context, modifier)
           };
       }
       function parseObjectLiteral(state, context, scope, type) {
@@ -7852,7 +7745,7 @@ System.register('cherow', [], function (exports, module) {
                               objState |= 16 | 2 | 1;
                           }
                           else {
-                              if ((token & 12399) === 12399)
+                              if (token === 12399)
                                   objState = (objState & ~512) | 256;
                               else if ((token & 12400) === 12400)
                                   objState = (objState & ~256) | 512;
@@ -7948,8 +7841,7 @@ System.register('cherow', [], function (exports, module) {
                   }
                   else if (state.token === 131091) {
                       key = parseComputedPropertyName(state, context);
-                      objState =
-                          (objState & ~(16 | 8 | 768)) | 2;
+                      objState = (objState & ~(16 | 8 | 768)) | 2;
                       if (state.token === 21) {
                           next(state, context);
                           value = parseAssignmentExpression(state, context | 32768);
@@ -7976,7 +7868,7 @@ System.register('cherow', [], function (exports, module) {
                           else {
                               if (token === 1060972)
                                   report(state, 0);
-                              if ((token & 12399) === 12399 || (token & 12400) === 12400)
+                              if (token === 12399 || (token & 12400) === 12400)
                                   report(state, 0);
                               if (token === 21)
                                   report(state, 0);
@@ -8073,7 +7965,7 @@ System.register('cherow', [], function (exports, module) {
           if (objState & 64)
               context |= 16777216;
           const paramScoop = createSubScope(functionScope, 5);
-          const params = parseFormalParameters(state, context | 67108864 | 33554432 | 8388608, paramScoop, 32, objState);
+          const params = parseFormalParameters(state, context | 67108864 | 33554432, paramScoop, 32, objState);
           const body = parseFunctionBody(state, context | 67108864 | 33554432, createSubScope(paramScoop, 1), firstRestricted, 0);
           return {
               type: 'FunctionExpression',
@@ -8165,7 +8057,7 @@ System.register('cherow', [], function (exports, module) {
                   context |= 128;
               if (options.native)
                   context |= 256;
-              if (options.disableWebCompat)
+              if (options.webCompat)
                   context |= 16;
               if (options.next)
                   context |= 1;

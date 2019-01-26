@@ -20,7 +20,7 @@ export interface T_Node extends T_Statement, T_Expression, T_Pattern, T_ModuleDe
     SpreadElement: SpreadElement;
     TemplateElement: TemplateElement;
     ClassBody: ClassBody;
-    'FieldDefinition ': FieldDefinition;
+    FieldDefinition: FieldDefinition;
     PrivateName: PrivateName;
     MethodDefinition: MethodDefinition;
     VariableDeclarator: VariableDeclarator;
@@ -219,7 +219,7 @@ export interface CatchClause extends _Node<'CatchClause'> {
 export interface ClassBody extends _Node<'ClassBody'> {
     body: (MethodDefinition | FieldDefinition)[];
 }
-export interface FieldDefinition extends _Node<'FieldDefinition '> {
+export interface FieldDefinition extends _Node<'FieldDefinition'> {
     key: PrivateName | Expression;
     value: Expression | null;
     computed: boolean;
