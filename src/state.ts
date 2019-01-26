@@ -1814,7 +1814,6 @@ export function parseFormalParameters(
   const params: any[] = [];
   state.flags &= ~Flags.SimpleParameterList;
   context = context | Context.InArgList;
-  if (state.token === (Token.Comma as any)) report(state, Errors.Unexpected);
   let hasComplexArgs = false;
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
@@ -1835,7 +1834,7 @@ export function parseFormalParameters(
     params.push(left);
 
     if (optional(state, context, Token.Comma)) {
-      if (state.token === (Token.Comma as any)) report(state, Errors.Unexpected);
+      if ((state.token as Token) === Token.Comma) break;
     }
   }
   if (objState & Modifiers.Setter && params.length !== 1) {

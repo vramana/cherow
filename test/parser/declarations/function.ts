@@ -64,7 +64,6 @@ describe('Declarations - Function', () => {
     ['const x = a; function x(){};', Context.Empty],
     ['"use strict"; function eval(){}', Context.Strict],
     ['const x = a; function x(){};', Context.Empty],
-
     ['function f([b, a], b) {}', Context.Strict],
     ['function f([b, a], {b}) {}', Context.Strict],
     ['function f([b, a], b=x) {}', Context.Strict],
