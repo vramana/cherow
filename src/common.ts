@@ -94,6 +94,8 @@ export const enum Origin {
   Declaration = 1 << 7,
   AsyncArrow = 1 << 8,
   AsyncFunction = 1 << 9,
+  ArrayLiteral = 1 << 10,
+  ObjectExpression = 1 << 11
 }
 
 export const enum ScopeType {

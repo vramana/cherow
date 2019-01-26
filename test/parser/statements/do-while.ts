@@ -4,7 +4,7 @@ import { pass, fail } from '../../test-utils';
 describe('Statements - Do while', () => {
   const inValids: Array<[string, Context]> = [
     ['with(1) b: function a(){}', Context.Empty],
-    // ['with ({}) async function f() {}', Context.Empty],
+    ['with ({}) async function f() {}', Context.Empty],
     ['with ({}) function f() {}', Context.Empty],
     ['with ({}) let x;', Context.Empty],
     ['while 1 break;', Context.Empty],

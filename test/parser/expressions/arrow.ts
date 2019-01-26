@@ -9,6 +9,8 @@ describe('Expressions - Arrows', () => {
     ['async await => {}', Context.Empty],
     ['async x => { let x; }', Context.Empty],
     // ['(x) => { let x; }', Context.Empty],
+    // ['({x}) => { let x; }', Context.Empty],
+    // ['({a}, {a}) => {}', Context.Empty],
     ['x => { let x; }', Context.Empty],
     ['x => { const x; }', Context.Empty],
     ['()?c:d=>{}=>{}', Context.Empty],

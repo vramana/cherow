@@ -2185,7 +2185,8 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
   if (
     token & Token.IsAsync &&
     (state.flags & Flags.NewLine) < 1 &&
-    ((state.token & Token.IsIdentifier) === Token.IsIdentifier || (state.token & Token.IsYield) === Token.IsYield)
+    ((state.token & Token.IsIdentifier) === Token.IsIdentifier ||
+      (!(context & Context.YieldContext) && state.token & Token.IsYield) === Token.IsYield)
   ) {
     const scope = createScope(ScopeType.ArgumentList);
     addVariableAndDeduplicate(state, context, scope, Type.ArgList, Origin.None, true, state.tokenValue);
@@ -2329,6 +2330,7 @@ function parseAwaitExpression(
   state: ParserState,
   context: Context
 ): ESTree.AwaitExpression | ESTree.Identifier | ESTree.ArrowFunctionExpression {
+  // state.assignable = state.bindable = false;
   next(state, context | Context.AllowPossibleRegEx);
   return {
     type: 'AwaitExpression',
@@ -2483,7 +2485,7 @@ function parseCallExpression(state: ParserState, context: Context, callee: any |
     const params: (ESTree.Expression | ESTree.SpreadElement)[] = [];
     while (state.token !== <Token>Token.RightParen) {
       if (state.token === <Token>Token.Ellipsis) {
-        params.push(parseSpreadElement(state, context));
+        params.push(parseSpreadElement(state, context, Origin.None));
         seenSpread = true;
       } else {
         params.push(secludeGrammar(state, context, 0, parseAsyncArgument));
@@ -2829,7 +2831,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
   const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
-      expressions.push(parseSpreadElement(state, context));
+      expressions.push(parseSpreadElement(state, context, Origin.ArgList));
       if (state.token === <Token>Token.RightParen) break;
       expect(state, context, Token.Comma);
       continue;
@@ -2843,9 +2845,21 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
   return expressions;
 }
 
-function parseSpreadElement(state: ParserState, context: Context): ESTree.SpreadElement {
+function parseSpreadElement(state: ParserState, context: Context, origin: Origin): ESTree.SpreadElement {
   expect(state, context | Context.AllowPossibleRegEx, Token.Ellipsis);
+  if (origin & Origin.ObjectExpression && (state.token === Token.LeftBracket || state.token === Token.LeftBrace)) {
+    state.bindable = state.assignable = false;
+  }
   const argument = acquireGrammar(state, context, 0, parseAssignmentExpression);
+  if (origin & ((origin & Origin.ObjectExpression) | Origin.ArrayLiteral)) {
+    if (
+      argument.type !== 'ArrayExpression' &&
+      argument.type !== 'ObjectExpression' &&
+      !isValidSimpleAssignmentTarget(argument)
+    ) {
+      state.bindable = state.assignable = false;
+    }
+  }
   return {
     type: 'SpreadElement',
     argument
@@ -3084,21 +3098,7 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
         break;
       }
     } else if (state.token === Token.Ellipsis) {
-      expect(state, context | Context.AllowPossibleRegEx, Token.Ellipsis);
-      const argument = acquireGrammar(state, context, 0, parseAssignmentExpression);
-      if (!state.assignable && state.pendingCoverInitializeError) report(state, Errors.Unexpected);
-      if (
-        argument.type !== 'ArrayExpression' &&
-        argument.type !== 'ObjectExpression' &&
-        !isValidSimpleAssignmentTarget(argument)
-      ) {
-        state.bindable = state.assignable = false;
-      }
-      elements.push({
-        type: 'SpreadElement',
-        argument
-      });
-
+      elements.push(parseSpreadElement(state, context, Origin.ArrayLiteral));
       if (state.token !== (Token.RightBracket as any)) {
         state.bindable = state.assignable = false;
         expect(state, context, Token.Comma);
@@ -3224,22 +3224,26 @@ function parseArrowFunctionExpression(
   } else {
     expect(state, context, Token.Arrow);
     for (let i = 0; i < params.length; ++i) reinterpret(state, params[i]);
+    if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, true)) report(state, Errors.AlreadyDeclared);
   }
 
   if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
 
-  if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, true)) report(state, Errors.AlreadyDeclared);
-
   context =
-    (context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
-    (Context.AwaitContext | Context.YieldContext | Context.InArgList);
-
-  if (isAsync) context |= Context.AwaitContext;
+    ((context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
+      (Context.AwaitContext | Context.YieldContext | Context.InArgList)) |
+    (isAsync ? Context.AwaitContext : 0);
 
   const expression = state.token !== Token.LeftBrace;
   const body = expression
     ? secludeGrammar(state, context, 0, parseAssignmentExpression)
-    : parseFunctionBody(state, context, createSubScope(scope, ScopeType.BlockStatement), state.tokenValue, Origin.None);
+    : parseFunctionBody(
+        state,
+        (context | Context.TopLevel) ^ Context.TopLevel,
+        createSubScope(scope, ScopeType.BlockStatement),
+        state.tokenValue,
+        Origin.None
+      );
   return {
     type: 'ArrowFunctionExpression',
     body,
@@ -3258,7 +3262,7 @@ function parseArrowFunctionExpression(
  */
 export function parseParenthesizedExpression(state: ParserState, context: Context): any {
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
-  const scope = createScope(ScopeType.ArgumentList);
+  let scope = createScope(ScopeType.ArgumentList);
   if (optional(state, context, Token.RightParen)) {
     if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
     state.assignable = state.bindable = false;
@@ -3290,6 +3294,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
     while (optional(state, context | Context.AllowPossibleRegEx, Token.Comma)) {
       if (optional(state, context, Token.RightParen)) {
         if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
+        state.assignable = false;
         return {
           type: Arrows.Plain,
           scope,
@@ -3537,7 +3542,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
 
   if (
     (modifier & Modifiers.Computed) === 0 &&
-    modifier & (Modifiers.Static | Modifiers.GetSet) &&
+    modifier & (Modifiers.Static | Modifiers.Async | Modifiers.GetSet) &&
     state.tokenValue === 'prototype'
   ) {
     report(state, Errors.StaticPrototype);
@@ -3628,7 +3633,7 @@ function parseObjectLiteral(
 
   while (state.token !== Token.RightBrace) {
     if (state.token === <Token>Token.Ellipsis) {
-      properties.push(parseSpreadElement(state, context));
+      properties.push(parseSpreadElement(state, context, Origin.ObjectExpression));
     } else {
       if (state.token & Token.IsIdentifier) {
         token = state.token;
@@ -3664,8 +3669,6 @@ function parseObjectLiteral(
             } else hasProto = true;
           }
 
-          if ((state.token & Token.IsIdentifier) > 0)
-            addVariable(state, context, scope, type, Origin.None, false, false, tokenValue);
           value = acquireGrammar(state, context, 0, parseAssignmentExpression);
         } else if (state.token === <Token>Token.LeftBracket) {
           key = parseComputedPropertyName(state, context);
@@ -3741,7 +3744,6 @@ function parseObjectLiteral(
             } else hasProto = true;
           }
           value = acquireGrammar(state, context, 0, parseAssignmentExpression);
-          addVariable(state, context, scope, type, Origin.None, false, false, tokenValue);
         } else {
           state.bindable = state.assignable = false;
           value = parseMethodDeclaration(state, context, objState);

@@ -280,6 +280,41 @@ describe('Expressions - Async Functions', () => {
       }
     ],
     [
+      '(async function() { (await y); })',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              async: true,
+              body: {
+                body: [
+                  {
+                    expression: {
+                      argument: {
+                        name: 'y',
+                        type: 'Identifier'
+                      },
+                      type: 'AwaitExpression'
+                    },
+                    type: 'ExpressionStatement'
+                  }
+                ],
+                type: 'BlockStatement'
+              },
+              generator: false,
+              id: null,
+              params: [],
+              type: 'FunctionExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       '(async function*(a = b +=1, c = d += 1, e = f += 1, g = h += 1, i = j += 1, k = l +=1) {})',
       Context.Empty,
       {
