@@ -4,7 +4,7 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - New target', () => {
-  const inValidSyntax = [
+  for (const arg of [
     'new.target',
     '{ new.target }',
     '() => new.target',
@@ -16,16 +16,21 @@ describe('Expressions - New target', () => {
     'new.prop',
     'var f = function() { new.unknown_property; }',
     'function f() { new..target; }'
-  ];
-  for (const arg of inValidSyntax) {
+  ]) {
     it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`"use strict"; ${arg}`, () => {
       t.throws(() => {
         parseSource(`${arg}`, undefined, Context.Empty);
       });
     });
   }
 
-  const inValids: Array<[string, Context]> = [
+  fail('Expressions - Template', [
     ['() => {new.target}', Context.Empty],
     ['new delete x', Context.Empty],
     ['new delete x.y', Context.Empty],
@@ -42,17 +47,14 @@ describe('Expressions - New target', () => {
     ['function f(){ new.foo }', Context.Empty],
     ['_ => new.target', Context.Empty],
     ['_ => _ => _ => _ => new.target', Context.Empty]
-  ];
+  ]);
 
-  fail('Expressions - Template', inValids);
-
-  const validCombos = [
+  for (const arg of [
     'function foo(){with({}) {new.target;}}',
     'function foo(){{if(true){new.target;}}}',
     'function foo(){ var x = function() {new.target;}; x();}',
     'function foo(){ var o = { "foo" : function () { new.target}}; o.foo();}'
-  ];
-  for (const arg of validCombos) {
+  ]) {
     it(`${arg}`, () => {
       t.doesNotThrow(() => {
         parseSource(`${arg}`, undefined, Context.OptionsNext | Context.Module);
@@ -60,7 +62,7 @@ describe('Expressions - New target', () => {
     });
   }
 
-  const validSyntax = [
+  for (const arg of [
     'new.target',
     '{ new.target }',
     '() => { new.target }',
@@ -86,9 +88,7 @@ describe('Expressions - New target', () => {
     'function f() { let x = new.target; }',
     'function f() { new new.target()(); }',
     'function f() { new.target(); }'
-  ];
-
-  for (const arg of validSyntax) {
+  ]) {
     it(`function f() {${arg}}`, () => {
       t.doesNotThrow(() => {
         parseSource(`function f() {${arg}}`, undefined, Context.OptionsNext | Context.Module);

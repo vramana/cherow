@@ -150,6 +150,68 @@ describe('Expressions - Yield', () => {
     });
   }
 
+  for (const arg of [
+    'x=yield',
+    'x, y=yield',
+    '{x=yield}',
+    '[x=yield]',
+
+    'x=(yield)',
+    'x, y=(yield)',
+    '{x=(yield)}',
+    '[x=(yield)]',
+
+    'x=f(yield)',
+    'x, y=f(yield)',
+    '{x=f(yield)}',
+    '[x=f(yield)]',
+
+    '{x}=yield',
+    '[x]=yield',
+
+    '{x}=(yield)',
+    '[x]=(yield)',
+
+    '{x}=f(yield)',
+    '[x]=f(yield)',
+    // Because classes are always in strict mode, these are always errors.
+    'x = class extends (yield) { }',
+    'x = class extends f(yield) { }',
+    'x = class extends (null, yield) { }',
+    'x = class extends (a ? null : yield) { }',
+    '[x] = [class extends (a ? null : yield) { }]',
+    '[x = class extends (a ? null : yield) { }]',
+    '[x = class extends (a ? null : yield) { }] = [null]',
+    'x = class { [yield]() { } }',
+    'x = class { static [yield]() { } }',
+    'x = class { [(yield, 1)]() { } }',
+    'x = class { [y = (yield, 1)]() { } }'
+  ]) {
+    it(`(function *g(${arg}) { });`, () => {
+      t.throws(() => {
+        parseSource(`(function *g(${arg}) { });`, undefined, Context.Empty);
+      });
+    });
+
+    it(`"use strict"; (function *g(${arg}) { });`, () => {
+      t.throws(() => {
+        parseSource(`"use strict"; (function *g(${arg}) { });`, undefined, Context.Empty);
+      });
+    });
+
+    it(`(function *g(${arg}) { });`, () => {
+      t.throws(() => {
+        parseSource(`(function *g(${arg}) { });`, undefined, Context.Empty);
+      });
+    });
+
+    //it(`(function *g() { (${arg}) => {} });`, () => {
+    //t.throws(() => {
+    //parseSource(`(function *g() { (${arg}) => {} });`, undefined, Context.Strict | Context.Module);
+    //});
+    //});
+  }
+
   const inValids: Array<[string, Context]> = [
     ['({a(b, b){}})', Context.Strict],
     ['({a(b, b){ "use strict"; }})', Context.Empty],

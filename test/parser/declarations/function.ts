@@ -31,7 +31,79 @@ describe('Declarations - Function', () => {
     });
   }
 
-  const inValids: Array<[string, Context]> = [
+  for (const arg of [
+    'try function foo() {} catch (e) {}',
+    'do function foo() {} while (0);',
+    'for (;false;) function foo() {}',
+    'for (var i = 0; i < 1; i++) function f() { };',
+    'for (var x in {a: 1}) function f() { };',
+    'for (var x in {}) function f() { };',
+    'for (var x in {}) function foo() {}',
+    'for (x in {a: 1}) function f() { };',
+    'for (x in {}) function f() { };',
+    'var x; for (x in {}) function foo() {}',
+    'with ({}) function f() { };',
+    'do label: function foo() {} while (0);',
+    'for (;false;) label: function foo() {}',
+    'for (var i = 0; i < 1; i++) label: function f() { };',
+    'for (var x in {a: 1}) label: function f() { };',
+    'for (var x in {}) label: function f() { };',
+    'for (var x in {}) label: function foo() {}',
+    'for (x in {a: 1}) label: function f() { };',
+    'for (x in {}) label: function f() { };',
+    'var x; for (x in {}) label: function foo() {}',
+    'with ({}) label: function f() { };',
+    'if (true) label: function f() {}',
+    'if (true) {} else label: function f() {}',
+    'if (true) function* f() { }',
+    'label: function* f() { }',
+    'if (true) async function f() { }',
+    'label: async function f() { }',
+    'if (true) async function* f() { }',
+    'label: async function* f() { }'
+  ]) {
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`(function() { 'use strict';${arg}})()`, undefined, Context.Empty);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`(function() { 'use strict'; {${arg}}})()`, undefined, Context.Empty);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`(function() { ;${arg}})()`, undefined, Context.Empty);
+      });
+    });
+  }
+
+  // Valid only in sloppy mode and with the 'WebCompat' option on
+  for (const arg of [
+    'if (true) function foo() {}',
+    'if (false) {} else function f() { };',
+    'label: function f() { }',
+    'label: if (true) function f() { }',
+    'label: if (true) {} else function f() { }',
+    'label: label2: function f() { }'
+  ]) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`(function() {${arg}})()`, undefined, Context.OptionsWebCompat);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`(function() { {${arg}}})()`, undefined, Context.OptionsWebCompat);
+      });
+    });
+  }
+
+  fail('Declarations - Functions (fail)', [
     // Acorn
     ['let foo = 1; function x(foo) {} { var foo = 1; }', Context.Empty],
     ['var foo = 1; function x() {} let foo = 1;', Context.Empty],
@@ -171,12 +243,9 @@ describe('Declarations - Function', () => {
     ['if (true) async function* f() { }', Context.Empty],
     ['label: async function* f() { }', Context.Empty],
     ['function f(,,){}', Context.Empty]
-    // ['function f(a,){}', Context.Empty],
-  ];
+  ]);
 
-  fail('Declarations - Functions (fail)', inValids);
-
-  const programs = [
+  for (const arg of [
     'if (true) function foo() {}',
     'if (false) {} else function f() { };',
     'label: function f() { }',
@@ -478,9 +547,7 @@ describe('Declarations - Function', () => {
     'function f([foo,bar=b] = x){}',
     'function f([foo=a,bar=b]){}',
     'function f([foo=a,bar=b] = x){}'
-  ];
-
-  for (const arg of programs) {
+  ]) {
     it(`${arg}`, () => {
       t.doesNotThrow(() => {
         parseSource(`${arg}`, undefined, Context.OptionsWebCompat);

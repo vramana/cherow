@@ -182,6 +182,10 @@ describe('Declarations - Const', () => {
     for (const x = "inner_x"; i < 1; i++) {
       const y = "inner_y";
     }`,
+    'const x = 1',
+    'for (const x = 1; x < 1; x++) {}',
+    'for (const x in {}) {}',
+    'for (const x of []) {}',
     'const arrow = () => {};',
     'const x = x + 1;',
     'const xCover = (0, function() {});',

@@ -5,7 +5,33 @@ import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Array', () => {});
 
-const validSyntax = [
+for (const arg of ['[...]', '[a, ...]', '[..., ]', '[..., ...]', '[ (...a)]']) {
+  it(`${arg}`, () => {
+    t.throws(() => {
+      parseSource(`${arg}`, undefined, Context.Empty);
+    });
+  });
+
+  it(`"use strict"; ${arg}`, () => {
+    t.throws(() => {
+      parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
+    });
+  });
+
+  it(`"use strict"; ${arg}`, () => {
+    t.throws(() => {
+      parseSource(`"use strict"; ${arg}`, undefined, Context.OptionsWebCompat);
+    });
+  });
+
+  it(`${arg}`, () => {
+    t.throws(() => {
+      parseSource(`${arg}`, undefined, Context.OptionsNext | Context.Module);
+    });
+  });
+}
+
+for (const arg of [
   '[1 <= 0]',
   'let [a,,b] = c',
   '[a, ...b=c]',
@@ -18,6 +44,16 @@ const validSyntax = [
   ' [,,3,,,]',
   '[,]',
   '[x()]',
+  '[...a]',
+  '[a, ...b]',
+  '[...a,]',
+  '[...a, ,]',
+  '[, ...a]',
+  '[...a, ...b]',
+  '[...a, , ...b]',
+  '[...[...a]]',
+  '[, ...a]',
+  '[, , ...a]',
   '[a, ...b]',
   '[function* f() {}]',
   '[a, ...{0: b}] = (1);',
@@ -54,24 +90,28 @@ const validSyntax = [
   `[,,a,]`,
   `[,,,a]`,
   `[,,a,a]`
-];
-
-for (const arg of validSyntax) {
+]) {
   it(`${arg}`, () => {
     t.doesNotThrow(() => {
       parseSource(`${arg}`, undefined, Context.Empty);
     });
   });
 
-  it(`${arg}`, () => {
+  it(`"use strict"; ${arg}`, () => {
     t.doesNotThrow(() => {
-      parseSource(`${arg}`, undefined, Context.OptionsNext | Context.Module);
+      parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
     });
   });
 
   it(`"use strict"; ${arg}`, () => {
     t.doesNotThrow(() => {
-      parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
+      parseSource(`"use strict"; ${arg}`, undefined, Context.OptionsWebCompat);
+    });
+  });
+
+  it(`${arg}`, () => {
+    t.doesNotThrow(() => {
+      parseSource(`${arg}`, undefined, Context.OptionsNext | Context.Module);
     });
   });
 }
