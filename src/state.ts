@@ -173,7 +173,7 @@ function parseAsyncFunctionOrAssignmentExpression(
 ): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
   return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
     ? parseHoistableFunctionDeclaration(state, context, scope, isDefault, true)
-    : (parseAssignmentExpression(state, context) as any);
+    : parseAssignmentExpression(state, context);
 }
 
 function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): any {
@@ -3040,7 +3040,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.LetKeyword: {
       if (context & Context.Strict) report(state, Errors.UnexpectedStrictReserved);
       next(state, context);
-      if (state.flags & Flags.NewLine && state.token === (Token.LeftBracket as any)) {
+      if (state.flags & Flags.NewLine && (state.token as Token) === Token.LeftBracket) {
         report(state, Errors.RestricedLetProduction);
       }
 
@@ -3127,7 +3127,7 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
       }
     } else if (state.token === Token.Ellipsis) {
       elements.push(parseSpreadElement(state, context, Origin.ArrayLiteral));
-      if (state.token !== (Token.RightBracket as any)) {
+      if ((state.token as Token) !== Token.RightBracket) {
         state.bindable = state.assignable = false;
         expect(state, context, Token.Comma);
       }

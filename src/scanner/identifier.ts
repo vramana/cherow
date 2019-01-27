@@ -180,29 +180,28 @@ function scanUnicodeEscape(state: ParserState) {
   // Accept both \uxxxx and \u{xxxxxx}. In the latter case, the number of
   // hex digits between { } is arbitrary. \ and u have already been read.
   let ch = state.source.charCodeAt(state.index++);
-
+  state.column++;
   if (ch === Chars.LeftBrace) {
     // if (index === parser.source.length) return Chars.UnterminatedEscape;
     // \u{N}
     // The first digit is required, so handle it *out* of the loop.
     ch = state.source.charCodeAt(state.index++);
-
+    state.column++;
     let code = toHex(ch);
-    if (code < 0) return report(state, Errors.Unexpected);
+    if (code < 0) report(state, Errors.Unexpected);
     if (state.index === state.source.length) return report(state, Errors.Unexpected);
+    let digit = toHex(state.source.charCodeAt(state.index++));
+    state.column++;
+    if (digit < 0) report(state, Errors.Unexpected);
 
-    ch = state.source.charCodeAt(state.index++);
-
-    while (ch !== Chars.RightBrace) {
-      const digit = toHex(ch);
-      if (digit < 0) return report(state, Errors.Unexpected);
-      code = (code << 4) | digit;
-
-      // Check this early to avoid `code` wrapping to a negative on overflow (which is
-      // reserved for abnormal conditions).
+    while (code >= 0) {
+      code = code * 16 + digit;
       if (code > 0x10ffff) break;
       if (state.index === state.source.length) report(state, Errors.Unexpected);
-      ch = state.source.charCodeAt(state.index++);
+
+      code = toHex(state.source.charCodeAt(state.index++));
+      state.column++;
+      if (code < 0) report(state, Errors.Unexpected);
     }
 
     if (code < 0 || ch !== Chars.RightBrace) report(state, Errors.InvalidDynamicUnicode);
@@ -215,9 +214,10 @@ function scanUnicodeEscape(state: ParserState) {
   for (let i = 0; i < 3; i++) {
     if (state.index === state.length) report(state, Errors.InvalidUnicodeEscape);
     ch = state.source.charCodeAt(state.index++);
+    state.column++;
     const digit = toHex(ch);
     if (digit < 0) report(state, Errors.InvalidIdentChar);
-    code = (code << 4) | digit;
+    code = code * 16 + digit;
   }
 
   return code;

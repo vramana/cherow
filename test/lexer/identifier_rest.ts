@@ -49,17 +49,6 @@ describe('Lexer - Identifiers', () => {
       });
     }
 
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
     pass('scan br\\u0065ak', {
       value: 'break',
       source: 'br\\u0065ak',
@@ -68,10 +57,10 @@ describe('Lexer - Identifiers', () => {
       token: Token.EscapedKeyword,
       index: 10,
       line: 1,
-      column: 6
+      column: 10
     });
 
-    pass('scan \\u0070bc', {
+    pass('scan int\\u0065rface', {
       value: 'interface',
       source: 'int\\u0065rface',
       hasNext: false,
@@ -79,16 +68,27 @@ describe('Lexer - Identifiers', () => {
       token: Token.EscapedStrictReserved,
       index: 14,
       line: 1,
-      column: 10
+      column: 14
     });
 
-    pass('scan \\u0070bc', {
+    pass('scan p\\u0061ckage', {
       value: 'package',
       source: 'p\\u0061ckage',
       hasNext: false,
       raw: 'p\\u0061ckage',
       token: Token.EscapedStrictReserved,
       index: 12,
+      line: 1,
+      column: 12
+    });
+
+    pass('scan l\\u0065t', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
       line: 1,
       column: 8
     });
@@ -101,238 +101,7 @@ describe('Lexer - Identifiers', () => {
       token: Token.EscapedStrictReserved,
       index: 8,
       line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan \\u0070bc', {
-      value: 'let',
-      source: 'l\\u0065t',
-      hasNext: false,
-      raw: 'l\\u0065t',
-      token: Token.EscapedStrictReserved,
-      index: 8,
-      line: 1,
-      column: 4
+      column: 8
     });
 
     if (isModule) {
