@@ -1281,8 +1281,7 @@ export function parseBindingIdentifier(
   checkForDuplicates: boolean
 ): ESTree.Identifier {
   const { tokenValue: name, token } = state;
-  if ((state.token & Token.IsIdentifier) === 0)
-    report(state, Errors.UnexpectedToken, KeywordDescTable[token & Token.Type]);
+  if ((state.token & Token.IsIdentifier) === 0) report(state, Errors.Unexpected);
 
   // TODO: (fkleuver) This should be tokens in 'token.ts', and validated inside 'validateBindingIdentifier'
   if (context & Context.Strict) {
@@ -3521,6 +3520,8 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
           } else if (state.token === Token.LeftBracket) {
             modifier |= Modifiers.Computed;
             key = parseComputedPropertyName(state, context);
+          } else if (state.token === <Token>Token.EscapedStrictReserved) {
+            key = parseIdentifier(state, context);
           } else {
             report(state, Errors.Unexpected);
           }
@@ -3538,6 +3539,8 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
           } else if (state.token === Token.LeftBracket) {
             modifier |= Modifiers.Computed;
             key = parseComputedPropertyName(state, context);
+          } else if (state.token === <Token>Token.EscapedStrictReserved) {
+            key = parseIdentifier(state, context);
           } else {
             report(state, Errors.Unexpected);
           }
@@ -3562,6 +3565,8 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
     } else if (state.token === <Token>Token.LeftBracket) {
       modifier |= Modifiers.Computed;
       key = parseComputedPropertyName(state, context);
+    } else if (state.token === <Token>Token.EscapedStrictReserved) {
+      key = parseIdentifier(state, context);
     } else {
       report(state, Errors.Unexpected);
     }
@@ -3569,6 +3574,8 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
     modifier |= Modifiers.Generator;
   } else if (state.token === Token.Semicolon) {
     next(state, context);
+  } else if (state.token === <Token>Token.EscapedStrictReserved) {
+    key = parseIdentifier(state, context);
   } else {
     report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
   }

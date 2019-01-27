@@ -55,7 +55,7 @@ export function scanIdentifierOrKeyword(state: ParserState, context: Context): T
   }
   state.tokenValue = state.source.slice(state.startIndex, index);
   if (state.source.charCodeAt(index) === Chars.Backslash) {
-    //state.tokenValue += fromCodePoint(scanIdentifierRest(state));
+    return scanIdentifierRest(state, context);
   }
   state.index = index;
   state.column = column;
@@ -83,7 +83,7 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
   }
   state.tokenValue = state.source.slice(state.startIndex, index);
   if (state.source.charCodeAt(index) === Chars.Backslash) {
-    //state.tokenValue += fromCodePoint(scanIdentifierRest(state));
+    return scanIdentifierRest(state, context);
   }
   state.index = index;
   state.column = column;
@@ -137,8 +137,9 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
       break;
     }
   }
-  result += state.source.substring(start, state.index);
-  state.tokenValue = result;
+
+  state.tokenValue = result += state.source.substring(start, state.index);
+
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
 
   const len = state.tokenValue.length;
