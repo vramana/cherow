@@ -67,7 +67,9 @@ export declare const enum Origin {
     ClassExprDecl = 64,
     Declaration = 128,
     AsyncArrow = 256,
-    AsyncFunction = 512
+    AsyncFunction = 512,
+    ArrayLiteral = 1024,
+    ObjectExpression = 2048
 }
 export declare const enum ScopeType {
     None = 0,
@@ -199,7 +201,6 @@ export declare function addVariableAndDeduplicate(state: ParserState, context: C
 export declare function createScope(type: ScopeType): ScopeState;
 export declare function createSubScope(parent: ScopeState, type: ScopeType): ScopeState;
 export declare function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Context): boolean;
-export declare function nextTokenIsLeftParen(parser: ParserState, context: Context): boolean;
 export declare function secludeGrammar<T>(state: ParserState, context: Context, minprec: number | undefined, callback: (state: ParserState, context: Context, precedence: number) => T): T;
 export declare function acquireGrammar<T>(state: ParserState, context: Context, minprec: number, callback: (state: ParserState, context: Context, precedence: number) => T): T;
 export declare function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean;
