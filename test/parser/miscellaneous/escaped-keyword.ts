@@ -130,18 +130,6 @@ describe('Miscellaneous - Escaped identifiers', () => {
     ['(async function() { aw\\u0061it x })', Context.Empty],
     ['i\\u0066 (0)', Context.Empty],
     ['\\u{74}rue', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
     ['var \\u{64}\\u{6f} = 123;', Context.Empty]
   ]);
 

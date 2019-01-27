@@ -3066,7 +3066,12 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       if (isValidIdentifier(context, state.token)) {
         return parseIdentifier(state, context | Context.TaggedTemplate);
       }
-      report(state, Errors.Unexpected);
+      report(
+        state,
+        state.token === Token.EscapedKeyword || (state.token as Token) === Token.EscapedStrictReserved
+          ? Errors.InvalidEscapedKeyword
+          : Errors.Unexpected
+      );
   }
 }
 
