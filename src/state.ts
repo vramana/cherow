@@ -1209,7 +1209,8 @@ export function parseExpressionOrLabelledStatement(
     state,
     (context | Context.DisallowInContext) ^ Context.DisallowInContext
   );
-  if (token & Token.Keyword && state.token === Token.Colon) {
+
+  if ((token & Token.Keyword || Token.EscapedStrictReserved) && state.token === Token.Colon) {
     next(state, context | Context.AllowPossibleRegEx);
     validateBindingIdentifier(state, context, Type.None, token);
     if (getLabel(state, `@${tokenValue}`, false, true)) {
@@ -1281,7 +1282,7 @@ export function parseBindingIdentifier(
   checkForDuplicates: boolean
 ): ESTree.Identifier {
   const { tokenValue: name, token } = state;
-  if ((state.token & Token.IsIdentifier) === 0) report(state, Errors.Unexpected);
+  if ((token & Token.IsIdentifier) === 0 && token !== Token.EscapedStrictReserved) report(state, Errors.Unexpected);
 
   // TODO: (fkleuver) This should be tokens in 'token.ts', and validated inside 'validateBindingIdentifier'
   if (context & Context.Strict) {
@@ -1611,7 +1612,7 @@ export function parseFunctionDeclaration(
   let id: ESTree.Identifier | null = null;
   let firstRestricted: string | undefined;
 
-  if (state.token & Token.IsIdentifier) {
+  if (state.token & Token.IsIdentifier || state.token === Token.EscapedStrictReserved) {
     validateBindingIdentifier(
       state,
       ((context | (Context.YieldContext | Context.AwaitContext)) ^ (Context.YieldContext | Context.AwaitContext)) |
@@ -1740,7 +1741,7 @@ export function parseHoistableFunctionDeclaration(
   let id: ESTree.Identifier | null = null;
   let name: string = '';
 
-  if (state.token & Token.IsIdentifier) {
+  if (state.token & Token.IsIdentifier || state.token === Token.EscapedStrictReserved) {
     name = state.tokenValue;
     validateBindingIdentifier(state, context, Type.Let);
     addFunctionName(state, context, scope, Type.Let, Origin.None, true);
@@ -2204,6 +2205,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     token & Token.IsAsync &&
     (state.flags & Flags.NewLine) < 1 &&
     ((state.token & Token.IsIdentifier) === Token.IsIdentifier ||
+      state.token === Token.EscapedStrictReserved ||
       (!(context & Context.YieldContext) && state.token & Token.IsYield) === Token.IsYield)
   ) {
     const scope = createScope(ScopeType.ArgumentList);
@@ -3162,7 +3164,7 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   let id: ESTree.Identifier | null = null;
   let firstRestricted: string | undefined;
 
-  if (state.token & Token.IsIdentifier) {
+  if (state.token & Token.IsIdentifier || state.token === Token.EscapedStrictReserved) {
     validateBindingIdentifier(
       state,
       ((context | (Context.YieldContext | Context.AwaitContext)) ^ (Context.YieldContext | Context.AwaitContext)) |

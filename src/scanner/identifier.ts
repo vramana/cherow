@@ -49,23 +49,23 @@ export function scanMaybeIdentifier(state: ParserState, _: Context, first: numbe
  */
 export function scanIdentifierOrKeyword(state: ParserState, context: Context): Token {
   let { index, column } = state;
-  while (isIdentifierPart(state.source.charCodeAt(index))) {
-    index++;
-    column++;
+  while (isIdentifierPart(state.source.charCodeAt(state.index))) {
+    state.index++;
+    state.column++;
   }
-  state.tokenValue = state.source.slice(state.startIndex, index);
-  if (state.source.charCodeAt(index) === Chars.Backslash) {
+  state.tokenValue = state.source.slice(state.startIndex, state.index);
+  if (state.source.charCodeAt(state.index) === Chars.Backslash) {
+    state.index = index;
+    state.column = column;
     return scanIdentifierRest(state, context);
   }
-  state.index = index;
-  state.column = column;
 
   const len = state.tokenValue.length;
   if (len >= 2 && len <= 11) {
     const keyword: Token | undefined = descKeywordTable[state.tokenValue];
     if (keyword !== undefined) return keyword;
   }
-  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, index);
+  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
   return Token.Identifier;
 }
 
@@ -83,6 +83,8 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
   }
   state.tokenValue = state.source.slice(state.startIndex, index);
   if (state.source.charCodeAt(index) === Chars.Backslash) {
+    state.index = index;
+    state.column = column;
     return scanIdentifierRest(state, context);
   }
   state.index = index;

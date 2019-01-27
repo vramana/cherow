@@ -605,15 +605,17 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
   if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
     report(state, Errors.AwaitOutsideAsync);
   }
+
+  if (token === Token.EscapedStrictReserved) {
+    if (context & Context.Strict) report(state, Errors.InvalidEscapedKeyword);
+  }
+
   if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
     report(state, Errors.DisallowedInContext, 'yield');
   }
-  if (token === Token.EscapedStrictReserved) {
-    if (context & Context.Strict) report(state, Errors.InvalidStrictReservedWord);
-  }
 
   if (token === Token.EscapedKeyword) {
-    report(state, Errors.InvalidStrictReservedWord);
+    report(state, Errors.InvalidEscapedKeyword);
   }
 
   if ((token & Token.FutureReserved) === Token.FutureReserved) {

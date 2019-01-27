@@ -17,6 +17,7 @@ describe('Lexer - Identifiers', () => {
       hasNext: boolean;
       raw: string;
       token: Token;
+      index: number;
       line: number;
       column: number;
     }
@@ -31,6 +32,7 @@ describe('Lexer - Identifiers', () => {
             hasNext: state.index < state.length,
             token: found,
             raw: state.tokenRaw,
+            index: state.index,
             line: state.line,
             column: state.column
           },
@@ -39,6 +41,7 @@ describe('Lexer - Identifiers', () => {
             hasNext: opts.hasNext,
             raw: opts.raw,
             token: opts.token,
+            index: opts.index,
             line: opts.line,
             column: opts.column
           }
@@ -46,171 +49,290 @@ describe('Lexer - Identifiers', () => {
       });
     }
 
-    function fail(name: string, context: Context, opts: any): any {
-      it(name, () => {
-        const state = create(opts.source, undefined);
-        t.throws(() => {
-          scanIdentifierRest(state, context);
-        });
-      });
-    }
-
-    fail('should fail on `\\u007Xvwxyz`', Context.Empty, {
-      source: `\\u007Xvwxyz`
-    });
-
-    fail('should fail on `\\123\\uD800`', Context.Empty, {
-      source: `\\123\\uD800`
-    });
-
-    fail('should fail on `\\uD.01`', Context.Empty, {
-      source: `\\uD.01`
-    });
-
-    fail('should fail on `\\u`', Context.Empty, {
-      source: `\\u`
-    });
-
-    fail('should fail on `\\u0x11ffff`', Context.Empty, {
-      source: `\\u0x11ffff`
-    });
-
-    fail('should fail on `\\u00`', Context.Empty, {
-      source: `\\u00`
-    });
-
-    fail('should fail on `\\`', Context.Empty, {
-      source: `\\`
-    });
-
-    fail('should fail on `\\u{}`', Context.Empty, {
-      source: `\\u{}`
-    });
-
-    fail('should fail on `\\u{10401`', Context.Empty, {
-      source: `\\u{10401`
-    });
-
-    fail('should fail on `\\u0`', Context.Empty, {
-      source: `\\u0`
-    });
-
-    fail('should fail on `a\\u`', Context.Empty, {
-      source: `a\\u`
-    });
-
-    fail('should fail on `abc\\u00`', Context.Empty, {
-      source: `abc\\u00`
-    });
-
-    fail('should fail on `a\\u`', Context.Module, {
-      source: `a\\u`
-    });
-
-    fail('should fail on `abc\\u00`', Context.OptionsWebCompat, {
-      source: `abc\\u00`
-    });
-
     pass('scan \\u0070bc', {
-      value: 'pbc',
-      source: '\\u0070bc',
+      value: 'let',
+      source: 'l\\u0065t',
       hasNext: false,
-      raw: '\\u0070bc',
-      token: Token.Identifier,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
       line: 1,
       column: 4
     });
 
-    pass('scan \\u{000000000000000000070}bc', {
-      value: 'pbc',
-      source: '\\u{000000000000000000070}bc',
+    pass('scan br\\u0065ak', {
+      value: 'break',
+      source: 'br\\u0065ak',
       hasNext: false,
-      raw: '\\u{000000000000000000070}bc',
-      token: Token.Identifier,
-      line: 1,
-      column: 4
-    });
-
-    pass('scan surrogate pair', {
-      value: 'false',
-      source: 'f\\u0061lse',
-      hasNext: false,
-      raw: 'f\\u0061lse',
+      raw: 'br\\u0065ak',
       token: Token.EscapedKeyword,
+      index: 10,
       line: 1,
       column: 6
     });
 
-    pass("scans 'c\\u006fntinue'", {
-      source: 'c\\u006fntinue',
-      value: 'continue',
+    pass('scan \\u0070bc', {
+      value: 'interface',
+      source: 'int\\u0065rface',
       hasNext: false,
-      raw: 'c\\u006fntinue',
-      token: Token.EscapedKeyword,
+      raw: 'int\\u0065rface',
+      token: Token.EscapedStrictReserved,
+      index: 14,
       line: 1,
-      column: 9
+      column: 10
     });
 
-    pass("scans 'e\\u0078port'", {
-      source: 'e\\u0078port',
+    pass('scan \\u0070bc', {
+      value: 'package',
+      source: 'p\\u0061ckage',
       hasNext: false,
-      value: 'export',
-      raw: 'e\\u0078port',
-      token: Token.EscapedKeyword,
-      line: 1,
-      column: 7
-    });
-
-    pass("scans 'e\\u0078port'", {
-      source: 'e\\u0078port',
-      hasNext: false,
-      value: 'export',
-      raw: 'e\\u0078port',
-      token: Token.EscapedKeyword,
-      line: 1,
-      column: 7
-    });
-
-    pass('scans `\\u{0070}bc`', {
-      source: `\\u{0070}bc`,
-      hasNext: false,
-      value: 'pbc',
-      raw: '\\u{0070}bc',
-      token: Token.Identifier,
-      line: 1,
-      column: 4
-    });
-
-    // TODO: (Fkleuver) - Token.ts
-    /*
-    pass('scans \'\\u0065num\'', {
-      source: '\\u0065num',
-      value: 'enum',
-      hasNext: false,
-      raw: '\\u0065num',
-      token: Token.EscapedKeyword,
-      line: 1,
-      column: 9,
-  });
-*/
-    pass("scans 'd\\u0065fault'", {
-      source: 'd\\u0065fault',
-      value: 'default',
-      hasNext: false,
-      raw: 'd\\u0065fault',
-      token: Token.EscapedKeyword,
+      raw: 'p\\u0061ckage',
+      token: Token.EscapedStrictReserved,
+      index: 12,
       line: 1,
       column: 8
     });
 
-    pass("scans 'yi\\u0065ld'", {
-      source: 'yi\\u0065ld',
-      value: 'yield',
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
       hasNext: false,
-      raw: 'yi\\u0065ld',
+      raw: 'l\\u0065t',
       token: Token.EscapedStrictReserved,
+      index: 8,
       line: 1,
-      column: 6
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
+    });
+
+    pass('scan \\u0070bc', {
+      value: 'let',
+      source: 'l\\u0065t',
+      hasNext: false,
+      raw: 'l\\u0065t',
+      token: Token.EscapedStrictReserved,
+      index: 8,
+      line: 1,
+      column: 4
     });
 
     if (isModule) {

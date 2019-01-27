@@ -116,7 +116,8 @@ export const enum Errors {
   InvalidImportExportSloppy,
   InvalidDynamicUnicode,
   InvalidIdentChar,
-  UnsupportedIdentEscape
+  UnsupportedIdentEscape,
+  InvalidEscapedKeyword
 }
 
 /*@internal*/
@@ -242,7 +243,8 @@ export const errorMessages: {
   [Errors.InvalidImportExportSloppy]: 'The %0 keyword can only be used with the module goal',
   [Errors.InvalidDynamicUnicode]: 'Th identifier contained dynamic unicode escape that was not closed',
   [Errors.InvalidIdentChar]: 'The identifier escape did not yield a valid identifier character',
-  [Errors.UnsupportedIdentEscape]: 'Only unicode escapes are supported in identifier escapes'
+  [Errors.UnsupportedIdentEscape]: 'Only unicode escapes are supported in identifier escapes',
+  [Errors.InvalidEscapedKeyword]: 'Invalid escaped keyword'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
