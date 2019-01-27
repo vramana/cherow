@@ -140,24 +140,34 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
   result += state.source.substring(start, state.index);
   state.tokenValue = result;
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
-  const t = descKeywordTable[state.tokenValue] || Token.Identifier;
 
-  if (!hasEscape) return t;
+  const len = state.tokenValue.length;
 
-  // If not in strict mode context, this will 'fall through' and returned below
-  if (t === Token.Identifier || t === Token.Contextual) return t;
+  if (len >= 2 && len <= 11) {
+    const keyword: Token | undefined = descKeywordTable[state.tokenValue];
+    if (keyword !== undefined) {
+      if (!hasEscape || keyword === Token.Identifier) return keyword;
 
-  if ((t & Token.FutureReserved) === Token.FutureReserved || t === Token.LetKeyword || t === Token.StaticKeyword) {
-    return Token.EscapedStrictReserved;
+      if (
+        (keyword & Token.FutureReserved) === Token.FutureReserved ||
+        keyword === Token.LetKeyword ||
+        keyword === Token.StaticKeyword
+      ) {
+        return Token.EscapedStrictReserved;
+      }
+
+      return Token.EscapedKeyword;
+    }
   }
-  return Token.EscapedKeyword;
+
+  return Token.Identifier;
 }
 
 function scanIdentifierUnicodeEscape(state: ParserState) {
   // Read 'u' characters
   state.index++;
   state.column++;
-  if (state.source.charCodeAt(state.index) !== Chars.LowerU) report(state, Errors.Unexpected);
+  if (state.source.charCodeAt(state.index) !== Chars.LowerU) report(state, Errors.UnsupportedIdentEscape);
   state.index++;
   state.column++;
   return scanUnicodeEscape(state);
@@ -179,7 +189,6 @@ function scanUnicodeEscape(state: ParserState) {
     if (state.index === state.source.length) return report(state, Errors.Unexpected);
 
     ch = state.source.charCodeAt(state.index++);
-    let digits = 1;
 
     while (ch !== Chars.RightBrace) {
       const digit = toHex(ch);
@@ -191,9 +200,9 @@ function scanUnicodeEscape(state: ParserState) {
       if (code > 0x10ffff) break;
       if (state.index === state.source.length) report(state, Errors.Unexpected);
       ch = state.source.charCodeAt(state.index++);
-      digits++;
     }
-    if (code < 0 || ch !== Chars.RightBrace) report(state, Errors.InvalidUnicodeEscape);
+
+    if (code < 0 || ch !== Chars.RightBrace) report(state, Errors.InvalidDynamicUnicode);
     return code;
   }
   // \uNNNN
@@ -204,7 +213,7 @@ function scanUnicodeEscape(state: ParserState) {
     if (state.index === state.length) report(state, Errors.InvalidUnicodeEscape);
     ch = state.source.charCodeAt(state.index++);
     const digit = toHex(ch);
-    if (digit < 0) report(state, Errors.Unexpected);
+    if (digit < 0) report(state, Errors.InvalidIdentChar);
     code = (code << 4) | digit;
   }
 

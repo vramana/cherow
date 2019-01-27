@@ -46,6 +46,71 @@ describe('Lexer - Identifiers', () => {
       });
     }
 
+    function fail(name: string, context: Context, opts: any): any {
+      it(name, () => {
+        const state = create(opts.source, undefined);
+        t.throws(() => {
+          scanIdentifierRest(state, context);
+        });
+      });
+    }
+
+    fail('should fail on `\\u007Xvwxyz`', Context.Empty, {
+      source: `\\u007Xvwxyz`
+    });
+
+    fail('should fail on `\\123\\uD800`', Context.Empty, {
+      source: `\\123\\uD800`
+    });
+
+    fail('should fail on `\\uD.01`', Context.Empty, {
+      source: `\\uD.01`
+    });
+
+    fail('should fail on `\\u`', Context.Empty, {
+      source: `\\u`
+    });
+
+    fail('should fail on `\\u0x11ffff`', Context.Empty, {
+      source: `\\u0x11ffff`
+    });
+
+    fail('should fail on `\\u00`', Context.Empty, {
+      source: `\\u00`
+    });
+
+    fail('should fail on `\\`', Context.Empty, {
+      source: `\\`
+    });
+
+    fail('should fail on `\\u{}`', Context.Empty, {
+      source: `\\u{}`
+    });
+
+    fail('should fail on `\\u{10401`', Context.Empty, {
+      source: `\\u{10401`
+    });
+
+    fail('should fail on `\\u0`', Context.Empty, {
+      source: `\\u0`
+    });
+
+    fail('should fail on `a\\u`', Context.Empty, {
+      source: `a\\u`
+    });
+
+    fail('should fail on `abc\\u00`', Context.Empty, {
+      source: `abc\\u00`
+    });
+
+    fail('should fail on `a\\u`', Context.Module, {
+      source: `a\\u`
+    });
+
+    fail('should fail on `abc\\u00`', Context.OptionsWebCompat, {
+      source: `abc\\u00`
+    });
+
     pass('scan \\u0070bc', {
       value: 'pbc',
       source: '\\u0070bc',
@@ -94,6 +159,26 @@ describe('Lexer - Identifiers', () => {
       token: Token.EscapedKeyword,
       line: 1,
       column: 7
+    });
+
+    pass("scans 'e\\u0078port'", {
+      source: 'e\\u0078port',
+      hasNext: false,
+      value: 'export',
+      raw: 'e\\u0078port',
+      token: Token.EscapedKeyword,
+      line: 1,
+      column: 7
+    });
+
+    pass('scans `\\u{0070}bc`', {
+      source: `\\u{0070}bc`,
+      hasNext: false,
+      value: 'pbc',
+      raw: '\\u{0070}bc',
+      token: Token.Identifier,
+      line: 1,
+      column: 4
     });
 
     // TODO: (Fkleuver) - Token.ts
