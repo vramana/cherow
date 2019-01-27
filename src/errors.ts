@@ -241,7 +241,7 @@ export const errorMessages: {
   [Errors.InvalidDefaultImport]: "Only '*' or '{...}' can be imported after default",
   [Errors.InvalidExportImportSource]: '%0 source must be string',
   [Errors.InvalidImportExportSloppy]: 'The %0 keyword can only be used with the module goal',
-  [Errors.InvalidDynamicUnicode]: 'Th identifier contained dynamic unicode escape that was not closed',
+  [Errors.InvalidDynamicUnicode]: 'The identifier contained dynamic unicode escape that was not closed',
   [Errors.InvalidIdentChar]: 'The identifier escape did not yield a valid identifier character',
   [Errors.UnsupportedIdentEscape]: 'Only unicode escapes are supported in identifier escapes',
   [Errors.InvalidEscapedKeyword]: 'Invalid escaped keyword'

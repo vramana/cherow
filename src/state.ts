@@ -3677,7 +3677,11 @@ function parseObjectLiteral(
     if (state.token === <Token>Token.Ellipsis) {
       properties.push(parseSpreadElement(state, context, Origin.ObjectExpression));
     } else {
-      if (state.token & Token.IsIdentifier) {
+      if (
+        state.token & Token.IsIdentifier ||
+        state.token === Token.EscapedKeyword ||
+        state.token === Token.EscapedStrictReserved
+      ) {
         token = state.token;
         tokenValue = state.tokenValue;
         objState = Modifiers.None;

@@ -151,15 +151,15 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
     if (keyword !== undefined) {
       if (!hasEscape || keyword === Token.Identifier) return keyword;
 
-      if (
-        (keyword & Token.FutureReserved) === Token.FutureReserved ||
-        keyword === Token.LetKeyword ||
-        keyword === Token.StaticKeyword
-      ) {
-        return Token.EscapedStrictReserved;
-      }
+      if (keyword === Token.YieldKeyword) return Token.EscapedKeyword;
 
-      return Token.EscapedKeyword;
+      if ((keyword & Token.FutureReserved) === Token.FutureReserved) {
+        if (hasEscape) return Token.EscapedStrictReserved;
+        return keyword;
+      }
+      return keyword === Token.LetKeyword || keyword === Token.StaticKeyword
+        ? Token.EscapedStrictReserved
+        : Token.EscapedKeyword;
     }
   }
 

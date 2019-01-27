@@ -107,10 +107,150 @@ describe('Miscellaneous - Escaped identifiers', () => {
     ['var \\u{63}atch = 123;', Context.Empty],
     ['var \\u{63}ontinue = 123;', Context.Empty],
     ['var fina\\u{6c}ly = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['i\\u0066 (0)', Context.Empty],
+    ['var i\\u0066', Context.Empty],
+    ['export {a \\u0061s b} from "";', Context.Strict | Context.Module],
+    ['export {} fr\\u006fm "";', Context.Strict | Context.Module],
+    ['for (a o\\u0066 b);', Context.Empty],
+    ['class a { st\\u0061tic m(){} }', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+
+    ['(async function() { aw\\u0061it x })', Context.Empty],
+    ['(\\u0061sync function() { await x })', Context.Empty],
+    ['(\\u0061sync () => { await x })', Context.Empty],
+    ['\\u0061sync x => { await x }', Context.Empty],
+    ['lass X { \\u0061sync x() { await x } }', Context.Empty],
+    ['class X { static \\u0061sync x() { await x } }', Context.Empty],
+    ['export \\u0061sync function y() { await x }', Context.Strict | Context.Module],
+    ['export default \\u0061sync function () { await x }', Context.Strict | Context.Module],
+    ['({ \\u0061sync x() { await x } })', Context.Empty],
+    ['for (x \\u006ff y) {}', Context.Empty],
+    ['(function* () { y\\u0069eld 10 })', Context.Empty],
+    ['(async function() { aw\\u0061it x })', Context.Empty],
+    ['i\\u0066 (0)', Context.Empty],
+    ['\\u{74}rue', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
+    ['var \\u{64}\\u{6f} = 123;', Context.Empty],
     ['var \\u{64}\\u{6f} = 123;', Context.Empty]
   ]);
 
   pass('Miscellaneous - Computed property names', [
+    [
+      `({i\\u0066: 0})`,
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              properties: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'if',
+                    type: 'Identifier'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    type: 'Literal',
+                    value: 0
+                  }
+                }
+              ],
+              type: 'ObjectExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      `var le\\u0074`,
+      Context.Empty,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'let',
+                  type: 'Identifier'
+                },
+                init: null,
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      `function *a(){({yi\\u0065ld: 0})}`,
+      Context.Empty,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [
+                {
+                  expression: {
+                    properties: [
+                      {
+                        computed: false,
+                        key: {
+                          name: 'yield',
+                          type: 'Identifier'
+                        },
+                        kind: 'init',
+                        method: false,
+                        shorthand: false,
+                        type: 'Property',
+                        value: {
+                          type: 'Literal',
+                          value: 0
+                        }
+                      }
+                    ],
+                    type: 'ObjectExpression'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            generator: true,
+            id: {
+              name: 'a',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
     [
       `var obj1 = { o\\u010dj2 : { foo1: function() {} } };`,
       Context.Empty,
