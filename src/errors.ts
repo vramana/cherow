@@ -108,7 +108,12 @@ export const enum Errors {
   DeclarationMissingInitializer,
   ForInOfLoopMultiBindings,
   AwaitInParameter,
-  YieldInParameter
+  YieldInParameter,
+  InvalidKeywordAsAlias,
+  DuplicateExportBinding,
+  InvalidDefaultImport,
+  InvalidExportImportSource,
+  InvalidImportExportSloppy
 }
 
 /*@internal*/
@@ -216,7 +221,7 @@ export const errorMessages: {
   [Errors.StrictOctalLiteral]: 'Legacy octal literals are not allowed in strict mode',
   [Errors.AccessorWrongArgs]: '%0 functions must have %1 argument%2',
   [Errors.BadSetterRestParameter]: 'Setter function argument must not be a rest parameter',
-  [Errors.InvalidNestedStatement]: '%0  statement must be nested within an iteration statement',
+  [Errors.InvalidNestedStatement]: '%0 statement must be nested within an iteration statement',
   [Errors.RestricedLetProduction]: '`let \n [` is a restricted production at the start of a statement',
   [Errors.AlreadyBoundAsLexical]: '%0 is already bound as a lexical binding',
   [Errors.MultipleLexicals]: 'The lexical binding %0 has been bound multiple times',
@@ -226,7 +231,12 @@ export const errorMessages: {
   [Errors.ForInOfLoopInitializer]: "'for-%0' loop variable declaration may not have an initializer",
   [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
   [Errors.AwaitInParameter]: 'Await expression not allowed in formal parameter',
-  [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter'
+  [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
+  [Errors.InvalidKeywordAsAlias]: 'Only a identifier can be used to indicate alias',
+  [Errors.DuplicateExportBinding]: "'%0' export binding already bound",
+  [Errors.InvalidDefaultImport]: "Only '*' or '{...}' can be imported after default",
+  [Errors.InvalidExportImportSource]: '%0 source must be string',
+  [Errors.InvalidImportExportSloppy]: ' The %0 keyword can only be used with the module goal'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

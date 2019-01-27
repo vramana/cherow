@@ -15,6 +15,19 @@ describe('Expressions - Async Functions', () => {
     ["var asyncFn = async await => await + 'test';", Context.Empty],
     ['var asyncFn = async function(await) {};', Context.Empty],
     ['async function * f() {([a = 1] of [])}', Context.Empty],
+    ['(async function*(x = await 1) { });', Context.Empty],
+
+    //    ['function f(x = await y){}', Context.Empty],
+    //    ['function *f(x = await y){}', Context.Empty],
+    //    ['function f(x = await){}', Context.Empty],
+    //     ['function f(await){}', Context.Empty],
+
+    ['async function f(x = await){}', Context.Empty],
+    ['async function *f(x = await){}', Context.Empty],
+    ['async function f(x = await y){}', Context.Empty],
+    ['async function *f(x = await y){}', Context.Empty],
+    ['async function f(await){}', Context.Empty],
+    ['async function *f(await){}', Context.Empty],
     ['async function * f() {([a = 1, ...b] of [])}', Context.Empty],
     ['async function * f() {({a: a} of [])}', Context.Empty],
     ['async function * f() {({"a": a} of [])}', Context.Empty],
@@ -100,7 +113,7 @@ describe('Expressions - Async Functions', () => {
     ['async function * gen() { try { } catch (yield) { }   }', Context.Empty],
     ['async function * gen() {  try { } catch (await) { }  }', Context.Empty],
     ['async function * gen() {  function yield() { }  }', Context.Empty],
-    // ['async function * gen() {  function await() { }  }', Context.Empty],
+    ['async function * gen() {  function await() { }  }', Context.Empty],
     ['async function * gen() { (async function * yield() { })   }', Context.Empty],
     ['async function * gen() {  (async function * await() { })  }', Context.Empty],
     ['async function * gen() { (async function * foo(yield) { })   }', Context.Empty],
@@ -277,6 +290,41 @@ describe('Expressions - Async Functions', () => {
             }
           }
         ]
+      }
+    ],
+    [
+      '(async function() { (await y); })',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              async: true,
+              body: {
+                body: [
+                  {
+                    expression: {
+                      argument: {
+                        name: 'y',
+                        type: 'Identifier'
+                      },
+                      type: 'AwaitExpression'
+                    },
+                    type: 'ExpressionStatement'
+                  }
+                ],
+                type: 'BlockStatement'
+              },
+              generator: false,
+              id: null,
+              params: [],
+              type: 'FunctionExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [

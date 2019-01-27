@@ -54,6 +54,8 @@ describe('Expressions - Object', () => {
     ['({*ident x(){}})', Context.Empty],
     ['({*async x(){}})', Context.Empty],
     ['({[fkleuver] 1(){}})', Context.Empty],
+    ['({...{a, b}} = x)', Context.Empty],
+    ['({...{a, b}}) => x', Context.Empty],
 
     // Misc
 
@@ -62,9 +64,9 @@ describe('Expressions - Object', () => {
     ['({*get x(){}})', Context.Strict],
 
     ['({get foo( +})', Context.Strict],
-    // ['({static x: 0})', Context.Strict],
-    // ['({static x(){}})', Context.Strict],
-    // ['({static async x(){}})', Context.Strict],
+    ['({static x: 0})', Context.Strict],
+    //['({static x(){}})', Context.Strict],
+    ['({static async x(){}})', Context.Strict],
     ['({*x: 0})', Context.Empty],
     ['({*get x(){}})', Context.Empty],
     ['*async x(){}', Context.Empty],
@@ -145,6 +147,41 @@ describe('Expressions - Object', () => {
     it(`"use strict"; ({ ${arg} })`, () => {
       t.doesNotThrow(() => {
         parseSource(`"use strict"; ({ ${arg} })`, undefined, Context.OptionsNext);
+      });
+    });
+  }
+
+  for (const arg of [
+    '__proto__: {}, __proto__: {}',
+    '__proto__: {}, "__proto__": {}',
+    '__proto__: {}, "__\x70roto__": {}',
+    '__proto__: {}, a: 1, __proto__: {}'
+  ]) {
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`({${arg}});`, undefined, Context.Empty);
+      });
+
+      t.throws(() => {
+        parseSource(`({"use strict"; ${arg}});`, undefined, Context.Empty);
+      });
+    });
+  }
+
+  for (const arg of [
+    "__proto__: {}, ['__proto__']: {}",
+    '__proto__: {}, __proto__() {}',
+    '__proto__: {}, get __proto__() {}',
+    '__proto__: {}, set __proto__(v) {}',
+    '__proto__: {}, __proto__'
+  ]) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`({${arg}});`, undefined, Context.Empty);
+      });
+
+      t.doesNotThrow(() => {
+        parseSource(`"use strict"; ({${arg}});`, undefined, Context.Empty);
       });
     });
   }
@@ -2275,70 +2312,6 @@ describe('Expressions - Object', () => {
             }
           }
         ]
-      }
-    ],
-    [
-      '({...{a, b}} = x)',
-      Context.Empty,
-      {
-        body: [
-          {
-            expression: {
-              left: {
-                properties: [
-                  {
-                    argument: {
-                      properties: [
-                        {
-                          computed: false,
-                          key: {
-                            name: 'a',
-                            type: 'Identifier'
-                          },
-                          kind: 'init',
-                          method: false,
-                          shorthand: true,
-                          type: 'Property',
-                          value: {
-                            name: 'a',
-                            type: 'Identifier'
-                          }
-                        },
-                        {
-                          computed: false,
-                          key: {
-                            name: 'b',
-                            type: 'Identifier'
-                          },
-                          kind: 'init',
-                          method: false,
-                          shorthand: true,
-                          type: 'Property',
-                          value: {
-                            name: 'b',
-                            type: 'Identifier'
-                          }
-                        }
-                      ],
-                      type: 'ObjectPattern'
-                    },
-                    type: 'RestElement'
-                  }
-                ],
-                type: 'ObjectPattern'
-              },
-              operator: '=',
-              right: {
-                name: 'x',
-                type: 'Identifier'
-              },
-              type: 'AssignmentExpression'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
       }
     ],
     [
@@ -5351,162 +5324,6 @@ describe('Expressions - Object', () => {
                 type: 'Identifier',
                 name: 'x'
               }
-            }
-          }
-        ]
-      }
-    ],
-    [
-      '({...[a, b]} = x)',
-      Context.Empty,
-      {
-        body: [
-          {
-            expression: {
-              left: {
-                properties: [
-                  {
-                    argument: {
-                      elements: [
-                        {
-                          name: 'a',
-                          type: 'Identifier'
-                        },
-                        {
-                          name: 'b',
-                          type: 'Identifier'
-                        }
-                      ],
-                      type: 'ArrayPattern'
-                    },
-                    type: 'RestElement'
-                  }
-                ],
-                type: 'ObjectPattern'
-              },
-              operator: '=',
-              right: {
-                name: 'x',
-                type: 'Identifier'
-              },
-              type: 'AssignmentExpression'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
-    [
-      '({...[a, b]}) => x',
-      Context.Empty,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'ArrowFunctionExpression',
-              body: {
-                type: 'Identifier',
-                name: 'x'
-              },
-              params: [
-                {
-                  type: 'ObjectPattern',
-                  properties: [
-                    {
-                      type: 'RestElement',
-                      argument: {
-                        type: 'ArrayPattern',
-                        elements: [
-                          {
-                            type: 'Identifier',
-                            name: 'a'
-                          },
-                          {
-                            type: 'Identifier',
-                            name: 'b'
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              ],
-              id: null,
-              async: false,
-              expression: true
-            }
-          }
-        ]
-      }
-    ],
-    [
-      '({...{a, b}}) => x',
-      Context.Empty,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'ArrowFunctionExpression',
-              body: {
-                type: 'Identifier',
-                name: 'x'
-              },
-              params: [
-                {
-                  type: 'ObjectPattern',
-                  properties: [
-                    {
-                      type: 'RestElement',
-                      argument: {
-                        type: 'ObjectPattern',
-                        properties: [
-                          {
-                            type: 'Property',
-                            key: {
-                              type: 'Identifier',
-                              name: 'a'
-                            },
-                            value: {
-                              type: 'Identifier',
-                              name: 'a'
-                            },
-                            kind: 'init',
-                            computed: false,
-                            method: false,
-                            shorthand: true
-                          },
-                          {
-                            type: 'Property',
-                            key: {
-                              type: 'Identifier',
-                              name: 'b'
-                            },
-                            value: {
-                              type: 'Identifier',
-                              name: 'b'
-                            },
-                            kind: 'init',
-                            computed: false,
-                            method: false,
-                            shorthand: true
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              ],
-              id: null,
-              async: false,
-              expression: true
             }
           }
         ]

@@ -18,7 +18,7 @@ describe('Statements - For of', () => {
     ['for(const {p: x = 0} = 0 of {});', Context.Empty],
     ['for(const {x} = 0 of {});', Context.Empty],
     ['for(const {x = 0} = 0 of {});', Context.Empty],
-    //    ['for(x = 0 of {});', Context.Empty],
+    //['for(x = 0 of {});', Context.Empty],
     ['for([] = 0 of {});', Context.Empty],
     ['for([,] = 0 of {});', Context.Empty],
     ['for([a] = 0 of {});', Context.Empty],

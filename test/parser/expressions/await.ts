@@ -1,30 +1,108 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Await', () => {
+  // Tests 'await' with module goal
+
+  for (const arg of [
+    'await;',
+    'await: ;',
+    'var await;',
+    'var [await] = [];',
+    'var { await } = {};',
+    'var { x: await } = {};',
+    '{ var await; }',
+    'let await;',
+    'let [await] = [];',
+    'let { await } = {};',
+    'let { x: await } = {};',
+    '{ let await; }',
+    'const await = null;',
+    'const [await] = [];',
+    'const { await } = {};',
+    'const { x: await } = {};',
+    '{ const await = null; }',
+    'function await() {}',
+    'function f(await) {}',
+    'function* await() {}',
+    'function* g(await) {}',
+    '(function await() {});',
+    '(function (await) {});',
+    '(function* await() {});',
+    '(function* (await) {});',
+    '(await) => {};',
+    'await => {};',
+    'class await {}',
+    'class C { constructor(await) {} }',
+    'class C { m(await) {} }',
+    'class C { static m(await) {} }',
+    'class C { *m(await) {} }',
+    'class C { static *m(await) {} }',
+    '(class await {})',
+    '(class { constructor(await) {} });',
+    '(class { m(await) {} });',
+    '(class { static m(await) {} });',
+    '(class { *m(await) {} });',
+    '(class { static *m(await) {} });',
+    '({ m(await) {} });',
+    '({ *m(await) {} });',
+    '({ set p(await) {} });',
+    'try {} catch (await) {}',
+    'try {} catch (await) {} finally {}'
+  ]) {
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
+
+  // Tests 'await' with module goal
+
+  for (const arg of [
+    '({}).await;',
+    '({ await: null });',
+    '({ await() {} });',
+    '({ get await() {} });',
+    '({ set await(x) {} });',
+    '(class { await() {} });',
+    '(class { static await() {} });',
+    '(class { *await() {} });',
+    '(class { static *await() {} });'
+  ]) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+  }
+
   const inValids: Array<[string, Context]> = [
     //['function call(foo=await bar){}', Context.Empty],
     //['function call(foo=await bar=10){}', Context.Empty],
     ['5 + (await bar())', Context.Empty],
     ['function call(foo= 5 + (await bar())){}', Context.Empty],
-    //['async function x(){ function y(s=await foo){}}', Context.Empty],
-    //['async function f(){ let y = x => await x; }', Context.Empty],
+    //    ['async function x(){ function y(s=await foo){}}', Context.Empty],
+    ['async function f(){ let y = x => await x; }', Context.Empty],
     ['let f = () => (y=await foo) => y;', Context.Empty],
-    ['async function f(){ await foo\n/foo/ }', Context.Empty],
+    //['async function f(){ await foo\n/foo/ }', Context.Empty],
     ['async () => { var await; }', Context.Empty],
-    //['async function f(){ new await x; }', Context.Empty],
+    ['async function f(){ new await x; }', Context.Empty],
     //['async function f(){ await \n x; }', Context.Empty],
     //['async function f(){ if (await \n x) {} }', Context.Empty],
     ['async function f(){ [new await foo] }', Context.Empty],
-    // ['async function f(){ (new await foo) }', Context.Empty],
+    ['async function f(){ (new await foo) }', Context.Empty],
     ['async function f(){ await; ', Context.Empty],
+    ['async function f(){ await; }', Context.Empty],
     ['function await(){}', Context.Module],
     ['async function await(){}', Context.Module],
     ['function *await(){}', Context.Module],
     ['async function *await(){}', Context.Module],
     ['let x = function await(){}', Context.Module],
-    //     ['let x = async function await(){}', Context.Empty],
-    //  ['let x = function *await(){}', Context.Module],
+    ['let x = async function await(){}', Context.Empty],
+    ['let x = function *await(){}', Context.Module],
     ['class x {f(await){}}', Context.Module],
     ['let o = {*f(await){}}', Context.Module],
     ['let o = {f(await){}}', Context.Module],
@@ -38,40 +116,40 @@ describe('Expressions - Await', () => {
     ['let x = function f(await){}', Context.Module],
     ['async function *f(await){}', Context.Empty],
     ['function *f(await){}', Context.Module],
-    //['async function f(){  async (await) => x  }', Context.Empty],
+    ['async function f(){  async (await) => x  }', Context.Empty],
     //['function *f(){  async (await) => x  }', Context.Empty],
     //['function *f(){  foo(await)  }', Context.Module],
-    //['async function f(foo = await bar){}', Context.Empty],
+    ['async function f(foo = await bar){}', Context.Empty],
     //['function *f(foo = await bar){}', Context.Empty],
-    //['async function *f(foo = await bar){}', Context.Empty],
+    ['async function *f(foo = await bar){}', Context.Empty],
     //['let x = function f(foo = await bar){}', Context.Empty],
-    //['let x = async function f(foo = await bar){}', Context.Empty],
+    ['let x = async function f(foo = await bar){}', Context.Empty],
     //['let x = function *f(foo = await bar){}', Context.Empty],
-    //    ['let x = async function *f(foo = await bar){}', Context.Empty],
+    ['let x = async function *f(foo = await bar){}', Context.Empty],
     //  ['let o = {f(foo = await bar){}}', Context.Empty],
-    //  ['let o = {async f(foo = await bar){}}', Context.Empty],
+    ['let o = {async f(foo = await bar){}}', Context.Empty],
     //['let o = {*f(foo = await bar){}}', Context.Empty],
-    //    ['let o = {async *f(foo = await bar){}}', Context.Empty],
+    ['let o = {async *f(foo = await bar){}}', Context.Empty],
     //  ['class x {f(foo = await bar){}}', Context.Empty],
-    //    ['class x {async f(foo = await bar){}}', Context.Empty],
+    ['class x {async f(foo = await bar){}}', Context.Empty],
     //  ['class x {*f(foo = await bar){}}', Context.Empty],
     //  ['class x {*f(foo = await bar){}}', Context.Empty],
     ['function f(foo = [{m: t(await bar)}]){}', Context.Empty],
-    //['async function f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    ['async function f(foo = [{m: t(await bar)}]){}', Context.Empty],
     ['function *f(foo = [{m: t(await bar)}]){}', Context.Empty],
-    //['async function *f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    ['async function *f(foo = [{m: t(await bar)}]){}', Context.Empty],
     ['let x = function f(foo = [{m: t(await bar)}]){}', Context.Empty],
-    //  ['let x = async function f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    ['let x = async function f(foo = [{m: t(await bar)}]){}', Context.Empty],
     ['let x = function *f(foo = [{m: t(await bar)}]){}', Context.Empty],
-    //  ['let x = async function *f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    ['let x = async function *f(foo = [{m: t(await bar)}]){}', Context.Empty],
     ['let o = {f(foo = [{m: t(await bar)}]){}}', Context.Empty],
-    //['let o = {async f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    ['let o = {async f(foo = [{m: t(await bar)}]){}}', Context.Empty],
     ['let o = {*f(foo = [{m: t(await bar)}]){}}', Context.Empty],
-    //  ['let o = {async *f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    ['let o = {async *f(foo = [{m: t(await bar)}]){}}', Context.Empty],
     ['class x {f(foo = [{m: t(await bar)}]){}}', Context.Empty],
-    //  ['class x {async f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    ['class x {async f(foo = [{m: t(await bar)}]){}}', Context.Empty],
     ['class x {*f(foo = [{m: t(await bar)}]){}}', Context.Empty],
-    //    ['class x {async *f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    ['class x {async *f(foo = [{m: t(await bar)}]){}}', Context.Empty],
     ['(foo = await bar) => {}', Context.Empty],
     ['async (foo = await bar) => {}', Context.Empty],
     ['async (foo = await bar);', Context.Empty],
@@ -92,42 +170,43 @@ describe('Expressions - Await', () => {
     ['async ([p] = [{m: 5 + t(await bar)}]) => {}', Context.Empty],
     ['async ([p] = [{m: 5 + t(await bar)}]);', Context.Empty],
     //['async function g(){    function f(foo = await bar){}    }', Context.Empty],
-    //    ['async function g(){async function f(foo = await bar){}    }', Context.Empty],
-    //  ['async function g(){async function *f(foo = await bar){}    }', Context.Empty],
-    //  ['async function g(){let x = function f(foo = await bar){}    }', Context.Empty],
+    ['async function g(){async function f(foo = await bar){}    }', Context.Empty],
+    ['async function g(){async function *f(foo = await bar){}    }', Context.Empty],
+    //['async function g(){let x = function f(foo = await bar){}    }', Context.Empty],
     ['async ([p] = [{m: 5 + t(await bar)}]) => {}', Context.Empty],
     ['async ([p] = [{m: 5 + t(await bar)}]);', Context.Empty],
     // ['async function g(){    function f(foo = await bar){}    }', Context.Empty],
-    // ['async function g(){async function f(foo = await bar){}    }', Context.Empty],
-    // ['async function g(){async function *f(foo = await bar){}    }', Context.Empty],
+    ['async function g(){async function f(foo = await bar){}    }', Context.Empty],
+    ['async function g(){async function *f(foo = await bar){}    }', Context.Empty],
     // ['async function g(){let x = function f(foo = await bar){}    }', Context.Empty],
-    // ['async function g(){let x = async function f(foo = await bar){}    }', Context.Empty],
+    ['async function g(){let x = async function f(foo = await bar){}    }', Context.Empty],
     // ['async function g(){let x = function *f(foo = await bar){}    }', Context.Empty],
-    // ['async function g(){let x = async function *f(foo = await bar){}    }', Context.Empty],
+    ['async function g(){let x = async function *f(foo = await bar){}    }', Context.Empty],
     // ['async function g(){let o = {f(foo = await bar){}}    }', Context.Empty],
-    // ['async function g(){let o = {async f(foo = await bar){}}    }', Context.Empty],
+    ['async function g(){let o = {async f(foo = await bar){}}    }', Context.Empty],
     // ['async function g(){let o = {*f(foo = await bar){}}    }', Context.Empty],
-    // ['async function g(){let o = {async *f(foo = await bar){}}    }', Context.Empty],
+    ['async function g(){let o = {async *f(foo = await bar){}}    }', Context.Empty],
     // ['async function g(){class x {f(foo = await bar){}}    }', Context.Empty],
-    // ['async function g(){class x {async f(foo = await bar){}}    }', Context.Empty],
-    // ['async function g(){class x {*f(foo = await bar){}}    }', Context.Empty],
-    //['async function g(){async function f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
+    ['async function g(){class x {async f(foo = await bar){}}    }', Context.Empty],
+    //['async function g(){class x {*f(foo = await bar){}}    }', Context.Empty],
+    ['async function g(){async function f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
     ['async function g(){function *f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
-    //['async function g(){async function *f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
+    ['async function g(){async function *f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
     ['async function g(){let x = function f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
     ['sync function g(){let x = async function *f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
     ['async function g(){let o = {f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
-    //['async function g(){let o = {async f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    ['async function g(){let o = {async f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
     ['async function g(){let o = {*f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
-    //['async function g(){let o = {async *f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
-    ['async function g(){class x {f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty]
-    // ['async function g(){class x {async f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
-    // ['async function a(){     (foo = await bar) => {}     }', Context.Empty],
-    // ['async function g(){class x {async *f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    ['async function g(){let o = {async *f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    ['async function g(){class x {f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    ['async function g(){class x {async f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    ['var C = class await {};', Context.Module]
+    //['async function a(){     (foo = await bar) => {}     }', Context.Empty],
+    //['async function g(){class x {async *f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
     // ['async function a(){     ({r} = await bar) => {}     }', Context.Empty],
     //['async function a(){     async ({r} = await bar) => {}     }', Context.Empty],
-    //['async function a(){     ([v] = await bar) => {}     }', Context.Empty],
-    // ['async function a(){     async ([v] = await bar) => {}     }', Context.Empty]
+    // ['async function a(){     ([v] = await bar) => {}     }', Context.Empty],
+    //  ['async function a(){     async ([v] = await bar) => {}     }', Context.Empty]
 
     //['async function f(){    (fail = class A {[await foo](){}; "x"(){}}) => {}    }', Context.Empty],
     //['async function f(){    (fail = class A extends await foo {}) => fail    }', Context.Empty],
@@ -138,6 +217,42 @@ describe('Expressions - Await', () => {
   fail('Expressions - Template', inValids);
 
   const valids: Array<[string, Context, any]> = [
+    [
+      'function f(x = await){}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [
+              {
+                type: 'AssignmentPattern',
+                left: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'await'
+                }
+              }
+            ],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
     [
       'async function a(){     async ({r} = await bar);     }',
       Context.Empty,

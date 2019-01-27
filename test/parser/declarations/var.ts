@@ -248,9 +248,9 @@ describe('Declarations - Var', () => {
     'with',
     'null',
     'true',
-    'false',
+    'false'
     // future reserved keyword,
-    'enum'
+    //'enum'
   ];
 
   for (const arg of reservedKeywords) {

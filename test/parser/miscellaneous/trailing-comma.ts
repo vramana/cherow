@@ -8,7 +8,6 @@ describe('Miscellaneous - Trailing comma', () => {
     ['(a, ...b,) => 0', Context.Empty],
     ['async (,) => 0', Context.Empty],
     ['async (a,,) => 0', Context.Empty],
-    // ['async (a, ...b,) => 0', Context.Empty],
     ['function a(,) {}', Context.Empty],
     ['function a(b,,) {}', Context.Empty],
     ['function a(b, ...c,) {}', Context.Empty],
@@ -18,15 +17,73 @@ describe('Miscellaneous - Trailing comma', () => {
     ['({ a (,) {} })', Context.Empty],
     ['({ a (b,,) {} })', Context.Empty],
     ['({ a (b, ...c,) {} })', Context.Empty],
-    // ['({ set a (b,) {} })', Context.Empty],
     ['(a,)', Context.Empty],
     ['({a:1},)', Context.Empty],
     ['for (a of b,c) d;', Context.Empty],
     ['do x, y while (z)', Context.Empty],
-    ['a ? b, c : d', Context.Empty]
+    ['a ? b, c : d', Context.Empty],
+    ['f(....a)', Context.Empty]
   ]);
 
   pass('Miscellaneous - Trailing comma (pass)', [
+    [
+      '(a,) => 0',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Literal',
+                value: 0
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'async (a,) => 0',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Literal',
+                value: 0
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                }
+              ],
+              id: null,
+              async: true,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
     [
       '`x`,`y`',
       Context.Empty,

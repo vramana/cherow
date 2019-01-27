@@ -292,8 +292,81 @@ describe('Declarations - Let', () => {
     ['_ => let {foo};', Context.Empty],
     ['_ => { let\n{foo}; }', Context.Empty],
     ['class x { foo() { let\n{foo}; }}', Context.Empty],
-    ['if (true) let x = 1;', Context.Empty]
+    ['if (true) let x = 1;', Context.Empty],
+    ['let let = 1', Context.Empty],
+    ['for (let let = 1; let < 1; let++) {}', Context.Empty],
+    ['for (let let = 1; let < 1; let++) {}', Context.OptionsWebCompat],
+    ['for (let let = 1; let < 1; let++) {}', Context.Strict | Context.Module],
+    ['for (let let in {}) {}', Context.Empty],
+    ['for (let let of []) {}', Context.Empty],
+    ['const let = 1', Context.Empty],
+    ['const let = 1', Context.Strict | Context.Module | Context.OptionsWebCompat],
+    ['for (const let = 1; let < 1; let++) {}', Context.Empty],
+    ['for (const let in {}) {}', Context.Empty],
+    ['for (const let of []) {}', Context.Empty],
+    ['let [let] = 1', Context.Empty],
+    ['let [let] = 1', Context.Strict | Context.Module | Context.OptionsWebCompat],
+    ['let [let] = 1', Context.Module],
+    ['for (let [let] = 1; let < 1; let++) {}', Context.Empty],
+    ['for (let [let] in {}) {}', Context.Empty],
+    ['for (let [let] of []) {}', Context.Empty],
+    ['for (let [let] in {}) {}', Context.Strict | Context.Module | Context.OptionsWebCompat],
+    ['for (let [let] of []) {}', Context.Strict | Context.Module | Context.OptionsWebCompat],
+    ['const [let] = 1', Context.Empty],
+    ['for (const [let] = 1; let < 1; let++) {}', Context.Empty],
+    ['for (const [let] in {}) {}', Context.Empty],
+    ['for (const [let] of []) {}', Context.Empty]
   ]);
+
+  // Let in sloppy only
+  for (const arg of [
+    'let',
+    'let = 1',
+    'for (let = 1; let < 1; let++) {}',
+    'for (let in {}) {}',
+    'for (var let = 1; let < 1; let++) {}',
+    'for (var let in {}) {}',
+    'for (var [let] = 1; let < 1; let++) {}',
+    'for (var [let] in {}) {}',
+    'var let',
+    'var [let] = []'
+  ]) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.OptionsWebCompat);
+      });
+    });
+
+    it(`{${arg}}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`{${arg}}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`(function() {${arg}})()`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`(function() {${arg}})()`, undefined, Context.Empty);
+      });
+    });
+
+    it(`{${arg}}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`{${arg}}`, undefined, Context.OptionsWebCompat);
+      });
+    });
+
+    it(`(function() {${arg}})()`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`(function() {${arg}})()`, undefined, Context.OptionsWebCompat);
+      });
+    });
+  }
 
   for (const arg of [
     'let { w = a(), x = b(), y = c(), z = d() } = { w: null, x: 0, y: false, z: "" };',
@@ -308,6 +381,11 @@ describe('Declarations - Let', () => {
     'let { w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] };',
     'let { x: y = 33 } = { };',
     'let { x: y, } = { x: 23 };',
+    'let x',
+    'let x = 1',
+    'for (let x = 1; x < 1; x++) {}',
+    'for (let x in {}) {}',
+    'for (let x of []) {}',
     'let xCls = class x {};',
     'let cls = class {};',
     'let\n{x} = x;',
@@ -348,6 +426,24 @@ describe('Declarations - Let', () => {
     it(`${arg}`, () => {
       t.doesNotThrow(() => {
         parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.OptionsWebCompat);
+      });
+    });
+
+    it(`"use strict"; ${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`"use strict"; ${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`"use strict"; ${arg}`, undefined, Context.OptionsWebCompat);
       });
     });
 
