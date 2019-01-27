@@ -95,6 +95,8 @@ describe('Lexer - Identifiers', () => {
       line: 1,
       column: 7
     });
+
+    // TODO: (Fkleuver) - Token.ts
     /*
     pass('scans \'\\u0065num\'', {
       source: '\\u0065num',
