@@ -172,7 +172,10 @@ export const enum Token {
   BigIntLiteral           = 0b0000000000000000000_0000_01110100,
   JSXText                 = 0b0000000000000000000_0000_01110101,
   PrivateName             = 0b0000000000000000000_0000_01110111,
-  Global                  = 0b0000000000000000000_0000_01111100
+  Global                  = 0b0000000000000000000_0000_01111101,
+  EscapedStrictReserved   = 0b0000000000000000000_0000_01111110,
+  EscapedKeyword          = 0b0000000000000000000_0000_01111001,
+  Invalid                 = 0b0000000000000000000_0000_01111111,
 }
 
 // Note: this *must* be kept in sync with the enum's order.

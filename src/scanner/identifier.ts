@@ -1,8 +1,8 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token, descKeywordTable } from '../token';
-import { Chars, isIdentifierStart, isIdentifierPart, AsciiLookup, CharType } from '../chars';
+import { Chars, isIdentifierStart, isIdentifierPart } from '../chars';
 import { Errors, report } from '../errors';
-import { fromCodePoint } from './common';
+import { fromCodePoint, toHex } from './common';
 
 export function scanMaybeIdentifier(state: ParserState, _: Context, first: number): Token | void {
   switch (first) {
@@ -115,4 +115,98 @@ export function scanPrivateName(state: ParserState, _: Context): Token {
   state.index = index;
   state.column = column;
   return Token.PrivateName;
+}
+
+export function scanIdentifierRest(state: ParserState, context: Context): Token {
+  let hasEscape = false;
+  let result = '';
+  let start = state.index;
+  while (state.index < state.length) {
+    let ch = state.source.charCodeAt(state.index);
+    if (isIdentifierPart(ch)) {
+      state.index++;
+      state.column++;
+    } else if ((ch & 8) === 8 && ch === Chars.Backslash) {
+      hasEscape = true;
+      result += state.source.substring(start, state.index);
+      let cookedChar = scanIdentifierUnicodeEscape(state);
+      if (!isIdentifierPart(cookedChar)) break;
+      result += fromCodePoint(cookedChar);
+      start = state.index;
+    } else {
+      break;
+    }
+  }
+  result += state.source.substring(start, state.index);
+  state.tokenValue = result;
+  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
+  const t = descKeywordTable[state.tokenValue] || Token.Identifier;
+
+  if (!hasEscape) return t;
+
+  // If not in strict mode context, this will 'fall through' and returned below
+  if (t === Token.Identifier || t === Token.Contextual) return t;
+
+  if ((t & Token.FutureReserved) === Token.FutureReserved || t === Token.LetKeyword || t === Token.StaticKeyword) {
+    return Token.EscapedStrictReserved;
+  }
+  return Token.EscapedKeyword;
+}
+
+function scanIdentifierUnicodeEscape(state: ParserState) {
+  // Read 'u' characters
+  state.index++;
+  state.column++;
+  if (state.source.charCodeAt(state.index) !== Chars.LowerU) report(state, Errors.Unexpected);
+  state.index++;
+  state.column++;
+  return scanUnicodeEscape(state);
+}
+
+function scanUnicodeEscape(state: ParserState) {
+  // Accept both \uxxxx and \u{xxxxxx}. In the latter case, the number of
+  // hex digits between { } is arbitrary. \ and u have already been read.
+  let ch = state.source.charCodeAt(state.index++);
+
+  if (ch === Chars.LeftBrace) {
+    // if (index === parser.source.length) return Chars.UnterminatedEscape;
+    // \u{N}
+    // The first digit is required, so handle it *out* of the loop.
+    ch = state.source.charCodeAt(state.index++);
+
+    let code = toHex(ch);
+    if (code < 0) return report(state, Errors.Unexpected);
+    if (state.index === state.source.length) return report(state, Errors.Unexpected);
+
+    ch = state.source.charCodeAt(state.index++);
+    let digits = 1;
+
+    while (ch !== Chars.RightBrace) {
+      const digit = toHex(ch);
+      if (digit < 0) return report(state, Errors.Unexpected);
+      code = (code << 4) | digit;
+
+      // Check this early to avoid `code` wrapping to a negative on overflow (which is
+      // reserved for abnormal conditions).
+      if (code > 0x10ffff) break;
+      if (state.index === state.source.length) report(state, Errors.Unexpected);
+      ch = state.source.charCodeAt(state.index++);
+      digits++;
+    }
+    if (code < 0 || ch !== Chars.RightBrace) report(state, Errors.InvalidUnicodeEscape);
+    return code;
+  }
+  // \uNNNN
+  let code = toHex(ch);
+  if (code < 0) report(state, Errors.Unexpected);
+
+  for (let i = 0; i < 3; i++) {
+    if (state.index === state.length) report(state, Errors.InvalidUnicodeEscape);
+    ch = state.source.charCodeAt(state.index++);
+    const digit = toHex(ch);
+    if (digit < 0) report(state, Errors.Unexpected);
+    code = (code << 4) | digit;
+  }
+
+  return code;
 }

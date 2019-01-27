@@ -2983,6 +2983,9 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.StringLiteral:
       state.bindable = state.assignable = false;
       return parseLiteral(state, context, state.tokenValue);
+    case Token.EscapedStrictReserved:
+    case Token.Identifier:
+      return parseIdentifier(state, context | Context.TaggedTemplate);
     case Token.BigIntLiteral:
       state.bindable = state.assignable = false;
       return parseBigIntLiteral(state, context);
