@@ -163,7 +163,8 @@ describe('Declarations - Var', () => {
     ['for (var [..x] of obj);', Context.Empty],
     ['for (var [.x] of obj);', Context.Empty],
     ['for (var {,,} of obj);', Context.Empty],
-    ['for (var x, {y} of obj);', Context.Empty]
+    ['for (var x, {y} of obj);', Context.Empty],
+    ['var \\u{65}\\u{6e}\\u{75}\\u{6d} = 123;', Context.Empty]
   ]);
 
   for (const arg of [
