@@ -186,6 +186,7 @@ export interface ParserState {
   index: number;
   line: number;
   startIndex: number;
+  endIndex: number;
   startLine: number;
   startColumn: number;
   column: number;
@@ -251,10 +252,10 @@ export function pushToken(context: Context, array: any[]): any {
   };
 }
 
-export function finishNode<T extends ESTree.Node>(context: Context, _: number, __: number, node: T): T {
+export function finishNode<T extends ESTree.Node>(context: Context, start: number, end: number, node: T): T {
   if (context & Context.OptionsRanges) {
-    // node.start = start;
-    // node.end = end;
+    node.start = start;
+    node.end = end;
   }
 
   return node;
@@ -500,27 +501,33 @@ export function lookAheadOrScan<T>(
   callback: (state: ParserState, context: Context) => T,
   isLookahead: boolean
 ): T {
-  const savedIndex = state.index;
-  const savedLine = state.line;
-  const savedColumn = state.column;
-  const startIndex = state.startIndex;
-  const savedFlags = state.flags;
-  const savedTokenValue = state.tokenValue;
-  const savedNextChar = state.currentChar;
-  const savedToken = state.token;
-  const savedTokenRegExp = state.tokenRegExp;
+  const {
+    index,
+    line,
+    column,
+    startIndex,
+    endIndex,
+    flags,
+    tokenValue,
+    currentChar,
+    token,
+    tokenRegExp,
+    tokenRaw
+  } = state;
   const result = callback(state, context);
 
   if (!result || isLookahead) {
-    state.index = savedIndex;
-    state.line = savedLine;
-    state.column = savedColumn;
+    state.index = index;
+    state.line = line;
+    state.column = column;
     state.startIndex = startIndex;
-    state.flags = savedFlags;
-    state.tokenValue = savedTokenValue;
-    state.currentChar = savedNextChar;
-    state.token = savedToken;
-    state.tokenRegExp = savedTokenRegExp;
+    state.endIndex = endIndex;
+    state.flags = flags;
+    state.tokenValue = tokenValue;
+    state.currentChar = currentChar;
+    state.tokenRaw = tokenRaw;
+    state.token = token;
+    state.tokenRegExp = tokenRegExp;
   }
 
   return result;

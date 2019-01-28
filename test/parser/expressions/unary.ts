@@ -26,7 +26,7 @@ fail('Expressions - Unary (fail)', [
 pass('Expressions - Unary (pass)', [
   [
     '"use strict"; delete this;',
-    Context.OptionsDirectives | Context.OptionsRaw,
+    Context.OptionsDirectives | Context.OptionsRaw | Context.OptionsRanges,
     {
       type: 'Program',
       sourceType: 'script',
@@ -36,9 +36,13 @@ pass('Expressions - Unary (pass)', [
           expression: {
             type: 'Literal',
             raw: '"use strict"',
-            value: 'use strict'
+            value: 'use strict',
+            start: 0,
+            end: 12
           },
-          directive: 'use strict'
+          directive: 'use strict',
+          start: 0,
+          end: 13
         },
         {
           type: 'ExpressionStatement',
@@ -46,12 +50,20 @@ pass('Expressions - Unary (pass)', [
             type: 'UnaryExpression',
             operator: 'delete',
             argument: {
-              type: 'ThisExpression'
+              type: 'ThisExpression',
+              start: 21,
+              end: 25
             },
-            prefix: true
-          }
+            prefix: true,
+            start: 14,
+            end: 25
+          },
+          start: 14,
+          end: 26
         }
-      ]
+      ],
+      start: 0,
+      end: 26
     }
   ],
   [

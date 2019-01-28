@@ -65,6 +65,7 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
     line: 1,
     column: 0,
     startIndex: 0,
+    endIndex: 0,
     startLine: 1,
     startColumn: 0,
     token: Token.EndOfSource,
@@ -145,11 +146,12 @@ export function parseStatementList(state: ParserState, context: Context, scope: 
  * @param context Context masks
  */
 export function parseDirective(state: ParserState, context: Context, scope: ScopeState): any {
+  const { startIndex } = state;
   if ((context & Context.OptionsDirectives) < 1) return parseStatementListItem(state, context, scope);
   const directive = state.tokenRaw.slice(1, -1);
   const expression = parseExpression(state, context);
   consumeSemicolon(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'ExpressionStatement',
     expression,
     directive
@@ -327,12 +329,13 @@ function parseStatement(
  * @param context Context masks
  */
 export function parseExpressionStatement(state: ParserState, context: Context): ESTree.ExpressionStatement {
+  const { startIndex } = state;
   const expr: ESTree.Expression = parseExpression(
     state,
     (context | Context.DisallowInContext) ^ Context.DisallowInContext
   );
   consumeSemicolon(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'ExpressionStatement',
     expression: expr
   });
@@ -366,8 +369,8 @@ function parseModuleItemList(state: ParserState, context: Context, scope: ScopeS
  * @param context Context masks
  */
 function parseExportDeclaration(state: ParserState, context: Context, scope: ScopeState): any {
+  const { startIndex: start } = state;
   expect(state, context, Token.ExportKeyword);
-
   const specifiers: ESTree.ExportSpecifier[] = [];
 
   let declaration: any = null;
@@ -403,7 +406,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
     addToExportedBindings(state, '*default*');
     addVariable(state, context, scope, Type.None, Origin.None, true, false, '*default*');
 
-    return finishNode(context, state.index, state.index, {
+    return finishNode(context, start, state.endIndex, {
       type: 'ExportDefaultDeclaration',
       declaration
     });
@@ -416,7 +419,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       if (state.token !== <Token>Token.StringLiteral) report(state, Errors.Unexpected);
       source = parseLiteral(state, context);
       consumeSemicolon(state, context);
-      return finishNode(context, state.index, state.index, {
+      return finishNode(context, start, state.endIndex, {
         type: 'ExportAllDeclaration',
         source
       });
@@ -442,11 +445,13 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
           exported = local;
         }
 
-        specifiers.push({
-          type: 'ExportSpecifier',
-          local,
-          exported
-        });
+        specifiers.push(
+          finishNode(context, start, state.endIndex, {
+            type: 'ExportSpecifier',
+            local,
+            exported
+          })
+        );
 
         if (state.token !== <Token>Token.RightBrace) expect(state, context, Token.Comma);
       }
@@ -506,7 +511,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
   }
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ExportNamedDeclaration',
     source,
     specifiers,
@@ -523,6 +528,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
  * @param context Context masks
  */
 export function parseImportDeclaration(state: ParserState, context: Context, scope: ScopeState): any {
+  const { startIndex: start } = state;
   expect(state, context, Token.ImportKeyword);
 
   let source: ESTree.Literal;
@@ -534,17 +540,19 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
     // Cherow: 'Type.Const'
     validateBindingIdentifier(state, context, Type.Const);
     addVariableAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
-    specifiers.push({
-      type: 'ImportDefaultSpecifier',
-      local: parseIdentifier(state, context)
-    });
+    specifiers.push(
+      finishNode(context, start, state.endIndex, {
+        type: 'ImportDefaultSpecifier',
+        local: parseIdentifier(state, context)
+      })
+    );
 
     // NameSpaceImport
     if (optional(state, context, Token.Comma)) {
       if (state.token === Token.Multiply) {
-        parseImportNamespace(state, context, scope, specifiers);
+        parseImportNamespace(state, context, scope, start, specifiers);
       } else if (state.token === Token.LeftBrace) {
-        parseImportSpecifierOrNamedImports(state, context, scope, specifiers);
+        parseImportSpecifierOrNamedImports(state, context, scope, start, specifiers);
       } else report(state, Errors.InvalidDefaultImport);
     }
 
@@ -555,9 +563,9 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
     source = parseLiteral(state, context);
   } else {
     if (state.token === Token.Multiply) {
-      parseImportNamespace(state, context, scope, specifiers);
+      parseImportNamespace(state, context, scope, start, specifiers);
     } else if (state.token === Token.LeftBrace) {
-      parseImportSpecifierOrNamedImports(state, context, scope, specifiers);
+      parseImportSpecifierOrNamedImports(state, context, scope, start, specifiers);
     } else report(state, Errors.Unexpected);
 
     source = parseModuleSpecifier(state, context);
@@ -565,7 +573,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
 
   consumeSemicolon(state, context);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ImportDeclaration',
     specifiers,
     source
@@ -586,6 +594,7 @@ function parseImportSpecifierOrNamedImports(
   state: ParserState,
   context: Context,
   scope: ScopeState,
+  start: number,
   specifiers: ESTree.Specifiers[]
 ): void {
   // NamedImports :
@@ -619,11 +628,13 @@ function parseImportSpecifierOrNamedImports(
       local = imported;
     }
 
-    specifiers.push({
-      type: 'ImportSpecifier',
-      local,
-      imported
-    });
+    specifiers.push(
+      finishNode(context, start, state.endIndex, {
+        type: 'ImportSpecifier',
+        local,
+        imported
+      })
+    );
 
     if (state.token !== <Token>Token.RightBrace) expect(state, context, Token.Comma);
   }
@@ -644,6 +655,7 @@ function parseImportNamespace(
   state: ParserState,
   context: Context,
   scope: ScopeState,
+  start: number,
   specifiers: ESTree.Specifiers[]
 ): void {
   // NameSpaceImport:
@@ -653,10 +665,12 @@ function parseImportNamespace(
   validateBindingIdentifier(state, context, Type.Const);
   addVariable(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);
   const local = parseIdentifier(state, context);
-  specifiers.push({
-    type: 'ImportNamespaceSpecifier',
-    local
-  });
+  specifiers.push(
+    finishNode(context, start, state.endIndex, {
+      type: 'ImportNamespaceSpecifier',
+      local
+    })
+  );
 }
 
 /**
@@ -687,13 +701,14 @@ function parseModuleSpecifier(state: ParserState, context: Context): ESTree.Lite
  */
 export function parseBlockStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.BlockStatement {
   const body: ESTree.Statement[] = [];
+  const { startIndex: start } = state;
   next(state, context);
   while (state.token !== Token.RightBrace) {
     body.push(parseStatementListItem(state, context, scope));
   }
   expect(state, context | Context.AllowPossibleRegEx, Token.RightBrace);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'BlockStatement',
     body
   });
@@ -708,8 +723,9 @@ export function parseBlockStatement(state: ParserState, context: Context, scope:
  * @param context Context masks
  */
 export function parseEmptyStatement(state: ParserState, context: Context): ESTree.EmptyStatement {
+  const { startIndex } = state;
   next(state, context | Context.AllowPossibleRegEx);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'EmptyStatement'
   });
 }
@@ -723,6 +739,7 @@ export function parseEmptyStatement(state: ParserState, context: Context): ESTre
  * @param context Context masks
  */
 export function parseThrowStatement(state: ParserState, context: Context): ESTree.ThrowStatement {
+  const { startIndex } = state;
   next(state, context);
   if (state.flags & Flags.NewLine) report(state, Errors.NewlineAfterThrow);
   const argument: ESTree.Expression = parseExpression(
@@ -730,7 +747,7 @@ export function parseThrowStatement(state: ParserState, context: Context): ESTre
     (context | Context.DisallowInContext) ^ Context.DisallowInContext
   );
   consumeSemicolon(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'ThrowStatement',
     argument
   });
@@ -746,6 +763,7 @@ export function parseThrowStatement(state: ParserState, context: Context): ESTre
  * @param scope Scope instance
  */
 export function parseIfStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.IfStatement {
+  const { startIndex } = state;
   next(state, context);
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const test = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
@@ -754,7 +772,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
   const alternate = optional(state, context, Token.ElseKeyword)
     ? parseConsequentOrAlternate(state, context, scope)
     : null;
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'IfStatement',
     test,
     consequent,
@@ -786,6 +804,7 @@ function parseConsequentOrAlternate(state: ParserState, context: Context, scope:
  * @param scope Scope instance
  */
 function parseSwitchStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.SwitchStatement {
+  const { startIndex } = state;
   next(state, context);
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const discriminant = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
@@ -809,7 +828,7 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
   }
   state.switchStatement = previousSwitchStatement;
   expect(state, context, Token.RightBrace);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'SwitchStatement',
     discriminant,
     cases
@@ -826,6 +845,7 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
  */
 export function parseReturnStatement(state: ParserState, context: Context): ESTree.ReturnStatement {
   if ((context & (Context.OptionsGlobalReturn | Context.AllowReturn)) < 1) report(state, Errors.IllegalReturn);
+  const { startIndex } = state;
   next(state, context | Context.AllowPossibleRegEx);
   const argument =
     (state.token & Token.ASI) < 1 && (state.flags & Flags.NewLine) < 1
@@ -835,7 +855,7 @@ export function parseReturnStatement(state: ParserState, context: Context): ESTr
         )
       : null;
   consumeSemicolon(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'ReturnStatement',
     argument
   });
@@ -851,6 +871,7 @@ export function parseReturnStatement(state: ParserState, context: Context): ESTr
  * @param scope Scope instance
  */
 export function parseWhileStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.WhileStatement {
+  const { startIndex } = state;
   next(state, context);
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const test = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
@@ -859,7 +880,7 @@ export function parseWhileStatement(state: ParserState, context: Context, scope:
   state.iterationStatement = LabelState.Iteration;
   const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
   state.iterationStatement = previousIterationStatement;
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'WhileStatement',
     test,
     body
@@ -875,6 +896,7 @@ export function parseWhileStatement(state: ParserState, context: Context, scope:
  * @param context Context masks
  */
 export function parseContinueStatement(state: ParserState, context: Context): ESTree.ContinueStatement {
+  const { startIndex } = state;
   next(state, context);
   let label: ESTree.Identifier | undefined | null = null;
   if (!(state.flags & Flags.NewLine) && state.token & Token.Keyword) {
@@ -886,7 +908,7 @@ export function parseContinueStatement(state: ParserState, context: Context): ES
   if (label === null && state.iterationStatement === LabelState.Empty && state.switchStatement === LabelState.Empty) {
     report(state, Errors.IllegalContinue);
   }
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'ContinueStatement',
     label
   });
@@ -901,6 +923,7 @@ export function parseContinueStatement(state: ParserState, context: Context): ES
  * @param context Context masks
  */
 export function parseBreakStatement(state: ParserState, context: Context): ESTree.BreakStatement {
+  const { startIndex } = state;
   next(state, context);
   let label = null;
   if (!(state.flags & Flags.NewLine) && state.token & Token.Keyword) {
@@ -911,7 +934,7 @@ export function parseBreakStatement(state: ParserState, context: Context): ESTre
     report(state, Errors.IllegalBreak);
   }
   consumeSemicolon(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'BreakStatement',
     label
   });
@@ -927,13 +950,14 @@ export function parseBreakStatement(state: ParserState, context: Context): ESTre
  * @param scope Scope instance
  */
 export function parseWithStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.WithStatement {
+  const { startIndex } = state;
   if (context & Context.Strict) report(state, Errors.StrictModeWith);
   next(state, context);
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const object = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
   expect(state, context, Token.RightParen);
   const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'WithStatement',
     object,
     body
@@ -949,9 +973,10 @@ export function parseWithStatement(state: ParserState, context: Context, scope: 
  * @param context Context masks
  */
 export function parseDebuggerStatement(state: ParserState, context: Context): ESTree.DebuggerStatement {
+  const { startIndex } = state;
   next(state, context);
   consumeSemicolon(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'DebuggerStatement'
   });
 }
@@ -966,6 +991,7 @@ export function parseDebuggerStatement(state: ParserState, context: Context): ES
  * @param scope Scope instance
  */
 export function parseTryStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.TryStatement {
+  const { startIndex } = state;
   next(state, context);
 
   const block = parseBlockStatement(state, context, createSubScope(scope, ScopeType.BlockStatement));
@@ -980,7 +1006,7 @@ export function parseTryStatement(state: ParserState, context: Context, scope: S
       )
     : null;
   if (!handler && !finalizer) report(state, Errors.Unexpected);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'TryStatement',
     block,
     handler,
@@ -1011,6 +1037,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
 
   let param: any = null;
   let secondScope: ScopeState = scope;
+  const { startIndex } = state;
   if (optional(state, context, Token.LeftParen)) {
     const catchScope = createSubScope(scope, ScopeType.CatchClause);
     param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.ArgList, Origin.CatchClause, false);
@@ -1022,7 +1049,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
 
   const body = parseBlockStatement(state, context, secondScope);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'CatchClause',
     param,
     body
@@ -1036,6 +1063,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
  * @param scope Scope instance
  */
 export function parseDoWhileStatement(state: ParserState, context: Context, scope: ScopeState): any {
+  const { startIndex } = state;
   expect(state, context, Token.DoKeyword);
   const previousIterationStatement = state.iterationStatement;
   state.iterationStatement = LabelState.Iteration;
@@ -1046,7 +1074,7 @@ export function parseDoWhileStatement(state: ParserState, context: Context, scop
   const test = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
   expect(state, context, Token.RightParen);
   optional(state, context, Token.Semicolon);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'DoWhileStatement',
     body,
     test
@@ -1069,6 +1097,7 @@ export function parseCaseOrDefaultClauses(
   test: ESTree.Expression | null,
   scope: ScopeState
 ): ESTree.SwitchCase {
+  const { startIndex } = state;
   expect(state, context, Token.Colon);
   const consequent: ESTree.Statement[] = [];
   while (
@@ -1078,7 +1107,7 @@ export function parseCaseOrDefaultClauses(
   ) {
     consequent.push(parseStatementListItem(state, (context | Context.TopLevel) ^ Context.TopLevel, scope));
   }
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'SwitchCase',
     test,
     consequent
@@ -1100,6 +1129,7 @@ function parseForStatement(
   context: Context,
   scope: ScopeState
 ): ESTree.ForStatement | ESTree.ForInStatement | ESTree.ForOfStatement {
+  const { startIndex } = state;
   next(state, context);
 
   const forAwait = context & Context.AwaitContext ? optional(state, context, Token.AwaitKeyword) : false;
@@ -1111,6 +1141,7 @@ function parseForStatement(
   let declarations: any = null;
   let test: ESTree.Expression | null = null;
   let update: ESTree.Expression | null = null;
+  let sequencePos: any = null;
   let right;
   let isPattern = false;
 
@@ -1118,7 +1149,7 @@ function parseForStatement(
     if ((state.token & Token.IsVarDecl) > 0) {
       const kind = KeywordDescTable[state.token & Token.Type];
       if (optional(state, context, Token.VarKeyword)) {
-        init = finishNode(context, state.index, state.index, {
+        init = finishNode(context, startIndex, state.endIndex, {
           type: 'VariableDeclaration',
           kind,
           declarations: parseVariableDeclarationList(
@@ -1132,7 +1163,7 @@ function parseForStatement(
         } as any);
       } else if (state.token === Token.LetKeyword) {
         if (lookAheadOrScan(state, context, isLexical, false)) {
-          init = finishNode(context, state.index, state.index, {
+          init = finishNode(context, startIndex, state.endIndex, {
             type: 'VariableDeclaration',
             kind,
             declarations: parseVariableDeclarationList(state, context, Type.Let, Origin.ForStatement, true, scope)
@@ -1145,13 +1176,14 @@ function parseForStatement(
         declarations = parseVariableDeclarationList(state, context, Type.Const, Origin.ForStatement, false, scope);
         if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, true))
           report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
-        init = finishNode(context, state.index, state.index, {
+        init = finishNode(context, startIndex, state.endIndex, {
           type: 'VariableDeclaration',
           kind,
           declarations
         } as any);
       }
     } else {
+      sequencePos = state.startIndex;
       isPattern = state.token === Token.LeftBracket || state.token === Token.LeftBrace;
       init = acquireGrammar(state, context | Context.DisallowInContext, 0, parseAssignmentExpression);
     }
@@ -1171,7 +1203,7 @@ function parseForStatement(
     state.iterationStatement = LabelState.Iteration;
     const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
     state.iterationStatement = previousIterationStatement;
-    return finishNode(context, state.index, state.index, {
+    return finishNode(context, startIndex, state.endIndex, {
       type: 'ForOfStatement',
       body,
       left: init,
@@ -1193,7 +1225,7 @@ function parseForStatement(
     state.iterationStatement = LabelState.Iteration;
     const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
     state.iterationStatement = previousIterationStatement;
-    return finishNode(context, state.index, state.index, {
+    return finishNode(context, startIndex, state.endIndex, {
       type: 'ForInStatement',
       body,
       left: init,
@@ -1202,7 +1234,12 @@ function parseForStatement(
   }
 
   if (state.token === Token.Comma) {
-    init = parseSequenceExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext, init);
+    init = parseSequenceExpression(
+      state,
+      (context | Context.DisallowInContext) ^ Context.DisallowInContext,
+      init,
+      sequencePos
+    );
   }
 
   expect(state, context, Token.Semicolon);
@@ -1223,7 +1260,7 @@ function parseForStatement(
   const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
   state.iterationStatement = previousIterationStatement;
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'ForStatement',
     body,
     init,
@@ -1246,13 +1283,11 @@ export function parseExpressionOrLabelledStatement(
   scope: ScopeState,
   label: LabelledState
 ): any {
-  const token = state.token;
-  const tokenValue = state.tokenValue;
+  const { token, tokenValue, startIndex } = state;
   const expr: ESTree.Expression = parseExpression(
     state,
     (context | Context.DisallowInContext) ^ Context.DisallowInContext
   );
-
   if ((token & Token.Keyword || Token.EscapedStrictReserved) && state.token === Token.Colon) {
     next(state, context | Context.AllowPossibleRegEx);
     validateBindingIdentifier(state, context, Type.None, token);
@@ -1270,14 +1305,14 @@ export function parseExpressionOrLabelledStatement(
       body = parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
     } else body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label);
     state.labelDepth--;
-    return finishNode(context, state.index, state.index, {
+    return finishNode(context, startIndex, state.endIndex, {
       type: 'LabeledStatement',
       label: expr as ESTree.Identifier,
       body
     });
   }
   consumeSemicolon(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'ExpressionStatement',
     expression: expr
   });
@@ -1324,7 +1359,7 @@ export function parseBindingIdentifier(
   origin: Origin,
   checkForDuplicates: boolean
 ): ESTree.Identifier {
-  const { tokenValue: name, token } = state;
+  const { tokenValue: name, token, startIndex } = state;
   if ((token & Token.IsIdentifier) === 0 && token !== Token.EscapedStrictReserved) report(state, Errors.Unexpected);
 
   // TODO: (fkleuver) This should be tokens in 'token.ts', and validated inside 'validateBindingIdentifier'
@@ -1353,7 +1388,7 @@ export function parseBindingIdentifier(
   }
 
   next(state, context | Context.AllowPossibleRegEx);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'Identifier',
     name
   });
@@ -1375,9 +1410,10 @@ export function parseAssignmentRestElement(
   origin: Origin,
   verifyDuplicates: boolean
 ): any {
+  const { startIndex: start } = state;
   expect(state, context, Token.Ellipsis);
   const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'RestElement',
     argument
   } as any);
@@ -1400,9 +1436,10 @@ function AssignmentRestProperty(
   origin: Origin,
   verifyDuplicates: boolean
 ): any {
+  const { startIndex: start } = state;
   expect(state, context, Token.Ellipsis);
   const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'RestElement',
     argument
   } as any);
@@ -1443,6 +1480,7 @@ export function parseArrayAssignmentPattern(
   origin: Origin,
   verifyDuplicates: boolean
 ): ESTree.ArrayPattern {
+  const { startIndex: start } = state;
   expect(state, context, Token.LeftBracket);
 
   const elements: (ESTree.Node | null)[] = [];
@@ -1464,7 +1502,7 @@ export function parseArrayAssignmentPattern(
   expect(state, context, Token.RightBracket);
 
   // tslint:disable-next-line:no-object-literal-type-assertion
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ArrayPattern',
     elements
   } as ESTree.ArrayPattern);
@@ -1485,6 +1523,7 @@ export function parserObjectAssignmentPattern(
   verifyDuplicates: boolean
 ): ESTree.ObjectPattern {
   const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
+  const { startIndex: start } = state;
   expect(state, context, Token.LeftBrace);
 
   while (state.token !== Token.RightBrace) {
@@ -1498,7 +1537,7 @@ export function parserObjectAssignmentPattern(
 
   expect(state, context, Token.RightBrace);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ObjectPattern',
     properties
   });
@@ -1514,8 +1553,8 @@ export function parserObjectAssignmentPattern(
  * @param left LHS of assignment pattern
  * @param pos Location
  */
-export function parseAssignmentPattern(state: ParserState, context: Context, left: ESTree.Pattern): any {
-  return finishNode(context, state.index, state.index, {
+export function parseAssignmentPattern(state: ParserState, context: Context, left: ESTree.Pattern, start: number): any {
+  return finishNode(context, start, state.endIndex, {
     type: 'AssignmentPattern',
     left,
     right: secludeGrammar(state, context, 0, parseAssignmentExpression)
@@ -1539,10 +1578,11 @@ export function parseBindingInitializer(
   origin: Origin,
   verifyDuplicates: boolean
 ): ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.MemberExpression | ESTree.AssignmentPattern {
+  const { startIndex: start } = state;
   const left: any = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
   return !optional(state, context, Token.Assign)
     ? left
-    : finishNode(context, state.index, state.index, {
+    : finishNode(context, start, state.endIndex, {
         type: 'AssignmentPattern',
         left,
         right: secludeGrammar(state, context, 0, parseAssignmentExpression)
@@ -1586,7 +1626,7 @@ function parseAssignmentProperty(
   origin: Origin,
   verifyDuplicates: boolean
 ): ESTree.AssignmentProperty {
-  const { token } = state;
+  const { token, startIndex: start } = state;
   let key: ESTree.Literal | ESTree.Identifier | ESTree.Expression | null;
   let value;
   let computed = false;
@@ -1605,7 +1645,7 @@ function parseAssignmentProperty(
       }
       addVariable(state, context, scope, type, origin, false, false, tokenValue);
       const hasInitializer = optional(state, context, Token.Assign);
-      value = hasInitializer ? parseAssignmentPattern(state, context, key) : key;
+      value = hasInitializer ? parseAssignmentPattern(state, context, key, start) : key;
     } else value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);
   } else {
     if (state.token === Token.StringLiteral || state.token === Token.NumericLiteral) {
@@ -1618,7 +1658,7 @@ function parseAssignmentProperty(
     value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);
   }
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'Property',
     kind: 'init',
     key,
@@ -1645,6 +1685,7 @@ export function parseFunctionDeclaration(
   origin: Origin,
   isAsync: boolean
 ) {
+  const { startIndex: start } = state;
   next(state, context);
 
   const isGenerator: boolean = (origin & Origin.Statement) < 1 && optional(state, context, Token.Multiply);
@@ -1718,7 +1759,7 @@ export function parseFunctionDeclaration(
     origin
   );
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'FunctionDeclaration',
     params,
     body,
@@ -1734,6 +1775,7 @@ function parseHostedClassDeclaration(
   scope: ScopeState,
   isNotDefault: boolean
 ): ESTree.ClassDeclaration {
+  const { startIndex: start } = state;
   next(state, context);
   context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
 
@@ -1751,7 +1793,7 @@ function parseHostedClassDeclaration(
   addToExportedBindings(state, name);
 
   if (optional(state, context, Token.ExtendsKeyword)) {
-    superClass = parseLeftHandSideExpression(state, context);
+    superClass = parseLeftHandSideExpression(state, context, start);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
@@ -1759,7 +1801,7 @@ function parseHostedClassDeclaration(
 
   const body = parseClassBodyAndElementList(state, context, Origin.Declaration);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ClassDeclaration',
     id,
     superClass,
@@ -1774,6 +1816,7 @@ export function parseHoistableFunctionDeclaration(
   isNotDefault: boolean,
   isAsync: boolean
 ) {
+  const { startIndex: start } = state;
   next(state, context);
 
   const isGenerator: boolean = optional(state, context, Token.Multiply);
@@ -1820,7 +1863,7 @@ export function parseHoistableFunctionDeclaration(
     Origin.None
   );
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'FunctionDeclaration',
     params,
     body,
@@ -1887,7 +1930,7 @@ export function parseFormalParameters(
       hasComplexArgs = true;
       if (state.token & Token.IsYield && context & (Context.Strict | Context.YieldContext))
         report(state, Errors.Unexpected);
-      left = parseAssignmentPattern(state, context, left);
+      left = parseAssignmentPattern(state, context, left, state.startIndex);
     }
     params.push(left);
 
@@ -1929,9 +1972,10 @@ export function parseRestElement(
   type: Type,
   origin: Origin
 ): any {
+  const { startIndex: start } = state;
   expect(state, context, Token.Ellipsis);
   const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, false);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'RestElement',
     argument
   } as any);
@@ -1953,6 +1997,7 @@ export function parseFunctionBody(
   origin: Origin
 ): ESTree.BlockStatement {
   const body: any[] = [];
+  const { startIndex: start } = state;
   expect(state, context, Token.LeftBrace);
 
   const isStrict = (context & Context.Strict) === Context.Strict;
@@ -2004,7 +2049,7 @@ export function parseFunctionBody(
   // Either '=' or '=>' after blockstatement
   if (state.token === Token.Assign || state.token === Token.Arrow) report(state, Errors.Unexpected);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'BlockStatement',
     body
   });
@@ -2028,11 +2073,11 @@ export function parseVariableStatement(
   origin: Origin,
   scope: ScopeState
 ): ESTree.VariableDeclaration {
-  const { token } = state;
+  const { token, startIndex: start } = state;
   next(state, context);
   const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
   consumeSemicolon(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'VariableDeclaration',
     kind: KeywordDescTable[token & Token.Type],
     declarations
@@ -2058,11 +2103,12 @@ export function parseLexicalDeclaration(
   scope: ScopeState
 ): ESTree.VariableDeclaration {
   const { token } = state;
+  const { startIndex: start } = state;
   next(state, context);
   const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
   if (checkIfExistInLexicalBindings(state, context, scope, origin, false)) report(state, Errors.Unexpected);
   consumeSemicolon(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'VariableDeclaration',
     kind: KeywordDescTable[token & Token.Type],
     declarations
@@ -2129,6 +2175,7 @@ function parseVariableDeclaration(
   checkForDuplicates: boolean,
   scope: ScopeState
 ): any {
+  const { startIndex: start } = state;
   const isBinding = state.token === Token.LeftBrace || state.token === Token.LeftBracket;
   const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
 
@@ -2150,7 +2197,7 @@ function parseVariableDeclaration(
     report(state, Errors.DeclarationMissingInitializer, type & Type.Const ? 'const' : 'destructuring');
   }
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'VariableDeclarator',
     init,
     id
@@ -2158,9 +2205,10 @@ function parseVariableDeclaration(
 }
 
 export function parseExpression(state: ParserState, context: Context): any {
+  const { startIndex: start } = state;
   const expr = secludeGrammar(state, context, 0, parseAssignmentExpression);
   if (state.token !== Token.Comma) return expr;
-  return parseSequenceExpression(state, context, expr);
+  return parseSequenceExpression(state, context, expr, start);
 }
 
 /**
@@ -2173,13 +2221,14 @@ export function parseExpression(state: ParserState, context: Context): any {
 export function parseSequenceExpression(
   state: ParserState,
   context: Context,
-  left: ESTree.Expression
+  left: ESTree.Expression,
+  start: number
 ): ESTree.SequenceExpression {
   const expressions: ESTree.Expression[] = [left];
   while (optional(state, context | Context.AllowPossibleRegEx, Token.Comma)) {
     expressions.push(secludeGrammar(state, context, 0, parseAssignmentExpression));
   }
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'SequenceExpression',
     expressions
   });
@@ -2194,7 +2243,11 @@ export function parseSequenceExpression(
  * @param context Context masks
  */
 
-function parseYieldExpression(state: ParserState, context: Context): ESTree.YieldExpression | ESTree.Identifier {
+function parseYieldExpression(
+  state: ParserState,
+  context: Context,
+  start: number
+): ESTree.YieldExpression | ESTree.Identifier {
   // YieldExpression ::
   //   'yield' ([no line terminator] '*'? AssignmentExpression)?
   if (context & Context.InArgList) {
@@ -2210,7 +2263,7 @@ function parseYieldExpression(state: ParserState, context: Context): ESTree.Yiel
       argument = parseAssignmentExpression(state, context);
     }
   }
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'YieldExpression',
     argument,
     delegate
@@ -2238,9 +2291,9 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
    *      6) YieldExpression
    */
 
-  const { token, tokenValue } = state;
+  const { token, tokenValue, startIndex: start } = state;
 
-  if (token & Token.IsYield && context & Context.YieldContext) return parseYieldExpression(state, context);
+  if (token & Token.IsYield && context & Context.YieldContext) return parseYieldExpression(state, context, start);
 
   const expr: any = acquireGrammar(state, context, 0, parseBinaryExpression);
 
@@ -2255,7 +2308,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     addVariableAndDeduplicate(state, context, scope, Type.ArgList, Origin.None, true, state.tokenValue);
     const arg = parseIdentifier(state, context);
     if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
-    return parseArrowFunctionExpression(state, context, scope, [arg], true, Type.ConciseBody);
+    return parseArrowFunctionExpression(state, context, scope, [arg], true, start, Type.ConciseBody);
   }
 
   if (state.token === Token.Arrow) {
@@ -2276,7 +2329,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
       type = Type.ConciseBody;
       addVariableAndDeduplicate(state, context, arrowScope, Type.ArgList, Origin.None, true, tokenValue);
     }
-    return parseArrowFunctionExpression(state, context, arrowScope, params, (type & Arrows.Async) > 0, type);
+    return parseArrowFunctionExpression(state, context, arrowScope, params, (type & Arrows.Async) > 0, start, type);
   }
 
   if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
@@ -2293,7 +2346,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     next(state, context | Context.AllowPossibleRegEx);
     const right = secludeGrammar(state, context, 0, parseAssignmentExpression);
     state.pendingCoverInitializeError = null;
-    return finishNode(context, state.index, state.index, {
+    return finishNode(context, start, state.endIndex, {
       type: 'AssignmentExpression',
       left: expr,
       operator: KeywordDescTable[operator & Token.Type],
@@ -2301,7 +2354,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     } as any);
   }
 
-  return parseConditionalExpression(state, context, expr);
+  return parseConditionalExpression(state, context, expr, start);
 }
 
 /**
@@ -2316,7 +2369,8 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
 function parseConditionalExpression(
   state: ParserState,
   context: Context,
-  test: ESTree.Expression
+  test: ESTree.Expression,
+  start: number
 ): ESTree.Expression | ESTree.ConditionalExpression {
   // ConditionalExpression ::
   // LogicalOrExpression
@@ -2331,7 +2385,7 @@ function parseConditionalExpression(
   expect(state, context | Context.AllowPossibleRegEx, Token.Colon);
   const alternate = secludeGrammar(state, context, 0, parseAssignmentExpression);
   state.bindable = state.assignable = false;
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ConditionalExpression',
     test,
     consequent,
@@ -2361,6 +2415,7 @@ function parseBinaryExpression(
   state: ParserState,
   context: Context,
   minPrec: number,
+  start: number = state.startIndex,
   left: any = parseUnaryExpression(state, context)
 ): ESTree.Expression {
   const bit = -((context & Context.DisallowInContext) > 0) & Token.InKeyword;
@@ -2372,7 +2427,7 @@ function parseBinaryExpression(
     prec = t & Token.Precedence;
     if (prec + (((t === Token.Exponentiate) as any) << 8) - (((bit === t) as any) << 12) <= minPrec) break;
     next(state, context | Context.AllowPossibleRegEx);
-    left = finishNode(context, state.index, state.index, {
+    left = finishNode(context, start, state.endIndex, {
       type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
       left,
       right: secludeGrammar(state, context, prec, parseBinaryExpression),
@@ -2396,12 +2451,13 @@ function parseBinaryExpression(
 
 function parseAwaitExpression(
   state: ParserState,
-  context: Context
+  context: Context,
+  start: number
 ): ESTree.AwaitExpression | ESTree.Identifier | ESTree.ArrowFunctionExpression {
   state.assignable = false;
   if (context & Context.InArgList) report(state, Errors.AwaitInParameter);
   next(state, context | Context.AllowPossibleRegEx);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'AwaitExpression',
     argument: secludeGrammar(state, context, 0, parseUnaryExpression)
   });
@@ -2429,8 +2485,8 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
    *      8) ! UnaryExpression
    *      9) await UnaryExpression
    */
-
-  if ((state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
+  const { token, startIndex: start } = state;
+  if ((token & Token.IsUnaryOp) === Token.IsUnaryOp) {
     const unaryOperator = state.token;
     next(state, context | Context.AllowPossibleRegEx);
     const argument: ESTree.Expression = secludeGrammar(state, context, 0, parseUnaryExpression);
@@ -2443,7 +2499,7 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
       }
     }
     state.bindable = state.assignable = false;
-    return finishNode(context, state.index, state.index, {
+    return finishNode(context, start, state.endIndex, {
       type: 'UnaryExpression',
       operator: KeywordDescTable[unaryOperator & Token.Type],
       argument,
@@ -2451,9 +2507,9 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
     });
   }
 
-  return context & Context.AwaitContext && state.token & Token.IsAwait
-    ? parseAwaitExpression(state, context)
-    : parseUpdateExpression(state, context);
+  return context & Context.AwaitContext && token & Token.IsAwait
+    ? parseAwaitExpression(state, context, start)
+    : parseUpdateExpression(state, context, start);
 }
 
 /**
@@ -2464,7 +2520,7 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
  * @param parser Parser object
  * @param context Context masks
  */
-function parseUpdateExpression(state: ParserState, context: Context): any {
+function parseUpdateExpression(state: ParserState, context: Context, start: number): any {
   /**
    *  UpdateExpression:
    *      LeftHandSideExpression[?Yield]
@@ -2476,13 +2532,13 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
   const { token } = state;
   if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp) {
     next(state, context | Context.AllowPossibleRegEx);
-    const expr = parseLeftHandSideExpression(state, context);
+    const expr = parseLeftHandSideExpression(state, context, start);
     if (context & Context.Strict && (expr.name === 'eval' || expr.name === 'arguments')) {
       report(state, Errors.StrictLHSPrefixPostFix, 'Prefix');
     }
     if (!state.assignable) report(state, Errors.InvalidLHSInAssignment);
     state.bindable = state.assignable = false;
-    return finishNode(context, state.index, state.index, {
+    return finishNode(context, start, state.endIndex, {
       type: 'UpdateExpression',
       argument: expr,
       operator: KeywordDescTable[token & Token.Type],
@@ -2490,7 +2546,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
     } as any);
   }
 
-  const expression = parseLeftHandSideExpression(state, context);
+  const expression = parseLeftHandSideExpression(state, context, start);
 
   if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp && (state.flags & Flags.NewLine) < 1) {
     if (context & Context.Strict && (expression.name === 'eval' || expression.name === 'arguments')) {
@@ -2500,7 +2556,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
     const operator = state.token;
     next(state, context | Context.AllowPossibleRegEx);
     state.bindable = state.assignable = false;
-    return finishNode(context, state.index, state.index, {
+    return finishNode(context, start, state.endIndex, {
       type: 'UpdateExpression',
       argument: expression,
       operator: KeywordDescTable[operator & Token.Type],
@@ -2520,7 +2576,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
  * @param Context Contextmasks
  * @param pos Location info
  */
-export function parseLeftHandSideExpression(state: ParserState, context: Context): any {
+export function parseLeftHandSideExpression(state: ParserState, context: Context, start: number): any {
   // LeftHandSideExpression ::
   //   (NewExpression | MemberExpression) ...
   const expr: any =
@@ -2529,7 +2585,7 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
       : state.token === Token.SuperKeyword
       ? parseSuperExpression(state, context)
       : parseMemberExpression(state, context, parsePrimaryExpression(state, context));
-  return parseCallExpression(state, context, expr);
+  return parseCallExpression(state, context, start, expr);
 }
 
 /**
@@ -2540,7 +2596,7 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
  * @param pos Line / Colum info
  * @param expr Expression
  */
-function parseCallExpression(state: ParserState, context: Context, callee: any | ESTree.Super): any {
+function parseCallExpression(state: ParserState, context: Context, start: number, callee: any | ESTree.Super): any {
   const scope: ScopeState | null =
     state.bindable && callee.name === 'async' ? createScope(ScopeType.BlockStatement) : null;
   const { flags } = state;
@@ -2580,7 +2636,7 @@ function parseCallExpression(state: ParserState, context: Context, callee: any |
       };
     }
     state.bindable = state.assignable = false;
-    callee = finishNode(context, state.index, state.index, {
+    callee = finishNode(context, start, state.endIndex, {
       type: 'CallExpression',
       callee,
       arguments: params
@@ -2596,6 +2652,7 @@ function parseCallExpression(state: ParserState, context: Context, callee: any |
  */
 
 function parseCallImportOrMetaProperty(state: ParserState, context: Context, isNew: boolean): ESTree.Expression {
+  const { startIndex: start } = state;
   const id = parseIdentifier(state, context);
   // Import.meta - Stage 3 proposal
   if (optional(state, context, Token.Period)) {
@@ -2605,7 +2662,7 @@ function parseCallImportOrMetaProperty(state: ParserState, context: Context, isN
     report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
 
   const expr = parseImportExpression(state, context);
-  return parseCallExpression(state, context, expr);
+  return parseCallExpression(state, context, start, expr);
 }
 
 /**
@@ -2616,7 +2673,8 @@ function parseCallImportOrMetaProperty(state: ParserState, context: Context, isN
  * @param pos Location
  */
 function parseImportExpression(state: ParserState, context: Context): ESTree.ImportExpression {
-  return finishNode(context, state.index, state.index, {
+  const { startIndex: start } = state;
+  return finishNode(context, start, state.endIndex, {
     type: 'Import'
   } as any);
 }
@@ -2633,7 +2691,8 @@ function parseImportExpression(state: ParserState, context: Context): ESTree.Imp
  */
 
 export function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): any {
-  return finishNode(context, state.index, state.index, {
+  const { startIndex: start } = state;
+  return finishNode(context, start, state.endIndex, {
     meta: id,
     type: 'MetaProperty',
     property: parseIdentifier(state, context)
@@ -2643,7 +2702,7 @@ export function parseMetaProperty(state: ParserState, context: Context, id: ESTr
 function parseSuperExpression(state: ParserState, context: Context): ESTree.Super {
   next(state, context);
   state.assignable = state.bindable = false;
-
+  const { startIndex: start } = state;
   switch (state.token) {
     case Token.LeftParen:
       // The super property has to be within a class constructor
@@ -2661,7 +2720,7 @@ function parseSuperExpression(state: ParserState, context: Context): ESTree.Supe
       report(state, Errors.UnexpectedToken, 'super');
   }
 
-  return finishNode(context, state.index, state.index, { type: 'Super' });
+  return finishNode(context, start, state.endIndex, { type: 'Super' });
 }
 
 /**
@@ -2678,8 +2737,9 @@ function parseIdentifierNameOrPrivateName(
   context: Context
 ): ESTree.PrivateName | ESTree.Identifier {
   if (!optional(state, context, Token.PrivateName)) return parseIdentifierName(state, context);
+  const { startIndex: start } = state;
   state.flags |= Flags.HasPrivateName;
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'PrivateName',
     name: state.tokenValue
   } as any);
@@ -2710,14 +2770,19 @@ function parseIdentifierName(state: ParserState, context: Context): ESTree.Ident
  * @param parser Parser object
  * @param context Context masks
  */
-function parseMemberExpression(state: ParserState, context: Context, expr: any): ESTree.Expression {
+function parseMemberExpression(
+  state: ParserState,
+  context: Context,
+  expr: any,
+  start: number = state.startIndex
+): ESTree.Expression {
   while (true) {
     switch (state.token) {
       case Token.Period:
         next(state, context);
         state.bindable = false;
         state.assignable = true;
-        expr = finishNode(context, state.index, state.index, {
+        expr = finishNode(context, start, state.endIndex, {
           type: 'MemberExpression',
           object: expr,
           computed: false,
@@ -2731,7 +2796,7 @@ function parseMemberExpression(state: ParserState, context: Context, expr: any):
         next(state, context | Context.AllowPossibleRegEx);
         state.bindable = false;
         state.assignable = true;
-        expr = finishNode(context, state.index, state.index, {
+        expr = finishNode(context, start, state.endIndex, {
           type: 'MemberExpression',
           object: expr,
           computed: true,
@@ -2741,7 +2806,7 @@ function parseMemberExpression(state: ParserState, context: Context, expr: any):
         break;
       case Token.TemplateTail:
         state.bindable = state.assignable = false;
-        expr = finishNode(context, state.index, state.index, {
+        expr = finishNode(context, start, state.endIndex, {
           type: 'TaggedTemplateExpression',
           tag: expr,
           quasi: parseTemplateLiteral(state, context)
@@ -2749,7 +2814,7 @@ function parseMemberExpression(state: ParserState, context: Context, expr: any):
         break;
       case Token.TemplateCont:
         state.bindable = state.assignable = false;
-        expr = finishNode(context, state.index, state.index, {
+        expr = finishNode(context, start, state.endIndex, {
           type: 'TaggedTemplateExpression',
           tag: expr,
           quasi: parseTemplate(state, context | Context.TaggedTemplate)
@@ -2770,7 +2835,8 @@ function parseMemberExpression(state: ParserState, context: Context, expr: any):
  */
 
 function parseTemplateLiteral(state: ParserState, context: Context): ESTree.TemplateLiteral {
-  return finishNode(context, state.index, state.index, {
+  const { startIndex: start } = state;
+  return finishNode(context, start, state.endIndex, {
     type: 'TemplateLiteral',
     expressions: [],
     quasis: [parseTemplateTail(state, context)]
@@ -2786,7 +2852,8 @@ function parseTemplateLiteral(state: ParserState, context: Context): ESTree.Temp
  */
 
 function parseTemplateSpans(state: ParserState, context: Context, tail: boolean): ESTree.TemplateElement {
-  return finishNode(context, state.index, state.index, {
+  const { startIndex: start } = state;
+  return finishNode(context, start, state.endIndex, {
     type: 'TemplateElement',
     value: {
       cooked: state.tokenValue,
@@ -2836,6 +2903,7 @@ function parseTemplate(state: ParserState, context: Context): ESTree.TemplateLit
    *   SourceCharacter (but not one of ` or \ or $)
    *
    */
+  const { startIndex: start } = state;
   const quasis = [parseTemplateSpans(state, context, /* tail */ false)];
   expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
   const expressions = [parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext)];
@@ -2849,7 +2917,7 @@ function parseTemplate(state: ParserState, context: Context): ESTree.TemplateLit
   state.assignable = state.bindable = false;
   next(state, context);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'TemplateLiteral',
     expressions,
     quasis
@@ -2866,9 +2934,9 @@ function parseTemplate(state: ParserState, context: Context): ESTree.TemplateLit
  */
 
 function parseTemplateTail(state: ParserState, context: Context): ESTree.TemplateElement {
-  const { tokenValue, tokenRaw } = state;
+  const { tokenValue, tokenRaw, startIndex: start } = state;
   expect(state, context | Context.AllowPossibleRegEx, Token.TemplateTail);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'TemplateElement',
     value: {
       cooked: tokenValue,
@@ -2897,6 +2965,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
    * ArgumentList, ...AssignmentExpression
    *
    */
+
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
   while (state.token !== Token.RightParen) {
@@ -2916,6 +2985,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
 }
 
 function parseSpreadElement(state: ParserState, context: Context, origin: Origin): ESTree.SpreadElement {
+  const { startIndex: start } = state;
   expect(state, context | Context.AllowPossibleRegEx, Token.Ellipsis);
   if (origin & Origin.ObjectExpression && (state.token === Token.LeftBracket || state.token === Token.LeftBrace)) {
     // Fixes cases where '{' or '[' directly follows after '...' in object expr. E.g. '({...{a, b}} = x):'
@@ -2933,7 +3003,7 @@ function parseSpreadElement(state: ParserState, context: Context, origin: Origin
       state.bindable = state.assignable = false;
     }
   }
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'SpreadElement',
     argument
   });
@@ -2974,6 +3044,7 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
   // - `new foo()();`
   // - `new (await foo);`
   // - `new x(await foo);`
+  const { startIndex: start } = state;
   const id = parseIdentifier(state, context | Context.AllowPossibleRegEx);
 
   if (optional(state, context, Token.Period)) {
@@ -2986,7 +3057,7 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
       ? parseCallImportOrMetaProperty(state, context, true)
       : secludeGrammar(state, context, parsePrimaryExpression(state, context), parseMemberExpression);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'NewExpression',
     callee,
     arguments: state.token === Token.LeftParen ? parseArgumentList(state, context) : []
@@ -3095,18 +3166,19 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       return parseIdentifierNameOrPrivateName(state, context);
     case Token.LetKeyword: {
       if (context & Context.Strict) report(state, Errors.UnexpectedStrictReserved);
+      const { startIndex: start } = state;
       next(state, context);
       if (state.flags & Flags.NewLine && (state.token as Token) === Token.LeftBracket) {
         report(state, Errors.RestricedLetProduction);
       }
 
       return context & Context.OptionsRaw
-        ? finishNode(context, state.index, state.index, {
+        ? finishNode(context, start, state.endIndex, {
             type: 'Identifier',
             name: 'let',
             raw: 'let'
           })
-        : finishNode(context, state.index, state.index, {
+        : finishNode(context, start, state.endIndex, {
             type: 'Identifier',
             name: 'let'
           });
@@ -3141,8 +3213,9 @@ function parseDoExpression(state: ParserState, context: Context): ESTree.DoExpre
   // AssignmentExpression ::
   //     do '{' StatementList '}'
   if ((context & Context.OptionsExperimental) < 1) report(state, Errors.NoExperimentalOption);
+  const { startIndex: start } = state;
   expect(state, context, Token.DoKeyword);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'DoExpression',
     body: parseBlockStatement(state, context, createScope(ScopeType.BlockStatement))
   });
@@ -3173,6 +3246,7 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
    * SpreadElement:
    * ...AssignmentExpression
    */
+  const { startIndex: start } = state;
   next(state, context | Context.AllowPossibleRegEx);
   const elements: (ESTree.SpreadElement | ESTree.Expression | null)[] = [];
   while (state.token !== Token.RightBracket) {
@@ -3201,7 +3275,7 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
 
   expect(state, context, Token.RightBracket);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ArrayExpression',
     elements
   });
@@ -3215,6 +3289,7 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
  * @param isAsync True if parsing an async func expr
  */
 function parseFunctionExpression(state: ParserState, context: Context, isAsync: boolean): ESTree.FunctionExpression {
+  const { startIndex: start } = state;
   expect(state, context, Token.FunctionKeyword);
 
   const isGenerator = optional(state, context, Token.Multiply);
@@ -3276,7 +3351,7 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
     Origin.None
   );
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'FunctionExpression',
     params,
     body,
@@ -3301,6 +3376,7 @@ function parseArrowFunctionExpression(
   scope: ScopeState,
   params: any,
   isAsync: boolean,
+  start: number,
   type: Type
 ): ESTree.ArrowFunctionExpression {
   if (type & Type.ConciseBody) {
@@ -3328,7 +3404,7 @@ function parseArrowFunctionExpression(
         state.tokenValue,
         Origin.None
       );
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ArrowFunctionExpression',
     body,
     params,
@@ -3366,6 +3442,8 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
       params: [rest]
     };
   }
+
+  const { startIndex: start } = state;
 
   let expr = acquireGrammar(
     state,
@@ -3423,7 +3501,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
         );
       }
     }
-    expr = finishNode(context, state.index, state.index, {
+    expr = finishNode(context, start, state.endIndex, {
       type: 'SequenceExpression',
       expressions: params
     } as any);
@@ -3457,6 +3535,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
  * @param scope Scope object
  */
 function parseClassDeclaration(state: ParserState, context: Context, scope: ScopeState): ESTree.ClassDeclaration {
+  const { startIndex: start } = state;
   next(state, context);
   // class bodies are implicitly strict
   context = (context | Context.Strict | Context.InConstructor) ^ Context.InConstructor;
@@ -3478,7 +3557,7 @@ function parseClassDeclaration(state: ParserState, context: Context, scope: Scop
 
   const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.Declaration);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ClassDeclaration',
     id,
     superClass,
@@ -3494,6 +3573,7 @@ function parseClassDeclaration(state: ParserState, context: Context, scope: Scop
  * @param scope Scope object
  */
 function parseClassExpression(state: ParserState, context: Context): ESTree.ClassExpression {
+  const { startIndex: start } = state;
   next(state, context);
   context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
   let id: ESTree.Expression | null = null;
@@ -3513,7 +3593,7 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
 
   const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.None);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ClassExpression',
     id,
     superClass,
@@ -3522,6 +3602,7 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
 }
 
 export function parseClassBodyAndElementList(state: ParserState, context: Context, origin: Origin): ESTree.ClassBody {
+  const { startIndex: start } = state;
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftBrace);
   const body: any[] = [];
 
@@ -3534,7 +3615,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
 
   state.flags &= ~Flags.HasConstructor;
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ClassBody',
     body
   });
@@ -3542,7 +3623,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
 
 function parseClassElementList(state: ParserState, context: Context, modifier: Modifiers): any {
   let key: ESTree.Identifier | ESTree.Literal | ESTree.Expression | void;
-  let { token, tokenValue } = state;
+  let { token, tokenValue, startIndex: start } = state;
 
   if (state.token & Token.IsIdentifier) {
     key = parseIdentifier(state, context);
@@ -3665,7 +3746,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
 
   if (state.token !== Token.LeftParen) report(state, Errors.Unexpected);
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'MethodDefinition',
     kind:
       (modifier & Modifiers.Static) === 0 && modifier & Modifiers.Constructor
@@ -3728,7 +3809,7 @@ function parseObjectLiteral(
 
   let objState = Modifiers.None;
 
-  const { assignable, bindable, pendingCoverInitializeError } = state;
+  const { assignable, bindable, pendingCoverInitializeError, startIndex: start } = state;
 
   state.bindable = true;
   state.assignable = true;
@@ -3738,6 +3819,7 @@ function parseObjectLiteral(
     if (state.token === <Token>Token.Ellipsis) {
       properties.push(parseSpreadElement(state, context, Origin.ObjectExpression));
     } else {
+      const { startIndex: objStart } = state;
       if (
         state.token & Token.IsIdentifier ||
         state.token === Token.EscapedKeyword ||
@@ -3765,7 +3847,8 @@ function parseObjectLiteral(
             value = parseAssignmentPattern(
               state,
               (context | Context.DisallowInContext) ^ Context.DisallowInContext,
-              key
+              key,
+              objStart
             );
           } else {
             value = key;
@@ -3917,7 +4000,7 @@ function parseObjectLiteral(
       }
 
       properties.push(
-        finishNode(context, state.index, state.index, {
+        finishNode(context, objStart, state.endIndex, {
           type: 'Property',
           key,
           value,
@@ -3937,7 +4020,7 @@ function parseObjectLiteral(
   state.assignable = state.assignable && assignable;
   state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
 
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'ObjectExpression',
     properties
   });
@@ -3967,7 +4050,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
 
   let id: ESTree.Identifier | null = null;
   let firstRestricted: string | undefined;
-
+  const { startIndex: start } = state;
   if (state.token & Token.IsIdentifier) {
     validateBindingIdentifier(
       state,
@@ -4021,7 +4104,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
     firstRestricted,
     Origin.None
   );
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'FunctionExpression',
     params,
     body,
@@ -4041,16 +4124,16 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
  * @param context Context masks
  */
 export function parseLiteral(state: ParserState, context: Context): ESTree.Literal {
-  const { tokenRaw: raw, tokenValue: value } = state;
+  const { tokenRaw: raw, tokenValue: value, startIndex } = state;
   if (context & Context.Strict && state.flags & Flags.Octal) report(state, Errors.StrictOctalLiteral);
   next(state, context);
   return context & Context.OptionsRaw
-    ? finishNode(context, state.index, state.index, {
+    ? finishNode(context, startIndex, state.endIndex, {
         type: 'Literal',
         value,
         raw
       })
-    : finishNode(context, state.index, state.index, {
+    : finishNode(context, startIndex, state.endIndex, {
         type: 'Literal',
         value
       });
@@ -4065,40 +4148,41 @@ export function parseLiteral(state: ParserState, context: Context): ESTree.Liter
  * @param context Context masks
  */
 function parseNullOrTrueOrFalseLiteral(state: ParserState, context: Context): ESTree.Literal {
-  const { token } = state;
+  const { token, startIndex } = state;
   const raw = KeywordDescTable[token & Token.Type];
   const value = token === Token.NullKeyword ? null : raw === 'true';
   next(state, context);
   return context & Context.OptionsRaw
-    ? finishNode(context, state.index, state.index, {
+    ? finishNode(context, startIndex, state.endIndex, {
         type: 'Literal',
         value,
         raw
       })
-    : finishNode(context, state.index, state.index, {
+    : finishNode(context, startIndex, state.endIndex, {
         type: 'Literal',
         value
       });
 }
 
 function parseThisExpression(state: ParserState, context: Context): ESTree.ThisExpression {
+  const { startIndex } = state;
   next(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, startIndex, state.endIndex, {
     type: 'ThisExpression'
   });
 }
 
 export function parseIdentifier(state: ParserState, context: Context): ESTree.Identifier {
-  const { tokenRaw: raw, tokenValue: name } = state;
+  const { tokenRaw: raw, tokenValue: name, startIndex } = state;
   next(state, context);
 
   return context & Context.OptionsRaw
-    ? finishNode(context, state.index, state.index, {
+    ? finishNode(context, startIndex, state.endIndex, {
         type: 'Identifier',
         name,
         raw
       })
-    : finishNode(context, state.index, state.index, {
+    : finishNode(context, startIndex, state.endIndex, {
         type: 'Identifier',
         name
       });
@@ -4114,9 +4198,9 @@ export function parseIdentifier(state: ParserState, context: Context): ESTree.Id
  */
 
 function parseRegExpLiteral(state: ParserState, context: Context): ESTree.RegExpLiteral {
-  const { tokenRegExp: regex, tokenValue: value } = state;
+  const { tokenRegExp: regex, tokenValue: value, startIndex: start } = state;
   next(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'Literal',
     value,
     regex
@@ -4132,9 +4216,9 @@ function parseRegExpLiteral(state: ParserState, context: Context): ESTree.RegExp
  * @param context Context masks
  */
 export function parseBigIntLiteral(state: ParserState, context: Context): ESTree.BigIntLiteral {
-  const { tokenRaw: raw, tokenValue: value } = state;
+  const { tokenRaw: raw, tokenValue: value, startIndex: start } = state;
   next(state, context);
-  return finishNode(context, state.index, state.index, {
+  return finishNode(context, start, state.endIndex, {
     type: 'Literal',
     value,
     bigint: raw,

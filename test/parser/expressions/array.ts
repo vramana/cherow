@@ -388,7 +388,7 @@ pass('Expressions - Array (pass)', [
   ],
   [
     '[x, ...z = arr, y]',
-    Context.Empty,
+    Context.OptionsRanges,
     {
       type: 'Program',
       sourceType: 'script',
@@ -400,7 +400,9 @@ pass('Expressions - Array (pass)', [
             elements: [
               {
                 type: 'Identifier',
-                name: 'x'
+                name: 'x',
+                start: 1,
+                end: 2
               },
               {
                 type: 'SpreadElement',
@@ -408,23 +410,39 @@ pass('Expressions - Array (pass)', [
                   type: 'AssignmentExpression',
                   left: {
                     type: 'Identifier',
-                    name: 'z'
+                    name: 'z',
+                    start: 7,
+                    end: 8
                   },
                   operator: '=',
                   right: {
                     type: 'Identifier',
-                    name: 'arr'
-                  }
-                }
+                    name: 'arr',
+                    start: 11,
+                    end: 14
+                  },
+                  start: 7,
+                  end: 14
+                },
+                start: 4,
+                end: 14
               },
               {
                 type: 'Identifier',
-                name: 'y'
+                name: 'y',
+                start: 16,
+                end: 17
               }
-            ]
-          }
+            ],
+            start: 0,
+            end: 18
+          },
+          start: 0,
+          end: 18
         }
-      ]
+      ],
+      start: 0,
+      end: 18
     }
   ],
   [
