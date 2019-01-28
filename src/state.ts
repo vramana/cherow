@@ -250,31 +250,61 @@ function parseStatement(
   scope: ScopeState,
   label: LabelledState
 ): ESTree.Statement {
-  switch (state.token) {
-    case Token.VarKeyword:
-      return parseVariableStatement(state, context, Type.Variable, Origin.Statement, scope);
-    case Token.SwitchKeyword:
-      return parseSwitchStatement(state, context, scope);
-    case Token.DoKeyword:
-      return parseDoWhileStatement(state, context, scope);
-    case Token.ReturnKeyword:
-      return parseReturnStatement(state, context);
-    case Token.WhileKeyword:
-      return parseWhileStatement(state, context, scope);
-    case Token.WithKeyword:
-      return parseWithStatement(state, context, scope);
-    case Token.BreakKeyword:
-      return parseBreakStatement(state, context);
-    case Token.ContinueKeyword:
-      return parseContinueStatement(state, context);
-    case Token.DebuggerKeyword:
-      return parseDebuggerStatement(state, context);
-    case Token.TryKeyword:
-      return parseTryStatement(state, context, scope);
-    case Token.ThrowKeyword:
-      return parseThrowStatement(state, context);
-    case Token.IfKeyword:
-      return parseIfStatement(state, context, scope);
+  const { token } = state;
+  if (
+    (token & Token.IsIdentifier) === Token.IsIdentifier ||
+    (token & Token.IsYield) === Token.IsYield ||
+    (token & Token.IsAwait) === Token.IsAwait ||
+    token === Token.EscapedKeyword ||
+    token === Token.EscapedStrictReserved
+  ) {
+    return parseExpressionOrLabelledStatement(state, context, scope, label);
+  }
+
+  if ((token & Token.IsAsync) === Token.IsAsync) {
+    if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
+      report(state, Errors.AsyncFunctionInSingleStatementContext);
+    }
+    return parseExpressionOrLabelledStatement(state, context, scope, label);
+  }
+
+  if ((token & Token.Keyword) === Token.Keyword) {
+    switch (token) {
+      case Token.VarKeyword:
+        return parseVariableStatement(state, context, Type.Variable, Origin.Statement, scope);
+      case Token.SwitchKeyword:
+        return parseSwitchStatement(state, context, scope);
+      case Token.DoKeyword:
+        return parseDoWhileStatement(state, context, scope);
+      case Token.ReturnKeyword:
+        return parseReturnStatement(state, context);
+      case Token.WhileKeyword:
+        return parseWhileStatement(state, context, scope);
+      case Token.WithKeyword:
+        return parseWithStatement(state, context, scope);
+      case Token.BreakKeyword:
+        return parseBreakStatement(state, context);
+      case Token.ContinueKeyword:
+        return parseContinueStatement(state, context);
+      case Token.DebuggerKeyword:
+        return parseDebuggerStatement(state, context);
+      case Token.TryKeyword:
+        return parseTryStatement(state, context, scope);
+      case Token.ThrowKeyword:
+        return parseThrowStatement(state, context);
+      case Token.IfKeyword:
+        return parseIfStatement(state, context, scope);
+      case Token.ForKeyword:
+        return parseForStatement(state, context, scope);
+      case Token.FunctionKeyword:
+        report(state, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
+      case Token.ClassKeyword:
+        report(state, Errors.ForbiddenAsStatement, KeywordDescTable[token & Token.Type]);
+      default: // ignore
+    }
+  }
+
+  switch (token) {
     case Token.Semicolon:
       return parseEmptyStatement(state, context);
     case Token.LeftBrace:
@@ -283,21 +313,31 @@ function parseStatement(
         (context | Context.TopLevel) ^ Context.TopLevel,
         createSubScope(scope, ScopeType.BlockStatement)
       );
-    case Token.ForKeyword:
-      return parseForStatement(state, context, scope);
-    case Token.AsyncKeyword:
-      if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
-        report(state, Errors.AsyncFunctionInSingleStatementContext);
-      }
-      return parseExpressionOrLabelledStatement(state, context, scope, label);
-    case Token.FunctionKeyword:
-      // V8
-      report(state, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
-    case Token.ClassKeyword:
-      report(state, Errors.ForbiddenAsStatement, KeywordDescTable[state.token & Token.Type]);
+
     default:
-      return parseExpressionOrLabelledStatement(state, context, scope, label);
+      return parseExpressionStatement(state, context);
   }
+}
+
+/**
+ * Parses either expression or labelled statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-LabelledStatement)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+export function parseExpressionStatement(state: ParserState, context: Context): ESTree.ExpressionStatement {
+  const expr: ESTree.Expression = parseExpression(
+    state,
+    (context | Context.DisallowInContext) ^ Context.DisallowInContext
+  );
+  consumeSemicolon(state, context);
+  return finishNode(context, state.index, state.index, {
+    type: 'ExpressionStatement',
+    expression: expr
+  });
 }
 
 function parseModuleItemList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
@@ -2955,6 +2995,16 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
   });
 }
 
+export function parseAndClassifyIdentifier(state: ParserState, context: Context) {
+  if (
+    ((context & Context.Strict) === 0 && state.token === Token.EscapedStrictReserved) ||
+    state.token === Token.LetKeyword ||
+    state.token === Token.StaticKeyword ||
+    state.token === Token.YieldKeyword
+  ) {
+  }
+}
+
 /**
  * Parse primary expression
  *
@@ -2984,20 +3034,32 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
    *   ( AssignmentExpression )
    *
    */
-  switch (state.token) {
+
+  const { token } = state;
+
+  if ((token & Token.IsIdentifier) === Token.IsIdentifier || token === Token.EscapedStrictReserved) {
+    return parseIdentifier(state, context | Context.TaggedTemplate);
+  }
+
+  if (token & Token.IsAsync) {
+    if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
+      state.bindable = state.assignable = false;
+      return parseFunctionExpression(state, context, true);
+    }
+    return parseIdentifier(state, context);
+  }
+
+  switch (token) {
     case Token.NumericLiteral:
     case Token.StringLiteral:
       state.bindable = state.assignable = false;
       return parseLiteral(state, context);
-    case Token.EscapedStrictReserved:
-    case Token.Identifier:
-      return parseIdentifier(state, context | Context.TaggedTemplate);
     case Token.BigIntLiteral:
       state.bindable = state.assignable = false;
       return parseBigIntLiteral(state, context);
     case Token.RegularExpression:
       state.bindable = state.assignable = false;
-      return parseRegularExpressionLiteral(state, context);
+      return parseRegExpLiteral(state, context);
     case Token.TrueKeyword:
     case Token.FalseKeyword:
     case Token.NullKeyword:
@@ -3033,13 +3095,6 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.PrivateName:
       state.bindable = state.assignable = false;
       return parseIdentifierNameOrPrivateName(state, context);
-    case Token.AsyncKeyword: {
-      if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
-        state.bindable = state.assignable = false;
-        return parseFunctionExpression(state, context, true);
-      }
-      return parseIdentifier(state, context);
-    }
     case Token.LetKeyword: {
       if (context & Context.Strict) report(state, Errors.UnexpectedStrictReserved);
       next(state, context);
@@ -4060,7 +4115,7 @@ export function parseIdentifier(state: ParserState, context: Context): ESTree.Id
  * @param context Context masks
  */
 
-function parseRegularExpressionLiteral(state: ParserState, context: Context): ESTree.RegExpLiteral {
+function parseRegExpLiteral(state: ParserState, context: Context): ESTree.RegExpLiteral {
   const { tokenRegExp: regex, tokenValue: value } = state;
   next(state, context);
   return finishNode(context, state.index, state.index, {
