@@ -135,6 +135,15 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
       if (!isIdentifierPart(cookedChar)) break;
       result += fromCodePoint(cookedChar);
       start = state.index;
+    } else if (ch >= 0xd800 && ch <= 0xdbff) {
+      if (state.index >= state.length) report(state, Errors.Unexpected);
+      let lo = state.source.charCodeAt(state.index);
+      ++state.index;
+      ++state.column;
+      if (!(lo >= 0xdc00 && lo <= 0xdfff)) {
+        report(state, Errors.Unexpected);
+      }
+      ch = ((ch & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
     } else {
       break;
     }
