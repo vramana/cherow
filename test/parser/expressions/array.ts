@@ -447,26 +447,39 @@ pass('Expressions - Array (pass)', [
   ],
   [
     '[x, ...z(), y]',
-    Context.Empty,
+    Context.OptionsRanges,
     {
       type: 'Program',
-      sourceType: 'script',
+      start: 0,
+      end: 14,
       body: [
         {
           type: 'ExpressionStatement',
+          start: 0,
+          end: 14,
           expression: {
             type: 'ArrayExpression',
+            start: 0,
+            end: 14,
             elements: [
               {
                 type: 'Identifier',
+                start: 1,
+                end: 2,
                 name: 'x'
               },
               {
                 type: 'SpreadElement',
+                start: 4,
+                end: 10,
                 argument: {
                   type: 'CallExpression',
+                  start: 7,
+                  end: 10,
                   callee: {
                     type: 'Identifier',
+                    start: 7,
+                    end: 8,
                     name: 'z'
                   },
                   arguments: []
@@ -474,77 +487,108 @@ pass('Expressions - Array (pass)', [
               },
               {
                 type: 'Identifier',
+                start: 12,
+                end: 13,
                 name: 'y'
               }
             ]
           }
         }
-      ]
+      ],
+      sourceType: 'script'
     }
   ],
   [
     '[x, ...z + arr, y]',
-    Context.Empty,
+    Context.OptionsRanges,
     {
       type: 'Program',
-      sourceType: 'script',
+      start: 0,
+      end: 18,
       body: [
         {
           type: 'ExpressionStatement',
+          start: 0,
+          end: 18,
           expression: {
             type: 'ArrayExpression',
+            start: 0,
+            end: 18,
             elements: [
               {
                 type: 'Identifier',
+                start: 1,
+                end: 2,
                 name: 'x'
               },
               {
                 type: 'SpreadElement',
+                start: 4,
+                end: 14,
                 argument: {
                   type: 'BinaryExpression',
+                  start: 7,
+                  end: 14,
                   left: {
                     type: 'Identifier',
+                    start: 7,
+                    end: 8,
                     name: 'z'
                   },
+                  operator: '+',
                   right: {
                     type: 'Identifier',
+                    start: 11,
+                    end: 14,
                     name: 'arr'
-                  },
-                  operator: '+'
+                  }
                 }
               },
               {
                 type: 'Identifier',
+                start: 16,
+                end: 17,
                 name: 'y'
               }
             ]
           }
         }
-      ]
+      ],
+      sourceType: 'script'
     }
   ],
   [
     '[...this];',
-    Context.Empty,
+    Context.OptionsRanges,
     {
       type: 'Program',
-      sourceType: 'script',
+      start: 0,
+      end: 10,
       body: [
         {
           type: 'ExpressionStatement',
+          start: 0,
+          end: 10,
           expression: {
             type: 'ArrayExpression',
+            start: 0,
+            end: 9,
             elements: [
               {
                 type: 'SpreadElement',
+                start: 1,
+                end: 8,
                 argument: {
-                  type: 'ThisExpression'
+                  type: 'ThisExpression',
+                  start: 4,
+                  end: 8
                 }
               }
             ]
           }
         }
-      ]
+      ],
+      sourceType: 'script'
     }
   ],
   [

@@ -295,193 +295,271 @@ describe('Declarations - Var', () => {
   pass('Declarations - Var (pass)', [
     [
       'var f; function f() {}',
-      Context.OptionsWebCompat,
+      Context.OptionsWebCompat | Context.OptionsRanges,
       {
+        type: 'Program',
+        start: 0,
+        end: 22,
         body: [
           {
+            type: 'VariableDeclaration',
+            start: 0,
+            end: 6,
             declarations: [
               {
+                type: 'VariableDeclarator',
+                start: 4,
+                end: 5,
                 id: {
-                  name: 'f',
-                  type: 'Identifier'
+                  type: 'Identifier',
+                  start: 4,
+                  end: 5,
+                  name: 'f'
                 },
-                init: null,
-                type: 'VariableDeclarator'
+                init: null
               }
             ],
-            kind: 'var',
-            type: 'VariableDeclaration'
+            kind: 'var'
           },
           {
-            async: false,
-            body: {
-              body: [],
-              type: 'BlockStatement'
+            type: 'FunctionDeclaration',
+            start: 7,
+            end: 22,
+            id: {
+              type: 'Identifier',
+              start: 16,
+              end: 17,
+              name: 'f'
             },
             generator: false,
-            id: {
-              name: 'f',
-              type: 'Identifier'
-            },
+            async: false,
             params: [],
-            type: 'FunctionDeclaration'
+            body: {
+              type: 'BlockStatement',
+              start: 20,
+              end: 22,
+              body: []
+            }
           }
         ],
-        sourceType: 'script',
-        type: 'Program'
+        sourceType: 'script'
       }
     ],
     [
       'for (var {x, y = z} of obj);',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
-        sourceType: 'script',
+        start: 0,
+        end: 28,
         body: [
           {
             type: 'ForOfStatement',
-            body: {
-              type: 'EmptyStatement'
-            },
+            start: 0,
+            end: 28,
+            await: false,
             left: {
               type: 'VariableDeclaration',
-              kind: 'var',
+              start: 5,
+              end: 19,
               declarations: [
                 {
                   type: 'VariableDeclarator',
-                  init: null,
+                  start: 9,
+                  end: 19,
                   id: {
                     type: 'ObjectPattern',
+                    start: 9,
+                    end: 19,
                     properties: [
                       {
                         type: 'Property',
-                        kind: 'init',
+                        start: 10,
+                        end: 11,
+                        method: false,
+                        shorthand: true,
+                        computed: false,
                         key: {
                           type: 'Identifier',
+                          start: 10,
+                          end: 11,
                           name: 'x'
                         },
-                        computed: false,
+                        kind: 'init',
                         value: {
                           type: 'Identifier',
+                          start: 10,
+                          end: 11,
                           name: 'x'
-                        },
-                        method: false,
-                        shorthand: true
+                        }
                       },
                       {
                         type: 'Property',
-                        kind: 'init',
+                        start: 13,
+                        end: 18,
+                        method: false,
+                        shorthand: true,
+                        computed: false,
                         key: {
                           type: 'Identifier',
+                          start: 13,
+                          end: 14,
                           name: 'y'
                         },
-                        computed: false,
+                        kind: 'init',
                         value: {
                           type: 'AssignmentPattern',
+                          start: 13,
+                          end: 18,
                           left: {
                             type: 'Identifier',
+                            start: 13,
+                            end: 14,
                             name: 'y'
                           },
                           right: {
                             type: 'Identifier',
+                            start: 17,
+                            end: 18,
                             name: 'z'
                           }
-                        },
-                        method: false,
-                        shorthand: true
+                        }
                       }
                     ]
-                  }
+                  },
+                  init: null
                 }
-              ]
+              ],
+              kind: 'var'
             },
             right: {
               type: 'Identifier',
+              start: 23,
+              end: 26,
               name: 'obj'
             },
-            await: false
+            body: {
+              type: 'EmptyStatement',
+              start: 27,
+              end: 28
+            }
           }
-        ]
+        ],
+        sourceType: 'script'
       }
     ],
     [
       'for (var {x = y, z = a} of obj);',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
-        sourceType: 'script',
+        start: 0,
+        end: 32,
         body: [
           {
             type: 'ForOfStatement',
-            body: {
-              type: 'EmptyStatement'
-            },
+            start: 0,
+            end: 32,
+            await: false,
             left: {
               type: 'VariableDeclaration',
-              kind: 'var',
+              start: 5,
+              end: 23,
               declarations: [
                 {
                   type: 'VariableDeclarator',
-                  init: null,
+                  start: 9,
+                  end: 23,
                   id: {
                     type: 'ObjectPattern',
+                    start: 9,
+                    end: 23,
                     properties: [
                       {
                         type: 'Property',
-                        kind: 'init',
+                        start: 10,
+                        end: 15,
+                        method: false,
+                        shorthand: true,
+                        computed: false,
                         key: {
                           type: 'Identifier',
+                          start: 10,
+                          end: 11,
                           name: 'x'
                         },
-                        computed: false,
+                        kind: 'init',
                         value: {
                           type: 'AssignmentPattern',
+                          start: 10,
+                          end: 15,
                           left: {
                             type: 'Identifier',
+                            start: 10,
+                            end: 11,
                             name: 'x'
                           },
                           right: {
                             type: 'Identifier',
+                            start: 14,
+                            end: 15,
                             name: 'y'
                           }
-                        },
-                        method: false,
-                        shorthand: true
+                        }
                       },
                       {
                         type: 'Property',
-                        kind: 'init',
+                        start: 17,
+                        end: 22,
+                        method: false,
+                        shorthand: true,
+                        computed: false,
                         key: {
                           type: 'Identifier',
+                          start: 17,
+                          end: 18,
                           name: 'z'
                         },
-                        computed: false,
+                        kind: 'init',
                         value: {
                           type: 'AssignmentPattern',
+                          start: 17,
+                          end: 22,
                           left: {
                             type: 'Identifier',
+                            start: 17,
+                            end: 18,
                             name: 'z'
                           },
                           right: {
                             type: 'Identifier',
+                            start: 21,
+                            end: 22,
                             name: 'a'
                           }
-                        },
-                        method: false,
-                        shorthand: true
+                        }
                       }
                     ]
-                  }
+                  },
+                  init: null
                 }
-              ]
+              ],
+              kind: 'var'
             },
             right: {
               type: 'Identifier',
+              start: 27,
+              end: 30,
               name: 'obj'
             },
-            await: false
+            body: {
+              type: 'EmptyStatement',
+              start: 31,
+              end: 32
+            }
           }
-        ]
+        ],
+        sourceType: 'script'
       }
     ],
     [

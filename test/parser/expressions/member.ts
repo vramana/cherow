@@ -6,27 +6,37 @@ describe('Expressions - Member', () => {});
 pass('Expressions - Member (pass)', [
   [
     'foo.bar',
-    Context.Empty,
+    Context.OptionsRanges,
     {
       type: 'Program',
-      sourceType: 'script',
+      start: 0,
+      end: 7,
       body: [
         {
           type: 'ExpressionStatement',
+          start: 0,
+          end: 7,
           expression: {
             type: 'MemberExpression',
+            start: 4,
+            end: 7,
             object: {
               type: 'Identifier',
+              start: 0,
+              end: 3,
               name: 'foo'
             },
-            computed: false,
             property: {
               type: 'Identifier',
+              start: 4,
+              end: 7,
               name: 'bar'
-            }
+            },
+            computed: false
           }
         }
-      ]
+      ],
+      sourceType: 'script'
     }
   ],
   [

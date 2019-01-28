@@ -52,7 +52,7 @@ describe('Statements - Do while', () => {
     ],
     [
       'do foo; while (bar);',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
         sourceType: 'script',
@@ -63,15 +63,25 @@ describe('Statements - Do while', () => {
               type: 'ExpressionStatement',
               expression: {
                 type: 'Identifier',
-                name: 'foo'
-              }
+                name: 'foo',
+                start: 3,
+                end: 6
+              },
+              start: 3,
+              end: 7
             },
             test: {
               type: 'Identifier',
-              name: 'bar'
-            }
+              name: 'bar',
+              start: 15,
+              end: 18
+            },
+            start: 0,
+            end: 20
           }
-        ]
+        ],
+        start: 0,
+        end: 20
       }
     ]
   ];
