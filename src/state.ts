@@ -375,7 +375,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       next(state, context);
       expect(state, context, Token.FromKeyword);
       if (state.token !== <Token>Token.StringLiteral) report(state, Errors.Unexpected);
-      source = parseLiteral(state, context, state.tokenValue);
+      source = parseLiteral(state, context);
       consumeSemicolon(state, context);
       return {
         type: 'ExportAllDeclaration',
@@ -418,7 +418,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
         //  The left hand side can't be a keyword where there is no
         // 'from' keyword since it references a local binding.
         if (state.token !== <Token>Token.StringLiteral) report(state, Errors.InvalidExportImportSource, 'Export');
-        source = parseLiteral(state, context, state.tokenValue);
+        source = parseLiteral(state, context);
       } else {
         let i = 0;
         let iMax = exportedNames.length;
@@ -513,7 +513,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
 
     // 'import' ModuleSpecifier ';'
   } else if (state.token === Token.StringLiteral) {
-    source = parseLiteral(state, context, state.tokenValue);
+    source = parseLiteral(state, context);
   } else {
     if (state.token === Token.Multiply) {
       parseImportNamespace(state, context, scope, specifiers);
@@ -633,7 +633,7 @@ function parseModuleSpecifier(state: ParserState, context: Context): ESTree.Lite
   //   StringLiteral
   expect(state, context, Token.FromKeyword);
   if (state.token !== Token.StringLiteral) report(state, Errors.InvalidExportImportSource, 'Import');
-  return parseLiteral(state, context, state.tokenValue);
+  return parseLiteral(state, context);
 }
 
 /**
@@ -1566,7 +1566,7 @@ function parseAssignmentProperty(
     } else value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);
   } else {
     if (state.token === Token.StringLiteral || state.token === Token.NumericLiteral) {
-      key = parseLiteral(state, context, state.tokenValue);
+      key = parseLiteral(state, context);
     } else if (state.token === Token.LeftBracket) {
       computed = true;
       key = parseComputedPropertyName(state, context);
@@ -2983,7 +2983,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.NumericLiteral:
     case Token.StringLiteral:
       state.bindable = state.assignable = false;
-      return parseLiteral(state, context, state.tokenValue);
+      return parseLiteral(state, context);
     case Token.EscapedStrictReserved:
     case Token.Identifier:
       return parseIdentifier(state, context | Context.TaggedTemplate);
@@ -2995,11 +2995,9 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       return parseRegularExpressionLiteral(state, context);
     case Token.TrueKeyword:
     case Token.FalseKeyword:
-      state.bindable = state.assignable = false;
-      return parseLiteral(state, context, state.tokenValue === 'true');
     case Token.NullKeyword:
       state.bindable = state.assignable = false;
-      return parseLiteral(state, context, null);
+      return parseNullOrTrueOrFalseLiteral(state, context);
     case Token.ThisKeyword:
       state.bindable = state.assignable = false;
       return parseThisExpression(state, context);
@@ -3506,7 +3504,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
             key = parseIdentifier(state, context);
             if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
           } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
-            key = parseLiteral(state, context, state.tokenValue);
+            key = parseLiteral(state, context);
           } else if (state.token === Token.LeftBracket) {
             modifier |= Modifiers.Computed;
             key = parseComputedPropertyName(state, context);
@@ -3523,7 +3521,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
           if (state.token & Token.IsIdentifier) {
             key = parseIdentifier(state, context);
           } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
-            key = parseLiteral(state, context, state.tokenValue);
+            key = parseLiteral(state, context);
           } else if (state.token === Token.LeftBracket) {
             modifier |= Modifiers.Computed;
             key = parseComputedPropertyName(state, context);
@@ -3542,7 +3540,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
           if (state.token & Token.IsIdentifier) {
             key = parseIdentifier(state, context);
           } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
-            key = parseLiteral(state, context, state.tokenValue);
+            key = parseLiteral(state, context);
           } else if (state.token === Token.LeftBracket) {
             modifier |= Modifiers.Computed;
             key = parseComputedPropertyName(state, context);
@@ -3561,14 +3559,14 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
     key = parseComputedPropertyName(state, context);
   } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
     if (state.tokenValue === 'constructor') modifier |= Modifiers.Constructor;
-    key = parseLiteral(state, context, state.tokenValue);
+    key = parseLiteral(state, context);
   } else if (state.token === Token.Multiply) {
     next(state, context);
     tokenValue = state.tokenValue;
     if (state.token & Token.IsIdentifier) {
       key = parseIdentifier(state, context);
     } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
-      key = parseLiteral(state, context, state.tokenValue);
+      key = parseLiteral(state, context);
     } else if (state.token === <Token>Token.LeftBracket) {
       modifier |= Modifiers.Computed;
       key = parseComputedPropertyName(state, context);
@@ -3766,7 +3764,7 @@ function parseObjectLiteral(
             state.bindable = state.assignable = false;
             value = parseMethodDeclaration(state, context, objState);
           } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
-            key = parseLiteral(state, context, state.tokenValue);
+            key = parseLiteral(state, context);
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             if (token === <Token>Token.AsyncKeyword) {
               if (newLine) report(state, Errors.Unexpected);
@@ -3793,7 +3791,7 @@ function parseObjectLiteral(
         }
       } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
         tokenValue = state.tokenValue;
-        key = parseLiteral(state, context, tokenValue);
+        key = parseLiteral(state, context);
 
         if (state.token === <Token>Token.Assign) report(state, Errors.Unexpected);
 
@@ -3844,7 +3842,7 @@ function parseObjectLiteral(
             report(state, Errors.Unexpected);
           }
         } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
-          key = parseLiteral(state, context, state.tokenValue);
+          key = parseLiteral(state, context);
           state.bindable = state.assignable = false;
           value = parseMethodDeclaration(state, context, objState | Modifiers.Generator);
           objState |= Modifiers.Method;
@@ -3973,9 +3971,43 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
   };
 }
 
-export function parseLiteral(state: ParserState, context: Context, value: string | boolean | null): ESTree.Literal {
-  const { tokenRaw: raw } = state;
+/**
+ * Parses string and number literal
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-NumericLiteral)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-StringLiteral)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+export function parseLiteral(state: ParserState, context: Context): ESTree.Literal {
+  const { tokenRaw: raw, tokenValue: value } = state;
   if (context & Context.Strict && state.flags & Flags.Octal) report(state, Errors.StrictOctalLiteral);
+  next(state, context);
+  return context & Context.OptionsRaw
+    ? {
+        type: 'Literal',
+        value,
+        raw
+      }
+    : {
+        type: 'Literal',
+        value
+      };
+}
+
+/**
+ * Parses either null or boolean literal
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-BooleanLiteral)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+function parseNullOrTrueOrFalseLiteral(state: ParserState, context: Context): ESTree.Literal {
+  const { token } = state;
+  const raw = KeywordDescTable[token & Token.Type];
+  const value = token === Token.NullKeyword ? null : raw === 'true';
   next(state, context);
   return context & Context.OptionsRaw
     ? {

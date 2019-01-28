@@ -104,6 +104,116 @@ describe('Lexer - Identifiers', () => {
       column: 8
     });
 
+    pass('scan \\u{24}', {
+      value: '$',
+      source: '\\u{24}',
+      hasNext: false,
+      raw: '\\u{24}',
+      token: Token.Identifier,
+      index: 6,
+      line: 1,
+      column: 6
+    });
+
+    pass('scan \\u{24}', {
+      value: '$',
+      source: '\\u{24}',
+      hasNext: false,
+      raw: '\\u{24}',
+      token: Token.Identifier,
+      index: 6,
+      line: 1,
+      column: 6
+    });
+
+    pass('scan \\u{5F}', {
+      value: '_',
+      source: '\\u{5F}',
+      hasNext: false,
+      raw: '\\u{5F}',
+      token: Token.Identifier,
+      index: 6,
+      line: 1,
+      column: 6
+    });
+
+    pass('scan \\u{61}', {
+      value: 'a',
+      source: '\\u{61}',
+      hasNext: false,
+      raw: '\\u{61}',
+      token: Token.Identifier,
+      index: 6,
+      line: 1,
+      column: 6
+    });
+
+    pass('scan \\u{65}', {
+      value: 'e',
+      source: '\\u{65}',
+      hasNext: false,
+      raw: '\\u{65}',
+      token: Token.Identifier,
+      index: 6,
+      line: 1,
+      column: 6
+    });
+
+    pass('scan \\u{7A}', {
+      value: 'z',
+      source: '\\u{7A}',
+      hasNext: false,
+      raw: '\\u{7A}',
+      token: Token.Identifier,
+      index: 6,
+      line: 1,
+      column: 6
+    });
+
+    pass('scan \\u{5A}', {
+      value: 'Z',
+      source: '\\u{5A}',
+      hasNext: false,
+      raw: '\\u{5A}',
+      token: Token.Identifier,
+      index: 6,
+      line: 1,
+      column: 6
+    });
+
+    pass('scan \\u{5A}', {
+      value: 'Z',
+      source: '\\u{5A}',
+      hasNext: false,
+      raw: '\\u{5A}',
+      token: Token.Identifier,
+      index: 6,
+      line: 1,
+      column: 6
+    });
+
+    pass('scan \\u0061', {
+      value: 'a',
+      source: '\\u0061',
+      hasNext: false,
+      raw: '\\u0061',
+      token: Token.Identifier,
+      index: 6,
+      line: 1,
+      column: 6
+    });
+
+    pass('scan \\u{5A}', {
+      value: 'Z',
+      source: '\\u{5A}',
+      hasNext: false,
+      raw: '\\u{5A}',
+      token: Token.Identifier,
+      index: 6,
+      line: 1,
+      column: 6
+    });
+
     if (isModule) {
     }
   }
