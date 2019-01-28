@@ -251,10 +251,10 @@ export function pushToken(context: Context, array: any[]): any {
   };
 }
 
-export function finishNode<T extends ESTree.Node>(context: Context, start: number, end: number, node: T): T {
+export function finishNode<T extends ESTree.Node>(context: Context, _: number, __: number, node: T): T {
   if (context & Context.OptionsRanges) {
-    node.start = start;
-    node.end = end;
+    // node.start = start;
+    // node.end = end;
   }
 
   return node;

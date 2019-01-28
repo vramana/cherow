@@ -33,7 +33,8 @@ import {
   nextTokenIsLeftParenOrPeriod,
   acquireGrammar,
   secludeGrammar,
-  nameIsArgumentsOrEval
+  nameIsArgumentsOrEval,
+  finishNode
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
@@ -148,11 +149,11 @@ export function parseDirective(state: ParserState, context: Context, scope: Scop
   const directive = state.tokenRaw.slice(1, -1);
   const expression = parseExpression(state, context);
   consumeSemicolon(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ExpressionStatement',
     expression,
     directive
-  };
+  });
 }
 
 /**
@@ -364,10 +365,10 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
     addToExportedBindings(state, '*default*');
     addVariable(state, context, scope, Type.None, Origin.None, true, false, '*default*');
 
-    return {
+    return finishNode(context, state.index, state.index, {
       type: 'ExportDefaultDeclaration',
       declaration
-    };
+    });
   }
 
   switch (state.token) {
@@ -377,10 +378,10 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       if (state.token !== <Token>Token.StringLiteral) report(state, Errors.Unexpected);
       source = parseLiteral(state, context);
       consumeSemicolon(state, context);
-      return {
+      return finishNode(context, state.index, state.index, {
         type: 'ExportAllDeclaration',
         source
-      };
+      });
     }
     case Token.LeftBrace: {
       const exportedNames: string[] = [];
@@ -467,12 +468,12 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
   }
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ExportNamedDeclaration',
     source,
     specifiers,
     declaration
-  };
+  });
 }
 
 /**
@@ -526,11 +527,11 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
 
   consumeSemicolon(state, context);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ImportDeclaration',
     specifiers,
     source
-  };
+  });
 }
 
 /**
@@ -654,10 +655,10 @@ export function parseBlockStatement(state: ParserState, context: Context, scope:
   }
   expect(state, context | Context.AllowPossibleRegEx, Token.RightBrace);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'BlockStatement',
     body
-  };
+  });
 }
 
 /**
@@ -670,9 +671,9 @@ export function parseBlockStatement(state: ParserState, context: Context, scope:
  */
 export function parseEmptyStatement(state: ParserState, context: Context): ESTree.EmptyStatement {
   next(state, context | Context.AllowPossibleRegEx);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'EmptyStatement'
-  };
+  });
 }
 
 /**
@@ -691,10 +692,10 @@ export function parseThrowStatement(state: ParserState, context: Context): ESTre
     (context | Context.DisallowInContext) ^ Context.DisallowInContext
   );
   consumeSemicolon(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ThrowStatement',
     argument
-  };
+  });
 }
 
 /**
@@ -715,12 +716,12 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
   const alternate = optional(state, context, Token.ElseKeyword)
     ? parseConsequentOrAlternate(state, context, scope)
     : null;
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'IfStatement',
     test,
     consequent,
     alternate
-  };
+  });
 }
 
 /**
@@ -770,11 +771,11 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
   }
   state.switchStatement = previousSwitchStatement;
   expect(state, context, Token.RightBrace);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'SwitchStatement',
     discriminant,
     cases
-  };
+  });
 }
 
 /**
@@ -796,10 +797,10 @@ export function parseReturnStatement(state: ParserState, context: Context): ESTr
         )
       : null;
   consumeSemicolon(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ReturnStatement',
     argument
-  };
+  });
 }
 
 /**
@@ -820,11 +821,11 @@ export function parseWhileStatement(state: ParserState, context: Context, scope:
   state.iterationStatement = LabelState.Iteration;
   const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
   state.iterationStatement = previousIterationStatement;
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'WhileStatement',
     test,
     body
-  };
+  });
 }
 
 /**
@@ -847,10 +848,10 @@ export function parseContinueStatement(state: ParserState, context: Context): ES
   if (label === null && state.iterationStatement === LabelState.Empty && state.switchStatement === LabelState.Empty) {
     report(state, Errors.IllegalContinue);
   }
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ContinueStatement',
     label
-  };
+  });
 }
 
 /**
@@ -872,10 +873,10 @@ export function parseBreakStatement(state: ParserState, context: Context): ESTre
     report(state, Errors.IllegalBreak);
   }
   consumeSemicolon(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'BreakStatement',
     label
-  };
+  });
 }
 
 /**
@@ -894,11 +895,11 @@ export function parseWithStatement(state: ParserState, context: Context, scope: 
   const object = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
   expect(state, context, Token.RightParen);
   const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'WithStatement',
     object,
     body
-  };
+  });
 }
 
 /**
@@ -912,9 +913,9 @@ export function parseWithStatement(state: ParserState, context: Context, scope: 
 export function parseDebuggerStatement(state: ParserState, context: Context): ESTree.DebuggerStatement {
   next(state, context);
   consumeSemicolon(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'DebuggerStatement'
-  };
+  });
 }
 
 /**
@@ -941,12 +942,12 @@ export function parseTryStatement(state: ParserState, context: Context, scope: S
       )
     : null;
   if (!handler && !finalizer) report(state, Errors.Unexpected);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'TryStatement',
     block,
     handler,
     finalizer
-  };
+  });
 }
 
 /**
@@ -983,11 +984,11 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
 
   const body = parseBlockStatement(state, context, secondScope);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'CatchClause',
     param,
     body
-  };
+  });
 }
 /**
  * Parses do while statement
@@ -1007,11 +1008,11 @@ export function parseDoWhileStatement(state: ParserState, context: Context, scop
   const test = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
   expect(state, context, Token.RightParen);
   optional(state, context, Token.Semicolon);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'DoWhileStatement',
     body,
     test
-  };
+  });
 }
 
 /**
@@ -1039,11 +1040,11 @@ export function parseCaseOrDefaultClauses(
   ) {
     consequent.push(parseStatementListItem(state, (context | Context.TopLevel) ^ Context.TopLevel, scope));
   }
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'SwitchCase',
     test,
     consequent
-  };
+  });
 }
 
 /**
@@ -1079,7 +1080,7 @@ function parseForStatement(
     if ((state.token & Token.IsVarDecl) > 0) {
       const kind = KeywordDescTable[state.token & Token.Type];
       if (optional(state, context, Token.VarKeyword)) {
-        init = {
+        init = finishNode(context, state.index, state.index, {
           type: 'VariableDeclaration',
           kind,
           declarations: parseVariableDeclarationList(
@@ -1090,14 +1091,14 @@ function parseForStatement(
             false,
             scope
           )
-        };
+        } as any);
       } else if (state.token === Token.LetKeyword) {
         if (lookAheadOrScan(state, context, isLexical, false)) {
-          init = {
+          init = finishNode(context, state.index, state.index, {
             type: 'VariableDeclaration',
             kind,
             declarations: parseVariableDeclarationList(state, context, Type.Let, Origin.ForStatement, true, scope)
-          };
+          } as any);
         } else {
           isPattern = true;
           init = acquireGrammar(state, context | Context.DisallowInContext, 0, parseAssignmentExpression);
@@ -1106,7 +1107,11 @@ function parseForStatement(
         declarations = parseVariableDeclarationList(state, context, Type.Const, Origin.ForStatement, false, scope);
         if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, true))
           report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
-        init = { type: 'VariableDeclaration', kind, declarations };
+        init = finishNode(context, state.index, state.index, {
+          type: 'VariableDeclaration',
+          kind,
+          declarations
+        } as any);
       }
     } else {
       isPattern = state.token === Token.LeftBracket || state.token === Token.LeftBrace;
@@ -1128,13 +1133,13 @@ function parseForStatement(
     state.iterationStatement = LabelState.Iteration;
     const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
     state.iterationStatement = previousIterationStatement;
-    return {
+    return finishNode(context, state.index, state.index, {
       type: 'ForOfStatement',
       body,
       left: init,
       right,
       await: forAwait
-    };
+    });
   }
 
   if (optional(state, context, Token.InKeyword)) {
@@ -1150,12 +1155,12 @@ function parseForStatement(
     state.iterationStatement = LabelState.Iteration;
     const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
     state.iterationStatement = previousIterationStatement;
-    return {
+    return finishNode(context, state.index, state.index, {
       type: 'ForInStatement',
       body,
       left: init,
       right
-    };
+    });
   }
 
   if (state.token === Token.Comma) {
@@ -1180,13 +1185,13 @@ function parseForStatement(
   const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
   state.iterationStatement = previousIterationStatement;
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ForStatement',
     body,
     init,
     test,
     update
-  };
+  });
 }
 /**
  * Parses either expression or labelled statement
@@ -1227,17 +1232,17 @@ export function parseExpressionOrLabelledStatement(
       body = parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
     } else body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label);
     state.labelDepth--;
-    return {
+    return finishNode(context, state.index, state.index, {
       type: 'LabeledStatement',
       label: expr as ESTree.Identifier,
       body
-    };
+    });
   }
   consumeSemicolon(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ExpressionStatement',
     expression: expr
-  };
+  });
 }
 
 // 12.15.5 Destructuring Assignment
@@ -1310,10 +1315,10 @@ export function parseBindingIdentifier(
   }
 
   next(state, context | Context.AllowPossibleRegEx);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'Identifier',
     name
-  };
+  });
 }
 
 /**
@@ -1334,10 +1339,10 @@ export function parseAssignmentRestElement(
 ): any {
   expect(state, context, Token.Ellipsis);
   const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'RestElement',
     argument
-  };
+  } as any);
 }
 
 /**
@@ -1359,10 +1364,10 @@ function AssignmentRestProperty(
 ): any {
   expect(state, context, Token.Ellipsis);
   const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'RestElement',
     argument
-  };
+  } as any);
 }
 
 /**
@@ -1421,10 +1426,10 @@ export function parseArrayAssignmentPattern(
   expect(state, context, Token.RightBracket);
 
   // tslint:disable-next-line:no-object-literal-type-assertion
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ArrayPattern',
     elements
-  } as ESTree.ArrayPattern;
+  } as ESTree.ArrayPattern);
 }
 
 /**
@@ -1455,10 +1460,10 @@ export function parserObjectAssignmentPattern(
 
   expect(state, context, Token.RightBrace);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ObjectPattern',
     properties
-  };
+  });
 }
 
 /** Parse assignment pattern
@@ -1472,11 +1477,11 @@ export function parserObjectAssignmentPattern(
  * @param pos Location
  */
 export function parseAssignmentPattern(state: ParserState, context: Context, left: ESTree.Pattern): any {
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'AssignmentPattern',
     left,
     right: secludeGrammar(state, context, 0, parseAssignmentExpression)
-  };
+  } as any);
 }
 
 /**
@@ -1499,11 +1504,11 @@ export function parseBindingInitializer(
   const left: any = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
   return !optional(state, context, Token.Assign)
     ? left
-    : {
+    : finishNode(context, state.index, state.index, {
         type: 'AssignmentPattern',
         left,
         right: secludeGrammar(state, context, 0, parseAssignmentExpression)
-      };
+      });
 }
 
 /**
@@ -1575,7 +1580,7 @@ function parseAssignmentProperty(
     value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);
   }
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'Property',
     kind: 'init',
     key,
@@ -1583,7 +1588,7 @@ function parseAssignmentProperty(
     value,
     method: false,
     shorthand
-  };
+  });
 }
 
 /**
@@ -1675,14 +1680,14 @@ export function parseFunctionDeclaration(
     origin
   );
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'FunctionDeclaration',
     params,
     body,
     async: (context & Context.AwaitContext) > 0,
     generator: isGenerator,
     id
-  };
+  } as any);
 }
 
 function parseHostedClassDeclaration(
@@ -1716,12 +1721,12 @@ function parseHostedClassDeclaration(
 
   const body = parseClassBodyAndElementList(state, context, Origin.Declaration);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ClassDeclaration',
     id,
     superClass,
     body
-  };
+  });
 }
 
 export function parseHoistableFunctionDeclaration(
@@ -1777,14 +1782,14 @@ export function parseHoistableFunctionDeclaration(
     Origin.None
   );
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'FunctionDeclaration',
     params,
     body,
     async: (context & Context.AwaitContext) > 0,
     generator: isGenerator,
     id
-  };
+  } as any);
 }
 
 /**
@@ -1888,10 +1893,10 @@ export function parseRestElement(
 ): any {
   expect(state, context, Token.Ellipsis);
   const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, false);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'RestElement',
     argument
-  };
+  } as any);
 }
 
 /**
@@ -1961,10 +1966,10 @@ export function parseFunctionBody(
   // Either '=' or '=>' after blockstatement
   if (state.token === Token.Assign || state.token === Token.Arrow) report(state, Errors.Unexpected);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'BlockStatement',
     body
-  };
+  });
 }
 
 /**
@@ -1989,11 +1994,11 @@ export function parseVariableStatement(
   next(state, context);
   const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
   consumeSemicolon(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'VariableDeclaration',
     kind: KeywordDescTable[token & Token.Type],
     declarations
-  } as any;
+  } as any);
 }
 
 /**
@@ -2019,11 +2024,11 @@ export function parseLexicalDeclaration(
   const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
   if (checkIfExistInLexicalBindings(state, context, scope, origin, false)) report(state, Errors.Unexpected);
   consumeSemicolon(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'VariableDeclaration',
     kind: KeywordDescTable[token & Token.Type],
     declarations
-  } as any;
+  } as any);
 }
 
 /*
@@ -2107,11 +2112,11 @@ function parseVariableDeclaration(
     report(state, Errors.DeclarationMissingInitializer, type & Type.Const ? 'const' : 'destructuring');
   }
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'VariableDeclarator',
     init,
     id
-  };
+  } as any);
 }
 
 export function parseExpression(state: ParserState, context: Context): any {
@@ -2136,10 +2141,10 @@ export function parseSequenceExpression(
   while (optional(state, context | Context.AllowPossibleRegEx, Token.Comma)) {
     expressions.push(secludeGrammar(state, context, 0, parseAssignmentExpression));
   }
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'SequenceExpression',
     expressions
-  };
+  });
 }
 
 /**
@@ -2167,11 +2172,11 @@ function parseYieldExpression(state: ParserState, context: Context): ESTree.Yiel
       argument = parseAssignmentExpression(state, context);
     }
   }
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'YieldExpression',
     argument,
     delegate
-  };
+  });
 }
 
 /**
@@ -2250,12 +2255,12 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     next(state, context | Context.AllowPossibleRegEx);
     const right = secludeGrammar(state, context, 0, parseAssignmentExpression);
     state.pendingCoverInitializeError = null;
-    return {
+    return finishNode(context, state.index, state.index, {
       type: 'AssignmentExpression',
       left: expr,
       operator: KeywordDescTable[operator & Token.Type],
       right
-    };
+    } as any);
   }
 
   return parseConditionalExpression(state, context, expr);
@@ -2288,12 +2293,12 @@ function parseConditionalExpression(
   expect(state, context | Context.AllowPossibleRegEx, Token.Colon);
   const alternate = secludeGrammar(state, context, 0, parseAssignmentExpression);
   state.bindable = state.assignable = false;
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ConditionalExpression',
     test,
     consequent,
     alternate
-  };
+  });
 }
 
 /**
@@ -2329,12 +2334,12 @@ function parseBinaryExpression(
     prec = t & Token.Precedence;
     if (prec + (((t === Token.Exponentiate) as any) << 8) - (((bit === t) as any) << 12) <= minPrec) break;
     next(state, context | Context.AllowPossibleRegEx);
-    left = {
+    left = finishNode(context, state.index, state.index, {
       type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
       left,
       right: secludeGrammar(state, context, prec, parseBinaryExpression),
       operator: KeywordDescTable[t & Token.Type]
-    };
+    } as any);
     state.assignable = state.bindable = false;
   }
 
@@ -2358,10 +2363,10 @@ function parseAwaitExpression(
   state.assignable = false;
   if (context & Context.InArgList) report(state, Errors.AwaitInParameter);
   next(state, context | Context.AllowPossibleRegEx);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'AwaitExpression',
     argument: secludeGrammar(state, context, 0, parseUnaryExpression)
-  };
+  });
 }
 
 /**
@@ -2400,12 +2405,12 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
       }
     }
     state.bindable = state.assignable = false;
-    return {
+    return finishNode(context, state.index, state.index, {
       type: 'UnaryExpression',
       operator: KeywordDescTable[unaryOperator & Token.Type],
       argument,
       prefix: true
-    };
+    });
   }
 
   return context & Context.AwaitContext && state.token & Token.IsAwait
@@ -2439,12 +2444,12 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
     }
     if (!state.assignable) report(state, Errors.InvalidLHSInAssignment);
     state.bindable = state.assignable = false;
-    return {
+    return finishNode(context, state.index, state.index, {
       type: 'UpdateExpression',
       argument: expr,
       operator: KeywordDescTable[token & Token.Type],
       prefix: true
-    };
+    } as any);
   }
 
   const expression = parseLeftHandSideExpression(state, context);
@@ -2457,12 +2462,12 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
     const operator = state.token;
     next(state, context | Context.AllowPossibleRegEx);
     state.bindable = state.assignable = false;
-    return {
+    return finishNode(context, state.index, state.index, {
       type: 'UpdateExpression',
       argument: expression,
       operator: KeywordDescTable[operator & Token.Type],
       prefix: false
-    };
+    } as any);
   }
 
   return expression;
@@ -2537,11 +2542,11 @@ function parseCallExpression(state: ParserState, context: Context, callee: any |
       };
     }
     state.bindable = state.assignable = false;
-    callee = {
+    callee = finishNode(context, state.index, state.index, {
       type: 'CallExpression',
       callee,
       arguments: params
-    };
+    });
   }
 }
 
@@ -2561,7 +2566,7 @@ function parseCallImportOrMetaProperty(state: ParserState, context: Context, isN
   } else if (isNew && state.token === Token.LeftParen)
     report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
 
-  const expr = parseImportExpression();
+  const expr = parseImportExpression(state, context);
   return parseCallExpression(state, context, expr);
 }
 
@@ -2572,10 +2577,10 @@ function parseCallImportOrMetaProperty(state: ParserState, context: Context, isN
  * @param context Context masks
  * @param pos Location
  */
-function parseImportExpression(): ESTree.ImportExpression {
-  return {
+function parseImportExpression(state: ParserState, context: Context): ESTree.ImportExpression {
+  return finishNode(context, state.index, state.index, {
     type: 'Import'
-  };
+  } as any);
 }
 
 /**
@@ -2590,11 +2595,11 @@ function parseImportExpression(): ESTree.ImportExpression {
  */
 
 export function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): any {
-  return {
+  return finishNode(context, state.index, state.index, {
     meta: id,
     type: 'MetaProperty',
     property: parseIdentifier(state, context)
-  };
+  });
 }
 
 function parseSuperExpression(state: ParserState, context: Context): ESTree.Super {
@@ -2618,7 +2623,7 @@ function parseSuperExpression(state: ParserState, context: Context): ESTree.Supe
       report(state, Errors.UnexpectedToken, 'super');
   }
 
-  return { type: 'Super' };
+  return finishNode(context, state.index, state.index, { type: 'Super' });
 }
 
 /**
@@ -2636,10 +2641,10 @@ function parseIdentifierNameOrPrivateName(
 ): ESTree.PrivateName | ESTree.Identifier {
   if (!optional(state, context, Token.PrivateName)) return parseIdentifierName(state, context);
   state.flags |= Flags.HasPrivateName;
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'PrivateName',
     name: state.tokenValue
-  };
+  } as any);
 }
 
 /**
@@ -2674,7 +2679,7 @@ function parseMemberExpression(state: ParserState, context: Context, expr: any):
         next(state, context);
         state.bindable = false;
         state.assignable = true;
-        expr = {
+        expr = finishNode(context, state.index, state.index, {
           type: 'MemberExpression',
           object: expr,
           computed: false,
@@ -2682,35 +2687,35 @@ function parseMemberExpression(state: ParserState, context: Context, expr: any):
             context & Context.OptionsNext
               ? parseIdentifierNameOrPrivateName(state, context)
               : parseIdentifierName(state, context)
-        };
+        });
         continue;
       case Token.LeftBracket:
         next(state, context | Context.AllowPossibleRegEx);
         state.bindable = false;
         state.assignable = true;
-        expr = {
+        expr = finishNode(context, state.index, state.index, {
           type: 'MemberExpression',
           object: expr,
           computed: true,
           property: parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext)
-        };
+        });
         expect(state, context, Token.RightBracket);
         break;
       case Token.TemplateTail:
         state.bindable = state.assignable = false;
-        expr = {
+        expr = finishNode(context, state.index, state.index, {
           type: 'TaggedTemplateExpression',
           tag: expr,
           quasi: parseTemplateLiteral(state, context)
-        };
+        });
         break;
       case Token.TemplateCont:
         state.bindable = state.assignable = false;
-        expr = {
+        expr = finishNode(context, state.index, state.index, {
           type: 'TaggedTemplateExpression',
           tag: expr,
           quasi: parseTemplate(state, context | Context.TaggedTemplate)
-        };
+        });
         break;
       default:
         return expr;
@@ -2726,12 +2731,12 @@ function parseMemberExpression(state: ParserState, context: Context, expr: any):
  * @param context Context masks
  */
 
-function parseTemplateLiteral(parser: ParserState, context: Context): ESTree.TemplateLiteral {
-  return {
+function parseTemplateLiteral(state: ParserState, context: Context): ESTree.TemplateLiteral {
+  return finishNode(context, state.index, state.index, {
     type: 'TemplateLiteral',
     expressions: [],
-    quasis: [parseTemplateTail(parser, context)]
-  };
+    quasis: [parseTemplateTail(state, context)]
+  });
 }
 
 /**
@@ -2742,15 +2747,15 @@ function parseTemplateLiteral(parser: ParserState, context: Context): ESTree.Tem
  * @param tail
  */
 
-function parseTemplateSpans(state: ParserState, tail: boolean): ESTree.TemplateElement {
-  return {
+function parseTemplateSpans(state: ParserState, context: Context, tail: boolean): ESTree.TemplateElement {
+  return finishNode(context, state.index, state.index, {
     type: 'TemplateElement',
     value: {
       cooked: state.tokenValue,
       raw: state.tokenRaw
     },
     tail
-  };
+  });
 }
 
 /**
@@ -2793,24 +2798,24 @@ function parseTemplate(state: ParserState, context: Context): ESTree.TemplateLit
    *   SourceCharacter (but not one of ` or \ or $)
    *
    */
-  const quasis = [parseTemplateSpans(state, /* tail */ false)];
+  const quasis = [parseTemplateSpans(state, context, /* tail */ false)];
   expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
   const expressions = [parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext)];
 
   while ((state.token = scanTemplateTail(state, context)) !== Token.TemplateTail) {
-    quasis.push(parseTemplateSpans(state, /* tail */ false));
+    quasis.push(parseTemplateSpans(state, context, /* tail */ false));
     expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
     expressions.push(parseExpression(state, context));
   }
-  quasis.push(parseTemplateSpans(state, /* tail */ true));
+  quasis.push(parseTemplateSpans(state, context, /* tail */ true));
   state.assignable = state.bindable = false;
   next(state, context);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'TemplateLiteral',
     expressions,
     quasis
-  };
+  });
 }
 
 /**
@@ -2825,14 +2830,14 @@ function parseTemplate(state: ParserState, context: Context): ESTree.TemplateLit
 function parseTemplateTail(state: ParserState, context: Context): ESTree.TemplateElement {
   const { tokenValue, tokenRaw } = state;
   expect(state, context | Context.AllowPossibleRegEx, Token.TemplateTail);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'TemplateElement',
     value: {
       cooked: tokenValue,
       raw: tokenRaw
     },
     tail: true
-  };
+  });
 }
 
 /**
@@ -2890,10 +2895,10 @@ function parseSpreadElement(state: ParserState, context: Context, origin: Origin
       state.bindable = state.assignable = false;
     }
   }
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'SpreadElement',
     argument
-  };
+  });
 }
 
 function parseAsyncArgument(state: ParserState, context: Context): any {
@@ -2943,11 +2948,11 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
       ? parseCallImportOrMetaProperty(state, context, true)
       : secludeGrammar(state, context, parsePrimaryExpression(state, context), parseMemberExpression);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'NewExpression',
     callee,
     arguments: state.token === Token.LeftParen ? parseArgumentList(state, context) : []
-  };
+  });
 }
 
 /**
@@ -3043,15 +3048,15 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       }
 
       return context & Context.OptionsRaw
-        ? {
+        ? finishNode(context, state.index, state.index, {
             type: 'Identifier',
             name: 'let',
             raw: 'let'
-          }
-        : {
+          })
+        : finishNode(context, state.index, state.index, {
             type: 'Identifier',
             name: 'let'
-          };
+          });
     }
     case Token.DoKeyword:
       return parseDoExpression(state, context);
@@ -3084,10 +3089,10 @@ function parseDoExpression(state: ParserState, context: Context): ESTree.DoExpre
   //     do '{' StatementList '}'
   if ((context & Context.OptionsExperimental) < 1) report(state, Errors.NoExperimentalOption);
   expect(state, context, Token.DoKeyword);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'DoExpression',
     body: parseBlockStatement(state, context, createScope(ScopeType.BlockStatement))
-  };
+  });
 }
 /**
  * Parse array literal expression
@@ -3143,10 +3148,10 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
 
   expect(state, context, Token.RightBracket);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ArrayExpression',
     elements
-  };
+  });
 }
 
 /**
@@ -3218,14 +3223,14 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
     Origin.None
   );
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'FunctionExpression',
     params,
     body,
     async: isAsync,
     generator: isGenerator,
     id
-  };
+  });
 }
 
 /**
@@ -3270,14 +3275,14 @@ function parseArrowFunctionExpression(
         state.tokenValue,
         Origin.None
       );
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ArrowFunctionExpression',
     body,
     params,
     id: null,
     async: isAsync,
     expression
-  };
+  });
 }
 
 /**
@@ -3365,10 +3370,10 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
         );
       }
     }
-    expr = {
+    expr = finishNode(context, state.index, state.index, {
       type: 'SequenceExpression',
       expressions: params
-    };
+    } as any);
   }
 
   expect(state, context, Token.RightParen);
@@ -3420,12 +3425,12 @@ function parseClassDeclaration(state: ParserState, context: Context, scope: Scop
 
   const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.Declaration);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ClassDeclaration',
     id,
     superClass,
     body
-  };
+  });
 }
 
 /**
@@ -3455,12 +3460,12 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
 
   const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.None);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ClassExpression',
     id,
     superClass,
     body
-  };
+  });
 }
 
 export function parseClassBodyAndElementList(state: ParserState, context: Context, origin: Origin): ESTree.ClassBody {
@@ -3476,10 +3481,10 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
 
   state.flags &= ~Flags.HasConstructor;
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ClassBody',
     body
-  };
+  });
 }
 
 function parseClassElementList(state: ParserState, context: Context, modifier: Modifiers): any {
@@ -3607,7 +3612,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
 
   if (state.token !== Token.LeftParen) report(state, Errors.Unexpected);
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'MethodDefinition',
     kind:
       (modifier & Modifiers.Static) === 0 && modifier & Modifiers.Constructor
@@ -3621,7 +3626,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
     computed: (modifier & Modifiers.Computed) !== 0,
     key,
     value: parseMethodDeclaration(state, context, modifier)
-  };
+  } as any);
 }
 
 /**
@@ -3858,15 +3863,17 @@ function parseObjectLiteral(
         report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
       }
 
-      properties.push({
-        type: 'Property',
-        key,
-        value,
-        kind: !(objState & Modifiers.GetSet) ? 'init' : objState & Modifiers.Setter ? 'set' : 'get',
-        computed: (objState & Modifiers.Computed) > 0,
-        method: (objState & Modifiers.Method) > 0,
-        shorthand: (objState & Modifiers.Shorthand) > 0
-      });
+      properties.push(
+        finishNode(context, state.index, state.index, {
+          type: 'Property',
+          key,
+          value,
+          kind: !(objState & Modifiers.GetSet) ? 'init' : objState & Modifiers.Setter ? 'set' : 'get',
+          computed: (objState & Modifiers.Computed) > 0,
+          method: (objState & Modifiers.Method) > 0,
+          shorthand: (objState & Modifiers.Shorthand) > 0
+        } as any)
+      );
     }
     optional(state, context, Token.Comma);
   }
@@ -3877,10 +3884,10 @@ function parseObjectLiteral(
   state.assignable = state.assignable && assignable;
   state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
 
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ObjectExpression',
     properties
-  };
+  });
 }
 
 function parseMethodDeclaration(state: ParserState, context: Context, objState: Modifiers): any {
@@ -3961,14 +3968,14 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
     firstRestricted,
     Origin.None
   );
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'FunctionExpression',
     params,
     body,
     async: (objState & Modifiers.Async) > 0,
     generator: (objState & Modifiers.Generator) > 0,
     id
-  };
+  } as any);
 }
 
 /**
@@ -3985,15 +3992,15 @@ export function parseLiteral(state: ParserState, context: Context): ESTree.Liter
   if (context & Context.Strict && state.flags & Flags.Octal) report(state, Errors.StrictOctalLiteral);
   next(state, context);
   return context & Context.OptionsRaw
-    ? {
+    ? finishNode(context, state.index, state.index, {
         type: 'Literal',
         value,
         raw
-      }
-    : {
+      })
+    : finishNode(context, state.index, state.index, {
         type: 'Literal',
         value
-      };
+      });
 }
 
 /**
@@ -4010,22 +4017,22 @@ function parseNullOrTrueOrFalseLiteral(state: ParserState, context: Context): ES
   const value = token === Token.NullKeyword ? null : raw === 'true';
   next(state, context);
   return context & Context.OptionsRaw
-    ? {
+    ? finishNode(context, state.index, state.index, {
         type: 'Literal',
         value,
         raw
-      }
-    : {
+      })
+    : finishNode(context, state.index, state.index, {
         type: 'Literal',
         value
-      };
+      });
 }
 
 function parseThisExpression(state: ParserState, context: Context): ESTree.ThisExpression {
   next(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'ThisExpression'
-  };
+  });
 }
 
 export function parseIdentifier(state: ParserState, context: Context): ESTree.Identifier {
@@ -4033,15 +4040,15 @@ export function parseIdentifier(state: ParserState, context: Context): ESTree.Id
   next(state, context);
 
   return context & Context.OptionsRaw
-    ? {
+    ? finishNode(context, state.index, state.index, {
         type: 'Identifier',
         name,
         raw
-      }
-    : {
+      })
+    : finishNode(context, state.index, state.index, {
         type: 'Identifier',
         name
-      };
+      });
 }
 
 /**
@@ -4056,11 +4063,11 @@ export function parseIdentifier(state: ParserState, context: Context): ESTree.Id
 function parseRegularExpressionLiteral(state: ParserState, context: Context): ESTree.RegExpLiteral {
   const { tokenRegExp: regex, tokenValue: value } = state;
   next(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'Literal',
     value,
     regex
-  };
+  });
 }
 
 /**
@@ -4074,10 +4081,10 @@ function parseRegularExpressionLiteral(state: ParserState, context: Context): ES
 export function parseBigIntLiteral(state: ParserState, context: Context): ESTree.BigIntLiteral {
   const { tokenRaw: raw, tokenValue: value } = state;
   next(state, context);
-  return {
+  return finishNode(context, state.index, state.index, {
     type: 'Literal',
     value,
     bigint: raw,
     raw
-  };
+  });
 }
