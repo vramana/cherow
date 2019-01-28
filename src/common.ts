@@ -272,7 +272,10 @@ export function expect(state: ParserState, context: Context, t: Token): void {
   if (state.token === t) {
     next(state, context);
   } else {
-    report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
+    report(
+      state,
+      t === Token.EscapedKeyword || t === Token.EscapedStrictReserved ? Errors.InvalidEscapedKeyword : Errors.Unexpected
+    );
   }
 }
 
@@ -605,8 +608,17 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
   if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
     report(state, Errors.AwaitOutsideAsync);
   }
+
+  if (token === Token.EscapedStrictReserved) {
+    if (context & Context.Strict) report(state, Errors.InvalidEscapedKeyword);
+  }
+
   if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
     report(state, Errors.DisallowedInContext, 'yield');
+  }
+
+  if (token === Token.EscapedKeyword) {
+    report(state, Errors.InvalidEscapedKeyword);
   }
 
   if ((token & Token.FutureReserved) === Token.FutureReserved) {

@@ -32,6 +32,7 @@ describe('Miscellaneous - Passing tests', () => {
     '(function foo() {function outer() { return f; } { f = 1; function f () {} f = ""; } })();',
     '(function foo(x) { {  function x() {} } })(1);',
     '(function foo([[x]]) { { function x() {}}})([[1]]);',
+    'for (true ? "" in cond1() : cond2(); false; ) ;',
     `class B {
       1() { return 1; }
       get 2() { return 2; }

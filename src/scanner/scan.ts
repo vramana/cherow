@@ -7,7 +7,13 @@ import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
 import { scanRegularExpression } from './regexp';
 import { scanNumeric, scanHexIntegerLiteral, scanBinaryOrOctalDigits, scanImplicitOctalDigits } from './numeric';
-import { scanIdentifier, scanIdentifierOrKeyword, scanMaybeIdentifier, scanPrivateName } from './identifier';
+import {
+  scanIdentifier,
+  scanIdentifierOrKeyword,
+  scanMaybeIdentifier,
+  scanPrivateName,
+  scanIdentifierRest
+} from './identifier';
 
 // Table for one char punctuator lookup
 const OneCharPunc = new Array(128).fill(0) as Token[];
@@ -374,7 +380,7 @@ table[Chars.LeftBracket] = scanChar;
 OneCharPunc[Chars.LeftBracket] = Token.LeftBracket;
 
 // `\\u{N}var`
-table[Chars.Backslash] = scanIdentifierOrKeyword;
+table[Chars.Backslash] = scanIdentifierRest;
 
 // `]`
 table[Chars.RightBracket] = scanChar;
