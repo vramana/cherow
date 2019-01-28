@@ -141,7 +141,9 @@ export declare const enum Token {
     BigIntLiteral = 116,
     JSXText = 117,
     PrivateName = 119,
-    Global = 124
+    Global = 125,
+    EscapedStrictReserved = 126,
+    EscapedKeyword = 121
 }
 export declare const KeywordDescTable: string[];
 export declare const descKeywordTable: {
