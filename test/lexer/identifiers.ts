@@ -21,7 +21,7 @@ describe('Lexer - Identifiers', () => {
     function pass(name: string, opts: Opts) {
       it(name, () => {
         const state = create(opts.source, undefined);
-        const found = next(state, Context.Empty);
+        next(state, Context.Strict);
         t.deepEqual(
           {
             value: state.tokenValue,
@@ -230,6 +230,30 @@ describe('Lexer - Identifiers', () => {
       hasNext: false,
       line: 1,
       column: 2
+    });
+
+    pass("scans '\\u0431'", {
+      source: '\\u0431',
+      value: 'б',
+      hasNext: false,
+      line: 1,
+      column: 6
+    });
+
+    pass("scans '\\u0451'", {
+      source: '\\u0451',
+      value: 'ё',
+      hasNext: false,
+      line: 1,
+      column: 6
+    });
+
+    pass("scans '\\u044D'", {
+      source: '\\u044D',
+      value: 'э',
+      hasNext: false,
+      line: 1,
+      column: 6
     });
 
     pass('scan dollar + char', {

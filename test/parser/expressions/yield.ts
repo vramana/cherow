@@ -213,6 +213,7 @@ describe('Expressions - Yield', () => {
   }
 
   const inValids: Array<[string, Context]> = [
+    ['yield;', Context.Strict | Context.Module],
     ['({a(b, b){}})', Context.Strict],
     ['({a(b, b){ "use strict"; }})', Context.Empty],
     ['"use strict"; ({a(b, b){}})', Context.Empty],

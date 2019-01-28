@@ -49,6 +49,28 @@ describe('Lexer - Identifiers', () => {
       });
     }
 
+    function fail(name: string, source: string, context: Context) {
+      it(name, () => {
+        const state = create(source, undefined);
+        t.throws(() => scanIdentifierRest(state, context));
+      });
+    }
+
+    fail('fails on \\u003B;', '\\u003B;', Context.Empty);
+    fail('fails on \\uD8.1', '\\uD8.1', Context.Empty);
+    fail('fails on \\uD.01', '\\uD.01', Context.Empty);
+    fail('fails on \\u', '\\u', Context.Empty);
+    fail('fails on \\u0x11ffff', '\\u0x11ffff', Context.Empty);
+    fail('fails on abc\\u', 'abc\\u', Context.Empty);
+    fail('fails on \\u00Xvwxyz', '\\u00Xvwxyz', Context.Empty);
+    fail('fails on \\u00', '\\u00', Context.Empty);
+    fail('fails on \\u{}', '\\u{}', Context.Empty);
+    fail('fails on \\u{10401', '\\u{10401', Context.Empty);
+    fail('fails on a\\u', 'a\\u', Context.Empty);
+    fail('fails on \\u0', 'a\\u0', Context.Empty);
+    fail('fails on \\123\\uD800', '\\123\\uD800', Context.Empty);
+    fail('fails on 123\\uDAAA', '123\\uDAAA', Context.Empty);
+
     pass('scan br\\u0065ak', {
       value: 'break',
       source: 'br\\u0065ak',

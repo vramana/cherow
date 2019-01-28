@@ -132,7 +132,7 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
       hasEscape = true;
       result += state.source.substring(start, state.index);
       let cookedChar = scanIdentifierUnicodeEscape(state);
-      if (!isIdentifierPart(cookedChar)) break;
+      if (!isIdentifierPart(cookedChar)) report(state, Errors.InvalidIdentChar);
       result += fromCodePoint(cookedChar);
       start = state.index;
     } else if (ch >= 0xd800 && ch <= 0xdbff) {
@@ -178,7 +178,7 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
   return Token.Identifier;
 }
 
-function scanIdentifierUnicodeEscape(state: ParserState) {
+export function scanIdentifierUnicodeEscape(state: ParserState) {
   // Read 'u' characters
   state.index++;
   state.column++;
