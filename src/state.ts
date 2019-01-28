@@ -253,17 +253,15 @@ function parseStatement(
   const { token } = state;
   if (
     (token & Token.IsIdentifier) === Token.IsIdentifier ||
+    (token & Token.Contextual) === Token.Contextual ||
     (token & Token.IsYield) === Token.IsYield ||
-    (token & Token.IsAwait) === Token.IsAwait ||
     token === Token.EscapedKeyword ||
     token === Token.EscapedStrictReserved
   ) {
-    return parseExpressionOrLabelledStatement(state, context, scope, label);
-  }
-
-  if ((token & Token.IsAsync) === Token.IsAsync) {
-    if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
-      report(state, Errors.AsyncFunctionInSingleStatementContext);
+    if ((token & Token.IsAsync) === Token.IsAsync) {
+      if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
+        report(state, Errors.AsyncFunctionInSingleStatementContext);
+      }
     }
     return parseExpressionOrLabelledStatement(state, context, scope, label);
   }
