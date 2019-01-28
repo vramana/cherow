@@ -252,10 +252,10 @@ export function pushToken(context: Context, array: any[]): any {
   };
 }
 
-export function finishNode<T extends ESTree.Node>(context: Context, start: number, end: number, node: T): T {
+export function finishNode<T extends ESTree.Node>(state: ParserState, context: Context, start: number, node: T): T {
   if (context & Context.OptionsRanges) {
     node.start = start;
-    node.end = end;
+    node.end = state.endIndex;
   }
 
   return node;

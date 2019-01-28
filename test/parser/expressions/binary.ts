@@ -6,28 +6,42 @@ describe('Expressions - Binary', () => {});
 pass('Expressions - Binary (pass)', [
   [
     'b && c == d',
-    Context.Empty,
+    Context.OptionsRanges,
     {
       type: 'Program',
+      start: 0,
+      end: 11,
       body: [
         {
           type: 'ExpressionStatement',
+          start: 0,
+          end: 11,
           expression: {
             type: 'LogicalExpression',
-            operator: '&&',
+            start: 0,
+            end: 11,
             left: {
               type: 'Identifier',
+              start: 0,
+              end: 1,
               name: 'b'
             },
+            operator: '&&',
             right: {
               type: 'BinaryExpression',
-              operator: '==',
+              start: 5,
+              end: 11,
               left: {
                 type: 'Identifier',
+                start: 5,
+                end: 6,
                 name: 'c'
               },
+              operator: '==',
               right: {
                 type: 'Identifier',
+                start: 10,
+                end: 11,
                 name: 'd'
               }
             }
