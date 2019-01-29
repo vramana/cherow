@@ -49,7 +49,7 @@ describe('Expressions - Arrows', () => {
     //  ['(a)[c]=>{};', Context.Empty],
     //['var x = (a)`c`=>{}', Context.Empty],
     //    ['var x = (a)-c=>{};', Context.Empty],
-    //['(...a)`c`=>{}', Context.Empty],
+    ['(...a)`c`=>{}', Context.Empty],
     ['(...a)-c=>{};', Context.Empty],
     ['var x = (...a)+c=>{}', Context.Empty],
     ['var x = (...a)-c=>{};', Context.Empty],
@@ -63,29 +63,29 @@ describe('Expressions - Arrows', () => {
     ['interface => { "use strict"; 0 }', Context.Empty],
     ['(eval) => { "use strict"; 0 }', Context.Empty],
     ['(arguments) => { "use strict"; 0 }', Context.Empty],
-    // ['(yield) => { "use strict"; 0 }', Context.Empty],
-    // ['(interface) => { "use strict"; 0 }', Context.Empty],
+    ['(yield) => { "use strict"; 0 }', Context.Empty],
+    ['(interface) => { "use strict"; 0 }', Context.Empty],
     ['eval, bar) => { "use strict"; 0 }', Context.Empty],
     ['(bar, eval) => { "use strict"; 0 }', Context.Empty],
     ['(bar, arguments) => { "use strict"; 0 }', Context.Empty],
-    // ['(bar, yield) => { "use strict"; 0 }', Context.Empty],
-    // ['(bar, interface) => { "use strict"; 0 }', Context.Empty],
+    ['(bar, yield) => { "use strict"; 0 }', Context.Empty],
+    ['(bar, interface) => { "use strict"; 0 }', Context.Empty],
     ['(a,...b)+c=>{}', Context.Empty],
-    //    ['32 => {}', Context.Empty],
+    ['32 => {}', Context.Empty],
     ['(32) => {}', Context.Empty],
     ['(a, 32) => {}', Context.Empty],
     ['if => {}', Context.Empty],
-    // ["(if) => {}", Context.Empty],
-    // ["(a, if) => {}", Context.Empty],
+    ['(if) => {}', Context.Empty],
+    ['(a, if) => {}', Context.Empty],
     // ["a + b => {}", Context.Empty],
-    // ["(a + b) => {}", Context.Empty],
-    // ["(a + b, c) => {}", Context.Empty],
-    // ["(a, b - c) => {}", Context.Empty],
-    //    ['"a" => {}', Context.Empty],
+    ['(a + b) => {}', Context.Empty],
+    ['(a + b, c) => {}', Context.Empty],
+    ['(a, b - c) => {}', Context.Empty],
+    ['"a" => {}', Context.Empty],
     ['("a") => {}', Context.Empty],
     ['("a", b) => {}', Context.Empty],
     ['(a, "b") => {}', Context.Empty],
-    //    ['-a => {}', Context.Empty],
+    ['-a => {}', Context.Empty],
     ['(-a) => {}', Context.Empty],
     ['(-a, b) => {}', Context.Empty],
     ['(a, -b) => {}', Context.Empty],
@@ -94,7 +94,7 @@ describe('Expressions - Arrows', () => {
     ['(a++) => {}', Context.Empty],
     ['(a++, b) => {}', Context.Empty],
     ['(a, b++) => {}', Context.Empty],
-    //    ['[] => {}', Context.Empty],
+    ['[] => {}', Context.Empty],
     ['(foo ? bar : baz) => {}', Context.Empty],
     ['(a, foo ? bar : baz) => {}', Context.Empty],
     ['(foo ? bar : baz, a) => {}', Context.Empty],
@@ -103,6 +103,10 @@ describe('Expressions - Arrows', () => {
     ["(a['b'], c) => {}", Context.Empty],
     ["(c, a['b']) => {}", Context.Empty],
     ['(...a = b) => b', Context.Empty],
+    ['eval => { "use strict"; }', Context.Empty],
+    ['([]) => { "use strict"; }', Context.Empty],
+    ['(a, []) => { "use strict"; }', Context.Empty],
+
     [
       `var af = x
     => {};`,
@@ -265,6 +269,35 @@ describe('Expressions - Arrows', () => {
   // valid tests
 
   pass('Expressions - Arrows (pass)', [
+    [
+      `eval => "use strict";`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Literal',
+                value: 'use strict'
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'eval'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
     [
       `var af = (x) =>
       { return x };`,

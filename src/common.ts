@@ -33,6 +33,7 @@ export const enum Context {
   SuperProperty = 1 << 18,
 
   SuperCall = 1 << 19,
+  ParentheziedContext = 1 << 20,
   YieldContext = 1 << 21,
   AwaitContext = 1 << 22,
   InArgList = 1 << 23,
@@ -61,7 +62,9 @@ export const enum Flags {
   InArrowContext = 1 << 8,
   HasStrictReserved = 1 << 9,
   StrictEvalArguments = 1 << 10,
-  HasConstructor = 1 << 11
+  HasConstructor = 1 << 11,
+  HasAwait  = 1 << 12,
+  HasYield   = 1 << 13,
 }
 // prettier-ignore
 /**
@@ -133,7 +136,8 @@ export const enum Arrows {
   None = 0,
   ConciseBody = 1 << 0,
   Plain = 1 << 1,
-  Async = 1 << 2
+  Async = 1 << 2,
+  Parenthesized = Plain | Async
 }
 
 export const enum Grammar {
