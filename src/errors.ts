@@ -118,7 +118,8 @@ export const enum Errors {
   InvalidIdentChar,
   UnsupportedIdentEscape,
   InvalidEscapedKeyword,
-  InvalidLineBreak
+  InvalidLineBreak,
+  InvalidLHSOfError
 }
 
 /*@internal*/
@@ -246,7 +247,9 @@ export const errorMessages: {
   [Errors.InvalidIdentChar]: 'The identifier escape did not yield a valid identifier character',
   [Errors.UnsupportedIdentEscape]: 'Only unicode escapes are supported in identifier escapes',
   [Errors.InvalidEscapedKeyword]: 'Invalid escaped keyword',
-  [Errors.InvalidLineBreak]: "No line break is allowed after '%0'"
+  [Errors.InvalidLineBreak]: "No line break is allowed after '%0'",
+  [Errors.InvalidLHSOfError]: 'The left hand side of the arrow can only be destructed through assignment'
+  //[Errors.InvalidLHSOfError]: 'The arguments of an arrow cannot be named `await` if inside an async function or parsing against the module goal',
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

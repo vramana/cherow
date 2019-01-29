@@ -150,6 +150,15 @@ export const enum Grammar {
   BindableAndAssignable = Assignable | Bindable
 }
 
+export const enum ParenthesizedState {
+  None = 0,
+  ReservedWords = 1 << 0,
+  Yield = 1 << 1,
+  Await = 1 << 2,
+  SequenceExpression = 1 << 3,
+  Arrow = 1 << 4
+}
+
 /*@internal*/
 export const enum LabelState {
   Empty = 0, // Break statement

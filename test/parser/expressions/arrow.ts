@@ -2176,6 +2176,249 @@ describe('Expressions - Arrows', () => {
           }
         ]
       }
+    ],
+    [
+      `([x, y] = z) => x;`,
+      Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 18,
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 18,
+            expression: {
+              type: 'ArrowFunctionExpression',
+              start: 0,
+              end: 17,
+              id: null,
+              expression: true,
+              async: false,
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  start: 1,
+                  end: 11,
+                  left: {
+                    type: 'ArrayPattern',
+                    start: 1,
+                    end: 7,
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        start: 2,
+                        end: 3,
+                        name: 'x'
+                      },
+                      {
+                        type: 'Identifier',
+                        start: 5,
+                        end: 6,
+                        name: 'y'
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'Identifier',
+                    start: 10,
+                    end: 11,
+                    name: 'z'
+                  }
+                }
+              ],
+              body: {
+                type: 'Identifier',
+                start: 16,
+                end: 17,
+                name: 'x'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+
+    [
+      `([[x, y] = z]) => x;`,
+      Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 20,
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 20,
+            expression: {
+              type: 'ArrowFunctionExpression',
+              start: 0,
+              end: 19,
+              id: null,
+              expression: true,
+              async: false,
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  start: 1,
+                  end: 13,
+                  elements: [
+                    {
+                      type: 'AssignmentPattern',
+                      start: 2,
+                      end: 12,
+                      left: {
+                        type: 'ArrayPattern',
+                        start: 2,
+                        end: 8,
+                        elements: [
+                          {
+                            type: 'Identifier',
+                            start: 3,
+                            end: 4,
+                            name: 'x'
+                          },
+                          {
+                            type: 'Identifier',
+                            start: 6,
+                            end: 7,
+                            name: 'y'
+                          }
+                        ]
+                      },
+                      right: {
+                        type: 'Identifier',
+                        start: 11,
+                        end: 12,
+                        name: 'z'
+                      }
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'Identifier',
+                start: 18,
+                end: 19,
+                name: 'x'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      `([[x, y] = z]) => x;`,
+      Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 20,
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 20,
+            expression: {
+              type: 'ArrowFunctionExpression',
+              start: 0,
+              end: 19,
+              id: null,
+              expression: true,
+              async: false,
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  start: 1,
+                  end: 13,
+                  elements: [
+                    {
+                      type: 'AssignmentPattern',
+                      start: 2,
+                      end: 12,
+                      left: {
+                        type: 'ArrayPattern',
+                        start: 2,
+                        end: 8,
+                        elements: [
+                          {
+                            type: 'Identifier',
+                            start: 3,
+                            end: 4,
+                            name: 'x'
+                          },
+                          {
+                            type: 'Identifier',
+                            start: 6,
+                            end: 7,
+                            name: 'y'
+                          }
+                        ]
+                      },
+                      right: {
+                        type: 'Identifier',
+                        start: 11,
+                        end: 12,
+                        name: 'z'
+                      }
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'Identifier',
+                start: 18,
+                end: 19,
+                name: 'x'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      `async (eval) => "use strict";`,
+      Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 29,
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 29,
+            expression: {
+              type: 'ArrowFunctionExpression',
+              start: 0,
+              end: 28,
+              id: null,
+              expression: true,
+              async: true,
+              params: [
+                {
+                  type: 'Identifier',
+                  start: 7,
+                  end: 11,
+                  name: 'eval'
+                }
+              ],
+              body: {
+                type: 'Literal',
+                start: 16,
+                end: 28,
+                value: 'use strict'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
     ]
   ]);
 });
