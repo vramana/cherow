@@ -2623,6 +2623,7 @@ function parseCallExpression(state: ParserState, context: Context, start: number
   const scope: ScopeState | null =
     state.bindable && callee.name === 'async' ? createScope(ScopeType.BlockStatement) : null;
   const { flags } = state;
+  let pState = ParenthesizedState.None;
   while (true) {
     callee = parseMemberExpression(state, context, callee);
     if (state.token !== Token.LeftParen) return callee;
@@ -2633,9 +2634,22 @@ function parseCallExpression(state: ParserState, context: Context, start: number
     const params: (ESTree.Expression | ESTree.SpreadElement)[] = [];
     while (state.token !== <Token>Token.RightParen) {
       if (state.token === <Token>Token.Ellipsis) {
+        state.flags = state.flags | Flags.SimpleParameterList;
         params.push(parseSpreadElement(state, context, Origin.None));
         seenSpread = true;
       } else {
+        const { token } = state;
+
+        if ((token as Token) === Token.LeftBrace || (token as Token) === Token.LeftBracket)
+          state.flags |= Flags.SimpleParameterList;
+
+        if ((token & Token.FutureReserved) === Token.FutureReserved) {
+          pState = pState | ParenthesizedState.ReservedWords;
+        } else if ((token & Token.IsAwait) === Token.IsAwait) {
+          pState = pState | ParenthesizedState.Await;
+        } else if ((token & Token.IsYield) === Token.IsYield) {
+          pState = pState | ParenthesizedState.Yield;
+        }
         params.push(secludeGrammar(state, context, 0, parseAsyncArgument));
       }
       if (state.token === <Token>Token.RightParen) break;
@@ -2647,6 +2661,18 @@ function parseCallExpression(state: ParserState, context: Context, start: number
 
     if (state.token === <Token>Token.Arrow) {
       if (flags & Flags.NewLine) report(state, Errors.Unexpected);
+
+      if (pState & ParenthesizedState.Yield) {
+        if (context & Context.Strict) report(state, Errors.YieldInParameter);
+        state.flags |= Flags.HasStrictReserved;
+      } else if (state.flags & Flags.HasYield) {
+        report(state, Errors.YieldInParameter);
+      } else if (pState & ParenthesizedState.Await || state.flags & Flags.HasAwait) {
+        report(state, Errors.AwaitInParameter);
+      }
+
+      state.flags = (state.flags | Flags.HasYield | Flags.HasAwait) ^ (Flags.HasYield | Flags.HasAwait);
+
       // Fixes cases like: `async().foo13 () => 1`
       if (!state.bindable) report(state, Errors.Unexpected);
       state.bindable = state.assignable = false;
@@ -2658,6 +2684,11 @@ function parseCallExpression(state: ParserState, context: Context, start: number
         params
       };
     }
+
+    state.flags =
+      (state.flags | Flags.HasYield | Flags.HasAwait | Flags.SimpleParameterList) ^
+      (Flags.HasYield | Flags.HasAwait | Flags.SimpleParameterList);
+
     state.bindable = state.assignable = false;
     callee = finishNode(state, context, start, {
       type: 'CallExpression',
