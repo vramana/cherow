@@ -133,6 +133,10 @@ describe('Expressions - Async arrow', () => {
   }
 
   const inValids: Array<[string, Context]> = [
+    ['async (a, a) => {}', Context.Empty],
+    ['(a, b) => { let a; }', Context.Empty],
+    ['(...a, b) => { let a; }', Context.Empty],
+    ['(a, ...b) => { let a; }', Context.Empty],
     // ['a + async () => {}', Context.Empty],
     ['function* a(){ async (yield) => {}; }', Context.Empty],
     ['f(async\n()=>c)', Context.Empty],

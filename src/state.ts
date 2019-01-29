@@ -2622,8 +2622,8 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
  * @param expr Expression
  */
 function parseCallExpression(state: ParserState, context: Context, start: number, callee: any | ESTree.Super): any {
-  const scope: ScopeState | null =
-    state.bindable && callee.name === 'async' ? createScope(ScopeType.BlockStatement) : null;
+  const isAsync = callee.name === 'async';
+  const scope: ScopeState | null = state.bindable && isAsync ? createScope(ScopeType.BlockStatement) : null;
   const { flags } = state;
   let pState = ParenthesizedState.None;
   while (true) {
@@ -2641,6 +2641,10 @@ function parseCallExpression(state: ParserState, context: Context, start: number
         seenSpread = true;
       } else {
         const { token } = state;
+
+        if (isAsync && (token as Token) === Token.Identifier) {
+          addVariable(state, context, scope, Type.ArgList, Origin.None, false, false, state.tokenValue);
+        }
 
         if ((token & Token.IsYield) === Token.IsYield) {
           pState = pState | ParenthesizedState.Yield;
@@ -3448,7 +3452,9 @@ function parseArrowFunctionExpression(
   } else {
     expect(state, context, Token.Arrow);
     for (let i = 0; i < params.length; ++i) reinterpret(state, params[i]);
-    if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, true)) report(state, Errors.AlreadyDeclared);
+    if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, true)) {
+      report(state, Errors.AlreadyDeclared, 'function argument');
+    }
   }
 
   context =
@@ -3523,6 +3529,11 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
   } else if ((token & Token.IsYield) === Token.IsYield) {
     state.flags = state.flags | Flags.HasYield;
   }
+
+  if ((token as Token) === Token.Identifier) {
+    addVariable(state, context, scope, Type.ArgList, Origin.None, false, false, state.tokenValue);
+  }
+
   let expr = acquireGrammar(
     state,
     (context | Context.DisallowInContext) ^ Context.DisallowInContext,
@@ -3578,6 +3589,9 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
           state.flags = state.flags | Flags.HasAwait;
         } else if ((state.token & Token.IsYield) === Token.IsYield) {
           state.flags = state.flags | Flags.HasYield;
+        }
+        if ((state.token as Token) === Token.Identifier) {
+          addVariable(state, context, scope, Type.ArgList, Origin.None, false, false, state.tokenValue);
         }
         params.push(
           acquireGrammar(
