@@ -1951,7 +1951,7 @@ export function parseFormalParameters(
   }
   expect(state, context, Token.RightParen);
   if (hasComplexArgs || (context & (Context.Strict | Context.InMethod)) > 0) {
-    validateFunctionArgs(state, scope.lex);
+    validateFunctionArgs(state, scope.lex, hasComplexArgs);
   }
   if (hasComplexArgs) state.flags |= Flags.SimpleParameterList;
   return params;
@@ -2011,7 +2011,7 @@ export function parseFunctionBody(
 
   while (state.token === Token.StringLiteral) {
     if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
-      if (state.flags & Flags.SimpleParameterList) report(state, Errors.StrictFunctionName);
+      if (state.flags & Flags.SimpleParameterList) report(state, Errors.IllegalUseStrict);
       context |= Context.Strict;
     }
     body.push(parseDirective(state, context, scope));
@@ -2030,7 +2030,7 @@ export function parseFunctionBody(
     (state.flags | (Flags.StrictEvalArguments | Flags.HasStrictReserved)) ^
     (Flags.StrictEvalArguments | Flags.HasStrictReserved);
 
-  if (!isStrict && (context & Context.Strict) > 0) validateFunctionArgs(state, scope.lex['@']);
+  if (!isStrict && (context & Context.Strict) > 0) validateFunctionArgs(state, scope.lex['@'], false);
 
   if (state.token !== Token.RightBrace) {
     const previousSwitchStatement = state.switchStatement;
@@ -2640,16 +2640,16 @@ function parseCallExpression(state: ParserState, context: Context, start: number
       } else {
         const { token } = state;
 
-        if ((token as Token) === Token.LeftBrace || (token as Token) === Token.LeftBracket)
+        if ((token & Token.IsYield) === Token.IsYield) {
+          pState = pState | ParenthesizedState.Yield;
+        } else if ((token as Token) === Token.LeftBrace || (token as Token) === Token.LeftBracket)
           state.flags |= Flags.SimpleParameterList;
-
         if ((token & Token.FutureReserved) === Token.FutureReserved) {
           pState = pState | ParenthesizedState.ReservedWords;
         } else if ((token & Token.IsAwait) === Token.IsAwait) {
           pState = pState | ParenthesizedState.Await;
-        } else if ((token & Token.IsYield) === Token.IsYield) {
-          pState = pState | ParenthesizedState.Yield;
         }
+
         params.push(secludeGrammar(state, context, 0, parseAsyncArgument));
       }
       if (state.token === <Token>Token.RightParen) break;
@@ -2663,7 +2663,7 @@ function parseCallExpression(state: ParserState, context: Context, start: number
       if (flags & Flags.NewLine) report(state, Errors.Unexpected);
 
       if (pState & ParenthesizedState.Yield) {
-        if (context & Context.Strict) report(state, Errors.YieldInParameter);
+        if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.YieldInParameter);
         state.flags |= Flags.HasStrictReserved;
       } else if (state.flags & Flags.HasYield) {
         report(state, Errors.YieldInParameter);

@@ -18,8 +18,6 @@ describe('Miscellaneous - Annex B', () => {
       'for (var [a] = 0 in {});',
       'for (const a = 0 in {});',
       "'use strict'; { function f() {} function f() {} }",
-      //      "{ function f() {} function* f() {} }",
-      //      "{ function* f() {} function f() {} }",
       // Esprima issue>  https://github.com/jquery/esprima/issues/1719
       `if (false) L: async function l() {}`
     ];
@@ -45,7 +43,6 @@ describe('Miscellaneous - Annex B', () => {
     `004`,
     `076`,
     `02`,
-    //    `"use strict"; label: function f(){}`,
     'if (x) function f() { return 23; } else function f() { return 42; }',
     'if (x) function f() {}',
     'x = -1 <!--x;',
@@ -244,7 +241,7 @@ switch (1) {
 
       }`,
 
-    //'try {  throw {}; } catch ({ f }) { if (true) function f() {  } else ; }',
+    'try {  throw {}; } catch ({ f }) { if (true) function f() {  } else ; }',
 
     'if (false) ; else function f() {  }',
     'switch (1) { case 1: function f() { initialBV = f; f = 123; currentBV = f; return "decl"; }}',

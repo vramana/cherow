@@ -371,10 +371,8 @@ export function addVariable(
     }
   } else {
     const lex = scope.lex;
-
     if (checkDuplicates) {
       checkIfExistInLexicalParentScope(state, context, scope, origin, '@' + key);
-
       if (lex['@' + key] !== undefined) {
         if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
           report(state, Errors.AlreadyDeclared, key);
@@ -492,10 +490,10 @@ export function addFunctionName(
  * @param state Parser object
  * @param arg Argument list
  */
-export function validateFunctionArgs(state: ParserState, arg: any): void {
+export function validateFunctionArgs(state: ParserState, arg: any, isSimple: boolean): void {
   for (const key in arg) {
     if (key[0] === '@' && key.length > 1 && arg[key] > 1) {
-      report(state, Errors.AlreadyDeclared, key.slice(1));
+      report(state, isSimple ? Errors.IllegalBoundNonSimple : Errors.IllegalBound, key.slice(1));
     }
   }
 }

@@ -314,7 +314,6 @@ describe('Miscellaneous - Passing tests', () => {
     'function f() {} function f() {}',
     'function foo() {function  a(b,) {}}',
     'function foo() {function* a(b,) {}}',
-
     'my_var;',
     'if (true) { let my_var; } my_var;',
     "eval('foo');",
@@ -834,8 +833,6 @@ h({ name: "bar", val: 42 })`,
     'function *f(){ async (foo = yield x) }',
     'async yield => foo',
     'async (yield) => foo',
-    // 'function *f(){  async yield => foo  }',
-    'function *f(){  async (yield) => foo  }',
     'async \n (a, b, c);',
     'async (a, b, c);',
     '(...[destruct]) => x',
@@ -1507,7 +1504,7 @@ h({ name: "bar", val: 42 })`,
     `var a, b, c, d;
     a = (b(), c(), d()) ? 1 : 2;`,
     '(a) => b',
-    //    'function *a(){({get b(){yield}})}',
+    'function *a(){({get b(){yield}})}',
     '({ *a() {} })',
     'a["b"] = "c";',
     '[, a,,] = 1',
@@ -1580,7 +1577,6 @@ h({ name: "bar", val: 42 })`,
       b(c + 'd'),
       b('d' + c)
     );`,
-    // 'a: c: b: while (true) { continue a; }',
     'class a extends b { constructor() { super() } }',
     'const {a:b} = {}',
     'let a',
@@ -1751,14 +1747,14 @@ h({ name: "bar", val: 42 })`,
     'true;false',
     '({ get "a"() {} })',
     '[a, a] = 1',
-    /*   `stream.end = function (data) {
+    `stream.end = function (data) {
       if(ended) return
       ended = true
       if(arguments.length) stream.write(data)
       _end() // will emit or queue
       return stream
     }
-  `,*/
+  `,
     'a instanceof b',
     'a in b',
     '[a, {b:d}, c] = obj',

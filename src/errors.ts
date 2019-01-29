@@ -119,7 +119,10 @@ export const enum Errors {
   UnsupportedIdentEscape,
   InvalidEscapedKeyword,
   InvalidLineBreak,
-  InvalidLHSOfError
+  InvalidLHSOfError,
+  IllegalUseStrict,
+  IllegalBound,
+  IllegalBoundNonSimple
 }
 
 /*@internal*/
@@ -248,8 +251,10 @@ export const errorMessages: {
   [Errors.UnsupportedIdentEscape]: 'Only unicode escapes are supported in identifier escapes',
   [Errors.InvalidEscapedKeyword]: 'Invalid escaped keyword',
   [Errors.InvalidLineBreak]: "No line break is allowed after '%0'",
+  [Errors.IllegalUseStrict]: "Illegal 'use strict' directive in function with non-simple parameter list",
+  [Errors.IllegalBoundNonSimple]: "Duplicate binding '%0' with non-simnple arguments",
+  [Errors.IllegalBound]: "Duplicate binding '%0' in strict mode",
   [Errors.InvalidLHSOfError]: 'The left hand side of the arrow can only be destructed through assignment'
-  //[Errors.InvalidLHSOfError]: 'The arguments of an arrow cannot be named `await` if inside an async function or parsing against the module goal',
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
