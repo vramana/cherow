@@ -8,6 +8,11 @@ describe('Expressions - Arrows', () => {
     ['await => { let x; }', Context.AwaitContext],
     ['async await => {}', Context.Empty],
     ['async x => { let x; }', Context.Empty],
+    ['function *a() { yield => foo }', Context.Empty],
+    ['"use strict"; interface => foo', Context.Empty],
+    ['yield x => zoo', Context.Empty],
+    ['foo bar => zoo', Context.Empty],
+    ['async x => { let x; }', Context.Empty],
     // ['(x) => { let x; }', Context.Empty],
     // ['({x}) => { let x; }', Context.Empty],
     // ['({a}, {a}) => {}', Context.Empty],
@@ -30,9 +35,7 @@ describe('Expressions - Arrows', () => {
     ['()?c:d=>{}=>{};', Context.Empty],
     ['var x = ()[1]=>{}', Context.Empty],
     ['var x = ()[c]=>{};', Context.Empty],
-
     //['var x = (a,b)+c=>{};', Context.Empty],
-
     //['var x = a`template-head${c}template-tail`=>{}', Context.Empty],
     //['var x = ac++=>{};', Context.Empty],
     //    ['(a)`${c}template-tail`=>{}', Context.Empty],
@@ -99,7 +102,12 @@ describe('Expressions - Arrows', () => {
     ['(c, a.b) => {}', Context.Empty],
     ["(a['b'], c) => {}", Context.Empty],
     ["(c, a['b']) => {}", Context.Empty],
-    ['(...a = b) => b', Context.Empty]
+    ['(...a = b) => b', Context.Empty],
+    [
+      `var af = x
+    => {};`,
+      Context.Empty
+    ]
   ]);
 
   for (const arg of [
@@ -257,6 +265,134 @@ describe('Expressions - Arrows', () => {
   // valid tests
 
   pass('Expressions - Arrows (pass)', [
+    [
+      `var af = (x) =>
+      { return x };`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ReturnStatement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      }
+                    ]
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: false
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'af'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      `var af = (x) =>
+  x;`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: true
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'af'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      `var af = x =>
+      x;`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: true
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'af'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     [
       `(x, y, z) => { return x + y + z; }`,
       Context.Empty,

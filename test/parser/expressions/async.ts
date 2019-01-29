@@ -65,9 +65,9 @@ describe('Expressions - Async', () => {
     ['async function(){}', Context.Empty],
     ['if (async \n () => x) x', Context.Empty],
     ['export async \n function(){}', Context.Module],
-    // ['export async \n a => b', Context.Module],
-    // ['async \n => async', Context.Empty],
-    //  ['(async \n => async)', Context.Empty],
+    ['export async \n a => b', Context.Module],
+    ['async \n => async', Context.Empty],
+    ['(async \n => async)', Context.Empty],
     ['let async => async', Context.Empty],
     ['let async \n => async', Context.Empty],
     ['let f = async \n (g) => g', Context.Empty]

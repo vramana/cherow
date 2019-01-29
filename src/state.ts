@@ -3388,6 +3388,8 @@ function parseArrowFunctionExpression(
   start: number,
   type: Type
 ): ESTree.ArrowFunctionExpression {
+  if (state.flags & Flags.NewLine) report(state, Errors.InvalidLineBreak, '=>');
+
   if (type & Type.ConciseBody) {
     expect(state, context | Context.AllowPossibleRegEx, Token.Arrow);
   } else {
@@ -3395,8 +3397,6 @@ function parseArrowFunctionExpression(
     for (let i = 0; i < params.length; ++i) reinterpret(state, params[i]);
     if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, true)) report(state, Errors.AlreadyDeclared);
   }
-
-  if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
 
   context =
     ((context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
@@ -3650,7 +3650,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
           tokenValue = state.tokenValue;
           if (state.token & Token.IsIdentifier) {
             key = parseIdentifier(state, context);
-            if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
+            if (state.flags & Flags.NewLine) report(state, Errors.InvalidLineBreak, 'async');
           } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
             key = parseLiteral(state, context);
           } else if (state.token === Token.LeftBracket) {
