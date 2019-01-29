@@ -1932,8 +1932,10 @@ export function parseFormalParameters(
     let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
     if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
       hasComplexArgs = true;
-      if (state.token & Token.IsYield && context & (Context.Strict | Context.YieldContext))
-        report(state, Errors.Unexpected);
+      if (context & (Context.Module | Context.AwaitContext) && state.token & Token.IsAwait)
+        report(state, Errors.AwaitInParameter);
+      if (context & (Context.Strict | Context.YieldContext) && state.token & Token.IsYield)
+        report(state, Errors.YieldInParameter);
       left = parseAssignmentPattern(state, context, left, start);
     }
     params.push(left);
@@ -2650,7 +2652,7 @@ function parseCallExpression(state: ParserState, context: Context, start: number
           pState = pState | ParenthesizedState.Await;
         }
 
-        params.push(secludeGrammar(state, context, 0, parseAsyncArgument));
+        params.push(secludeGrammar(state, context | Context.ParentheziedContext, 0, parseAsyncArgument));
       }
       if (state.token === <Token>Token.RightParen) break;
       expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
