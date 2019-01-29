@@ -175,6 +175,7 @@ export const enum Token {
   Global                  = 0b0000000000000000000_0000_01111101,
   EscapedStrictReserved   = 0b0000000000000000000_0000_01111110,
   EscapedKeyword          = 0b0000000000000000000_0000_01111001
+
 }
 
 // Note: this *must* be kept in sync with the enum's order.

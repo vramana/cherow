@@ -87,7 +87,7 @@ describe('Miscellaneous - Escaped identifiers', () => {
     ['class X { st\\u0061tic y() {} }', Context.Empty],
     ['class C { st\\u0061tic set bar() {} }', Context.Empty],
     ['class C { st\\u0061tic *bar() {} }', Context.Empty],
-    //    ['let l\\u0065t = 1', Context.Empty],
+    ['let l\\u0065t = 1', Context.Empty],
     //    ['const l\\u0065t = 1', Context.Empty],
     //  ['let [l\\u0065t] = 1', Context.Empty],
     // ['const [l\\u0065t] = 1', Context.Empty],
@@ -97,10 +97,10 @@ describe('Miscellaneous - Escaped identifiers', () => {
     ['(n\\u0065w function f() {})', Context.Empty],
     ['(typ\\u0065of 123)', Context.Empty],
     ['(v\\u006fid 0)', Context.Empty],
+    ['var \\u{65}\\u{6e}\\u{75}\\u{6d} = 123;', Context.Empty],
     ['do { ; } wh\\u0069le (true) { }', Context.Empty],
     ['(function*() { return (n++, y\\u0069eld 1); })()', Context.Empty],
     ['var \\u0064elete = 123;', Context.Empty],
-
     ['var \\u{62}\\u{72}\\u{65}\\u{61}\\u{6b} = 123;', Context.Empty],
     ['var \\u0062\\u0072\\u0065\\u0061\\u006b = 123;;', Context.Empty],
     ['var \\u{63}ase = 123;', Context.Empty],
@@ -115,7 +115,6 @@ describe('Miscellaneous - Escaped identifiers', () => {
     ['for (a o\\u0066 b);', Context.Empty],
     ['class a { st\\u0061tic m(){} }', Context.Empty],
     ['var \\u{64}\\u{6f} = 123;', Context.Empty],
-
     ['(async function() { aw\\u0061it x })', Context.Empty],
     ['(\\u0061sync function() { await x })', Context.Empty],
     ['(\\u0061sync () => { await x })', Context.Empty],

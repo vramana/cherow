@@ -2,7 +2,7 @@ import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Labeled', () => {
-  const invalids: Array<[string, Context]> = [
+  fail('Statements - Labeled (failure)', [
     ['label: class C {};', Context.Empty],
     ['label: let x;', Context.Empty],
     ['a: async function* a(){}', Context.Empty],
@@ -19,14 +19,17 @@ describe('Expressions - Labeled', () => {
     ['do { test262: { continue test262; } } while (false)', Context.Empty],
     ['"use strict"; super: while(true) { break super; }', Context.Empty],
     ['"use strict"; package: while(true) { break package; }', Context.Empty],
-    ['(mylabel): while(true) { break mylabel;', Context.Empty]
-    // ['foo: function f() {}', Context.OptionsWebCompat],
-
+    ['false: ;', Context.Empty],
+    ['true: ;', Context.Empty],
+    ['(async function*() { yield: 1; });', Context.Empty],
+    ['function *gen() { yield: ;}', Context.Empty],
+    ['function *gen() { yield: ;}', Context.Strict],
+    ['var obj = { *method() { yield: ; } };', Context.Empty],
+    ['var obj = { *method() { yield: ; } };', Context.Strict],
+    ['foo: function f() {}', Context.Empty]
     // ['"use strict"; eval: while(true) { break eval; }', Context.Empty],
     // ['"use strict"; arguments: while(true) { break arguments; }', Context.Empty],
-  ];
-
-  fail('Statements - Labeled (failure)', invalids);
+  ]);
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
@@ -420,26 +423,36 @@ describe('Expressions - Labeled', () => {
     ],
     [
       'await: x',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
+        sourceType: 'script',
         body: [
           {
             type: 'LabeledStatement',
             label: {
               type: 'Identifier',
-              name: 'await'
+              name: 'await',
+              start: 0,
+              end: 5
             },
             body: {
               type: 'ExpressionStatement',
               expression: {
                 type: 'Identifier',
-                name: 'x'
-              }
-            }
+                name: 'x',
+                start: 7,
+                end: 8
+              },
+              start: 7,
+              end: 8
+            },
+            start: 0,
+            end: 8
           }
         ],
-        sourceType: 'script'
+        start: 0,
+        end: 8
       }
     ],
     [

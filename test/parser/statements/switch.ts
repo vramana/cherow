@@ -276,7 +276,7 @@ describe('Expressions - Switch', () => {
     ],
     [
       'function foo() {"use strict"; switch(x) { default:class C extends Q {}}}',
-      Context.OptionsNext | Context.OptionsDirectives,
+      Context.OptionsNext | Context.OptionsRanges,
       {
         type: 'Program',
         sourceType: 'script',
@@ -291,15 +291,20 @@ describe('Expressions - Switch', () => {
                   type: 'ExpressionStatement',
                   expression: {
                     type: 'Literal',
-                    value: 'use strict'
+                    value: 'use strict',
+                    start: 16,
+                    end: 28
                   },
-                  directive: ''
+                  start: 16,
+                  end: 29
                 },
                 {
                   type: 'SwitchStatement',
                   discriminant: {
                     type: 'Identifier',
-                    name: 'x'
+                    name: 'x',
+                    start: 37,
+                    end: 38
                   },
                   cases: [
                     {
@@ -310,31 +315,51 @@ describe('Expressions - Switch', () => {
                           type: 'ClassDeclaration',
                           id: {
                             type: 'Identifier',
-                            name: 'C'
+                            name: 'C',
+                            start: 56,
+                            end: 57
                           },
                           superClass: {
                             type: 'Identifier',
-                            name: 'Q'
+                            name: 'Q',
+                            start: 66,
+                            end: 67
                           },
                           body: {
                             type: 'ClassBody',
-                            body: []
-                          }
+                            body: [],
+                            start: 68,
+                            end: 70
+                          },
+                          start: 50,
+                          end: 70
                         }
-                      ]
+                      ],
+                      start: 42,
+                      end: 70
                     }
-                  ]
+                  ],
+                  start: 30,
+                  end: 71
                 }
-              ]
+              ],
+              start: 15,
+              end: 72
             },
             async: false,
             generator: false,
             id: {
               type: 'Identifier',
-              name: 'foo'
-            }
+              name: 'foo',
+              start: 9,
+              end: 12
+            },
+            start: 0,
+            end: 72
           }
-        ]
+        ],
+        start: 0,
+        end: 72
       }
     ],
     [

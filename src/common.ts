@@ -186,6 +186,7 @@ export interface ParserState {
   index: number;
   line: number;
   startIndex: number;
+  endIndex: number;
   startLine: number;
   startColumn: number;
   column: number;
@@ -251,10 +252,10 @@ export function pushToken(context: Context, array: any[]): any {
   };
 }
 
-export function finishNode<T extends ESTree.Node>(context: Context, start: number, end: number, node: T): T {
+export function finishNode<T extends ESTree.Node>(state: ParserState, context: Context, start: number, node: T): T {
   if (context & Context.OptionsRanges) {
     node.start = start;
-    node.end = end;
+    node.end = state.endIndex;
   }
 
   return node;
@@ -500,27 +501,33 @@ export function lookAheadOrScan<T>(
   callback: (state: ParserState, context: Context) => T,
   isLookahead: boolean
 ): T {
-  const savedIndex = state.index;
-  const savedLine = state.line;
-  const savedColumn = state.column;
-  const startIndex = state.startIndex;
-  const savedFlags = state.flags;
-  const savedTokenValue = state.tokenValue;
-  const savedNextChar = state.currentChar;
-  const savedToken = state.token;
-  const savedTokenRegExp = state.tokenRegExp;
+  const {
+    index,
+    line,
+    column,
+    startIndex,
+    endIndex,
+    flags,
+    tokenValue,
+    currentChar,
+    token,
+    tokenRegExp,
+    tokenRaw
+  } = state;
   const result = callback(state, context);
 
   if (!result || isLookahead) {
-    state.index = savedIndex;
-    state.line = savedLine;
-    state.column = savedColumn;
+    state.index = index;
+    state.line = line;
+    state.column = column;
     state.startIndex = startIndex;
-    state.flags = savedFlags;
-    state.tokenValue = savedTokenValue;
-    state.currentChar = savedNextChar;
-    state.token = savedToken;
-    state.tokenRegExp = savedTokenRegExp;
+    state.endIndex = endIndex;
+    state.flags = flags;
+    state.tokenValue = tokenValue;
+    state.currentChar = currentChar;
+    state.tokenRaw = tokenRaw;
+    state.token = token;
+    state.tokenRegExp = tokenRegExp;
   }
 
   return result;
@@ -603,36 +610,39 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
 }
 
 export function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token = state.token) {
-  if (context & Context.Strict && token === Token.StaticKeyword) report(state, Errors.InvalidStrictStatic);
+  if (context & Context.Strict) {
+    if (token === Token.StaticKeyword) report(state, Errors.InvalidStrictStatic);
+    if (token === Token.EscapedStrictReserved) {
+      report(state, Errors.InvalidEscapedKeyword);
+    }
+    if ((token & Token.FutureReserved) === Token.FutureReserved) {
+      report(state, Errors.InvalidStrictReservedWord);
+    }
+  }
+
+  // (fkleuver): Investigate why this doesn't trigger an error
+  if (token === Token.EnumKeyword) report(state, Errors.InvalidStrictReservedWord);
 
   if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
     report(state, Errors.AwaitOutsideAsync);
-  }
-
-  if (token === Token.EscapedStrictReserved) {
-    if (context & Context.Strict) report(state, Errors.InvalidEscapedKeyword);
   }
 
   if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
     report(state, Errors.DisallowedInContext, 'yield');
   }
 
-  if (token === Token.EscapedKeyword) {
-    report(state, Errors.InvalidEscapedKeyword);
-  }
-
-  if ((token & Token.FutureReserved) === Token.FutureReserved) {
-    if (context & Context.Strict) report(state, Errors.InvalidStrictReservedWord);
-  }
-
-  if ((token & Token.Reserved) === Token.Reserved) {
-    report(state, Errors.InvalidStrictReservedWord);
-  }
-
   if (token === Token.LetKeyword) {
     if (type & Type.ClassExprDecl) report(state, Errors.InvalidLetClassName);
     if (type & (Type.Let | Type.Const)) report(state, Errors.InvalidLetConstBinding);
     if (context & Context.Strict) report(state, Errors.InvalidStrictLet);
+  }
+
+  if (token === Token.EscapedKeyword) {
+    report(state, Errors.InvalidEscapedKeyword);
+  }
+
+  if ((token & Token.Reserved) === Token.Reserved) {
+    report(state, Errors.InvalidStrictReservedWord);
   }
 
   return true;

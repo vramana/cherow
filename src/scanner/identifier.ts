@@ -132,9 +132,18 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
       hasEscape = true;
       result += state.source.substring(start, state.index);
       let cookedChar = scanIdentifierUnicodeEscape(state);
-      if (!isIdentifierPart(cookedChar)) break;
+      if (!isIdentifierPart(cookedChar)) report(state, Errors.InvalidIdentChar);
       result += fromCodePoint(cookedChar);
       start = state.index;
+    } else if (ch >= 0xd800 && ch <= 0xdbff) {
+      if (state.index >= state.length) report(state, Errors.Unexpected);
+      let lo = state.source.charCodeAt(state.index);
+      ++state.index;
+      ++state.column;
+      if (!(lo >= 0xdc00 && lo <= 0xdfff)) {
+        report(state, Errors.Unexpected);
+      }
+      ch = ((ch & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
     } else {
       break;
     }
@@ -148,16 +157,19 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
 
   if (len >= 2 && len <= 11) {
     const keyword: Token | undefined = descKeywordTable[state.tokenValue];
+
     if (keyword !== undefined) {
-      if (!hasEscape || keyword === Token.Identifier) return keyword;
-
-      if (keyword === Token.YieldKeyword) return Token.EscapedKeyword;
-
-      if ((keyword & Token.FutureReserved) === Token.FutureReserved) {
-        if (hasEscape) return Token.EscapedStrictReserved;
-        return keyword;
-      }
-      return keyword === Token.LetKeyword || keyword === Token.StaticKeyword
+      return !hasEscape || keyword === Token.Identifier
+        ? keyword
+        : keyword & (Token.IsYield | Token.IsAsync)
+        ? Token.EscapedKeyword
+        : (keyword & Token.FutureReserved) === Token.FutureReserved
+        ? hasEscape
+          ? Token.EscapedStrictReserved
+          : keyword
+        : context & Context.Strict && keyword === Token.StaticKeyword
+        ? Token.EscapedStrictReserved
+        : keyword === Token.LetKeyword
         ? Token.EscapedStrictReserved
         : Token.EscapedKeyword;
     }
@@ -166,7 +178,7 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
   return Token.Identifier;
 }
 
-function scanIdentifierUnicodeEscape(state: ParserState) {
+export function scanIdentifierUnicodeEscape(state: ParserState) {
   // Read 'u' characters
   state.index++;
   state.column++;
@@ -176,49 +188,44 @@ function scanIdentifierUnicodeEscape(state: ParserState) {
   return scanUnicodeEscape(state);
 }
 
-function scanUnicodeEscape(state: ParserState) {
-  // Accept both \uxxxx and \u{xxxxxx}. In the latter case, the number of
-  // hex digits between { } is arbitrary. \ and u have already been read.
-  let ch = state.source.charCodeAt(state.index++);
-  state.column++;
+/**
+ * Scans identifier unicode escape
+ *
+ * @param state ParserState instance
+ */
+function scanUnicodeEscape(state: ParserState): number {
+  let { index, source, length } = state;
+  let ch = state.source.charCodeAt(index++);
+  let value = 0;
   if (ch === Chars.LeftBrace) {
-    // if (index === parser.source.length) return Chars.UnterminatedEscape;
-    // \u{N}
-    // The first digit is required, so handle it *out* of the loop.
-    ch = state.source.charCodeAt(state.index++);
-    state.column++;
-    let code = toHex(ch);
-    if (code < 0) report(state, Errors.Unexpected);
-    if (state.index === state.source.length) return report(state, Errors.Unexpected);
-    let digit = toHex(state.source.charCodeAt(state.index++));
-    state.column++;
-    if (digit < 0) report(state, Errors.Unexpected);
+    value = toHex(source.charCodeAt(index++));
 
-    while (code >= 0) {
-      code = code * 16 + digit;
-      if (code > 0x10ffff) break;
-      if (state.index === state.source.length) report(state, Errors.Unexpected);
+    if (value < 0 || index === length) return report(state, Errors.InvalidIdentChar);
 
-      code = toHex(state.source.charCodeAt(state.index++));
-      state.column++;
-      if (code < 0) report(state, Errors.Unexpected);
+    ch = source.charCodeAt(index++);
+
+    while (ch !== Chars.RightBrace) {
+      const digit = toHex(ch);
+      if (digit < 0) return report(state, Errors.InvalidIdentChar);
+      value = (value << 4) | digit;
+      if (value > 0x10ffff) report(state, Errors.UnicodeOverflow);
+      ch = source.charCodeAt(index++);
     }
 
-    if (code < 0 || ch !== Chars.RightBrace) report(state, Errors.InvalidDynamicUnicode);
-    return code;
-  }
-  // \uNNNN
-  let code = toHex(ch);
-  if (code < 0) report(state, Errors.Unexpected);
+    if (value < 0 || ch !== Chars.RightBrace) report(state, Errors.InvalidDynamicUnicode);
+  } else {
+    // \uNNNN
+    value = toHex(ch);
+    if (value < 0) report(state, Errors.InvalidIdentChar);
 
-  for (let i = 0; i < 3; i++) {
-    if (state.index === state.length) report(state, Errors.InvalidUnicodeEscape);
-    ch = state.source.charCodeAt(state.index++);
-    state.column++;
-    const digit = toHex(ch);
-    if (digit < 0) report(state, Errors.InvalidIdentChar);
-    code = code * 16 + digit;
+    for (let i = 0; i < 3; i++) {
+      if (index === length) report(state, Errors.InvalidUnicodeEscape);
+      ch = source.charCodeAt(index++);
+      const digit = toHex(ch);
+      if (digit < 0) report(state, Errors.InvalidIdentChar);
+      value = (value << 4) | digit;
+    }
   }
-
-  return code;
+  state.index = state.column = index;
+  return value;
 }

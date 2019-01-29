@@ -3916,92 +3916,124 @@ describe('Declarations - Function', () => {
     ],
     [
       'function f({a} = b,){}',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
-        sourceType: 'script',
+        start: 0,
+        end: 22,
         body: [
           {
             type: 'FunctionDeclaration',
+            start: 0,
+            end: 22,
+            id: {
+              type: 'Identifier',
+              start: 9,
+              end: 10,
+              name: 'f'
+            },
+            generator: false,
+            async: false,
             params: [
               {
                 type: 'AssignmentPattern',
+                start: 11,
+                end: 18,
                 left: {
                   type: 'ObjectPattern',
+                  start: 11,
+                  end: 14,
                   properties: [
                     {
                       type: 'Property',
-                      kind: 'init',
+                      start: 12,
+                      end: 13,
+                      method: false,
+                      shorthand: true,
+                      computed: false,
                       key: {
                         type: 'Identifier',
+                        start: 12,
+                        end: 13,
                         name: 'a'
                       },
-                      computed: false,
+                      kind: 'init',
                       value: {
                         type: 'Identifier',
+                        start: 12,
+                        end: 13,
                         name: 'a'
-                      },
-                      method: false,
-                      shorthand: true
+                      }
                     }
                   ]
                 },
                 right: {
                   type: 'Identifier',
+                  start: 17,
+                  end: 18,
                   name: 'b'
                 }
               }
             ],
             body: {
               type: 'BlockStatement',
+              start: 20,
+              end: 22,
               body: []
-            },
-            async: false,
-            generator: false,
-
-            id: {
-              type: 'Identifier',
-              name: 'f'
             }
           }
-        ]
+        ],
+        sourceType: 'script'
       }
     ],
     [
       'function f(a=b){}',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
-        sourceType: 'script',
+        start: 0,
+        end: 17,
         body: [
           {
             type: 'FunctionDeclaration',
+            start: 0,
+            end: 17,
+            id: {
+              type: 'Identifier',
+              start: 9,
+              end: 10,
+              name: 'f'
+            },
+            generator: false,
+            async: false,
             params: [
               {
                 type: 'AssignmentPattern',
+                start: 11,
+                end: 14,
                 left: {
                   type: 'Identifier',
+                  start: 11,
+                  end: 12,
                   name: 'a'
                 },
                 right: {
                   type: 'Identifier',
+                  start: 13,
+                  end: 14,
                   name: 'b'
                 }
               }
             ],
             body: {
               type: 'BlockStatement',
+              start: 15,
+              end: 17,
               body: []
-            },
-            async: false,
-            generator: false,
-
-            id: {
-              type: 'Identifier',
-              name: 'f'
             }
           }
-        ]
+        ],
+        sourceType: 'script'
       }
     ],
     [
@@ -5122,17 +5154,25 @@ describe('Declarations - Function', () => {
     ],
     [
       'var x; { let x; }',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
+        start: 0,
+        end: 17,
         body: [
           {
             type: 'VariableDeclaration',
+            start: 0,
+            end: 6,
             declarations: [
               {
                 type: 'VariableDeclarator',
+                start: 4,
+                end: 5,
                 id: {
                   type: 'Identifier',
+                  start: 4,
+                  end: 5,
                   name: 'x'
                 },
                 init: null
@@ -5142,14 +5182,22 @@ describe('Declarations - Function', () => {
           },
           {
             type: 'BlockStatement',
+            start: 7,
+            end: 17,
             body: [
               {
                 type: 'VariableDeclaration',
+                start: 9,
+                end: 15,
                 declarations: [
                   {
                     type: 'VariableDeclarator',
+                    start: 13,
+                    end: 14,
                     id: {
                       type: 'Identifier',
+                      start: 13,
+                      end: 14,
                       name: 'x'
                     },
                     init: null
@@ -5165,45 +5213,59 @@ describe('Declarations - Function', () => {
     ],
     [
       'function f(x) { function x() {} }',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
+        start: 0,
+        end: 33,
         body: [
           {
             type: 'FunctionDeclaration',
+            start: 0,
+            end: 33,
             id: {
               type: 'Identifier',
+              start: 9,
+              end: 10,
               name: 'f'
             },
+            generator: false,
+            async: false,
             params: [
               {
                 type: 'Identifier',
+                start: 11,
+                end: 12,
                 name: 'x'
               }
             ],
             body: {
               type: 'BlockStatement',
+              start: 14,
+              end: 33,
               body: [
                 {
                   type: 'FunctionDeclaration',
+                  start: 16,
+                  end: 31,
                   id: {
                     type: 'Identifier',
+                    start: 25,
+                    end: 26,
                     name: 'x'
                   },
+                  generator: false,
+                  async: false,
                   params: [],
                   body: {
                     type: 'BlockStatement',
+                    start: 29,
+                    end: 31,
                     body: []
-                  },
-                  generator: false,
-
-                  async: false
+                  }
                 }
               ]
-            },
-            generator: false,
-
-            async: false
+            }
           }
         ],
         sourceType: 'script'
@@ -5211,32 +5273,50 @@ describe('Declarations - Function', () => {
     ],
     [
       'function f(x) { var x; }',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
+        start: 0,
+        end: 24,
         body: [
           {
             type: 'FunctionDeclaration',
+            start: 0,
+            end: 24,
             id: {
               type: 'Identifier',
+              start: 9,
+              end: 10,
               name: 'f'
             },
+            generator: false,
+            async: false,
             params: [
               {
                 type: 'Identifier',
+                start: 11,
+                end: 12,
                 name: 'x'
               }
             ],
             body: {
               type: 'BlockStatement',
+              start: 14,
+              end: 24,
               body: [
                 {
                   type: 'VariableDeclaration',
+                  start: 16,
+                  end: 22,
                   declarations: [
                     {
                       type: 'VariableDeclarator',
+                      start: 20,
+                      end: 21,
                       id: {
                         type: 'Identifier',
+                        start: 20,
+                        end: 21,
                         name: 'x'
                       },
                       init: null
@@ -5245,10 +5325,7 @@ describe('Declarations - Function', () => {
                   kind: 'var'
                 }
               ]
-            },
-            generator: false,
-
-            async: false
+            }
           }
         ],
         sourceType: 'script'

@@ -197,7 +197,7 @@ describe('Statements - Block', () => {
     ],
     [
       '{ var f; var f }',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
         sourceType: 'script',
@@ -214,10 +214,16 @@ describe('Statements - Block', () => {
                     init: null,
                     id: {
                       type: 'Identifier',
-                      name: 'f'
-                    }
+                      name: 'f',
+                      start: 6,
+                      end: 7
+                    },
+                    start: 6,
+                    end: 7
                   }
-                ]
+                ],
+                start: 2,
+                end: 8
               },
               {
                 type: 'VariableDeclaration',
@@ -228,14 +234,24 @@ describe('Statements - Block', () => {
                     init: null,
                     id: {
                       type: 'Identifier',
-                      name: 'f'
-                    }
+                      name: 'f',
+                      start: 13,
+                      end: 14
+                    },
+                    start: 13,
+                    end: 14
                   }
-                ]
+                ],
+                start: 9,
+                end: 14
               }
-            ]
+            ],
+            start: 0,
+            end: 16
           }
-        ]
+        ],
+        start: 0,
+        end: 16
       }
     ],
     [

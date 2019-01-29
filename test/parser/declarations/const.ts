@@ -312,7 +312,7 @@ describe('Declarations - Const', () => {
     // Babylon issue: https://github.com/babel/babel/issues/6687
     [
       'const await = foo;',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
         sourceType: 'script',
@@ -325,22 +325,32 @@ describe('Declarations - Const', () => {
                 type: 'VariableDeclarator',
                 init: {
                   type: 'Identifier',
-                  name: 'foo'
+                  name: 'foo',
+                  start: 14,
+                  end: 17
                 },
                 id: {
                   type: 'Identifier',
-                  name: 'await'
-                }
+                  name: 'await',
+                  start: 6,
+                  end: 11
+                },
+                start: 6,
+                end: 17
               }
-            ]
+            ],
+            start: 0,
+            end: 18
           }
-        ]
+        ],
+        start: 0,
+        end: 18
       }
     ],
 
     [
       'for (const [,] = x;;);',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
         sourceType: 'script',
@@ -348,7 +358,9 @@ describe('Declarations - Const', () => {
           {
             type: 'ForStatement',
             body: {
-              type: 'EmptyStatement'
+              type: 'EmptyStatement',
+              start: 21,
+              end: 22
             },
             init: {
               type: 'VariableDeclaration',
@@ -358,24 +370,36 @@ describe('Declarations - Const', () => {
                   type: 'VariableDeclarator',
                   init: {
                     type: 'Identifier',
-                    name: 'x'
+                    name: 'x',
+                    start: 17,
+                    end: 18
                   },
                   id: {
                     type: 'ArrayPattern',
-                    elements: [null]
-                  }
+                    elements: [null],
+                    start: 11,
+                    end: 14
+                  },
+                  start: 11,
+                  end: 18
                 }
-              ]
+              ],
+              start: 5,
+              end: 18
             },
             test: null,
-            update: null
+            update: null,
+            start: 0,
+            end: 22
           }
-        ]
+        ],
+        start: 0,
+        end: 22
       }
     ],
     [
       'for (const [foo,,] = arr;;);',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
         sourceType: 'script',
@@ -383,7 +407,9 @@ describe('Declarations - Const', () => {
           {
             type: 'ForStatement',
             body: {
-              type: 'EmptyStatement'
+              type: 'EmptyStatement',
+              start: 27,
+              end: 28
             },
             init: {
               type: 'VariableDeclaration',
@@ -393,30 +419,44 @@ describe('Declarations - Const', () => {
                   type: 'VariableDeclarator',
                   init: {
                     type: 'Identifier',
-                    name: 'arr'
+                    name: 'arr',
+                    start: 21,
+                    end: 24
                   },
                   id: {
                     type: 'ArrayPattern',
                     elements: [
                       {
                         type: 'Identifier',
-                        name: 'foo'
+                        name: 'foo',
+                        start: 12,
+                        end: 15
                       },
                       null
-                    ]
-                  }
+                    ],
+                    start: 11,
+                    end: 18
+                  },
+                  start: 11,
+                  end: 24
                 }
-              ]
+              ],
+              start: 5,
+              end: 24
             },
             test: null,
-            update: null
+            update: null,
+            start: 0,
+            end: 28
           }
-        ]
+        ],
+        start: 0,
+        end: 28
       }
     ],
     [
       'for (const [] in x);',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
         sourceType: 'script',
@@ -424,7 +464,9 @@ describe('Declarations - Const', () => {
           {
             type: 'ForInStatement',
             body: {
-              type: 'EmptyStatement'
+              type: 'EmptyStatement',
+              start: 19,
+              end: 20
             },
             left: {
               type: 'VariableDeclaration',
@@ -435,22 +477,34 @@ describe('Declarations - Const', () => {
                   init: null,
                   id: {
                     type: 'ArrayPattern',
-                    elements: []
-                  }
+                    elements: [],
+                    start: 11,
+                    end: 13
+                  },
+                  start: 11,
+                  end: 13
                 }
-              ]
+              ],
+              start: 5,
+              end: 13
             },
             right: {
               type: 'Identifier',
-              name: 'x'
-            }
+              name: 'x',
+              start: 17,
+              end: 18
+            },
+            start: 0,
+            end: 20
           }
-        ]
+        ],
+        start: 0,
+        end: 20
       }
     ],
     [
       'for (const [,,] in x);',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
         sourceType: 'script',
@@ -458,7 +512,9 @@ describe('Declarations - Const', () => {
           {
             type: 'ForInStatement',
             body: {
-              type: 'EmptyStatement'
+              type: 'EmptyStatement',
+              start: 21,
+              end: 22
             },
             left: {
               type: 'VariableDeclaration',
@@ -469,17 +525,29 @@ describe('Declarations - Const', () => {
                   init: null,
                   id: {
                     type: 'ArrayPattern',
-                    elements: [null, null]
-                  }
+                    elements: [null, null],
+                    start: 11,
+                    end: 15
+                  },
+                  start: 11,
+                  end: 15
                 }
-              ]
+              ],
+              start: 5,
+              end: 15
             },
             right: {
               type: 'Identifier',
-              name: 'x'
-            }
+              name: 'x',
+              start: 19,
+              end: 20
+            },
+            start: 0,
+            end: 22
           }
-        ]
+        ],
+        start: 0,
+        end: 22
       }
     ],
     [

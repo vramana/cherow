@@ -19,7 +19,7 @@ describe('Statements - if', () => {
     // Should only pass with AnnexB
     [
       'if (a) function a(){}',
-      Context.OptionsWebCompat,
+      Context.OptionsWebCompat | Context.OptionsRanges,
       {
         type: 'Program',
         sourceType: 'script',
@@ -28,26 +28,37 @@ describe('Statements - if', () => {
             type: 'IfStatement',
             test: {
               type: 'Identifier',
-              name: 'a'
+              name: 'a',
+              start: 4,
+              end: 5
             },
             consequent: {
               type: 'FunctionDeclaration',
               params: [],
               body: {
                 type: 'BlockStatement',
-                body: []
+                body: [],
+                start: 19,
+                end: 21
               },
               async: false,
               generator: false,
-
               id: {
                 type: 'Identifier',
-                name: 'a'
-              }
+                name: 'a',
+                start: 16,
+                end: 17
+              },
+              start: 7,
+              end: 21
             },
-            alternate: null
+            alternate: null,
+            start: 0,
+            end: 21
           }
-        ]
+        ],
+        start: 0,
+        end: 21
       }
     ],
     [

@@ -6,7 +6,7 @@ describe('Expressions - Additive', () => {});
 pass('Expressions - Additive (pass)', [
   [
     '--a',
-    Context.Empty,
+    Context.OptionsRanges,
     {
       type: 'Program',
       sourceType: 'script',
@@ -17,13 +17,21 @@ pass('Expressions - Additive (pass)', [
             type: 'UpdateExpression',
             argument: {
               type: 'Identifier',
-              name: 'a'
+              name: 'a',
+              start: 2,
+              end: 3
             },
             operator: '--',
-            prefix: true
-          }
+            prefix: true,
+            start: 0,
+            end: 3
+          },
+          start: 0,
+          end: 3
         }
-      ]
+      ],
+      start: 0,
+      end: 3
     }
   ]
 ]);

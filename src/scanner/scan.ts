@@ -457,6 +457,7 @@ table[Chars.CarriageReturn] = state => {
 
 export function next(state: ParserState, context: Context): Token {
   state.flags &= ~Flags.NewLine; // reset the 'NewLine' flag for each scan
+  state.endIndex = state.index;
   while (state.index < state.length) {
     state.startIndex = state.index;
     const first = state.source.charCodeAt(state.index);

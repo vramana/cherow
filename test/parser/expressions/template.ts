@@ -373,7 +373,6 @@ describe('Expressions - Template', () => {
       Context.Empty,
       {
         type: 'Program',
-        sourceType: 'script',
         body: [
           {
             type: 'BlockStatement',
@@ -382,35 +381,36 @@ describe('Expressions - Template', () => {
                 type: 'ExpressionStatement',
                 expression: {
                   type: 'TemplateLiteral',
-                  expressions: [
-                    {
-                      type: 'Identifier',
-                      name: 'a'
-                    }
-                  ],
                   quasis: [
                     {
                       type: 'TemplateElement',
                       value: {
-                        cooked: 'foo ',
-                        raw: 'foo '
+                        raw: 'foo ',
+                        cooked: 'foo '
                       },
                       tail: false
                     },
                     {
                       type: 'TemplateElement',
                       value: {
-                        cooked: ' baz',
-                        raw: ' baz'
+                        raw: ' baz',
+                        cooked: ' baz'
                       },
                       tail: true
+                    }
+                  ],
+                  expressions: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
                     }
                   ]
                 }
               }
             ]
           }
-        ]
+        ],
+        sourceType: 'script'
       }
     ],
     [

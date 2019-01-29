@@ -918,27 +918,37 @@ describe('Declarations - Let', () => {
     ],
     [
       'let = 1',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
-        sourceType: 'script',
+        start: 0,
+        end: 7,
         body: [
           {
             type: 'ExpressionStatement',
+            start: 0,
+            end: 7,
             expression: {
               type: 'AssignmentExpression',
+              start: 0,
+              end: 7,
+              operator: '=',
               left: {
                 type: 'Identifier',
+                start: 0,
+                end: 3,
                 name: 'let'
               },
-              operator: '=',
               right: {
                 type: 'Literal',
+                start: 6,
+                end: 7,
                 value: 1
               }
             }
           }
-        ]
+        ],
+        sourceType: 'script'
       }
     ],
     [
@@ -1000,21 +1010,31 @@ describe('Declarations - Let', () => {
     ],
     [
       'let [] = x;',
-      Context.Empty,
+      Context.OptionsRanges,
       {
         type: 'Program',
+        start: 0,
+        end: 11,
         body: [
           {
             type: 'VariableDeclaration',
+            start: 0,
+            end: 11,
             declarations: [
               {
                 type: 'VariableDeclarator',
+                start: 4,
+                end: 10,
                 id: {
                   type: 'ArrayPattern',
+                  start: 4,
+                  end: 6,
                   elements: []
                 },
                 init: {
                   type: 'Identifier',
+                  start: 9,
+                  end: 10,
                   name: 'x'
                 }
               }
