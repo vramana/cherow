@@ -4207,9 +4207,20 @@ define(['exports'], function (exports) { 'use strict';
               result += state.source.substring(start, state.index);
               let cookedChar = scanIdentifierUnicodeEscape(state);
               if (!isIdentifierPart(cookedChar))
-                  break;
+                  report(state, 113);
               result += fromCodePoint(cookedChar);
               start = state.index;
+          }
+          else if (ch >= 0xd800 && ch <= 0xdbff) {
+              if (state.index >= state.length)
+                  report(state, 0);
+              let lo = state.source.charCodeAt(state.index);
+              ++state.index;
+              ++state.column;
+              if (!(lo >= 0xdc00 && lo <= 0xdfff)) {
+                  report(state, 0);
+              }
+              ch = ((ch & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
           }
           else {
               break;
@@ -4222,18 +4233,19 @@ define(['exports'], function (exports) { 'use strict';
       if (len >= 2 && len <= 11) {
           const keyword = descKeywordTable[state.tokenValue];
           if (keyword !== undefined) {
-              if (!hasEscape || keyword === 405505)
-                  return keyword;
-              if (keyword === 2265194)
-                  return 121;
-              if ((keyword & 36864) === 36864) {
-                  if (hasEscape)
-                      return 126;
-                  return keyword;
-              }
-              return keyword === 402821192 || keyword === 36969
-                  ? 126
-                  : 121;
+              return !hasEscape || keyword === 405505
+                  ? keyword
+                  : keyword & (2097152 | 1048576)
+                      ? 121
+                      : (keyword & 36864) === 36864
+                          ? hasEscape
+                              ? 126
+                              : keyword
+                          : context & 1024 && keyword === 36969
+                              ? 126
+                              : keyword === 402821192
+                                  ? 126
+                                  : 121;
           }
       }
       return 405505;
@@ -4248,49 +4260,42 @@ define(['exports'], function (exports) { 'use strict';
       return scanUnicodeEscape(state);
   }
   function scanUnicodeEscape(state) {
-      let ch = state.source.charCodeAt(state.index++);
-      state.column++;
+      let { index, source, length } = state;
+      let ch = state.source.charCodeAt(index++);
+      let value = 0;
       if (ch === 123) {
-          ch = state.source.charCodeAt(state.index++);
-          state.column++;
-          let code = toHex(ch);
-          if (code < 0)
-              report(state, 0);
-          if (state.index === state.source.length)
-              return report(state, 0);
-          let digit = toHex(state.source.charCodeAt(state.index++));
-          state.column++;
-          if (digit < 0)
-              report(state, 0);
-          while (code >= 0) {
-              code = code * 16 + digit;
-              if (code > 0x10ffff)
-                  break;
-              if (state.index === state.source.length)
-                  report(state, 0);
-              code = toHex(state.source.charCodeAt(state.index++));
-              state.column++;
-              if (code < 0)
-                  report(state, 0);
+          value = toHex(source.charCodeAt(index++));
+          if (value < 0 || index === length)
+              return report(state, 113);
+          ch = source.charCodeAt(index++);
+          while (ch !== 125) {
+              const digit = toHex(ch);
+              if (digit < 0)
+                  return report(state, 113);
+              value = (value << 4) | digit;
+              if (value > 0x10ffff)
+                  report(state, 30);
+              ch = source.charCodeAt(index++);
           }
-          if (code < 0 || ch !== 125)
+          if (value < 0 || ch !== 125)
               report(state, 112);
-          return code;
       }
-      let code = toHex(ch);
-      if (code < 0)
-          report(state, 0);
-      for (let i = 0; i < 3; i++) {
-          if (state.index === state.length)
-              report(state, 10);
-          ch = state.source.charCodeAt(state.index++);
-          state.column++;
-          const digit = toHex(ch);
-          if (digit < 0)
+      else {
+          value = toHex(ch);
+          if (value < 0)
               report(state, 113);
-          code = code * 16 + digit;
+          for (let i = 0; i < 3; i++) {
+              if (index === length)
+                  report(state, 10);
+              ch = source.charCodeAt(index++);
+              const digit = toHex(ch);
+              if (digit < 0)
+                  report(state, 113);
+              value = (value << 4) | digit;
+          }
       }
-      return code;
+      state.index = state.column = index;
+      return value;
   }
 
   function scanStringLiteral(state, context, quote) {
@@ -5157,6 +5162,7 @@ define(['exports'], function (exports) { 'use strict';
   };
   function next(state, context) {
       state.flags &= ~1;
+      state.endIndex = state.index;
       while (state.index < state.length) {
           state.startIndex = state.index;
           const first = state.source.charCodeAt(state.index);
@@ -5194,6 +5200,13 @@ define(['exports'], function (exports) { 'use strict';
           }
           array.push(tokens);
       };
+  }
+  function finishNode(state, context, start, node) {
+      if (context & 2) {
+          node.start = start;
+          node.end = state.endIndex;
+      }
+      return node;
   }
   function optional(state, context, t) {
       if (state.token === t) {
@@ -5337,26 +5350,20 @@ define(['exports'], function (exports) { 'use strict';
       }
   }
   function lookAheadOrScan(state, context, callback, isLookahead) {
-      const savedIndex = state.index;
-      const savedLine = state.line;
-      const savedColumn = state.column;
-      const startIndex = state.startIndex;
-      const savedFlags = state.flags;
-      const savedTokenValue = state.tokenValue;
-      const savedNextChar = state.currentChar;
-      const savedToken = state.token;
-      const savedTokenRegExp = state.tokenRegExp;
+      const { index, line, column, startIndex, endIndex, flags, tokenValue, currentChar, token, tokenRegExp, tokenRaw } = state;
       const result = callback(state, context);
       if (!result || isLookahead) {
-          state.index = savedIndex;
-          state.line = savedLine;
-          state.column = savedColumn;
+          state.index = index;
+          state.line = line;
+          state.column = column;
           state.startIndex = startIndex;
-          state.flags = savedFlags;
-          state.tokenValue = savedTokenValue;
-          state.currentChar = savedNextChar;
-          state.token = savedToken;
-          state.tokenRegExp = savedTokenRegExp;
+          state.endIndex = endIndex;
+          state.flags = flags;
+          state.tokenValue = tokenValue;
+          state.currentChar = currentChar;
+          state.tokenRaw = tokenRaw;
+          state.token = token;
+          state.tokenRegExp = tokenRegExp;
       }
       return result;
   }
@@ -5420,27 +5427,23 @@ define(['exports'], function (exports) { 'use strict';
           (t & 36864) === 36864);
   }
   function validateBindingIdentifier(state, context, type, token = state.token) {
-      if (context & 1024 && token === 36969)
-          report(state, 73);
+      if (context & 1024) {
+          if (token === 36969)
+              report(state, 73);
+          if (token === 126) {
+              report(state, 115);
+          }
+          if ((token & 36864) === 36864) {
+              report(state, 72);
+          }
+      }
+      if (token === 20595)
+          report(state, 72);
       if (context & (4194304 | 2048) && token & 524288) {
           report(state, 71);
       }
-      if (token === 126) {
-          if (context & 1024)
-              report(state, 115);
-      }
       if (context & (2097152 | 1024) && token & 2097152) {
           report(state, 67, 'yield');
-      }
-      if (token === 121) {
-          report(state, 115);
-      }
-      if ((token & 36864) === 36864) {
-          if (context & 1024)
-              report(state, 72);
-      }
-      if ((token & 20480) === 20480) {
-          report(state, 72);
       }
       if (token === 402821192) {
           if (type & 16)
@@ -5449,6 +5452,12 @@ define(['exports'], function (exports) { 'use strict';
               report(state, 69);
           if (context & 1024)
               report(state, 70);
+      }
+      if (token === 121) {
+          report(state, 115);
+      }
+      if ((token & 20480) === 20480) {
+          report(state, 72);
       }
       return true;
   }
@@ -5604,6 +5613,7 @@ define(['exports'], function (exports) { 'use strict';
           line: 1,
           column: 0,
           startIndex: 0,
+          endIndex: 0,
           startLine: 1,
           startColumn: 0,
           token: 536870912,
@@ -5662,16 +5672,17 @@ define(['exports'], function (exports) { 'use strict';
       return statements;
   }
   function parseDirective(state, context, scope) {
+      const { startIndex } = state;
       if ((context & 131072) < 1)
           return parseStatementListItem(state, context, scope);
       const directive = state.tokenRaw.slice(1, -1);
       const expression = parseExpression(state, context);
       consumeSemicolon(state, context);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'ExpressionStatement',
           expression,
           directive
-      };
+      });
   }
   function parseAsyncFunctionOrAssignmentExpression(state, context, scope, isDefault) {
       return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
@@ -5712,49 +5723,71 @@ define(['exports'], function (exports) { 'use strict';
           : parseExpressionOrLabelledStatement(state, context, scope, 2);
   }
   function parseStatement(state, context, scope, label) {
-      switch (state.token) {
-          case 268587079:
-              return parseVariableStatement(state, context, 2, 1, scope);
-          case 151645:
-              return parseSwitchStatement(state, context, scope);
-          case 20561:
-              return parseDoWhileStatement(state, context, scope);
-          case 20571:
-              return parseReturnStatement(state, context);
-          case 20577:
-              return parseWhileStatement(state, context, scope);
-          case 20578:
-              return parseWithStatement(state, context, scope);
-          case 20554:
-              return parseBreakStatement(state, context);
-          case 20558:
-              return parseContinueStatement(state, context);
-          case 20559:
-              return parseDebuggerStatement(state, context);
-          case 20576:
-              return parseTryStatement(state, context, scope);
-          case 151647:
-              return parseThrowStatement(state, context);
-          case 20568:
-              return parseIfStatement(state, context, scope);
+      const { token } = state;
+      if ((token & 274432) === 274432 ||
+          (token & 12288) === 12288 ||
+          (token & 2097152) === 2097152 ||
+          token === 121 ||
+          token === 126) {
+          if ((token & 1048576) === 1048576) {
+              if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
+                  report(state, 76);
+              }
+          }
+          return parseExpressionOrLabelledStatement(state, context, scope, label);
+      }
+      if ((token & 4096) === 4096) {
+          switch (token) {
+              case 268587079:
+                  return parseVariableStatement(state, context, 2, 1, scope);
+              case 151645:
+                  return parseSwitchStatement(state, context, scope);
+              case 20561:
+                  return parseDoWhileStatement(state, context, scope);
+              case 20571:
+                  return parseReturnStatement(state, context);
+              case 20577:
+                  return parseWhileStatement(state, context, scope);
+              case 20578:
+                  return parseWithStatement(state, context, scope);
+              case 20554:
+                  return parseBreakStatement(state, context);
+              case 20558:
+                  return parseContinueStatement(state, context);
+              case 20559:
+                  return parseDebuggerStatement(state, context);
+              case 20576:
+                  return parseTryStatement(state, context, scope);
+              case 151647:
+                  return parseThrowStatement(state, context);
+              case 20568:
+                  return parseIfStatement(state, context, scope);
+              case 20566:
+                  return parseForStatement(state, context, scope);
+              case 151639:
+                  report(state, context & 1024 ? 44 : 43);
+              case 151629:
+                  report(state, 75, KeywordDescTable[token & 255]);
+              default:
+          }
+      }
+      switch (token) {
           case 536870929:
               return parseEmptyStatement(state, context);
           case 131084:
               return parseBlockStatement(state, (context | 4096) ^ 4096, createSubScope(scope, 1));
-          case 20566:
-              return parseForStatement(state, context, scope);
-          case 1060972:
-              if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
-                  report(state, 76);
-              }
-              return parseExpressionOrLabelledStatement(state, context, scope, label);
-          case 151639:
-              report(state, context & 1024 ? 44 : 43);
-          case 151629:
-              report(state, 75, KeywordDescTable[state.token & 255]);
           default:
-              return parseExpressionOrLabelledStatement(state, context, scope, label);
+              return parseExpressionStatement(state, context);
       }
+  }
+  function parseExpressionStatement(state, context) {
+      const { startIndex } = state;
+      const expr = parseExpression(state, (context | 8192) ^ 8192);
+      consumeSemicolon(state, context);
+      return finishNode(state, context, startIndex, {
+          type: 'ExpressionStatement',
+          expression: expr
+      });
   }
   function parseModuleItemList(state, context, scope) {
       state.assignable = state.bindable = true;
@@ -5770,6 +5803,7 @@ define(['exports'], function (exports) { 'use strict';
       }
   }
   function parseExportDeclaration(state, context, scope) {
+      const { startIndex: start } = state;
       expect(state, context, 20563);
       const specifiers = [];
       let declaration = null;
@@ -5793,10 +5827,10 @@ define(['exports'], function (exports) { 'use strict';
           addToExportedNamesAndCheckForDuplicates(state, 'default');
           addToExportedBindings(state, '*default*');
           addVariable(state, context, scope, 0, 0, true, false, '*default*');
-          return {
+          return finishNode(state, context, start, {
               type: 'ExportDefaultDeclaration',
               declaration
-          };
+          });
       }
       switch (state.token) {
           case 21105203: {
@@ -5804,12 +5838,12 @@ define(['exports'], function (exports) { 'use strict';
               expect(state, context, 12401);
               if (state.token !== 131075)
                   report(state, 0);
-              source = parseLiteral(state, context, state.tokenValue);
+              source = parseLiteral(state, context);
               consumeSemicolon(state, context);
-              return {
+              return finishNode(state, context, start, {
                   type: 'ExportAllDeclaration',
                   source
-              };
+              });
           }
           case 131084: {
               const exportedNames = [];
@@ -5832,11 +5866,11 @@ define(['exports'], function (exports) { 'use strict';
                       exportedBindings.push(state.tokenValue);
                       exported = local;
                   }
-                  specifiers.push({
+                  specifiers.push(finishNode(state, context, start, {
                       type: 'ExportSpecifier',
                       local,
                       exported
-                  });
+                  }));
                   if (state.token !== 536870927)
                       expect(state, context, 18);
               }
@@ -5844,7 +5878,7 @@ define(['exports'], function (exports) { 'use strict';
               if (optional(state, context, 12401)) {
                   if (state.token !== 131075)
                       report(state, 110, 'Export');
-                  source = parseLiteral(state, context, state.tokenValue);
+                  source = parseLiteral(state, context);
               }
               else {
                   let i = 0;
@@ -5889,30 +5923,31 @@ define(['exports'], function (exports) { 'use strict';
           default:
               report(state, 1, KeywordDescTable[state.token & 255]);
       }
-      return {
+      return finishNode(state, context, start, {
           type: 'ExportNamedDeclaration',
           source,
           specifiers,
           declaration
-      };
+      });
   }
   function parseImportDeclaration(state, context, scope) {
+      const { startIndex: start } = state;
       expect(state, context, 151641);
       let source;
       const specifiers = [];
       if (state.token & 274432) {
           validateBindingIdentifier(state, context, 8);
           addVariableAndDeduplicate(state, context, scope, 0, 0, false, state.tokenValue);
-          specifiers.push({
+          specifiers.push(finishNode(state, context, start, {
               type: 'ImportDefaultSpecifier',
               local: parseIdentifier(state, context)
-          });
+          }));
           if (optional(state, context, 18)) {
               if (state.token === 21105203) {
-                  parseImportNamespace(state, context, scope, specifiers);
+                  parseImportNamespace(state, context, scope, start, specifiers);
               }
               else if (state.token === 131084) {
-                  parseImportSpecifierOrNamedImports(state, context, scope, specifiers);
+                  parseImportSpecifierOrNamedImports(state, context, scope, start, specifiers);
               }
               else
                   report(state, 109);
@@ -5920,27 +5955,27 @@ define(['exports'], function (exports) { 'use strict';
           source = parseModuleSpecifier(state, context);
       }
       else if (state.token === 131075) {
-          source = parseLiteral(state, context, state.tokenValue);
+          source = parseLiteral(state, context);
       }
       else {
           if (state.token === 21105203) {
-              parseImportNamespace(state, context, scope, specifiers);
+              parseImportNamespace(state, context, scope, start, specifiers);
           }
           else if (state.token === 131084) {
-              parseImportSpecifierOrNamedImports(state, context, scope, specifiers);
+              parseImportSpecifierOrNamedImports(state, context, scope, start, specifiers);
           }
           else
               report(state, 0);
           source = parseModuleSpecifier(state, context);
       }
       consumeSemicolon(state, context);
-      return {
+      return finishNode(state, context, start, {
           type: 'ImportDeclaration',
           specifiers,
           source
-      };
+      });
   }
-  function parseImportSpecifierOrNamedImports(state, context, scope, specifiers) {
+  function parseImportSpecifierOrNamedImports(state, context, scope, start, specifiers) {
       expect(state, context, 131084);
       while (state.token & 274432) {
           const { token, tokenValue } = state;
@@ -5958,63 +5993,67 @@ define(['exports'], function (exports) { 'use strict';
               addVariableAndDeduplicate(state, context, scope, 8, 0, false, tokenValue);
               local = imported;
           }
-          specifiers.push({
+          specifiers.push(finishNode(state, context, start, {
               type: 'ImportSpecifier',
               local,
               imported
-          });
+          }));
           if (state.token !== 536870927)
               expect(state, context, 18);
       }
       expect(state, context, 536870927);
   }
-  function parseImportNamespace(state, context, scope, specifiers) {
+  function parseImportNamespace(state, context, scope, start, specifiers) {
       next(state, context);
       expect(state, context, 16920683);
       validateBindingIdentifier(state, context, 8);
       addVariable(state, context, scope, 8, 0, true, false, state.tokenValue);
       const local = parseIdentifier(state, context);
-      specifiers.push({
+      specifiers.push(finishNode(state, context, start, {
           type: 'ImportNamespaceSpecifier',
           local
-      });
+      }));
   }
   function parseModuleSpecifier(state, context) {
       expect(state, context, 12401);
       if (state.token !== 131075)
           report(state, 110, 'Import');
-      return parseLiteral(state, context, state.tokenValue);
+      return parseLiteral(state, context);
   }
   function parseBlockStatement(state, context, scope) {
       const body = [];
+      const { startIndex: start } = state;
       next(state, context);
       while (state.token !== 536870927) {
           body.push(parseStatementListItem(state, context, scope));
       }
       expect(state, context | 32768, 536870927);
-      return {
+      return finishNode(state, context, start, {
           type: 'BlockStatement',
           body
-      };
+      });
   }
   function parseEmptyStatement(state, context) {
+      const { startIndex } = state;
       next(state, context | 32768);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'EmptyStatement'
-      };
+      });
   }
   function parseThrowStatement(state, context) {
+      const { startIndex } = state;
       next(state, context);
       if (state.flags & 1)
           report(state, 54);
       const argument = parseExpression(state, (context | 8192) ^ 8192);
       consumeSemicolon(state, context);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'ThrowStatement',
           argument
-      };
+      });
   }
   function parseIfStatement(state, context, scope) {
+      const { startIndex } = state;
       next(state, context);
       expect(state, context | 32768, 131083);
       const test = parseExpression(state, (context | 8192) ^ 8192);
@@ -6023,12 +6062,12 @@ define(['exports'], function (exports) { 'use strict';
       const alternate = optional(state, context, 20562)
           ? parseConsequentOrAlternate(state, context, scope)
           : null;
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'IfStatement',
           test,
           consequent,
           alternate
-      };
+      });
   }
   function parseConsequentOrAlternate(state, context, scope) {
       return context & 1024 || (context & 16) === 0 || state.token !== 151639
@@ -6036,6 +6075,7 @@ define(['exports'], function (exports) { 'use strict';
           : parseFunctionDeclaration(state, context, scope, 1, false);
   }
   function parseSwitchStatement(state, context, scope) {
+      const { startIndex: start } = state;
       next(state, context);
       expect(state, context | 32768, 131083);
       const discriminant = parseExpression(state, (context | 8192) ^ 8192);
@@ -6048,6 +6088,7 @@ define(['exports'], function (exports) { 'use strict';
       state.switchStatement = 1;
       while (state.token !== 536870927) {
           let test = null;
+          const { startIndex: subStart } = state;
           if (optional(state, context, 20555)) {
               test = parseExpression(state, (context | 8192) ^ 8192);
           }
@@ -6057,30 +6098,32 @@ define(['exports'], function (exports) { 'use strict';
                   report(state, 0);
               seenDefault = true;
           }
-          cases.push(parseCaseOrDefaultClauses(state, context, test, switchScope));
+          cases.push(parseCaseOrDefaultClauses(state, context, test, switchScope, subStart));
       }
       state.switchStatement = previousSwitchStatement;
       expect(state, context, 536870927);
-      return {
+      return finishNode(state, context, start, {
           type: 'SwitchStatement',
           discriminant,
           cases
-      };
+      });
   }
   function parseReturnStatement(state, context) {
       if ((context & (64 | 134217728)) < 1)
           report(state, 55);
+      const { startIndex } = state;
       next(state, context | 32768);
       const argument = (state.token & 536870912) < 1 && (state.flags & 1) < 1
           ? parseExpression(state, (context | 8192) ^ (8192 | 134217728))
           : null;
       consumeSemicolon(state, context);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'ReturnStatement',
           argument
-      };
+      });
   }
   function parseWhileStatement(state, context, scope) {
+      const { startIndex } = state;
       next(state, context);
       expect(state, context | 32768, 131083);
       const test = parseExpression(state, (context | 8192) ^ 8192);
@@ -6089,13 +6132,14 @@ define(['exports'], function (exports) { 'use strict';
       state.iterationStatement = 1;
       const body = parseStatement(state, (context | 4096) ^ 4096, scope, 2);
       state.iterationStatement = previousIterationStatement;
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'WhileStatement',
           test,
           body
-      };
+      });
   }
   function parseContinueStatement(state, context) {
+      const { startIndex } = state;
       next(state, context);
       let label = null;
       if (!(state.flags & 1) && state.token & 4096) {
@@ -6107,12 +6151,13 @@ define(['exports'], function (exports) { 'use strict';
       if (label === null && state.iterationStatement === 0 && state.switchStatement === 0) {
           report(state, 50);
       }
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'ContinueStatement',
           label
-      };
+      });
   }
   function parseBreakStatement(state, context) {
+      const { startIndex } = state;
       next(state, context);
       let label = null;
       if (!(state.flags & 1) && state.token & 4096) {
@@ -6124,12 +6169,13 @@ define(['exports'], function (exports) { 'use strict';
           report(state, 51);
       }
       consumeSemicolon(state, context);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'BreakStatement',
           label
-      };
+      });
   }
   function parseWithStatement(state, context, scope) {
+      const { startIndex } = state;
       if (context & 1024)
           report(state, 52);
       next(state, context);
@@ -6137,20 +6183,22 @@ define(['exports'], function (exports) { 'use strict';
       const object = parseExpression(state, (context | 8192) ^ 8192);
       expect(state, context, 16);
       const body = parseStatement(state, (context | 4096) ^ 4096, scope, 2);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'WithStatement',
           object,
           body
-      };
+      });
   }
   function parseDebuggerStatement(state, context) {
+      const { startIndex } = state;
       next(state, context);
       consumeSemicolon(state, context);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'DebuggerStatement'
-      };
+      });
   }
   function parseTryStatement(state, context, scope) {
+      const { startIndex } = state;
       next(state, context);
       const block = parseBlockStatement(state, context, createSubScope(scope, 1));
       const handler = optional(state, context, 20556) ? parseCatchBlock(state, context, scope) : null;
@@ -6159,16 +6207,17 @@ define(['exports'], function (exports) { 'use strict';
           : null;
       if (!handler && !finalizer)
           report(state, 0);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'TryStatement',
           block,
           handler,
           finalizer
-      };
+      });
   }
   function parseCatchBlock(state, context, scope) {
       let param = null;
       let secondScope = scope;
+      const { startIndex } = state;
       if (optional(state, context, 131083)) {
           const catchScope = createSubScope(scope, 4);
           param = parseBindingIdentifierOrPattern(state, context, catchScope, 1, 8, false);
@@ -6178,13 +6227,14 @@ define(['exports'], function (exports) { 'use strict';
           secondScope = createSubScope(catchScope, 1);
       }
       const body = parseBlockStatement(state, context, secondScope);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'CatchClause',
           param,
           body
-      };
+      });
   }
   function parseDoWhileStatement(state, context, scope) {
+      const { startIndex } = state;
       expect(state, context, 20561);
       const previousIterationStatement = state.iterationStatement;
       state.iterationStatement = 1;
@@ -6195,13 +6245,13 @@ define(['exports'], function (exports) { 'use strict';
       const test = parseExpression(state, (context | 8192) ^ 8192);
       expect(state, context, 16);
       optional(state, context, 536870929);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'DoWhileStatement',
           body,
           test
-      };
+      });
   }
-  function parseCaseOrDefaultClauses(state, context, test, scope) {
+  function parseCaseOrDefaultClauses(state, context, test, scope, start) {
       expect(state, context, 21);
       const consequent = [];
       while (state.token !== 20555 &&
@@ -6209,13 +6259,14 @@ define(['exports'], function (exports) { 'use strict';
           state.token !== 20560) {
           consequent.push(parseStatementListItem(state, (context | 4096) ^ 4096, scope));
       }
-      return {
+      return finishNode(state, context, start, {
           type: 'SwitchCase',
           test,
           consequent
-      };
+      });
   }
   function parseForStatement(state, context, scope) {
+      const { startIndex } = state;
       next(state, context);
       const forAwait = context & 4194304 ? optional(state, context, 667757) : false;
       scope = createSubScope(scope, 2);
@@ -6224,25 +6275,27 @@ define(['exports'], function (exports) { 'use strict';
       let declarations = null;
       let test = null;
       let update = null;
+      let sequencePos = null;
       let right;
       let isPattern = false;
       if (state.token !== 536870929) {
           if ((state.token & 268435456) > 0) {
               const kind = KeywordDescTable[state.token & 255];
+              const { startIndex: varStart } = state;
               if (optional(state, context, 268587079)) {
-                  init = {
+                  init = finishNode(state, context, varStart, {
                       type: 'VariableDeclaration',
                       kind,
                       declarations: parseVariableDeclarationList(state, context | 8192, 2, 2, false, scope)
-                  };
+                  });
               }
               else if (state.token === 402821192) {
                   if (lookAheadOrScan(state, context, isLexical, false)) {
-                      init = {
+                      init = finishNode(state, context, varStart, {
                           type: 'VariableDeclaration',
                           kind,
                           declarations: parseVariableDeclarationList(state, context, 4, 2, true, scope)
-                      };
+                      });
                   }
                   else {
                       isPattern = true;
@@ -6253,10 +6306,15 @@ define(['exports'], function (exports) { 'use strict';
                   declarations = parseVariableDeclarationList(state, context, 8, 2, false, scope);
                   if (checkIfExistInLexicalBindings(state, context, scope, 0, true))
                       report(state, 45, state.tokenValue);
-                  init = { type: 'VariableDeclaration', kind, declarations };
+                  init = finishNode(state, context, varStart, {
+                      type: 'VariableDeclaration',
+                      kind,
+                      declarations
+                  });
               }
           }
           else {
+              sequencePos = state.startIndex;
               isPattern = state.token === 131091 || state.token === 131084;
               init = acquireGrammar(state, context | 8192, 0, parseAssignmentExpression);
           }
@@ -6276,13 +6334,13 @@ define(['exports'], function (exports) { 'use strict';
           state.iterationStatement = 1;
           const body = parseStatement(state, (context | 4096) ^ 4096, scope, 2);
           state.iterationStatement = previousIterationStatement;
-          return {
+          return finishNode(state, context, startIndex, {
               type: 'ForOfStatement',
               body,
               left: init,
               right,
               await: forAwait
-          };
+          });
       }
       if (optional(state, context, 33707825)) {
           if (isPattern) {
@@ -6297,15 +6355,15 @@ define(['exports'], function (exports) { 'use strict';
           state.iterationStatement = 1;
           const body = parseStatement(state, (context | 4096) ^ 4096, scope, 2);
           state.iterationStatement = previousIterationStatement;
-          return {
+          return finishNode(state, context, startIndex, {
               type: 'ForInStatement',
               body,
               left: init,
               right
-          };
+          });
       }
       if (state.token === 18) {
-          init = parseSequenceExpression(state, (context | 8192) ^ 8192, init);
+          init = parseSequenceExpression(state, (context | 8192) ^ 8192, init, sequencePos);
       }
       expect(state, context, 536870929);
       if (state.token !== 536870929) {
@@ -6319,17 +6377,16 @@ define(['exports'], function (exports) { 'use strict';
       state.iterationStatement = 1;
       const body = parseStatement(state, (context | 4096) ^ 4096, scope, 2);
       state.iterationStatement = previousIterationStatement;
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'ForStatement',
           body,
           init,
           test,
           update
-      };
+      });
   }
   function parseExpressionOrLabelledStatement(state, context, scope, label) {
-      const token = state.token;
-      const tokenValue = state.tokenValue;
+      const { token, tokenValue, startIndex } = state;
       const expr = parseExpression(state, (context | 8192) ^ 8192);
       if ((token & 4096 || 126) && state.token === 21) {
           next(state, context | 32768);
@@ -6348,17 +6405,17 @@ define(['exports'], function (exports) { 'use strict';
           else
               body = parseStatement(state, (context | 4096) ^ 4096, scope, label);
           state.labelDepth--;
-          return {
+          return finishNode(state, context, startIndex, {
               type: 'LabeledStatement',
               label: expr,
               body
-          };
+          });
       }
       consumeSemicolon(state, context);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'ExpressionStatement',
           expression: expr
-      };
+      });
   }
   function parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates) {
       switch (state.token) {
@@ -6371,7 +6428,7 @@ define(['exports'], function (exports) { 'use strict';
       }
   }
   function parseBindingIdentifier(state, context, scope, type, origin, checkForDuplicates) {
-      const { tokenValue: name, token } = state;
+      const { tokenValue: name, token, startIndex } = state;
       if ((token & 274432) === 0 && token !== 126)
           report(state, 0);
       if (context & 1024) {
@@ -6390,28 +6447,31 @@ define(['exports'], function (exports) { 'use strict';
           addToExportedBindings(state, state.tokenValue);
       }
       next(state, context | 32768);
-      return {
+      return finishNode(state, context, startIndex, {
           type: 'Identifier',
           name
-      };
+      });
   }
   function parseAssignmentRestElement(state, context, scope, type, origin, verifyDuplicates) {
+      const { startIndex: start } = state;
       expect(state, context, 14);
       const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
-      return {
+      return finishNode(state, context, start, {
           type: 'RestElement',
           argument
-      };
+      });
   }
   function AssignmentRestProperty(state, context, scope, type, origin, verifyDuplicates) {
+      const { startIndex: start } = state;
       expect(state, context, 14);
       const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
-      return {
+      return finishNode(state, context, start, {
           type: 'RestElement',
           argument
-      };
+      });
   }
   function parseArrayAssignmentPattern(state, context, scope, type, origin, verifyDuplicates) {
+      const { startIndex: start } = state;
       expect(state, context, 131091);
       const elements = [];
       while (state.token !== 20) {
@@ -6431,13 +6491,14 @@ define(['exports'], function (exports) { 'use strict';
           }
       }
       expect(state, context, 20);
-      return {
+      return finishNode(state, context, start, {
           type: 'ArrayPattern',
           elements
-      };
+      });
   }
   function parserObjectAssignmentPattern(state, context, scope, type, origin, verifyDuplicates) {
       const properties = [];
+      const { startIndex: start } = state;
       expect(state, context, 131084);
       while (state.token !== 536870927) {
           if (state.token === 14) {
@@ -6449,27 +6510,28 @@ define(['exports'], function (exports) { 'use strict';
               expect(state, context, 18);
       }
       expect(state, context, 536870927);
-      return {
+      return finishNode(state, context, start, {
           type: 'ObjectPattern',
           properties
-      };
+      });
   }
-  function parseAssignmentPattern(state, context, left) {
-      return {
+  function parseAssignmentPattern(state, context, left, start) {
+      return finishNode(state, context, start, {
           type: 'AssignmentPattern',
           left,
           right: secludeGrammar(state, context, 0, parseAssignmentExpression)
-      };
+      });
   }
   function parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates) {
+      const { startIndex: start } = state;
       const left = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
       return !optional(state, context, 8388637)
           ? left
-          : {
+          : finishNode(state, context, start, {
               type: 'AssignmentPattern',
               left,
               right: secludeGrammar(state, context, 0, parseAssignmentExpression)
-          };
+          });
   }
   function parseComputedPropertyName(state, context) {
       expect(state, context, 131091);
@@ -6478,7 +6540,7 @@ define(['exports'], function (exports) { 'use strict';
       return key;
   }
   function parseAssignmentProperty(state, context, scope, type, origin, verifyDuplicates) {
-      const { token } = state;
+      const { token, startIndex: start } = state;
       let key;
       let value;
       let computed = false;
@@ -6495,14 +6557,14 @@ define(['exports'], function (exports) { 'use strict';
               }
               addVariable(state, context, scope, type, origin, false, false, tokenValue);
               const hasInitializer = optional(state, context, 8388637);
-              value = hasInitializer ? parseAssignmentPattern(state, context, key) : key;
+              value = hasInitializer ? parseAssignmentPattern(state, context, key, start) : key;
           }
           else
               value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);
       }
       else {
           if (state.token === 131075 || state.token === 131074) {
-              key = parseLiteral(state, context, state.tokenValue);
+              key = parseLiteral(state, context);
           }
           else if (state.token === 131091) {
               computed = true;
@@ -6513,7 +6575,7 @@ define(['exports'], function (exports) { 'use strict';
           expect(state, context, 21);
           value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);
       }
-      return {
+      return finishNode(state, context, start, {
           type: 'Property',
           kind: 'init',
           key,
@@ -6521,9 +6583,10 @@ define(['exports'], function (exports) { 'use strict';
           value,
           method: false,
           shorthand
-      };
+      });
   }
   function parseFunctionDeclaration(state, context, scope, origin, isAsync) {
+      const { startIndex: start } = state;
       next(state, context);
       const isGenerator = (origin & 1) < 1 && optional(state, context, 21105203);
       let funcScope = createScope(1);
@@ -6564,16 +6627,17 @@ define(['exports'], function (exports) { 'use strict';
       const paramScoop = createSubScope(funcScope, 5);
       const params = parseFormalParameters(state, context | 67108864, paramScoop, 32, 0);
       const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), firstRestricted, origin);
-      return {
+      return finishNode(state, context, start, {
           type: 'FunctionDeclaration',
           params,
           body,
           async: (context & 4194304) > 0,
           generator: isGenerator,
           id
-      };
+      });
   }
   function parseHostedClassDeclaration(state, context, scope, isNotDefault) {
+      const { startIndex: start } = state;
       next(state, context);
       context = (context | 1024 | 16777216) ^ (1024 | 16777216);
       let id = null;
@@ -6589,21 +6653,22 @@ define(['exports'], function (exports) { 'use strict';
           addToExportedNamesAndCheckForDuplicates(state, name);
       addToExportedBindings(state, name);
       if (optional(state, context, 20564)) {
-          superClass = parseLeftHandSideExpression(state, context);
+          superClass = parseLeftHandSideExpression(state, context, start);
           context |= 524288;
       }
       else
           context = (context | 524288) ^ 524288;
       context |= 262144;
       const body = parseClassBodyAndElementList(state, context, 128);
-      return {
+      return finishNode(state, context, start, {
           type: 'ClassDeclaration',
           id,
           superClass,
           body
-      };
+      });
   }
   function parseHoistableFunctionDeclaration(state, context, scope, isNotDefault, isAsync) {
+      const { startIndex: start } = state;
       next(state, context);
       const isGenerator = optional(state, context, 21105203);
       let funcScope = createScope(1);
@@ -6629,14 +6694,14 @@ define(['exports'], function (exports) { 'use strict';
       const paramScoop = createSubScope(funcScope, 5);
       const params = parseFormalParameters(state, context | 67108864, paramScoop, 32, 0);
       const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), undefined, 0);
-      return {
+      return finishNode(state, context, start, {
           type: 'FunctionDeclaration',
           params,
           body,
           async: (context & 4194304) > 0,
           generator: isGenerator,
           id
-      };
+      });
   }
   function parseFormalParameters(state, context, scope, origin, objState) {
       expect(state, context, 131083);
@@ -6644,6 +6709,7 @@ define(['exports'], function (exports) { 'use strict';
       state.flags &= ~64;
       context = context | 8388608;
       let hasComplexArgs = false;
+      const { startIndex: start } = state;
       while (state.token !== 16) {
           if (state.token === 14) {
               hasComplexArgs = true;
@@ -6659,7 +6725,7 @@ define(['exports'], function (exports) { 'use strict';
               hasComplexArgs = true;
               if (state.token & 2097152 && context & (1024 | 2097152))
                   report(state, 0);
-              left = parseAssignmentPattern(state, context, left);
+              left = parseAssignmentPattern(state, context, left, start);
           }
           params.push(left);
           if (optional(state, context, 18)) {
@@ -6682,15 +6748,17 @@ define(['exports'], function (exports) { 'use strict';
       return params;
   }
   function parseRestElement(state, context, scope, type, origin) {
+      const { startIndex: start } = state;
       expect(state, context, 14);
       const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, false);
-      return {
+      return finishNode(state, context, start, {
           type: 'RestElement',
           argument
-      };
+      });
   }
   function parseFunctionBody(state, context, scope, firstRestricted, origin) {
       const body = [];
+      const { startIndex: start } = state;
       expect(state, context, 131084);
       const isStrict = (context & 1024) === 1024;
       context = context | (4096 | 134217728);
@@ -6733,34 +6801,35 @@ define(['exports'], function (exports) { 'use strict';
       expect(state, origin & 128 ? context | 32768 : context, 536870927);
       if (state.token === 8388637 || state.token === 131082)
           report(state, 0);
-      return {
+      return finishNode(state, context, start, {
           type: 'BlockStatement',
           body
-      };
+      });
   }
   function parseVariableStatement(state, context, type, origin, scope) {
-      const { token } = state;
+      const { token, startIndex: start } = state;
       next(state, context);
       const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
       consumeSemicolon(state, context);
-      return {
+      return finishNode(state, context, start, {
           type: 'VariableDeclaration',
           kind: KeywordDescTable[token & 255],
           declarations
-      };
+      });
   }
   function parseLexicalDeclaration(state, context, type, origin, scope) {
       const { token } = state;
+      const { startIndex: start } = state;
       next(state, context);
       const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
       if (checkIfExistInLexicalBindings(state, context, scope, origin, false))
           report(state, 0);
       consumeSemicolon(state, context);
-      return {
+      return finishNode(state, context, start, {
           type: 'VariableDeclaration',
           kind: KeywordDescTable[token & 255],
           declarations
-      };
+      });
   }
   function parseVariableDeclarationList(state, context, type, origin, checkForDuplicates, scope) {
       let bindingCount = 1;
@@ -6778,6 +6847,7 @@ define(['exports'], function (exports) { 'use strict';
       return state.token === 33707825 || state.token === 12402;
   }
   function parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope) {
+      const { startIndex: start } = state;
       const isBinding = state.token === 131084 || state.token === 131091;
       const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
       let init = null;
@@ -6794,29 +6864,30 @@ define(['exports'], function (exports) { 'use strict';
       else if ((type & 8 || isBinding) && !isInOrOf(state)) {
           report(state, 103, type & 8 ? 'const' : 'destructuring');
       }
-      return {
+      return finishNode(state, context, start, {
           type: 'VariableDeclarator',
           init,
           id
-      };
+      });
   }
   function parseExpression(state, context) {
+      const { startIndex: start } = state;
       const expr = secludeGrammar(state, context, 0, parseAssignmentExpression);
       if (state.token !== 18)
           return expr;
-      return parseSequenceExpression(state, context, expr);
+      return parseSequenceExpression(state, context, expr, start);
   }
-  function parseSequenceExpression(state, context, left) {
+  function parseSequenceExpression(state, context, left, start) {
       const expressions = [left];
       while (optional(state, context | 32768, 18)) {
           expressions.push(secludeGrammar(state, context, 0, parseAssignmentExpression));
       }
-      return {
+      return finishNode(state, context, start, {
           type: 'SequenceExpression',
           expressions
-      };
+      });
   }
-  function parseYieldExpression(state, context) {
+  function parseYieldExpression(state, context, start) {
       if (context & 8388608) {
           report(state, 106);
       }
@@ -6829,16 +6900,16 @@ define(['exports'], function (exports) { 'use strict';
               argument = parseAssignmentExpression(state, context);
           }
       }
-      return {
+      return finishNode(state, context, start, {
           type: 'YieldExpression',
           argument,
           delegate
-      };
+      });
   }
   function parseAssignmentExpression(state, context) {
-      const { token, tokenValue } = state;
+      const { token, tokenValue, startIndex: start } = state;
       if (token & 2097152 && context & 2097152)
-          return parseYieldExpression(state, context);
+          return parseYieldExpression(state, context, start);
       const expr = acquireGrammar(state, context, 0, parseBinaryExpression);
       if (token & 1048576 &&
           (state.flags & 1) < 1 &&
@@ -6850,7 +6921,7 @@ define(['exports'], function (exports) { 'use strict';
           const arg = parseIdentifier(state, context);
           if (state.flags & 1)
               report(state, 0);
-          return parseArrowFunctionExpression(state, context, scope, [arg], true, 64);
+          return parseArrowFunctionExpression(state, context, scope, [arg], true, start, 64);
       }
       if (state.token === 131082) {
           let { type, scope: arrowScope, params } = expr;
@@ -6874,7 +6945,7 @@ define(['exports'], function (exports) { 'use strict';
               type = 64;
               addVariableAndDeduplicate(state, context, arrowScope, 1, 0, true, tokenValue);
           }
-          return parseArrowFunctionExpression(state, context, arrowScope, params, (type & 4) > 0, type);
+          return parseArrowFunctionExpression(state, context, arrowScope, params, (type & 4) > 0, start, type);
       }
       if ((state.token & 8388608) === 8388608) {
           if (context & 1024 && nameIsArgumentsOrEval(expr.name)) {
@@ -6894,30 +6965,30 @@ define(['exports'], function (exports) { 'use strict';
           next(state, context | 32768);
           const right = secludeGrammar(state, context, 0, parseAssignmentExpression);
           state.pendingCoverInitializeError = null;
-          return {
+          return finishNode(state, context, start, {
               type: 'AssignmentExpression',
               left: expr,
               operator: KeywordDescTable[operator & 255],
               right
-          };
+          });
       }
-      return parseConditionalExpression(state, context, expr);
+      return parseConditionalExpression(state, context, expr, start);
   }
-  function parseConditionalExpression(state, context, test) {
+  function parseConditionalExpression(state, context, test, start) {
       if (!optional(state, context | 32768, 22))
           return test;
       const consequent = secludeGrammar(state, (context | 8192) ^ 8192, 0, parseAssignmentExpression);
       expect(state, context | 32768, 21);
       const alternate = secludeGrammar(state, context, 0, parseAssignmentExpression);
       state.bindable = state.assignable = false;
-      return {
+      return finishNode(state, context, start, {
           type: 'ConditionalExpression',
           test,
           consequent,
           alternate
-      };
+      });
   }
-  function parseBinaryExpression(state, context, minPrec, left = parseUnaryExpression(state, context)) {
+  function parseBinaryExpression(state, context, minPrec, start = state.startIndex, left = parseUnaryExpression(state, context)) {
       const bit = -((context & 8192) > 0) & 33707825;
       let t;
       let prec;
@@ -6927,28 +6998,29 @@ define(['exports'], function (exports) { 'use strict';
           if (prec + ((t === 16911158) << 8) - ((bit === t) << 12) <= minPrec)
               break;
           next(state, context | 32768);
-          left = {
+          left = finishNode(state, context, start, {
               type: t & 65536 ? 'LogicalExpression' : 'BinaryExpression',
               left,
               right: secludeGrammar(state, context, prec, parseBinaryExpression),
               operator: KeywordDescTable[t & 255]
-          };
+          });
           state.assignable = state.bindable = false;
       }
       return left;
   }
-  function parseAwaitExpression(state, context) {
+  function parseAwaitExpression(state, context, start) {
       state.assignable = false;
       if (context & 8388608)
           report(state, 105);
       next(state, context | 32768);
-      return {
+      return finishNode(state, context, start, {
           type: 'AwaitExpression',
           argument: secludeGrammar(state, context, 0, parseUnaryExpression)
-      };
+      });
   }
   function parseUnaryExpression(state, context) {
-      if ((state.token & 33685504) === 33685504) {
+      const { token, startIndex: start } = state;
+      if ((token & 33685504) === 33685504) {
           const unaryOperator = state.token;
           next(state, context | 32768);
           const argument = secludeGrammar(state, context, 0, parseUnaryExpression);
@@ -6963,36 +7035,36 @@ define(['exports'], function (exports) { 'use strict';
               }
           }
           state.bindable = state.assignable = false;
-          return {
+          return finishNode(state, context, start, {
               type: 'UnaryExpression',
               operator: KeywordDescTable[unaryOperator & 255],
               argument,
               prefix: true
-          };
+          });
       }
-      return context & 4194304 && state.token & 524288
-          ? parseAwaitExpression(state, context)
-          : parseUpdateExpression(state, context);
+      return context & 4194304 && token & 524288
+          ? parseAwaitExpression(state, context, start)
+          : parseUpdateExpression(state, context, start);
   }
-  function parseUpdateExpression(state, context) {
+  function parseUpdateExpression(state, context, start) {
       const { token } = state;
       if ((state.token & 67239936) === 67239936) {
           next(state, context | 32768);
-          const expr = parseLeftHandSideExpression(state, context);
+          const expr = parseLeftHandSideExpression(state, context, start);
           if (context & 1024 && (expr.name === 'eval' || expr.name === 'arguments')) {
               report(state, 83, 'Prefix');
           }
           if (!state.assignable)
               report(state, 84);
           state.bindable = state.assignable = false;
-          return {
+          return finishNode(state, context, start, {
               type: 'UpdateExpression',
               argument: expr,
               operator: KeywordDescTable[token & 255],
               prefix: true
-          };
+          });
       }
-      const expression = parseLeftHandSideExpression(state, context);
+      const expression = parseLeftHandSideExpression(state, context, start);
       if ((state.token & 67239936) === 67239936 && (state.flags & 1) < 1) {
           if (context & 1024 && (expression.name === 'eval' || expression.name === 'arguments')) {
               report(state, 83, 'PostFix');
@@ -7002,24 +7074,24 @@ define(['exports'], function (exports) { 'use strict';
           const operator = state.token;
           next(state, context | 32768);
           state.bindable = state.assignable = false;
-          return {
+          return finishNode(state, context, start, {
               type: 'UpdateExpression',
               argument: expression,
               operator: KeywordDescTable[operator & 255],
               prefix: false
-          };
+          });
       }
       return expression;
   }
-  function parseLeftHandSideExpression(state, context) {
+  function parseLeftHandSideExpression(state, context, start) {
       const expr = context & 1 && state.token === 151641
           ? parseCallImportOrMetaProperty(state, context, false)
           : state.token === 151644
               ? parseSuperExpression(state, context)
-              : parseMemberExpression(state, context, parsePrimaryExpression(state, context));
-      return parseCallExpression(state, context, expr);
+              : parseMemberExpression(state, context, parsePrimaryExpression(state, context, start));
+      return parseCallExpression(state, context, start, expr);
   }
-  function parseCallExpression(state, context, callee) {
+  function parseCallExpression(state, context, start, callee) {
       const scope = state.bindable && callee.name === 'async' ? createScope(1) : null;
       const { flags } = state;
       while (true) {
@@ -7062,14 +7134,15 @@ define(['exports'], function (exports) { 'use strict';
               };
           }
           state.bindable = state.assignable = false;
-          callee = {
+          callee = finishNode(state, context, start, {
               type: 'CallExpression',
               callee,
               arguments: params
-          };
+          });
       }
   }
   function parseCallImportOrMetaProperty(state, context, isNew) {
+      const { startIndex: start } = state;
       const id = parseIdentifier(state, context);
       if (optional(state, context, 13)) {
           if (context & 2048 && state.tokenValue === 'meta')
@@ -7078,22 +7151,25 @@ define(['exports'], function (exports) { 'use strict';
       }
       else if (isNew && state.token === 131083)
           report(state, 1, KeywordDescTable[state.token & 255]);
-      const expr = parseImportExpression();
-      return parseCallExpression(state, context, expr);
+      const expr = parseImportExpression(state, context);
+      return parseCallExpression(state, context, start, expr);
   }
-  function parseImportExpression() {
-      return {
+  function parseImportExpression(state, context) {
+      const { startIndex: start } = state;
+      return finishNode(state, context, start, {
           type: 'Import'
-      };
+      });
   }
   function parseMetaProperty(state, context, id) {
-      return {
+      const { startIndex: start } = state;
+      return finishNode(state, context, start, {
           meta: id,
           type: 'MetaProperty',
           property: parseIdentifier(state, context)
-      };
+      });
   }
   function parseSuperExpression(state, context) {
+      const { startIndex: start } = state;
       next(state, context);
       state.assignable = state.bindable = false;
       switch (state.token) {
@@ -7110,16 +7186,17 @@ define(['exports'], function (exports) { 'use strict';
           default:
               report(state, 1, 'super');
       }
-      return { type: 'Super' };
+      return finishNode(state, context, start, { type: 'Super' });
   }
   function parseIdentifierNameOrPrivateName(state, context) {
       if (!optional(state, context, 119))
           return parseIdentifierName(state, context);
+      const { startIndex: start } = state;
       state.flags |= 128;
-      return {
+      return finishNode(state, context, start, {
           type: 'PrivateName',
           name: state.tokenValue
-      };
+      });
   }
   function parseIdentifierName(state, context) {
       if ((state.token & (274432 | 4096)) !== 274432 &&
@@ -7127,101 +7204,105 @@ define(['exports'], function (exports) { 'use strict';
           report(state, 0);
       return parseIdentifier(state, context);
   }
-  function parseMemberExpression(state, context, expr) {
+  function parseMemberExpression(state, context, expr, start = state.startIndex) {
       while (true) {
           switch (state.token) {
               case 13:
                   next(state, context);
                   state.bindable = false;
                   state.assignable = true;
-                  expr = {
+                  const { startIndex: curIndex } = state;
+                  expr = finishNode(state, context, curIndex, {
                       type: 'MemberExpression',
                       object: expr,
                       computed: false,
                       property: context & 1
                           ? parseIdentifierNameOrPrivateName(state, context)
                           : parseIdentifierName(state, context)
-                  };
+                  });
                   continue;
-              case 131091:
+              case 131091: {
                   next(state, context | 32768);
                   state.bindable = false;
                   state.assignable = true;
-                  expr = {
+                  const { startIndex: curIndex } = state;
+                  expr = finishNode(state, context, curIndex, {
                       type: 'MemberExpression',
                       object: expr,
                       computed: true,
                       property: parseExpression(state, (context | 8192) ^ 8192)
-                  };
+                  });
                   expect(state, context, 20);
                   break;
+              }
               case 131081:
                   state.bindable = state.assignable = false;
-                  expr = {
+                  expr = finishNode(state, context, state.startIndex, {
                       type: 'TaggedTemplateExpression',
                       tag: expr,
                       quasi: parseTemplateLiteral(state, context)
-                  };
+                  });
                   break;
               case 131080:
                   state.bindable = state.assignable = false;
-                  expr = {
+                  expr = finishNode(state, context, start, {
                       type: 'TaggedTemplateExpression',
                       tag: expr,
-                      quasi: parseTemplate(state, context | 65536)
-                  };
+                      quasi: parseTemplate(state, context | 65536, state.startIndex)
+                  });
                   break;
               default:
                   return expr;
           }
       }
   }
-  function parseTemplateLiteral(parser, context) {
-      return {
+  function parseTemplateLiteral(state, context) {
+      const { startIndex: start } = state;
+      return finishNode(state, context, start, {
           type: 'TemplateLiteral',
           expressions: [],
-          quasis: [parseTemplateTail(parser, context)]
-      };
+          quasis: [parseTemplateTail(state, context)]
+      });
   }
-  function parseTemplateSpans(state, tail) {
-      return {
+  function parseTemplateSpans(state, context, start, tail) {
+      return finishNode(state, context, start, {
           type: 'TemplateElement',
           value: {
               cooked: state.tokenValue,
               raw: state.tokenRaw
           },
           tail
-      };
+      });
   }
-  function parseTemplate(state, context) {
-      const quasis = [parseTemplateSpans(state, false)];
+  function parseTemplate(state, context, start) {
+      const quasis = [parseTemplateSpans(state, context, start, false)];
       expect(state, context | 32768, 131080);
       const expressions = [parseExpression(state, (context | 8192) ^ 8192)];
       while ((state.token = scanTemplateTail(state, context)) !== 131081) {
-          quasis.push(parseTemplateSpans(state, false));
+          quasis.push(parseTemplateSpans(state, context, state.startIndex, false));
           expect(state, context | 32768, 131080);
           expressions.push(parseExpression(state, context));
       }
-      quasis.push(parseTemplateSpans(state, true));
+      quasis.push(parseTemplateSpans(state, context, state.startIndex, true));
       state.assignable = state.bindable = false;
       next(state, context);
-      return {
+      return finishNode(state, context, start, {
           type: 'TemplateLiteral',
           expressions,
           quasis
-      };
+      });
   }
   function parseTemplateTail(state, context) {
-      const { tokenValue, tokenRaw } = state;
+      const { tokenValue, tokenRaw, startIndex: start } = state;
       expect(state, context | 32768, 131081);
-      return {
+      return finishNode(state, context, start, {
           type: 'TemplateElement',
           value: {
               cooked: tokenValue,
               raw: tokenRaw
           },
           tail: true
-      };
+      });
   }
   function parseArgumentList(state, context) {
       expect(state, context | 32768, 131083);
@@ -7244,6 +7325,7 @@ define(['exports'], function (exports) { 'use strict';
       return expressions;
   }
   function parseSpreadElement(state, context, origin) {
+      const { startIndex: start } = state;
       expect(state, context | 32768, 14);
       if (origin & 2048 && (state.token === 131091 || state.token === 131084)) {
           state.bindable = state.assignable = false;
@@ -7256,10 +7338,10 @@ define(['exports'], function (exports) { 'use strict';
               state.bindable = state.assignable = false;
           }
       }
-      return {
+      return finishNode(state, context, start, {
           type: 'SpreadElement',
           argument
-      };
+      });
   }
   function parseAsyncArgument(state, context) {
       const arg = parseAssignmentExpression(state, context);
@@ -7267,6 +7349,7 @@ define(['exports'], function (exports) { 'use strict';
       return arg;
   }
   function parseNewExpression(state, context) {
+      const { startIndex: start } = state;
       const id = parseIdentifier(state, context | 32768);
       if (optional(state, context, 13)) {
           return (context & 67108864) < 1 || state.tokenValue !== 'target'
@@ -7275,35 +7358,41 @@ define(['exports'], function (exports) { 'use strict';
       }
       let callee = context & 1 && state.token === 151641
           ? parseCallImportOrMetaProperty(state, context, true)
-          : secludeGrammar(state, context, parsePrimaryExpression(state, context), parseMemberExpression);
-      return {
+          : secludeGrammar(state, context, parsePrimaryExpression(state, context, start), parseMemberExpression);
+      return finishNode(state, context, start, {
           type: 'NewExpression',
           callee,
           arguments: state.token === 131083 ? parseArgumentList(state, context) : []
-      };
+      });
   }
-  function parsePrimaryExpression(state, context) {
-      switch (state.token) {
+  function parsePrimaryExpression(state, context, start) {
+      const { token } = state;
+      if ((token & 274432) === 274432 || token === 126) {
+          return parseIdentifier(state, context | 65536);
+      }
+      if (token & 1048576) {
+          if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
+              state.bindable = state.assignable = false;
+              return parseFunctionExpression(state, context, true);
+          }
+          return parseIdentifier(state, context);
+      }
+      switch (token) {
           case 131074:
           case 131075:
               state.bindable = state.assignable = false;
-              return parseLiteral(state, context, state.tokenValue);
-          case 126:
-          case 405505:
-              return parseIdentifier(state, context | 65536);
+              return parseLiteral(state, context);
           case 116:
               state.bindable = state.assignable = false;
               return parseBigIntLiteral(state, context);
           case 131076:
               state.bindable = state.assignable = false;
-              return parseRegularExpressionLiteral(state, context);
+              return parseRegExpLiteral(state, context);
           case 151558:
           case 151557:
-              state.bindable = state.assignable = false;
-              return parseLiteral(state, context, state.tokenValue === 'true');
           case 151559:
               state.bindable = state.assignable = false;
-              return parseLiteral(state, context, null);
+              return parseNullOrTrueOrFalseLiteral(state, context);
           case 151646:
               state.bindable = state.assignable = false;
               return parseThisExpression(state, context);
@@ -7324,7 +7413,7 @@ define(['exports'], function (exports) { 'use strict';
               return parseTemplateLiteral(state, context);
           case 131080:
               state.bindable = state.assignable = false;
-              return parseTemplate(state, context);
+              return parseTemplate(state, context, start);
           case 151642:
               state.bindable = state.assignable = false;
               return parseNewExpression(state, context);
@@ -7334,30 +7423,24 @@ define(['exports'], function (exports) { 'use strict';
           case 119:
               state.bindable = state.assignable = false;
               return parseIdentifierNameOrPrivateName(state, context);
-          case 1060972: {
-              if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
-                  state.bindable = state.assignable = false;
-                  return parseFunctionExpression(state, context, true);
-              }
-              return parseIdentifier(state, context);
-          }
           case 402821192: {
               if (context & 1024)
                   report(state, 86);
+              const { startIndex: start } = state;
               next(state, context);
               if (state.flags & 1 && state.token === 131091) {
                   report(state, 97);
               }
               return context & 8
-                  ? {
+                  ? finishNode(state, context, start, {
                       type: 'Identifier',
                       name: 'let',
                       raw: 'let'
-                  }
-                  : {
+                  })
+                  : finishNode(state, context, start, {
                       type: 'Identifier',
                       name: 'let'
-                  };
+                  });
           }
           case 20561:
               return parseDoExpression(state, context);
@@ -7377,13 +7460,15 @@ define(['exports'], function (exports) { 'use strict';
   function parseDoExpression(state, context) {
       if ((context & 128) < 1)
           report(state, 91);
+      const { startIndex: start } = state;
       expect(state, context, 20561);
-      return {
+      return finishNode(state, context, start, {
           type: 'DoExpression',
           body: parseBlockStatement(state, context, createScope(1))
-      };
+      });
   }
   function parseArrayLiteral(state, context) {
+      const { startIndex: start } = state;
       next(state, context | 32768);
       const elements = [];
       while (state.token !== 20) {
@@ -7413,12 +7498,13 @@ define(['exports'], function (exports) { 'use strict';
           }
       }
       expect(state, context, 20);
-      return {
+      return finishNode(state, context, start, {
           type: 'ArrayExpression',
           elements
-      };
+      });
   }
   function parseFunctionExpression(state, context, isAsync) {
+      const { startIndex: start } = state;
       expect(state, context, 151639);
       const isGenerator = optional(state, context, 21105203);
       let functionScope = createScope(1);
@@ -7454,16 +7540,16 @@ define(['exports'], function (exports) { 'use strict';
       const paramScoop = createSubScope(functionScope, 5);
       const params = parseFormalParameters(state, context | 67108864, paramScoop, 32, 0);
       const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), firstRestricted, 0);
-      return {
+      return finishNode(state, context, start, {
           type: 'FunctionExpression',
           params,
           body,
           async: isAsync,
           generator: isGenerator,
           id
-      };
+      });
   }
-  function parseArrowFunctionExpression(state, context, scope, params, isAsync, type) {
+  function parseArrowFunctionExpression(state, context, scope, params, isAsync, start, type) {
       if (type & 64) {
           expect(state, context | 32768, 131082);
       }
@@ -7484,14 +7570,14 @@ define(['exports'], function (exports) { 'use strict';
       const body = expression
           ? secludeGrammar(state, context, 0, parseAssignmentExpression)
           : parseFunctionBody(state, (context | 4096) ^ 4096, createSubScope(scope, 1), state.tokenValue, 0);
-      return {
+      return finishNode(state, context, start, {
           type: 'ArrowFunctionExpression',
           body,
           params,
           id: null,
           async: isAsync,
           expression
-      };
+      });
   }
   function parseParenthesizedExpression(state, context) {
       expect(state, context | 32768, 131083);
@@ -7518,6 +7604,7 @@ define(['exports'], function (exports) { 'use strict';
               params: [rest]
           };
       }
+      const { startIndex: start } = state;
       let expr = acquireGrammar(state, (context | 8192) ^ 8192, 0, parseAssignmentExpression);
       let isSequence = false;
       if (state.token === 18) {
@@ -7564,10 +7651,10 @@ define(['exports'], function (exports) { 'use strict';
                   params.push(acquireGrammar(state, (context | 8192) ^ 8192, 0, parseAssignmentExpression));
               }
           }
-          expr = {
+          expr = finishNode(state, context, start, {
               type: 'SequenceExpression',
               expressions: params
-          };
+          });
       }
       expect(state, context, 16);
       if ((state.flags & 1) < 1 && state.token === 131082) {
@@ -7587,6 +7674,7 @@ define(['exports'], function (exports) { 'use strict';
       return expr;
   }
   function parseClassDeclaration(state, context, scope) {
+      const { startIndex: start } = state;
       next(state, context);
       context = (context | 1024 | 16777216) ^ 16777216;
       let id = null;
@@ -7606,14 +7694,15 @@ define(['exports'], function (exports) { 'use strict';
           context = (context | 524288) ^ 524288;
       context |= 262144;
       const body = parseClassBodyAndElementList(state, context | 1024, 128);
-      return {
+      return finishNode(state, context, start, {
           type: 'ClassDeclaration',
           id,
           superClass,
           body
-      };
+      });
   }
   function parseClassExpression(state, context) {
+      const { startIndex: start } = state;
       next(state, context);
       context = (context | 1024 | 16777216) ^ (1024 | 16777216);
       let id = null;
@@ -7631,14 +7720,15 @@ define(['exports'], function (exports) { 'use strict';
           context = (context | 524288) ^ 524288;
       context |= 262144;
       const body = parseClassBodyAndElementList(state, context | 1024, 0);
-      return {
+      return finishNode(state, context, start, {
           type: 'ClassExpression',
           id,
           superClass,
           body
-      };
+      });
   }
   function parseClassBodyAndElementList(state, context, origin) {
+      const { startIndex: start } = state;
       expect(state, context | 32768, 131084);
       const body = [];
       while (state.token !== 536870927) {
@@ -7648,14 +7738,14 @@ define(['exports'], function (exports) { 'use strict';
       }
       expect(state, origin & 128 ? context | 32768 : context, 536870927);
       state.flags &= ~2048;
-      return {
+      return finishNode(state, context, start, {
           type: 'ClassBody',
           body
-      };
+      });
   }
   function parseClassElementList(state, context, modifier) {
       let key;
-      let { token, tokenValue } = state;
+      let { token, tokenValue, startIndex: start } = state;
       if (state.token & 274432) {
           key = parseIdentifier(state, context);
           switch (token) {
@@ -7675,7 +7765,7 @@ define(['exports'], function (exports) { 'use strict';
                               report(state, 0);
                       }
                       else if (state.token === 131074 || state.token === 131075) {
-                          key = parseLiteral(state, context, state.tokenValue);
+                          key = parseLiteral(state, context);
                       }
                       else if (state.token === 131091) {
                           modifier |= 2;
@@ -7694,7 +7784,7 @@ define(['exports'], function (exports) { 'use strict';
                           key = parseIdentifier(state, context);
                       }
                       else if (state.token === 131074 || state.token === 131075) {
-                          key = parseLiteral(state, context, state.tokenValue);
+                          key = parseLiteral(state, context);
                       }
                       else if (state.token === 131091) {
                           modifier |= 2;
@@ -7716,7 +7806,7 @@ define(['exports'], function (exports) { 'use strict';
                           key = parseIdentifier(state, context);
                       }
                       else if (state.token === 131074 || state.token === 131075) {
-                          key = parseLiteral(state, context, state.tokenValue);
+                          key = parseLiteral(state, context);
                       }
                       else if (state.token === 131091) {
                           modifier |= 2;
@@ -7741,7 +7831,7 @@ define(['exports'], function (exports) { 'use strict';
       else if (state.token === 131074 || state.token === 131075) {
           if (state.tokenValue === 'constructor')
               modifier |= 64;
-          key = parseLiteral(state, context, state.tokenValue);
+          key = parseLiteral(state, context);
       }
       else if (state.token === 21105203) {
           next(state, context);
@@ -7750,7 +7840,7 @@ define(['exports'], function (exports) { 'use strict';
               key = parseIdentifier(state, context);
           }
           else if (state.token === 131074 || state.token === 131075) {
-              key = parseLiteral(state, context, state.tokenValue);
+              key = parseLiteral(state, context);
           }
           else if (state.token === 131091) {
               modifier |= 2;
@@ -7793,7 +7883,7 @@ define(['exports'], function (exports) { 'use strict';
       }
       if (state.token !== 131083)
           report(state, 0);
-      return {
+      return finishNode(state, context, start, {
           type: 'MethodDefinition',
           kind: (modifier & 32) === 0 && modifier & 64
               ? 'constructor'
@@ -7806,7 +7896,7 @@ define(['exports'], function (exports) { 'use strict';
           computed: (modifier & 2) !== 0,
           key,
           value: parseMethodDeclaration(state, context, modifier)
-      };
+      });
   }
   function parseObjectLiteral(state, context, scope, type) {
       next(state, context);
@@ -7817,7 +7907,7 @@ define(['exports'], function (exports) { 'use strict';
       let hasProto = false;
       const properties = [];
       let objState = 0;
-      const { assignable, bindable, pendingCoverInitializeError } = state;
+      const { assignable, bindable, pendingCoverInitializeError, startIndex: start } = state;
       state.bindable = true;
       state.assignable = true;
       state.pendingCoverInitializeError = null;
@@ -7826,6 +7916,7 @@ define(['exports'], function (exports) { 'use strict';
               properties.push(parseSpreadElement(state, context, 2048));
           }
           else {
+              const { startIndex: objStart } = state;
               if (state.token & 274432 ||
                   state.token === 121 ||
                   state.token === 126) {
@@ -7844,7 +7935,7 @@ define(['exports'], function (exports) { 'use strict';
                       if (state.token === 8388637) {
                           state.pendingCoverInitializeError = 87;
                           expect(state, context, 8388637);
-                          value = parseAssignmentPattern(state, (context | 8192) ^ 8192, key);
+                          value = parseAssignmentPattern(state, (context | 8192) ^ 8192, key, objStart);
                       }
                       else {
                           value = key;
@@ -7906,7 +7997,7 @@ define(['exports'], function (exports) { 'use strict';
                           value = parseMethodDeclaration(state, context, objState);
                       }
                       else if (state.token === 131074 || state.token === 131075) {
-                          key = parseLiteral(state, context, state.tokenValue);
+                          key = parseLiteral(state, context);
                           if (state.token !== 131083)
                               report(state, 0);
                           if (token === 1060972) {
@@ -7942,7 +8033,7 @@ define(['exports'], function (exports) { 'use strict';
               }
               else if (state.token === 131074 || state.token === 131075) {
                   tokenValue = state.tokenValue;
-                  key = parseLiteral(state, context, tokenValue);
+                  key = parseLiteral(state, context);
                   if (state.token === 8388637)
                       report(state, 0);
                   if (optional(state, context | 32768, 21)) {
@@ -7998,7 +8089,7 @@ define(['exports'], function (exports) { 'use strict';
                       }
                   }
                   else if (state.token === 131074 || state.token === 131075) {
-                      key = parseLiteral(state, context, state.tokenValue);
+                      key = parseLiteral(state, context);
                       state.bindable = state.assignable = false;
                       value = parseMethodDeclaration(state, context, objState | 8);
                       objState |= 1;
@@ -8016,7 +8107,7 @@ define(['exports'], function (exports) { 'use strict';
               else {
                   report(state, 1, KeywordDescTable[state.token & 255]);
               }
-              properties.push({
+              properties.push(finishNode(state, context, objStart, {
                   type: 'Property',
                   key,
                   value,
@@ -8024,7 +8115,7 @@ define(['exports'], function (exports) { 'use strict';
                   computed: (objState & 2) > 0,
                   method: (objState & 1) > 0,
                   shorthand: (objState & 4) > 0
-              });
+              }));
           }
           optional(state, context, 18);
       }
@@ -8033,10 +8124,10 @@ define(['exports'], function (exports) { 'use strict';
       state.bindable = state.bindable && bindable;
       state.assignable = state.assignable && assignable;
       state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
-      return {
+      return finishNode(state, context, start, {
           type: 'ObjectExpression',
           properties
-      };
+      });
   }
   function parseMethodDeclaration(state, context, objState) {
       state.assignable = state.bindable = false;
@@ -8056,6 +8147,7 @@ define(['exports'], function (exports) { 'use strict';
       let functionScope = createScope(1);
       let id = null;
       let firstRestricted;
+      const { startIndex: start } = state;
       if (state.token & 274432) {
           validateBindingIdentifier(state, context & 1024
               ? 2097152
@@ -8089,69 +8181,86 @@ define(['exports'], function (exports) { 'use strict';
       const paramScoop = createSubScope(functionScope, 5);
       const params = parseFormalParameters(state, context | 67108864 | 33554432, paramScoop, 32, objState);
       const body = parseFunctionBody(state, context | 67108864 | 33554432, createSubScope(paramScoop, 1), firstRestricted, 0);
-      return {
+      return finishNode(state, context, start, {
           type: 'FunctionExpression',
           params,
           body,
           async: (objState & 16) > 0,
           generator: (objState & 8) > 0,
           id
-      };
+      });
   }
-  function parseLiteral(state, context, value) {
-      const { tokenRaw: raw } = state;
+  function parseLiteral(state, context) {
+      const { tokenRaw: raw, tokenValue: value, startIndex } = state;
       if (context & 1024 && state.flags & 8)
           report(state, 93);
       next(state, context);
       return context & 8
-          ? {
+          ? finishNode(state, context, startIndex, {
               type: 'Literal',
               value,
               raw
-          }
-          : {
+          })
+          : finishNode(state, context, startIndex, {
               type: 'Literal',
               value
-          };
+          });
   }
-  function parseThisExpression(state, context) {
-      next(state, context);
-      return {
-          type: 'ThisExpression'
-      };
-  }
-  function parseIdentifier(state, context) {
-      const { tokenRaw: raw, tokenValue: name } = state;
+  function parseNullOrTrueOrFalseLiteral(state, context) {
+      const { token, startIndex } = state;
+      const raw = KeywordDescTable[token & 255];
+      const value = token === 151559 ? null : raw === 'true';
       next(state, context);
       return context & 8
-          ? {
+          ? finishNode(state, context, startIndex, {
+              type: 'Literal',
+              value,
+              raw
+          })
+          : finishNode(state, context, startIndex, {
+              type: 'Literal',
+              value
+          });
+  }
+  function parseThisExpression(state, context) {
+      const { startIndex } = state;
+      next(state, context);
+      return finishNode(state, context, startIndex, {
+          type: 'ThisExpression'
+      });
+  }
+  function parseIdentifier(state, context) {
+      const { tokenRaw: raw, tokenValue: name, startIndex } = state;
+      next(state, context);
+      return context & 8
+          ? finishNode(state, context, startIndex, {
               type: 'Identifier',
               name,
               raw
-          }
-          : {
+          })
+          : finishNode(state, context, startIndex, {
               type: 'Identifier',
               name
-          };
+          });
   }
-  function parseRegularExpressionLiteral(state, context) {
-      const { tokenRegExp: regex, tokenValue: value } = state;
+  function parseRegExpLiteral(state, context) {
+      const { tokenRegExp: regex, tokenValue: value, startIndex: start } = state;
       next(state, context);
-      return {
+      return finishNode(state, context, start, {
           type: 'Literal',
           value,
           regex
-      };
+      });
   }
   function parseBigIntLiteral(state, context) {
-      const { tokenRaw: raw, tokenValue: value } = state;
+      const { tokenRaw: raw, tokenValue: value, startIndex: start } = state;
       next(state, context);
-      return {
+      return finishNode(state, context, start, {
           type: 'Literal',
           value,
           bigint: raw,
           raw
-      };
+      });
   }
 
   const version = '2.0';

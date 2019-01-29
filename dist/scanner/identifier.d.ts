@@ -5,4 +5,5 @@ export declare function scanIdentifierOrKeyword(state: ParserState, context: Con
 export declare function scanIdentifier(state: ParserState, context: Context): Token;
 export declare function scanPrivateName(state: ParserState, _: Context): Token;
 export declare function scanIdentifierRest(state: ParserState, context: Context): Token;
+export declare function scanIdentifierUnicodeEscape(state: ParserState): number;
 //# sourceMappingURL=identifier.d.ts.map
