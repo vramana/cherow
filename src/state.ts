@@ -3586,7 +3586,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
       async: false
     };
   }
-  state.flags | Flags.SimpleParameterList;
+
   state.bindable = false;
 
   context = (context | Context.ParentheziedContext) ^ Context.ParentheziedContext;
