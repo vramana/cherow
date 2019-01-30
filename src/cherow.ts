@@ -1,4 +1,6 @@
-import { parseStatementList, create, parseModuleItem } from './state';
+import { create } from './state';
+import { parseModuleItem } from './parser/module';
+import { parseStatementList } from './parser/statement';
 import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context, createScope, ScopeType } from './common';
 import { skipHashBang } from './scanner';
