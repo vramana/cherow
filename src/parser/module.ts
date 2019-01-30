@@ -79,7 +79,7 @@ function parseModuleItemList(state: ParserState, context: Context, scope: ScopeS
 function parseExportDeclaration(state: ParserState, context: Context, scope: ScopeState): any {
   const { startIndex: start } = state;
   expect(state, context, Token.ExportKeyword);
-  const specifiers: ESTree.ExportSpecifier[] = [];
+  const specifiers: any[] = [];
 
   let declaration: any = null;
   let source: ESTree.Literal | null = null;
@@ -121,15 +121,30 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
   switch (state.token) {
     case Token.Multiply: {
-      next(state, context);
+      next(state, context); // '*'
+      if (context & Context.OptionsExperimental && optional(state, context, Token.AsKeyword)) {
+        addVariableAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
+        specifiers.push(
+          finishNode(state, context, state.startIndex, {
+            type: 'ExportNamespaceSpecifier',
+            specifier: parseIdentifier(state, context)
+          } as any)
+        );
+      }
       expect(state, context, Token.FromKeyword);
       if (state.token !== <Token>Token.StringLiteral) report(state, Errors.Unexpected);
       source = parseLiteral(state, context);
       consumeSemicolon(state, context);
-      return finishNode(state, context, start, {
-        type: 'ExportAllDeclaration',
-        source
-      } as any);
+      return context & Context.OptionsExperimental && specifiers
+        ? finishNode(state, context, start, {
+            type: 'ExportNamedDeclaration',
+            source,
+            specifiers
+          } as any)
+        : finishNode(state, context, start, {
+            type: 'ExportAllDeclaration',
+            source
+          } as any);
     }
     case Token.LeftBrace: {
       const exportedNames: string[] = [];

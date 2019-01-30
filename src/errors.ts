@@ -122,7 +122,8 @@ export const enum Errors {
   InvalidLHSOfError,
   IllegalUseStrict,
   IllegalBound,
-  IllegalBoundNonSimple
+  IllegalBoundNonSimple,
+  DuplicateBinding
 }
 
 /*@internal*/
@@ -243,6 +244,7 @@ export const errorMessages: {
   [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
   [Errors.InvalidKeywordAsAlias]: 'Only a identifier can be used to indicate alias',
   [Errors.DuplicateExportBinding]: "'%0' export binding already bound",
+  [Errors.DuplicateBinding]: "'%0' binding already bound",
   [Errors.InvalidDefaultImport]: "Only '*' or '{...}' can be imported after default",
   [Errors.InvalidExportImportSource]: '%0 source must be string',
   [Errors.InvalidImportExportSloppy]: 'The %0 keyword can only be used with the module goal',

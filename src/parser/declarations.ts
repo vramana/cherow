@@ -299,7 +299,9 @@ export function parseLexicalDeclaration(
   const { startIndex: start } = state;
   next(state, context);
   const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
-  if (checkIfExistInLexicalBindings(state, context, scope, origin, false)) report(state, Errors.Unexpected);
+  if (checkIfExistInLexicalBindings(state, context, scope, origin, false)) {
+    report(state, Errors.DuplicateBinding, KeywordDescTable[token & Token.Type]);
+  }
   consumeSemicolon(state, context);
   return finishNode(state, context, start, {
     type: 'VariableDeclaration',
