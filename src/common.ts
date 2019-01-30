@@ -33,6 +33,7 @@ export const enum Context {
   SuperProperty = 1 << 18,
 
   SuperCall = 1 << 19,
+  ParentheziedContext = 1 << 20,
   YieldContext = 1 << 21,
   AwaitContext = 1 << 22,
   InArgList = 1 << 23,
@@ -61,7 +62,9 @@ export const enum Flags {
   InArrowContext = 1 << 8,
   HasStrictReserved = 1 << 9,
   StrictEvalArguments = 1 << 10,
-  HasConstructor = 1 << 11
+  HasConstructor = 1 << 11,
+  HasAwait  = 1 << 12,
+  HasYield   = 1 << 13,
 }
 // prettier-ignore
 /**
@@ -133,7 +136,8 @@ export const enum Arrows {
   None = 0,
   ConciseBody = 1 << 0,
   Plain = 1 << 1,
-  Async = 1 << 2
+  Async = 1 << 2,
+  Parenthesized = Plain | Async
 }
 
 export const enum Grammar {
@@ -144,6 +148,15 @@ export const enum Grammar {
   NotAssignable = 1 << 3,
   NotAssignbleOrBindable = NotBindable | NotAssignable,
   BindableAndAssignable = Assignable | Bindable
+}
+
+export const enum ParenthesizedState {
+  None = 0,
+  ReservedWords = 1 << 0,
+  Yield = 1 << 1,
+  Await = 1 << 2,
+  SequenceExpression = 1 << 3,
+  Arrow = 1 << 4
 }
 
 /*@internal*/
@@ -358,10 +371,8 @@ export function addVariable(
     }
   } else {
     const lex = scope.lex;
-
     if (checkDuplicates) {
       checkIfExistInLexicalParentScope(state, context, scope, origin, '@' + key);
-
       if (lex['@' + key] !== undefined) {
         if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
           report(state, Errors.AlreadyDeclared, key);
@@ -479,10 +490,10 @@ export function addFunctionName(
  * @param state Parser object
  * @param arg Argument list
  */
-export function validateFunctionArgs(state: ParserState, arg: any): void {
+export function validateFunctionArgs(state: ParserState, arg: any, isSimple: boolean): void {
   for (const key in arg) {
     if (key[0] === '@' && key.length > 1 && arg[key] > 1) {
-      report(state, Errors.AlreadyDeclared, key.slice(1));
+      report(state, isSimple ? Errors.IllegalBoundNonSimple : Errors.IllegalBound, key.slice(1));
     }
   }
 }

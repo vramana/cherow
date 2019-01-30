@@ -4,6 +4,95 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Async arrow', () => {
+  for (const arg of [
+    'var [await f] = [];',
+    'let [await f] = [];',
+    'const [await f] = [];',
+    'var [...await f] = [];',
+    'let [...await f] = [];',
+    'const [...await f] = [];',
+    'var { await f } = {};',
+    'let { await f } = {};',
+    'const { await f } = {};',
+    'var { ...await f } = {};',
+    'let { ...await f } = {};',
+    'const { ...await f } = {};',
+    'var { f: await f } = {};',
+    'let { f: await f } = {};',
+    'const { f: await f } = {};',
+    'var { f: ...await f } = {};',
+    'let { f: ...await f } = {};',
+    'const { f: ...await f } = {};',
+    'var { [f]: await f } = {};',
+    'let { [f]: await f } = {};',
+    'const { [f]: await f } = {};',
+    'var { [f]: ...await f } = {};',
+    'let { [f]: ...await f } = {};',
+    'const { [f]: ...await f } = {};'
+  ]) {
+    it(`let f = async() => {${arg}}`, () => {
+      t.throws(() => {
+        parseSource(`let f = async() => {${arg}}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`let f = () => {${arg}}`, () => {
+      t.throws(() => {
+        parseSource(`let f = () => {${arg}}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`"'use strict'; function f() {${arg}}`, () => {
+      t.throws(() => {
+        parseSource(`"'use strict'; function f() {${arg}}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`"'use strict'; async function* f() {${arg}}`, () => {
+      t.throws(() => {
+        parseSource(`"'use strict'; async function* f() {${arg}}`, undefined, Context.Empty);
+      });
+    });
+  }
+
+  for (const arg of [
+    'async(...a = b) => b',
+    'async(...a,) => b',
+    'async(...a, b) => b',
+    'var await = 1;',
+    'var { await } = 1;',
+    'var [ await ] = 1;',
+    'return async (await) => {};',
+    'var O = { async [await](a, a) {} }',
+    'await;',
+    'var O = { async method(eval) {} }',
+    "var O = { async ['meth' + 'od'](eval) {} }",
+    "var O = { async 'method'(eval) {} }",
+    'var O = { async 0(eval) {} }',
+
+    'var O = { async method(arguments) {} }',
+    "var O = { async ['meth' + 'od'](arguments) {} }",
+    "var O = { async 'method'(arguments) {} }",
+    'var O = { async 0(arguments) {} }',
+
+    'var O = { async method(dupe, dupe) {} }',
+    'function await() {}',
+
+    'var f = await => 42;',
+    'var f = (await) => 42;',
+    'var f = (await, a) => 42;',
+    'var f = (...await) => 42;',
+    'async(a = await => 1) => a',
+    'async(a = (await) => 1) => a',
+    'async(a = (...await) => 1) => a'
+  ]) {
+    it(`(${arg}) = foo`, () => {
+      t.throws(() => {
+        parseSource(`(${arg}) = foo`, undefined, Context.Strict);
+      });
+    });
+  }
+
   const invalidSyntax = [
     "var asyncFn = async await => await + 'test';",
     `async ()
@@ -44,6 +133,90 @@ describe('Expressions - Async arrow', () => {
   }
 
   const inValids: Array<[string, Context]> = [
+    ['async (a, a) => {}', Context.Empty],
+    ['(a, b) => { let a; }', Context.Empty],
+    ['(...a, b) => { let a; }', Context.Empty],
+    ['(a, ...b) => { let a; }', Context.Empty],
+    // ['a + async () => {}', Context.Empty],
+    ['function* a(){ async (yield) => {}; }', Context.Empty],
+    ['f(async\n()=>c)', Context.Empty],
+    // ['let f = a + b + async()=>d', Context.Empty],
+    ['let f = async\nfunction g(){await x}', Context.Empty],
+    ['let f = async\ng => await g', Context.Empty],
+    ['let f = async\n(g) => g', Context.Empty],
+    ['var x = async \n () => x, y', Context.Empty],
+    ['async \n () => {}', Context.Empty],
+    ['async () \n => {}', Context.Empty],
+    ['async \n () \n => {}', Context.Empty],
+    ['async x \n => x', Context.Empty],
+    ['async \n x \n => x', Context.Empty],
+    ['async \n (x) => x', Context.Empty],
+    ['async (x) \n => x', Context.Empty],
+    ['async \n (x) \n => x', Context.Empty],
+    ['async \n (x, y) => x', Context.Empty],
+    ['async \n () => x', Context.Empty],
+    ['break async \n () => x', Context.Empty],
+    // ['async: for (;;) break async \n () => x', Context.Empty],
+    ['continue async \n () => x', Context.Empty],
+    ['let x = {[async () => x, y]: z}', Context.Empty],
+    ['var x = async \n () => x, y', Context.Empty],
+    ['let x = async \n () => x', Context.Empty],
+    ['let x = async \n () => x, y', Context.Empty],
+    ['const x = async \n () => x', Context.Empty],
+    ['const x = async \n () => x, y', Context.Empty],
+    ['export async () => x', Context.Strict | Context.Module],
+    ['export async \n () => x', Context.Strict | Context.Module],
+    ['(async \n () => x)', Context.Empty],
+    ['[async \n () => x]', Context.Empty],
+    ['x[async \n () => x]', Context.Empty],
+    ['x(async \n () => x)', Context.Empty],
+    ['function f(x = async \n () => x){}', Context.Empty],
+    ['`${async \n () => x}`', Context.Empty],
+    ['do async \n () => x while (x);', Context.Empty],
+    ['if (async \n () => x) x', Context.Empty],
+    ['while (async \n () => x) x', Context.Empty],
+    ['for (async \n () => x;;) x', Context.Empty],
+    ['for (;async \n () => x;) x', Context.Empty],
+    ['for (;;async \n () => x) x', Context.Empty],
+    ['for (x in async \n () => x) x', Context.Empty],
+    ['for (x of async \n () => x) x', Context.Empty],
+    ['try {} catch(e = async \n () => x) {}', Context.Empty],
+    ['if (x) async \n () => x else y', Context.Empty],
+    ['class x extends async \n () => x {}', Context.Empty],
+    ['with (async \n () => x) {}', Context.Empty],
+    ['async \n (x) = y;', Context.Empty],
+    ['({async \n foo() {}})', Context.Empty],
+    //    ['({async foo \n () {}})', Context.Empty],
+    //  ['({async foo () \n {}})', Context.Empty],
+    //    ['class x {\nasync foo() {}}', Context.Empty],
+    ['class x {async \n foo() {}}', Context.Empty],
+    ['async(a = (...await) => {}) => {};', Context.Empty],
+    ['{ async function f() {} var f; }', Context.Empty],
+    ['async \n function(){}', Context.Empty],
+    ['if (async \n () => x) x', Context.Empty],
+    ['export async \n function(){}', Context.Strict | Context.Module],
+    ['async \n => async', Context.Empty],
+    ['(async \n => async)', Context.Empty],
+    ['let async => async', Context.Empty],
+    ['let async \n => async', Context.Empty],
+    ['let f = async \n (g) => g', Context.Empty],
+    ['async function f() { return async (await) => {}; }', Context.Empty],
+    ['async function f() { var f = await => 42; }', Context.Empty],
+    ['async function f() { var f = (await) => 42; }', Context.Empty],
+    ['async function f() { var f = (await, a) => 42; }', Context.Empty],
+    ['async function f() { var f = (...await) => 42; }', Context.Empty],
+    ['async function f() { var e = (await); }', Context.Empty],
+    ['async function f() { var e = (await, f); }', Context.Empty],
+    ['async function f() { var e = (await = 42) }', Context.Empty],
+    ['async function f() { var e = [await];  }', Context.Empty],
+    ['async function f() { var e = {await}; }', Context.Empty],
+    ['async function f() { function await() {} }', Context.Empty],
+    ['async function f() { var O = { async [await](a, a) {} } }', Context.Empty],
+    ['async function f() { var [ await ] = 1; }', Context.Empty],
+    ['async function f() { var { await } = 1; }', Context.Empty],
+    ['async function f() { var await = 1; }', Context.Empty],
+    ['async function f() { var O = { async [await](a, a) {} } }', Context.Empty],
+    ['async function f() { await; }', Context.Empty],
     ['async cherow => { let cherow;}', Context.Empty],
     ['async cherow => { const cherow; }', Context.Empty],
     ['async cherow => let cherow;', Context.Empty],
@@ -53,14 +226,16 @@ describe('Expressions - Async arrow', () => {
     ['cherow => let cherow;', Context.Empty],
     ['async (a, ...b, ...c) => {}', Context.Empty],
     ['async\n(a, b) => {}', Context.Empty],
-    // ['new async() => {}', Context.Empty],
+    //['new async() => {}', Context.Empty],
     ['({ async\nf(){} })', Context.Empty],
     // ['async ((a)) => {}', Context.Empty],
     ['({ async get a(){} })', Context.Empty],
     ['async a => {} ()', Context.Empty],
     ['a + async b => {}', Context.Empty],
     // ['a + async () => {}', Context.Empty],
-    //    ['function* a(){ async (yield) => {}; }', Context.Empty],
+    ['function* a(){ async (yield) => {}; }', Context.Empty],
+    ['async(a = (...await) => {}) => {};', Context.Empty],
+    ['async(await) => {  }', Context.Empty],
     ['function* a(){ async yield => {}; }', Context.Empty],
     ['with({}) async function f(){};', Context.Empty],
     ['async await => 0', Context.Empty],

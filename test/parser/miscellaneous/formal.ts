@@ -50,6 +50,12 @@ describe('Miscellaneous - Formal params', () => {
         });
       });
 
+      it(`var a = (${arg}) => { 'use strict'; }`, () => {
+        t.throws(() => {
+          parseSource(`var a = (${arg}) => { 'use strict'; }`, undefined, Context.Empty);
+        });
+      });
+
       it(`'use strict'; function f(${arg}) { 'use strict'; }`, () => {
         t.throws(() => {
           parseSource(`'use strict'; function f(${arg}) { 'use strict'; }`, undefined, Context.Empty);

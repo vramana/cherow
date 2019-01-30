@@ -8,6 +8,11 @@ describe('Expressions - Arrows', () => {
     ['await => { let x; }', Context.AwaitContext],
     ['async await => {}', Context.Empty],
     ['async x => { let x; }', Context.Empty],
+    ['function *a() { yield => foo }', Context.Empty],
+    ['"use strict"; interface => foo', Context.Empty],
+    ['yield x => zoo', Context.Empty],
+    ['foo bar => zoo', Context.Empty],
+    ['async x => { let x; }', Context.Empty],
     // ['(x) => { let x; }', Context.Empty],
     // ['({x}) => { let x; }', Context.Empty],
     // ['({a}, {a}) => {}', Context.Empty],
@@ -30,9 +35,7 @@ describe('Expressions - Arrows', () => {
     ['()?c:d=>{}=>{};', Context.Empty],
     ['var x = ()[1]=>{}', Context.Empty],
     ['var x = ()[c]=>{};', Context.Empty],
-
     //['var x = (a,b)+c=>{};', Context.Empty],
-
     //['var x = a`template-head${c}template-tail`=>{}', Context.Empty],
     //['var x = ac++=>{};', Context.Empty],
     //    ['(a)`${c}template-tail`=>{}', Context.Empty],
@@ -46,7 +49,7 @@ describe('Expressions - Arrows', () => {
     //  ['(a)[c]=>{};', Context.Empty],
     //['var x = (a)`c`=>{}', Context.Empty],
     //    ['var x = (a)-c=>{};', Context.Empty],
-    //['(...a)`c`=>{}', Context.Empty],
+    ['(...a)`c`=>{}', Context.Empty],
     ['(...a)-c=>{};', Context.Empty],
     ['var x = (...a)+c=>{}', Context.Empty],
     ['var x = (...a)-c=>{};', Context.Empty],
@@ -60,29 +63,29 @@ describe('Expressions - Arrows', () => {
     ['interface => { "use strict"; 0 }', Context.Empty],
     ['(eval) => { "use strict"; 0 }', Context.Empty],
     ['(arguments) => { "use strict"; 0 }', Context.Empty],
-    // ['(yield) => { "use strict"; 0 }', Context.Empty],
-    // ['(interface) => { "use strict"; 0 }', Context.Empty],
+    ['(yield) => { "use strict"; 0 }', Context.Empty],
+    ['(interface) => { "use strict"; 0 }', Context.Empty],
     ['eval, bar) => { "use strict"; 0 }', Context.Empty],
     ['(bar, eval) => { "use strict"; 0 }', Context.Empty],
     ['(bar, arguments) => { "use strict"; 0 }', Context.Empty],
-    // ['(bar, yield) => { "use strict"; 0 }', Context.Empty],
-    // ['(bar, interface) => { "use strict"; 0 }', Context.Empty],
+    ['(bar, yield) => { "use strict"; 0 }', Context.Empty],
+    ['(bar, interface) => { "use strict"; 0 }', Context.Empty],
     ['(a,...b)+c=>{}', Context.Empty],
-    //    ['32 => {}', Context.Empty],
+    ['32 => {}', Context.Empty],
     ['(32) => {}', Context.Empty],
     ['(a, 32) => {}', Context.Empty],
     ['if => {}', Context.Empty],
-    // ["(if) => {}", Context.Empty],
-    // ["(a, if) => {}", Context.Empty],
+    ['(if) => {}', Context.Empty],
+    ['(a, if) => {}', Context.Empty],
     // ["a + b => {}", Context.Empty],
-    // ["(a + b) => {}", Context.Empty],
-    // ["(a + b, c) => {}", Context.Empty],
-    // ["(a, b - c) => {}", Context.Empty],
-    //    ['"a" => {}', Context.Empty],
+    ['(a + b) => {}', Context.Empty],
+    ['(a + b, c) => {}', Context.Empty],
+    ['(a, b - c) => {}', Context.Empty],
+    ['"a" => {}', Context.Empty],
     ['("a") => {}', Context.Empty],
     ['("a", b) => {}', Context.Empty],
     ['(a, "b") => {}', Context.Empty],
-    //    ['-a => {}', Context.Empty],
+    ['-a => {}', Context.Empty],
     ['(-a) => {}', Context.Empty],
     ['(-a, b) => {}', Context.Empty],
     ['(a, -b) => {}', Context.Empty],
@@ -91,7 +94,7 @@ describe('Expressions - Arrows', () => {
     ['(a++) => {}', Context.Empty],
     ['(a++, b) => {}', Context.Empty],
     ['(a, b++) => {}', Context.Empty],
-    //    ['[] => {}', Context.Empty],
+    ['[] => {}', Context.Empty],
     ['(foo ? bar : baz) => {}', Context.Empty],
     ['(a, foo ? bar : baz) => {}', Context.Empty],
     ['(foo ? bar : baz, a) => {}', Context.Empty],
@@ -99,7 +102,16 @@ describe('Expressions - Arrows', () => {
     ['(c, a.b) => {}', Context.Empty],
     ["(a['b'], c) => {}", Context.Empty],
     ["(c, a['b']) => {}", Context.Empty],
-    ['(...a = b) => b', Context.Empty]
+    ['(...a = b) => b', Context.Empty],
+    ['eval => { "use strict"; }', Context.Empty],
+    ['([]) => { "use strict"; }', Context.Empty],
+    ['(a, []) => { "use strict"; }', Context.Empty],
+
+    [
+      `var af = x
+    => {};`,
+      Context.Empty
+    ]
   ]);
 
   for (const arg of [
@@ -257,6 +269,163 @@ describe('Expressions - Arrows', () => {
   // valid tests
 
   pass('Expressions - Arrows (pass)', [
+    [
+      `eval => "use strict";`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Literal',
+                value: 'use strict'
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'eval'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `var af = (x) =>
+      { return x };`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ReturnStatement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      }
+                    ]
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: false
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'af'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      `var af = (x) =>
+  x;`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: true
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'af'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      `var af = x =>
+      x;`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: true
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'af'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     [
       `(x, y, z) => { return x + y + z; }`,
       Context.Empty,
@@ -2006,6 +2175,249 @@ describe('Expressions - Arrows', () => {
             }
           }
         ]
+      }
+    ],
+    [
+      `([x, y] = z) => x;`,
+      Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 18,
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 18,
+            expression: {
+              type: 'ArrowFunctionExpression',
+              start: 0,
+              end: 17,
+              id: null,
+              expression: true,
+              async: false,
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  start: 1,
+                  end: 11,
+                  left: {
+                    type: 'ArrayPattern',
+                    start: 1,
+                    end: 7,
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        start: 2,
+                        end: 3,
+                        name: 'x'
+                      },
+                      {
+                        type: 'Identifier',
+                        start: 5,
+                        end: 6,
+                        name: 'y'
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'Identifier',
+                    start: 10,
+                    end: 11,
+                    name: 'z'
+                  }
+                }
+              ],
+              body: {
+                type: 'Identifier',
+                start: 16,
+                end: 17,
+                name: 'x'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+
+    [
+      `([[x, y] = z]) => x;`,
+      Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 20,
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 20,
+            expression: {
+              type: 'ArrowFunctionExpression',
+              start: 0,
+              end: 19,
+              id: null,
+              expression: true,
+              async: false,
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  start: 1,
+                  end: 13,
+                  elements: [
+                    {
+                      type: 'AssignmentPattern',
+                      start: 2,
+                      end: 12,
+                      left: {
+                        type: 'ArrayPattern',
+                        start: 2,
+                        end: 8,
+                        elements: [
+                          {
+                            type: 'Identifier',
+                            start: 3,
+                            end: 4,
+                            name: 'x'
+                          },
+                          {
+                            type: 'Identifier',
+                            start: 6,
+                            end: 7,
+                            name: 'y'
+                          }
+                        ]
+                      },
+                      right: {
+                        type: 'Identifier',
+                        start: 11,
+                        end: 12,
+                        name: 'z'
+                      }
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'Identifier',
+                start: 18,
+                end: 19,
+                name: 'x'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      `([[x, y] = z]) => x;`,
+      Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 20,
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 20,
+            expression: {
+              type: 'ArrowFunctionExpression',
+              start: 0,
+              end: 19,
+              id: null,
+              expression: true,
+              async: false,
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  start: 1,
+                  end: 13,
+                  elements: [
+                    {
+                      type: 'AssignmentPattern',
+                      start: 2,
+                      end: 12,
+                      left: {
+                        type: 'ArrayPattern',
+                        start: 2,
+                        end: 8,
+                        elements: [
+                          {
+                            type: 'Identifier',
+                            start: 3,
+                            end: 4,
+                            name: 'x'
+                          },
+                          {
+                            type: 'Identifier',
+                            start: 6,
+                            end: 7,
+                            name: 'y'
+                          }
+                        ]
+                      },
+                      right: {
+                        type: 'Identifier',
+                        start: 11,
+                        end: 12,
+                        name: 'z'
+                      }
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'Identifier',
+                start: 18,
+                end: 19,
+                name: 'x'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      `async (eval) => "use strict";`,
+      Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 29,
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 29,
+            expression: {
+              type: 'ArrowFunctionExpression',
+              start: 0,
+              end: 28,
+              id: null,
+              expression: true,
+              async: true,
+              params: [
+                {
+                  type: 'Identifier',
+                  start: 7,
+                  end: 11,
+                  name: 'eval'
+                }
+              ],
+              body: {
+                type: 'Literal',
+                start: 16,
+                end: 28,
+                value: 'use strict'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
       }
     ]
   ]);
