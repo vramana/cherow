@@ -101,7 +101,7 @@ This will return when serialized in json:
 
 ## Expression parsing
 
-It's possible to parse only expressions in eihter script or module goal code.
+It's possible to parse only expressions in either script or module goal code.
 
 ```js
 
