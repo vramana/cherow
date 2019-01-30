@@ -99,9 +99,7 @@ This will return when serialized in json:
 }
 ```
 
-## Expression parsing
-
-It's possible to parse only expressions in either script or module goal code.
+The API also allows you to use Cherow as a stand-alone  [expression parser](https://tc39.github.io/ecma262/#sec-ecmascript-language-expressions) and let you parse your code in either script or module goal code.
 
 ```js
 
