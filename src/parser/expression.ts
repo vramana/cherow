@@ -1133,7 +1133,7 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
       ? report(state, Errors.Unexpected)
       : parseMetaProperty(state, context, id);
   }
-  let callee =
+  const callee =
     context & Context.OptionsNext && state.token === Token.ImportKeyword
       ? parseCallImportOrMetaProperty(state, context, true)
       : secludeGrammar(state, context, parsePrimaryExpression(state, context, start), parseMemberExpression);
@@ -1506,7 +1506,7 @@ function parseArrowFunctionExpression(
 export function parseParenthesizedExpression(state: ParserState, context: Context): any {
   state.flags = (state.flags | Flags.SimpleParameterList) ^ Flags.SimpleParameterList;
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
-  let scope = createScope(ScopeType.ArgumentList);
+  const scope = createScope(ScopeType.ArgumentList);
   context = context | Context.ParentheziedContext;
   if (optional(state, context, Token.RightParen)) {
     if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
@@ -1896,6 +1896,7 @@ function parseObjectLiteral(
    *   StringLiteral
    *   NumericLiteral
    */
+  const { startIndex: start } = state;
   next(state, context);
   let key: ESTree.Expression | null = null;
   let token = state.token;
@@ -1906,7 +1907,7 @@ function parseObjectLiteral(
 
   let objState = Modifiers.None;
 
-  const { assignable, bindable, pendingCoverInitializeError, startIndex: start } = state;
+  const { assignable, bindable, pendingCoverInitializeError } = state;
 
   state.bindable = true;
   state.assignable = true;

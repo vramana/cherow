@@ -48,7 +48,7 @@ export function scanMaybeIdentifier(state: ParserState, _: Context, first: numbe
  * @param context Context masks
  */
 export function scanIdentifierOrKeyword(state: ParserState, context: Context): Token {
-  let { index, column } = state;
+  const { index, column } = state;
   while (isIdentifierPart(state.source.charCodeAt(state.index))) {
     state.index++;
     state.column++;
@@ -131,13 +131,13 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
     } else if ((ch & 8) === 8 && ch === Chars.Backslash) {
       hasEscape = true;
       result += state.source.substring(start, state.index);
-      let cookedChar = scanIdentifierUnicodeEscape(state);
+      const cookedChar = scanIdentifierUnicodeEscape(state);
       if (!isIdentifierPart(cookedChar)) report(state, Errors.InvalidIdentChar);
       result += fromCodePoint(cookedChar);
       start = state.index;
     } else if (ch >= 0xd800 && ch <= 0xdbff) {
       if (state.index >= state.length) report(state, Errors.Unexpected);
-      let lo = state.source.charCodeAt(state.index);
+      const lo = state.source.charCodeAt(state.index);
       ++state.index;
       ++state.column;
       if (!(lo >= 0xdc00 && lo <= 0xdfff)) {
