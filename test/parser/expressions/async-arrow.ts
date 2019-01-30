@@ -328,6 +328,21 @@ describe('Expressions - Async arrow', () => {
   const validSyntax = [
     'async () => {}',
     'async () => { return 42 }',
+
+    'var lambdaParenNoArg = async() => x < y;',
+    'var lambdaArgs = async(a, b, c) => a + b + c;',
+    'async x => x;',
+    'async(x) => x;',
+    'async function foo(x, y) { return x + y; }',
+    'async () => {}',
+    'async () => {}',
+    'async () => {}',
+    'async () => {}',
+    'async () => {}',
+    'async () => {}',
+    'async () => {}',
+    'async () => {}',
+
     'async x => { return x; }',
     'async (x) => { return x; }',
     'async (x, y) => { return x + y; }',

@@ -2199,7 +2199,7 @@ let b = 2;
       if(shouldBailout){
         return  'somestring'
       }
-      WScript.Echo(strvar0 >h);
+      foo(strvar0 >h);
     }
     else {
       var strvar9 = '(' + '%!(þ';
@@ -2277,7 +2277,7 @@ let b = 2;
   (Object.defineProperty(arrObj0, 'prop1', {writable: true, enumerable: false, configurable: true }));
         arrObj0.prop1 = (ary.push((new module1BaseClass()), ((g < c) * (((obj1.prop0 != protoObj1.prop1) instanceof ((typeof String == 'function' ) ? String : Object)) - 'caller')), ary[(((((obj0.prop0 >>= ((typeof(strvar9)  == 'string')  >> (typeof((1428124786.1 || 65537))  != 'number') )) ? (strvar7 + (new module1BaseClass())) : arrObj0[((((new module1BaseClass()) >= 0 ? (new module1BaseClass()) : 0)) & 0XF)]) >= 0 ? ((obj0.prop0 >>= ((typeof(strvar9)  == 'string')  >> (typeof((1428124786.1 || 65537))  != 'number') )) ? (strvar7 + (new module1BaseClass())) : arrObj0[((((new module1BaseClass()) >= 0 ? (new module1BaseClass()) : 0)) & 0XF)]) : 0)) & 0XF)], protoObj1.prop1, (protoObj1.prop0 = (+ (h <= (typeof(a)  == 'undefined') ))), (new module1BaseClass()), ((arrObj0.prop1 > f)||(obj1.prop1 === obj0.prop0)), (- (-904176182 || (new module1BaseClass()))), ((new EvalError()) instanceof ((typeof Boolean == 'function' ) ? Boolean : Object))))
   ;
-        WScript.Echo(strvar9 <=ui16[(aliasOfobj0.prop0) & 255]);
+        foo(strvar9 <=ui16[(aliasOfobj0.prop0) & 255]);
   (Object.defineProperty(litObj0, 'prop1', {writable: true, enumerable: false, configurable: true }));
         litObj0.prop1 = func1.call(obj0 );
         return c;
@@ -2286,7 +2286,7 @@ let b = 2;
         aliasOfobj0 = aliasOfobj0;
         var fPolyProp = function (o) {
           if (o!==undefined) {
-            WScript.Echo(o.prop0 + ' ' + o.prop1 + ' ' + o.prop2);
+            foo(o.prop0 + ' ' + o.prop1 + ' ' + o.prop2);
           }
         };
         fPolyProp(litObj0);
@@ -2437,7 +2437,7 @@ let b = 2;
     }
     var uniqobj34 = new func5(...(new Uint8Array([(typeof(protoObj0.prop0)  != 'boolean') ])));
     if (shouldBailout) {
-      (shouldBailout ? (Object.defineProperty(uniqobj34, 'prop0', {get: function() { WScript.Echo('uniqobj34.prop0 getter'); return 3; }, configurable: true }), (ary.unshift((typeof(obj0.prop0)  == 'boolean') , 'caller', 'caller', (ary[(15)] > (typeof(protoObj0.prop0)  != 'boolean') ), 'caller', 172, (typeof(protoObj0.prop0)  != 'boolean') , (leaf() * ((typeof(protoObj0.prop0)  != 'boolean')  - (585658148 * (obj1.prop0 + 244)))), 'caller', (new module3BaseClass()), ((argMath143 ? a : argMath144) * (a >>>= argMath142) - i32[(argMath143) & 255]), (/a/ instanceof ((typeof Function == 'function' ) ? Function : Object)), (argMath142 === d), (typeof(obj1.prop1)  == 'undefined') , (((new Error('abc')) instanceof ((typeof EvalError == 'function' ) ? EvalError : Object)) * (/a/ instanceof ((typeof Boolean == 'function' ) ? Boolean : Object)) - arrObj0[(((8.79300731813838E+18 >= 0 ? 8.79300731813838E+18 : 0)) & 0XF)])))) : (ary.unshift((typeof(obj0.prop0)  == 'boolean') , 'caller', 'caller', (ary[(15)] > (typeof(protoObj0.prop0)  != 'boolean') ), 'caller', 172, (typeof(protoObj0.prop0)  != 'boolean') , (leaf() * ((typeof(protoObj0.prop0)  != 'boolean')  - (585658148 * (obj1.prop0 + 244)))), 'caller', (new module3BaseClass()), ((argMath143 ? a : argMath144) * (a >>>= argMath142) - i32[(argMath143) & 255]), (/a/ instanceof ((typeof Function == 'function' ) ? Function : Object)), (argMath142 === d), (typeof(obj1.prop1)  == 'undefined') , (((new Error('abc')) instanceof ((typeof EvalError == 'function' ) ? EvalError : Object)) * (/a/ instanceof ((typeof Boolean == 'function' ) ? Boolean : Object)) - arrObj0[(((8.79300731813838E+18 >= 0 ? 8.79300731813838E+18 : 0)) & 0XF)]))));
+      (shouldBailout ? (Object.defineProperty(uniqobj34, 'prop0', {get: function() { foo('uniqobj34.prop0 getter'); return 3; }, configurable: true }), (ary.unshift((typeof(obj0.prop0)  == 'boolean') , 'caller', 'caller', (ary[(15)] > (typeof(protoObj0.prop0)  != 'boolean') ), 'caller', 172, (typeof(protoObj0.prop0)  != 'boolean') , (leaf() * ((typeof(protoObj0.prop0)  != 'boolean')  - (585658148 * (obj1.prop0 + 244)))), 'caller', (new module3BaseClass()), ((argMath143 ? a : argMath144) * (a >>>= argMath142) - i32[(argMath143) & 255]), (/a/ instanceof ((typeof Function == 'function' ) ? Function : Object)), (argMath142 === d), (typeof(obj1.prop1)  == 'undefined') , (((new Error('abc')) instanceof ((typeof EvalError == 'function' ) ? EvalError : Object)) * (/a/ instanceof ((typeof Boolean == 'function' ) ? Boolean : Object)) - arrObj0[(((8.79300731813838E+18 >= 0 ? 8.79300731813838E+18 : 0)) & 0XF)])))) : (ary.unshift((typeof(obj0.prop0)  == 'boolean') , 'caller', 'caller', (ary[(15)] > (typeof(protoObj0.prop0)  != 'boolean') ), 'caller', 172, (typeof(protoObj0.prop0)  != 'boolean') , (leaf() * ((typeof(protoObj0.prop0)  != 'boolean')  - (585658148 * (obj1.prop0 + 244)))), 'caller', (new module3BaseClass()), ((argMath143 ? a : argMath144) * (a >>>= argMath142) - i32[(argMath143) & 255]), (/a/ instanceof ((typeof Function == 'function' ) ? Function : Object)), (argMath142 === d), (typeof(obj1.prop1)  == 'undefined') , (((new Error('abc')) instanceof ((typeof EvalError == 'function' ) ? EvalError : Object)) * (/a/ instanceof ((typeof Boolean == 'function' ) ? Boolean : Object)) - arrObj0[(((8.79300731813838E+18 >= 0 ? 8.79300731813838E+18 : 0)) & 0XF)]))));
     }
     litObj1 = protoObj0;
     return (argMath142-- );
@@ -2451,12 +2451,12 @@ let b = 2;
         var strvar10 = (strvar9).replace(strvar9, strvar9.concat(((new EvalError()) instanceof ((typeof Boolean == 'function' ) ? Boolean : Object)))).concat(arguments[(((((e *= ('caller' != ((new RegExp('xyz')) instanceof ((typeof Number == 'function' ) ? Number : Object)))) * (strvar9 - func0.call(arrObj0 , strvar9, /[b7]\s((bab{5}b)ab{5}[b7]\B.{2,3}(bab{5}b)ab{5}[b7])\B.{2,3}\S$/giy, arrObj0))) >= 0 ? ((e *= ('caller' != ((new RegExp('xyz')) instanceof ((typeof Number == 'function' ) ? Number : Object)))) * (strvar9 - func0.call(arrObj0 , strvar9, /[b7]\s((bab{5}b)ab{5}[b7]\B.{2,3}(bab{5}b)ab{5}[b7])\B.{2,3}\S$/giy, arrObj0))) : 0)) & 0XF)]);
         var strvar11 = strvar10.concat((obj0.length |= Object.create({prop0: ((-- c) < c), prop1: ary[(((ary[((('caller' >= 0 ? 'caller' : 0)) & 0XF)] >= 0 ? ary[((('caller' >= 0 ? 'caller' : 0)) & 0XF)] : 0)) & 0XF)]}, {})));
         strvar11 = strvar11.substring((strvar11.length)/3,(strvar11.length)/2);
-        WScript.Echo(strvar0 !=='caller');
+        foo(strvar0 !=='caller');
       }
       func7 (){
         strvar1 = ('!|-bÌ' + '3e).!1)#' + func0.call(arrObj0 , strvar4, /(?=aba)/u, protoObj0)) + 95;
         var uniqobj35 = obj0;
-        WScript.Echo(strvar4 <=(argMath145 != obj0.prop1));
+        foo(strvar4 <=(argMath145 != obj0.prop1));
         strvar0 = strvar5[6%strvar5.length];
         return 6.05723310812461E+18;
       }
@@ -2564,7 +2564,7 @@ let b = 2;
           return -2093757128.9;
         }
         static func15 (argMath165,argMath166,argMath167){
-          WScript.Echo(strvar2 >=(typeof(argMath167)  != 'string') );
+          foo(strvar2 >=(typeof(argMath167)  != 'string') );
           strvar3 = strvar2[0%strvar2.length];
           if(shouldBailout){
             return  'somestring'
@@ -2624,14 +2624,14 @@ let b = 2;
         }
         get func24 (){
           module3_localbinding_5 = protoObj0.prop1;
-          WScript.Echo(strvar5 ===(((new Error('abc')) instanceof ((typeof String == 'function' ) ? String : Object)) != (h = obj0.prop1)));
+          foo(strvar5 ===(((new Error('abc')) instanceof ((typeof String == 'function' ) ? String : Object)) != (h = obj0.prop1)));
           if(shouldBailout){
             return  'somestring'
           }
           return module3_localbinding_2;
         }
         func25 (argMath173 = (typeof(module3_localbinding_4)  == 'number') ,argMath174){
-          WScript.Echo(strvar0 ===argMath173);
+          foo(strvar0 ===argMath173);
           return 29;
         }
         static func26 (...argArr175){
@@ -2755,7 +2755,7 @@ switch (1) {
     func7 (argMath93,argMath94 = ((typeof((strvar4.concat(arguments.length) + ('caller' ? strvar4 : i16[(((! g) ? (ary.shift()) : (~ argMath93))) & 255])))  != 'boolean')  * (new module1BaseClass()) + (e <<= (typeof((strvar4.concat(arguments.length) + ('caller' ? strvar4 : i16[(((! g) ? (ary.shift()) : (~ argMath93))) & 255])))  != 'boolean') )),...argArr95){
       var fPolyProp = function (o) {
         if (o!==undefined) {
-          WScript.Echo(o.prop0 + ' ' + o.prop1 + ' ' + o.prop2);
+          foo(o.prop0 + ' ' + o.prop1 + ' ' + o.prop2);
         }
       };
       fPolyProp(litObj0);
@@ -2770,7 +2770,7 @@ switch (1) {
       return 653002063.1;
     }
     func9 (argMath96,argMath97 = ((argMath96-- ) * (('caller' << ((argMath89 == b)&&(argMath96 === protoObj1.prop1))) * (arrObj0[(((i8[1260584891.9] >= 0 ? i8[1260584891.9] : 0)) & 0XF)] + argMath96)) + ('caller' instanceof ((typeof EvalError == 'function' ) ? EvalError : Object))),argMath98,argMath99){
-      WScript.Echo(strvar7 !=ui8[(218) & 255]);
+      foo(strvar7 !=ui8[(218) & 255]);
       argMath98 = (argMath98 != -170147366.9);
       argMath98 =(! -1624275393);
       argMath99 =(typeof(argMath99)  != 'object') ;
@@ -2813,7 +2813,7 @@ var func2 = function(argMath100,...argArr101){
       }
       strvar9 = 'U$'+'!)'+'(<' + '#õ' + (typeof(strvar7)  == 'object') ;
       argMath106 = obj0.prop0;
-      WScript.Echo(strvar9 !==(argMath108 ? argMath106 : protoObj1.prop0));
+      foo(strvar9 !==(argMath108 ? argMath106 : protoObj1.prop0));
       return argMath108;
     }
     static func15 (argMath109 = func1.call(arrObj0 , (Function('') instanceof ((typeof Function == 'function' ) ? Function : Object)), protoObj0, /\w*$/gmy),argMath110,argMath111,...argArr112){
@@ -3163,113 +3163,733 @@ var blocknested = () => { return () => { return this; } };`,
     `let f = (a,) => {}`,
     `({b = (a,) => {}}) => {}`,
     `(a,) => {}`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
-    `var g = async (arg1, arg2) => arg1 + arg2`,
+    `var object = {
+      async async() { return 12; }
+  };
 
+  var object2 = {
+      async() { return 12; }
+  };
+
+  var object3 = {
+      async "a"() { return 12; },
+      async 0() { return 12; },
+      async 3.14() { return 12; },
+      async else() { return 12; },
+  };`,
+    ` class MyClass {
+      async asyncMethod(a) { return a; }
+      async async(a) { return a; }
+      async "a"() { return 12; }
+      async 0() { return 12; }
+      async 3.14() { return 12; }
+      async else() { return 12; }
+      static async staticAsyncMethod(a) { return a; }
+  }`,
+    `class MySecondClass {
+      async(a) { return a; }
+  }
+
+  class MyThirdClass {
+      static async(a) { return a; }
+  }
+
+  var x = "foo";
+  class MyFourthClass {
+      async [x](a) { return a; }
+  }`,
+    `function await(x) {
+      return x;
+  }`,
+    `async function secondAsyncMethod(x) {
+      return await(x);
+  }
+
+  function rejectedPromiseMethod() {
+      return new Promise(function (resolve, reject) {
+          reject(Error('My Error'));
+      });
+  }
+
+  async function rejectAwaitMethod() {
+      return await rejectedPromiseMethod();
+  }
+
+  async function asyncThrowingMethod() {
+      throw 32;
+  }
+
+  async function throwAwaitMethod() {
+      return await asyncThrowingMethod();
+  }`,
+    ` async function asyncMethod(x, y, z) {
+      var lambdaExp = async(a, b, c) => a * b * c;
+      var lambdaResult = await lambdaExp(x, y, z);
+      return lambdaResult;
+  }`,
+    ` async function asyncMethodResolved() {
+      let p = new Promise(function (resolve, reject) {
+          resolve("resolved");
+      });
+
+      return p.then(function (result) {
+          return result;
+      });
+  }
+
+  async function asyncMethodResolvedWithAwait() {
+      let p = new Promise(function (resolve, reject) {
+          resolve("resolved");
+      });
+
+      return await p;
+  }
+
+  async function asyncMethodRejected() {
+      let p = new Promise(function (resolve, reject) {
+          reject("rejected");
+      });
+
+      return p.then(function (result) {
+          return result;
+      });
+  }`,
+    ` async function af2(x) { var xx = x(); function x() { return 'afx'; } return xx; }`,
+    ` async function af(d = 1) {
+      return () => d;
+  }`,
+    ` async function af(d = 1) {
+      return eval("d");
+  }
+`,
+    ` async function af1(a, b = () => a, c = b) {
+      function b() {
+          return a;
+      }
+      var a = 2;
+      return [b, c];
+  }`,
+    `async function af1(a, b = () => a, c = b) {
+      function b() {
+          return a;
+      }
+      var a = 2;
+      return eval("[b, c]");
+  }
+`,
+    `async function af1() {
+      return 1;
+  }
+
+  async function af2() {
+      return 2;
+  }
+
+  async function af3() {
+      return await af1() + await af2();
+  }`,
+    ` var obj =  { x : 1 };
+    async function af1() {
+        throw obj;
+    }
+
+    async function af3() {
+        return await af1() + await af2();
+    }
+`,
+    ` async function af1(a, b) {
+      return await af2();
+
+      async function af2() {
+          a = await a * a;
+          b = await b * b;
+
+          return a + b;
+      }
+  }`,
+    `async function af2() {
+      try {
+          try {
+              await af1();
+          } catch (e) {
+              throw e;
+          }
+      } catch (e) {
+
+          throw e;
+      }
+  }`,
+    `async function af(x) {
+      var x = 0;
+      with (obj) {
+          x = await af();
+      }
+
+      return x;
+  }`,
+    `var f1 = async ( ) => {
+      function foo(a = function() { } ) { } };`,
+    `async function f1() {
+      function foo() {
+          async function f2() {
+              function bar (a = function () {} ) {
+              }
+          }
+      }
+  }`,
+    `  try
+    {
+      var result = testFunction();
+      if (result == true)
+      {
+      write("PASS");
+      }
+
+    }
+    catch (e)
+    {
+      var resultString = "FAILED" + testScenario;
+      write(resultString + " :: " + e.message);
+    }`,
+    `var o = {get foo(){ return s1;},set foo(arg){return s2 = s3}};`,
+    `var obj =
+    {
+        get foo() { return _foo; },
+        set foo(value) { _foo = value; }
+    };`,
+    `try
+{
+// this should not compile in ES5
+eval("if(true){};else{}");
+}
+catch(e)
+{
+write("'if(true){};else{}' compile failure in ES5" + e)
+}`,
+    `void Dummy2()
+    {
+
+    }`,
+    `function x()
+    {
+      var e = eval;
+    }
+    x();
+
+    var bar = function (e) {
+        e.apply(this);
+    }`,
+    `var tests = [
+      {
+          name: "concat Bug",
+          body: function ()
+          {
+               Array.prototype.length = 0;
+               Array.prototype[0]="start";
+               Array.prototype[1]="p1";
+               Array.prototype[2]="p2";
+               Array.prototype[3]="p3";
+               Array.prototype[4]="p4";
+               Array.prototype[5]="p5";
+               Array.prototype[7]="p6";
+
+               var arr = new Array();
+               arr[3]="test";
+               arr[4]=12;
+               arr[6]=345;
+               arr.concat(Array.prototype);
+
+               delete Array.prototype[0];
+               delete Array.prototype[3];
+               delete Array.prototype[4];
+
+               //Resulting Array from concat should look up the prototype
+               assert.areEqual([,"p1","p2","test",12,"p5",345,"p6","p1","p2",,,"p5",,"p6"], arr.concat(Array.prototype));
+          }
+       },
+       {
+          name: "slice Bug",
+          body: function ()
+          {
+               var retarr = new Array();
+               var arr=new Array(2)
+               arr[0]=0;
+               Array.prototype[1]="p"+1;
+               retarr[1]=arr;
+               var result = retarr[1].slice(-2,2);
+               for(var i=0;i<Array.prototype.length;i++)
+               {
+                   delete Array.prototype[i];
+               }
+               assert.areEqual([0,undefined].toString(),retarr[1].toString());
+          }
+       }
+   ];`,
+    ` testFlat([2, 3, [4, 5]], [2, 3, 4, 5]);
+    testFlat([2, 3, [4, [5, 6]]], [2, 3, 4, [5, 6]]);
+    testFlat([2, 3, [4, [5, 6]]], [2, 3, 4, 5, 6], 2);
+    testFlat([], []);
+    testFlat([[], [], 1], [1]);
+    const typedArr = new Int32Array(3);
+    const typedArr2 = new Int32Array(3);`,
+    ` testFlatMap([2, 3, 4, 5], [2, 4, 3, 6, 4, 8, 5, 10], function (a) { return [a, a * 2]});
+    const thisArg = { count : 0 };
+    testFlatMap([2, 3, 4], [2, 3, 3, 4, 4, 5], function (a) { this.count += a; return [ a, a + 1]}, thisArg);
+    testFlatMap([2, 3, 4], [[2], [3], [4]], function (a) { return [[a]]});`,
+    `  testFlatMap([2, 3], [null, null], function () { return [this]}, null);
+    testFlatMap([2, 3], [undefined, undefined], function () { return [this]}, undefined);
+    testFlatMap([2, 3], [undefined, undefined], function () { return [this]});
+    testFlatMap([2, 3], ["", ""], function () { return [this]}, "");
+    testFlatMap([2, 3], ["Test", "Test"], function () { return [this]}, "Test");
+    const boo = {};
+    testFlatMap([2, 3], [boo, boo], function () { return [this]}, boo);`,
+    ` var FloatArr0 = [];
+    var VarArr0 = [];
+    var b = VarArr0;
+    for (var __loopvar1 = 0; b < FloatArr0;) {
+        for (var v319132 = 0; v319132; v319132++) {
+            FloatArr0[1];
+        }
+        while (v319133) {
+            FloatArr0[1];
+        }
+    }`,
+    `var starts = [-2, 0, 2, 8];
+    for (var i = 0; i < starts.length; i++) {
+        var a = [0, 1, 2, 3, 4];
+        var start = starts[i];
+        echo("splice at " + start + ":", a, "||", a.splice(start));
+    }
+    `,
+    `var a = [];
+    a[4294967290] = 4;
+    a.splice(0,0,0,1); //length grows by 2
+    a[4294967291] = 5;`,
+    `var n = 10;
+    var a = new Array();
+    var o = new Object();
+
+    for (var i=0; i<10; i++) {
+        o[i] = a[i] = i * i + 1;
+    }
+
+    write(o.join());
+
+    write(o.join(undefined));
+
+    write(o.join("hello"));
+
+    write(a.join(a));
+    write(o.join(a));
+
+    write(a.join(o));
+    write(o.join(o));
+
+    write(Array.prototype.join.call(a, a));
+    write(Array.prototype.join.call(o, a));
+
+    write(Array.prototype.join.call(a, o));
+    write(Array.prototype.join.call(o, o));
+
+    //implicit calls
+    var a ;
+    var arr = [10];
+    Object.defineProperty(Array.prototype, "4", {configurable : true, get: function(){a = true; return 30;}});
+    a = false;
+    arr.length = 6;
+    var f = arr.join();
+    foo(a);
+
+    Object.prototype['length'] = 2;
+    foo(([""].join).call(5));
+    Object.prototype['0'] = "test";
+    foo(([""].join).call(5.5));`,
+    `for (var i=0;i<n;i++) {
+      write("arr[" + i + "] : " + arr[i]);
+    }
+
+    function test() {
+            var x;
+            switch (x) {
+            default:
+                    [1, , ];
+            }
+    };
+    test();
+    test();
+
+    function ArrayLiteralMissingValue()
+    {
+      var arr1 = [1, 1, -2147483646];
+      write("[] missing value:" + arr1[2]);
+    }
+    ArrayLiteralMissingValue();
+
+    function ArrayConstructorMissingValue()
+    {
+      var IntArr0 = new Array(-1, -2147483646);
+      write("Array() missing value:" + IntArr0[1]);
+    }
+    ArrayConstructorMissingValue();`,
+    `var ary =[1,2,3,4];
+
+    function test0(i)
+    {
+       return ary.pop();
+    }`,
+    `function InitObject(obj) {
+      for (var i=0; i<n; i++) {
+          obj[i] = i * i + 1;
+      }
+      obj.length = n;
+
+      return obj;
+  }
+
+  function TestPop(obj) {
+      write(">>> Start pop test for object: " + obj);
+      for (var i=0; i<n+2; i++) {
+          var x = Array.prototype.pop.call(obj);
+          write(i + " iteration. Poped:" + x + " obj.length:" + obj.length);
+      }
+      write("<<< Stop pop test for object: " + obj);
+  }
+  `,
+    `function test0(){
+      var obj0 = {};
+      var obj1 = {};
+      var func0 = function(argArr0,argArr1,argFunc2){
+        // Snippet : Array check hoist bailout if object is used instead of arrays.
+
+
+        function v890195(v890196){
+          for (var v890197 = 0 ; v890197 < 3 ; v890197++)
+          {
+            v890196[v890197] = (c |= argArr0[(((e >= 0 ? e : 0)) & 0XF)]);
+            obj1.length = ary[((shouldBailout ? (ary[1] = "x") : undefined ), 1)];
+          }
+        }
+        v890195(argArr1);
+      }
+      var func1 = function(argArr4,argFunc5){
+        func0.call(obj0 , ary, ary, 1);
+      }
+      var ary = new Array(10);
+      var c = 1;
+      var e = 34;
+      ary[0] = 1;
+      ary[1] = 1;
+      ary[2] = 1;
+      ary[3] = 1;
+      ary[4] = 1;
+      ary[5] = 1;
+      ary[6] = 1;
+      ary[7] = 1;
+      ary[8] = 1;
+      ary[9] = 1;
+      ary[10] = -3.60428436642705E+18;
+      func1(1, 1);
+    };
+    `,
+    `var x = ~123n;`,
+    `var x = ~-123n;`,
+    `var x = ~1234567890123456789012345678901234567890n;
+    var y = -1234567890123456789012345678901234567891n;`,
+    `({
+      name: "With assign",
+      body: function () {
+          var x = 3n;
+          var y = x;
+          assert.isTrue(x == 3n);
+          assert.isTrue(y == 3n);
+          y = ~x;
+          assert.isTrue(x == 3n);
+          assert.isTrue(y == -4n);
+      }
+  })`,
+    `var tests = [
+      {
+          name: "Increment BigInt literal",
+          body: function () {
+              var x = 123n;
+              assert.isTrue(x == 123n);
+              x++;
+              assert.isTrue(x == 124n);
+              ++x;
+              assert.isTrue(x == 125n);
+          }
+      },
+      {
+          name: "Increment negative BigInt literal",
+          body: function () {
+              var x = -123n;
+              assert.isTrue(x == -123n);
+              x++;
+              assert.isTrue(x == -122n);
+              ++x;
+              assert.isTrue(x == -121n);
+          }
+      },
+      {
+          name: "Increment -1n",
+          body: function () {
+              var x = -1n;
+              assert.isTrue(x == -1n);
+              x++;
+              assert.isTrue(x == 0n);
+              ++x;
+              assert.isTrue(x == 1n);
+          }
+      },
+      {
+          name: "Increment to change length",
+          body: function () {
+              var x = 4294967295n;
+              assert.isTrue(x == 4294967295n);
+              x++;
+              assert.isTrue(x == 4294967296n);
+              ++x;
+              assert.isTrue(x == 4294967297n);
+              var y = -4294967297n;
+              assert.isTrue(y == -4294967297n);
+              y++;
+              assert.isTrue(y == -4294967296n);
+              ++y;
+              assert.isTrue(y == -4294967295n);
+          }
+      },
+      {
+          name: "Increment BigInt Object",
+          body: function () {
+              var x = BigInt(12345678901234567890n);
+              var y = BigInt(12345678901234567891n);
+              assert.isTrue(x < y);
+              ++x;
+              assert.isTrue(x == y);
+              x++;
+              assert.isTrue(x >= y);
+          }
+      },
+      {
+          name: "Out of 64 bit range",
+          body: function () {
+              var x = 1234567890123456789012345678901234567890n;
+              var y = BigInt(1234567890123456789012345678901234567891n);
+              assert.isFalse(x == y);
+              x++;
+              ++y;
+              assert.isTrue(x < y);
+              ++x;
+              assert.isTrue(x == y);
+          }
+      },
+      {
+          name: "Very big",
+          body: function () {
+              var x = eval('1234567890'.repeat(20)+'0n');
+              var y = BigInt(eval('1234567890'.repeat(20)+'1n'));
+              assert.isFalse(x == y);
+              x++;
+              ++y;
+              assert.isTrue(x < y);
+              ++x;
+              assert.isTrue(x == y);
+          }
+      },
+      {
+          name: "With assign",
+          body: function () {
+              var x = 3n;
+              var y = x++;
+              assert.isTrue(x == 4n);
+              assert.isTrue(y == 3n);
+              y = ++x;
+              assert.isTrue(x == 5n);
+              assert.isTrue(y == 5n);
+          }
+      },
+  ];`,
+    `     var x = 5n;
+    var y = 2n;
+    var z = x - y;`,
+    `  assert.isTrue(-4n - 0n == -4n);
+    assert.isTrue(4n - 0n == 4n);
+    assert.isTrue(0n - 4n == -4n);
+    assert.isTrue(0n - -4n == 4n);
+    assert.isTrue(4n - 4n == 0n);
+    assert.isTrue(-4n - -4n == 0n);`,
+    `function noThrowFunction() {
+      try {
+        throw new Error("throw exception from noThrowFunction");
+      } catch (err) {
+      }
+    }
+    noThrowFunction();
+
+    // calling throwFunction() will terminate program, so this has to come last
+    function throwFunction() {
+       throw new Error("throw exception from throwFunction");
+    }
+    throwFunction();`,
+    `(function f() {
+      let x = "abacaba";
+  })();`,
+    `
+    function testSwitch1() {
+        switch (val()) {
+        case 1:
+            let z = 10; // No error
+            z++;
+            break;
+        case 2:
+            let y = 1; // No error
+            y++;
+            break;
+        }
+    }
+
+    function testSwitch2() {
+        switch (val()) {
+        case 1:
+            switch (val()) {
+            default:
+                let a = 1; // No error
+                break;
+            }
+        }
+    }
+
+    function testSwitch3() {
+        var a = 1;
+        while (a)
+            switch (val()) {
+            default:
+                let b = 2; // No error
+                ++b;
+                a = 0;
+                break;
+            }
+    }`,
+    `var x = 10;
+    function f() {
+
+        const x = 5;
+        {
+            const x = "abacaba";
+            foo(x);
+            {
+                const x = 111111;
+                ao(x);
+            }
+            adf(x);
+            {
+               const x = 222222;
+                a.Echo(x);
+            }
+            d.Echo(x);
+        }
+        WScafho(x);
+    };`,
+    `function f() {
+
+      let a = 2;
+      return a;
+  };
+  const x = f();`,
+    `// 0
+    {
+    with({x:0}) {
+      foo(x)
+    }
+    let x = 1
+    }
+
+    // 0
+    {
+    eval('with({x:0}) { foo(x) }')
+    let x = 1
+    }
+
+    // 0
+    {
+    let f = function() {
+      with({x:0}) {
+        foo(x)
+      }
+    }
+    let x = 1
+    f()
+    }
+
+    // Reference error.
+    {
+    try {
+      with({}) {
+        foo(x)
+      }
+      let x = 1
+    } catch(e) {
+      foo(e)
+    }
+    }
+
+    // Reference error.
+    {
+    try {
+      eval('with({}) { foo(x) }')
+      let x = 1
+    } catch(e) {
+      foo(e)
+    }
+    }
+
+    // 1
+    {
+    with({x:0}) {
+      let x = 1
+      foo(x)
+    }
+    }
+
+    // Reference error.
+    {
+    try {
+      with({x:0}) {
+        foo(x)
+        let x = 1
+      }
+    } catch(e) {
+      foo(e)
+    }
+    }
+
+    // string
+    with({x: 'x'})
+    {
+        foo(typeof x)
+    }`,
+    `let literalClasses = {
+      'Decimal Integer Literal': [
+          '0', '1', '123',
+          '0.1', '1.1', '123.1', '123.123',
+          '0e1', '1e1', '1e+1', '1e-1',
+          '0E1', '1E1', '1E+1', '1E-1',
+          '123e123', '123e+123', '123e-123',
+          '123E123', '123E+123', '123E-123'
+       ],
+       'Binary Integer Literal': [
+          '0b0', '0b1', '0b010101',
+          '0B0', '0B1', '0B010101',
+       ],
+       'Octal Integer Literal': [
+          '0o0', '0o1', '0o123',
+          '0O0', '0O1', '0O123'
+       ],
+       'Hex Integer Literal': [
+          '0x0', '0x1', '0x123', '0xabc', '0xABC', '0x123abc', '0x123ABC',
+          '0X0', '0X1', '0X123', '0Xabc', '0XABC', '0X123abc', '0X123ABC'
+       ]
+  };`,
     `{
   function f() { return 'declaration'; }
 }`,
