@@ -3893,6 +3893,66 @@ write("'if(true){};else{}' compile failure in ES5" + e)
     `{
   function f() { return 'declaration'; }
 }`,
+    ,
+    ` function f({a, ...rest}) {
+      return rest;
+  }`,
+    `const obj = {a: 2};
+    function f(x) {
+        const a = obj.a;
+        const {...unused} = x;
+        return a + obj.a;
+    }`,
+    `{
+      let orig = {};
+      let sym = Symbol("c");
+      orig.a = 1;
+      orig.b = "asdf";
+      orig[sym] = "qwert";
+      let newObj = Object.assign({}, orig);
+  }`,
+    `  Object.defineProperty(Object.prototype, 'b', {
+      get: function() { return "asdf"; }
+    });
+  let orig = {};
+  orig.a = 1;
+
+  let newObj = Object.assign({}, orig);`,
+    `var a = {i: 1, j: 2};
+    var b = {x: 3, y: 4, z: 5};
+    var c = {foo: 6};`,
+    `let aClone = {...a};`,
+    `let merged = {...a, ...b};`,
+    `let aClone = {...(a)};`,
+    `  let over = {i: 10, j: 11, ...a};`,
+    ` let val = 1;
+    let source = {get i() {val++; return 1;}, get j() {return val;}};
+    let obj = {...source};`,
+    ` let merged = {a: 2, ...{get i() {getterExecutions++; return 1;}}, b: 3, ...{get i() {getterExecutions++; return 1;}}};`,
+    ` let arr = [1, 2];
+    let obj = {...[...arr, 3]};`,
+    ` let setterCalled = false;
+    let handler = {
+        get: function(obj, prop) {
+            return obj[prop];
+        },
+        set: function(obj, prop, value) {
+            setterCalled = true;
+        }
+    };`,
+    `o["1"] = 100; `,
+    `var o = new Object();
+    var a = [11,12,13];
+    var d = new Date();`,
+    ` function v710235()
+    {
+    }
+    v710235.prototype = 1;
+    var v710236 = new v710235();
+    var litObj4 = {prop0: 1, prop1: 1, prop2: 1, prop3: 1, prop4: 1};`,
+    ` var a = new Ctor();
+    var f = a.a;
+    var g = a.b;`,
     `try {
 throw {};
 } catch ({ f }) {
