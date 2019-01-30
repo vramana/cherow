@@ -7,6 +7,26 @@ describe('Expressions - Arrows', () => {
   fail('Expressions - Functions', [
     ['await => { let x; }', Context.AwaitContext],
     ['async await => {}', Context.Empty],
+
+    ['!()=>{}', Context.Empty],
+    ['0 || (x,y) => 0', Context.Empty],
+    ['0 || (x) => 0', Context.Empty],
+
+    [`eval => { 'use strict'; return eval + 1; }`, Context.Empty],
+    ['(x, x) => { }', Context.Empty],
+    ['(a, b, a) => { }', Context.Empty],
+    ['(a, b, ...a) => { }', Context.Empty],
+    ['(x, x) => { "use strict"; }', Context.Empty],
+    ['(a, b, ...a) => { "use strict"; }', Context.Empty],
+    ['x => { const x = 0; }', Context.Empty],
+    ['async await => {}', Context.Empty],
+    ['async await => {}', Context.Empty],
+    ['async await => {}', Context.Empty],
+    ['async await => {}', Context.Empty],
+    ['async await => {}', Context.Empty],
+    ['async await => {}', Context.Empty],
+    ['async await => {}', Context.Empty],
+
     ['async x => { let x; }', Context.Empty],
     ['function *a() { yield => foo }', Context.Empty],
     ['"use strict"; interface => foo', Context.Empty],
@@ -106,6 +126,7 @@ describe('Expressions - Arrows', () => {
     ['eval => { "use strict"; }', Context.Empty],
     ['([]) => { "use strict"; }', Context.Empty],
     ['(a, []) => { "use strict"; }', Context.Empty],
+    ['(b = (a,)) => {}', Context.Empty],
 
     [
       `var af = x
@@ -115,10 +136,24 @@ describe('Expressions - Arrows', () => {
   ]);
 
   for (const arg of [
+    `function foo() { }; foo(() => "abc"); foo(() => "abc", 123);`,
+    `({})[x => x]`,
+    `() => () => 0`,
+    `() => x => (a, b, c) => 0`,
+    `y => () => (a) => 0`,
+    `function * foo() { yield ()=>{}; }`,
+    `function foo() { }; foo((x, y) => "abc"); foo(b => "abc", 123);`,
+    `(a, b) => { return a * b; }`,
     `const a = () => {return (3, 4);};`,
     `"use strict";
 ((one, two) => {});`,
     `([])=>0;`,
+
+    `(function (x) { return x => x; })(20)(10)`,
+    `(function () { let x = 20; return x => x; })()(10)`,
+    ` (function () { const x = 20; return x => x; })()(10)`,
+    `() => true ? 1 : (() => false ? 1 : (0))`,
+    `var l = async() => true ? 1 : (() => false ? 1 : (0))`,
     `([])=>0;`,
     `([a,...b])=>0;`,
     `([a,b])=>0;`,

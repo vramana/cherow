@@ -336,6 +336,8 @@ describe('Module - Export', () => {
     'export default class {}',
     'export default class extends C {}',
     'export default 42',
+    `export var x;
+    x = 'Pass';`,
     'var x; export default x = 7',
     "export { Q } from 'somemodule.js';",
     "export * from 'somemodule.js';",
