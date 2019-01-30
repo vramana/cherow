@@ -298,7 +298,12 @@ var cherow = (function (exports) {
       [112]: 'The identifier contained dynamic unicode escape that was not closed',
       [113]: 'The identifier escape did not yield a valid identifier character',
       [114]: 'Only unicode escapes are supported in identifier escapes',
-      [115]: 'Invalid escaped keyword'
+      [115]: 'Invalid escaped keyword',
+      [116]: "No line break is allowed after '%0'",
+      [118]: "Illegal 'use strict' directive in function with non-simple parameter list",
+      [120]: "Duplicate binding '%0' with non-simnple arguments",
+      [119]: "Duplicate binding '%0' in strict mode",
+      [117]: 'The left hand side of the arrow can only be destructed through assignment'
   };
   function constructError(index, line, column, description) {
       const error = new SyntaxError(`Line ${line}, column ${column}: ${description}`);
@@ -5343,10 +5348,10 @@ var cherow = (function (exports) {
           scope.lex.funcs['@' + state.tokenValue] = true;
       }
   }
-  function validateFunctionArgs(state, arg) {
+  function validateFunctionArgs(state, arg, isSimple) {
       for (const key in arg) {
           if (key[0] === '@' && key.length > 1 && arg[key] > 1) {
-              report(state, 41, key.slice(1));
+              report(state, isSimple ? 120 : 119, key.slice(1));
           }
       }
   }
@@ -6724,8 +6729,10 @@ var cherow = (function (exports) {
           let left = parseBindingIdentifierOrPattern(state, context, scope, 1, origin, false);
           if (optional(state, context | 32768, 8388637)) {
               hasComplexArgs = true;
-              if (state.token & 2097152 && context & (1024 | 2097152))
-                  report(state, 0);
+              if (context & (2048 | 4194304) && state.token & 524288)
+                  report(state, 105);
+              if (context & (1024 | 2097152) && state.token & 2097152)
+                  report(state, 106);
               left = parseAssignmentPattern(state, context, left, start);
           }
           params.push(left);
@@ -6742,7 +6749,7 @@ var cherow = (function (exports) {
       }
       expect(state, context, 16);
       if (hasComplexArgs || (context & (1024 | 33554432)) > 0) {
-          validateFunctionArgs(state, scope.lex);
+          validateFunctionArgs(state, scope.lex, hasComplexArgs);
       }
       if (hasComplexArgs)
           state.flags |= 64;
@@ -6751,6 +6758,8 @@ var cherow = (function (exports) {
   function parseRestElement(state, context, scope, type, origin) {
       const { startIndex: start } = state;
       expect(state, context, 14);
+      if (context & 1048576 && state.token & 524288)
+          state.flags |= 4096;
       const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, false);
       return finishNode(state, context, start, {
           type: 'RestElement',
@@ -6766,7 +6775,7 @@ var cherow = (function (exports) {
       while (state.token === 131075) {
           if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
               if (state.flags & 64)
-                  report(state, 61);
+                  report(state, 118);
               context |= 1024;
           }
           body.push(parseDirective(state, context, scope));
@@ -6784,7 +6793,7 @@ var cherow = (function (exports) {
           (state.flags | (1024 | 512)) ^
               (1024 | 512);
       if (!isStrict && (context & 1024) > 0)
-          validateFunctionArgs(state, scope.lex['@']);
+          validateFunctionArgs(state, scope.lex['@'], false);
       if (state.token !== 536870927) {
           const previousSwitchStatement = state.switchStatement;
           const previousIterationStatement = state.iterationStatement;
@@ -6912,42 +6921,47 @@ var cherow = (function (exports) {
       if (token & 2097152 && context & 2097152)
           return parseYieldExpression(state, context, start);
       const expr = acquireGrammar(state, context, 0, parseBinaryExpression);
-      if (token & 1048576 &&
-          (state.flags & 1) < 1 &&
-          ((state.token & 274432) === 274432 ||
-              state.token === 126 ||
-              (!(context & 2097152) && state.token & 2097152) === 2097152)) {
-          const scope = createScope(5);
-          addVariableAndDeduplicate(state, context, scope, 1, 0, true, state.tokenValue);
-          const arg = parseIdentifier(state, context);
-          if (state.flags & 1)
-              report(state, 0);
-          return parseArrowFunctionExpression(state, context, scope, [arg], true, start, 64);
-      }
-      if (state.token === 131082) {
-          let { type, scope: arrowScope, params } = expr;
-          if (type & (2 | 4)) {
+      if ((state.flags & 1) < 1) {
+          if (token & 1048576 &&
+              ((state.token & 274432) === 274432 ||
+                  state.token === 126 ||
+                  (!(context & 2097152) && state.token & 2097152) === 2097152)) {
+              const { tokenValue } = state;
+              const arg = parseIdentifier(state, context);
+              if (state.token !== 131082)
+                  report(state, 0);
+              const scope = createScope(5);
+              addVariableAndDeduplicate(state, context, scope, 1, 0, true, tokenValue);
               if (state.flags & 1)
                   report(state, 0);
-              state.pendingCoverInitializeError = null;
+              return parseArrowFunctionExpression(state, context, scope, [arg], true, start, 64);
+          }
+          if (state.token === 131082 &&
+              (token & 274432 ||
+                  token === 131083 ||
+                  token === 121 ||
+                  token === 126)) {
+              let { type, scope: arrowScope, params } = expr;
               state.bindable = state.assignable = false;
-          }
-          else {
-              if ((token & 36864) === 36864) {
-                  state.flags |= 512;
+              state.pendingCoverInitializeError = null;
+              if ((type & 6) < 1) {
+                  if ((token & 36864) === 36864) {
+                      state.flags |= 512;
+                  }
+                  else if (tokenValue === 'eval' || tokenValue === 'arguments') {
+                      if (context & 1024)
+                          report(state, 85);
+                      state.flags |= 1024;
+                  }
+                  arrowScope = createScope(5);
+                  params = [expr];
+                  type = 64;
+                  addVariableAndDeduplicate(state, context, arrowScope, 1, 0, true, tokenValue);
               }
-              else if (tokenValue === 'eval' || tokenValue === 'arguments') {
-                  if (context & 1024)
-                      report(state, 85);
-                  state.flags |= 1024;
-              }
-              arrowScope = createScope(5);
-              params = [expr];
-              type = 64;
-              addVariableAndDeduplicate(state, context, arrowScope, 1, 0, true, tokenValue);
+              return parseArrowFunctionExpression(state, context, arrowScope, params, (type & 4) > 0, start, type);
           }
-          return parseArrowFunctionExpression(state, context, arrowScope, params, (type & 4) > 0, start, type);
       }
+      let operator = 536870912;
       if ((state.token & 8388608) === 8388608) {
           if (context & 1024 && nameIsArgumentsOrEval(expr.name)) {
               report(state, 0);
@@ -6956,14 +6970,25 @@ var cherow = (function (exports) {
               if (!state.assignable)
                   report(state, 84);
               reinterpret(state, expr);
+              operator = state.token;
+              next(state, context | 32768);
+              if (context & 1048576) {
+                  state.flags |= 64;
+                  if (context & (1024 | 2097152) && state.token & 2097152) {
+                      state.flags |= 8192;
+                  }
+                  else if (state.token & 524288) {
+                      state.flags |= 4096;
+                  }
+              }
           }
           else {
               if (!state.assignable || !isValidSimpleAssignmentTarget(expr))
                   report(state, 84);
               state.bindable = state.assignable = false;
+              operator = state.token;
+              next(state, context | 32768);
           }
-          const operator = state.token;
-          next(state, context | 32768);
           const right = secludeGrammar(state, context, 0, parseAssignmentExpression);
           state.pendingCoverInitializeError = null;
           return finishNode(state, context, start, {
@@ -7093,8 +7118,10 @@ var cherow = (function (exports) {
       return parseCallExpression(state, context, start, expr);
   }
   function parseCallExpression(state, context, start, callee) {
-      const scope = state.bindable && callee.name === 'async' ? createScope(1) : null;
+      const isAsync = callee.name === 'async';
+      const scope = state.bindable && isAsync ? createScope(1) : null;
       const { flags } = state;
+      let pState = 0;
       while (true) {
           callee = parseMemberExpression(state, context, callee);
           if (state.token !== 131083)
@@ -7105,11 +7132,27 @@ var cherow = (function (exports) {
           const params = [];
           while (state.token !== 16) {
               if (state.token === 14) {
+                  state.flags = state.flags | 64;
                   params.push(parseSpreadElement(state, context, 0));
                   seenSpread = true;
               }
               else {
-                  params.push(secludeGrammar(state, context, 0, parseAsyncArgument));
+                  const { token } = state;
+                  if (isAsync && token === 405505) {
+                      addVariable(state, context, scope, 1, 0, false, false, state.tokenValue);
+                  }
+                  if ((token & 2097152) === 2097152) {
+                      pState = pState | 2;
+                  }
+                  else if (token === 131084 || token === 131091)
+                      state.flags |= 64;
+                  if ((token & 36864) === 36864) {
+                      pState = pState | 1;
+                  }
+                  else if ((token & 524288) === 524288) {
+                      pState = pState | 4;
+                  }
+                  params.push(secludeGrammar(state, context | 1048576, 0, parseAsyncArgument));
               }
               if (state.token === 16)
                   break;
@@ -7122,6 +7165,18 @@ var cherow = (function (exports) {
           if (state.token === 131082) {
               if (flags & 1)
                   report(state, 0);
+              if (pState & 2) {
+                  if (context & (2097152 | 1024))
+                      report(state, 106);
+                  state.flags |= 512;
+              }
+              else if (state.flags & 8192) {
+                  report(state, 106);
+              }
+              else if (pState & 4 || state.flags & 4096) {
+                  report(state, 105);
+              }
+              state.flags = (state.flags | 8192 | 4096) ^ (8192 | 4096);
               if (!state.bindable)
                   report(state, 0);
               state.bindable = state.assignable = false;
@@ -7134,6 +7189,9 @@ var cherow = (function (exports) {
                   params
               };
           }
+          state.flags =
+              (state.flags | 8192 | 4096 | 64) ^
+                  (8192 | 4096 | 64);
           state.bindable = state.assignable = false;
           callee = finishNode(state, context, start, {
               type: 'CallExpression',
@@ -7551,6 +7609,8 @@ var cherow = (function (exports) {
       });
   }
   function parseArrowFunctionExpression(state, context, scope, params, isAsync, start, type) {
+      if (state.flags & 1)
+          report(state, 116, '=>');
       if (type & 64) {
           expect(state, context | 32768, 131082);
       }
@@ -7558,14 +7618,13 @@ var cherow = (function (exports) {
           expect(state, context, 131082);
           for (let i = 0; i < params.length; ++i)
               reinterpret(state, params[i]);
-          if (checkIfExistInLexicalBindings(state, context, scope, 0, true))
-              report(state, 41);
+          if (checkIfExistInLexicalBindings(state, context, scope, 0, true)) {
+              report(state, 41, 'function argument');
+          }
       }
-      if (state.flags & 1)
-          report(state, 0);
       context =
-          ((context | 4194304 | 2097152 | 8388608) ^
-              (4194304 | 2097152 | 8388608)) |
+          ((context | 4194304 | 2097152 | 8388608 | 1048576) ^
+              (4194304 | 2097152 | 8388608 | 1048576)) |
               (isAsync ? 4194304 : 0);
       const expression = state.token !== 131084;
       const body = expression
@@ -7581,8 +7640,10 @@ var cherow = (function (exports) {
       });
   }
   function parseParenthesizedExpression(state, context) {
+      state.flags = (state.flags | 64) ^ 64;
       expect(state, context | 32768, 131083);
       let scope = createScope(5);
+      context = context | 1048576;
       if (optional(state, context, 16)) {
           if (state.token !== 131082)
               report(state, 0);
@@ -7594,6 +7655,7 @@ var cherow = (function (exports) {
           };
       }
       else if (state.token === 14) {
+          state.flags = state.flags | 64;
           const rest = parseRestElement(state, context, scope, 1, 0);
           expect(state, context, 16);
           if (state.token !== 131082)
@@ -7605,12 +7667,27 @@ var cherow = (function (exports) {
               params: [rest]
           };
       }
-      const { startIndex: start } = state;
+      let pState = 0;
+      state.bindable = true;
+      const { token, startIndex: start } = state;
+      if (token === 131084 || token === 131091)
+          state.flags |= 64;
+      if ((token & 36864) === 36864) {
+          pState = pState | 1;
+      }
+      else if ((token & 524288) === 524288) {
+          state.flags = state.flags | 4096;
+      }
+      else if ((token & 2097152) === 2097152) {
+          state.flags = state.flags | 8192;
+      }
+      if (token === 405505) {
+          addVariable(state, context, scope, 1, 0, false, false, state.tokenValue);
+      }
       let expr = acquireGrammar(state, (context | 8192) ^ 8192, 0, parseAssignmentExpression);
-      let isSequence = false;
       if (state.token === 18) {
           state.assignable = false;
-          isSequence = true;
+          pState = pState | 8;
           const params = [expr];
           while (optional(state, context | 32768, 18)) {
               if (optional(state, context, 16)) {
@@ -7627,6 +7704,7 @@ var cherow = (function (exports) {
               if (state.token === 14) {
                   if (!state.bindable)
                       report(state, 0);
+                  state.flags = state.flags | 64;
                   const restElement = parseRestElement(state, context, scope, 1, 0);
                   expect(state, context, 16);
                   if (state.token !== 131082)
@@ -7649,6 +7727,21 @@ var cherow = (function (exports) {
                   };
               }
               else {
+                  if (state.token === 131084 || state.token === 131091) {
+                      state.flags = state.flags | 64;
+                  }
+                  if ((state.token & 36864) === 36864) {
+                      pState = pState | 1;
+                  }
+                  else if ((state.token & 524288) === 524288) {
+                      state.flags = state.flags | 4096;
+                  }
+                  else if ((state.token & 2097152) === 2097152) {
+                      state.flags = state.flags | 8192;
+                  }
+                  if (state.token === 405505) {
+                      addVariable(state, context, scope, 1, 0, false, false, state.tokenValue);
+                  }
                   params.push(acquireGrammar(state, (context | 8192) ^ 8192, 0, parseAssignmentExpression));
               }
           }
@@ -7658,18 +7751,34 @@ var cherow = (function (exports) {
           });
       }
       expect(state, context, 16);
-      if ((state.flags & 1) < 1 && state.token === 131082) {
+      if (state.token === 131082) {
           if (!state.bindable)
-              report(state, 88);
-          state.bindable = false;
+              report(state, 117);
+          if (pState & 1) {
+              if (context & 1024)
+                  report(state, 86);
+              state.flags = state.flags | 512;
+          }
+          else if (state.flags & 8192) {
+              report(state, 106);
+          }
+          else if (context & (2048 | 4194304) && state.flags & 4096) {
+              report(state, 105);
+          }
+          state.flags = (state.flags | 8192 | 4096) ^ (8192 | 4096);
+          state.assignable = state.bindable = false;
           return {
               type: 2,
               scope,
-              params: isSequence ? expr.expressions : [expr],
+              params: pState & 8 ? expr.expressions : [expr],
               async: false
           };
       }
       state.bindable = false;
+      context = (context | 1048576) ^ 1048576;
+      state.flags =
+          (state.flags | 8192 | 4096 | 64) ^
+              (8192 | 4096 | 64);
       if (!isValidSimpleAssignmentTarget(expr))
           state.assignable = false;
       return expr;
@@ -7763,7 +7872,7 @@ var cherow = (function (exports) {
                       if (state.token & 274432) {
                           key = parseIdentifier(state, context);
                           if (state.flags & 1)
-                              report(state, 0);
+                              report(state, 116, 'async');
                       }
                       else if (state.token === 131074 || state.token === 131075) {
                           key = parseLiteral(state, context);

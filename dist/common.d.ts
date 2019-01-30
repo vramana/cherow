@@ -23,6 +23,7 @@ export declare const enum Context {
     OptionsDirectives = 131072,
     SuperProperty = 262144,
     SuperCall = 524288,
+    ParentheziedContext = 1048576,
     YieldContext = 2097152,
     AwaitContext = 4194304,
     InArgList = 8388608,
@@ -45,7 +46,9 @@ export declare const enum Flags {
     InArrowContext = 256,
     HasStrictReserved = 512,
     StrictEvalArguments = 1024,
-    HasConstructor = 2048
+    HasConstructor = 2048,
+    HasAwait = 4096,
+    HasYield = 8192
 }
 export declare const enum Type {
     None = 0,
@@ -103,7 +106,8 @@ export declare const enum Arrows {
     None = 0,
     ConciseBody = 1,
     Plain = 2,
-    Async = 4
+    Async = 4,
+    Parenthesized = 6
 }
 export declare const enum Grammar {
     None = 0,
@@ -113,6 +117,14 @@ export declare const enum Grammar {
     NotAssignable = 8,
     NotAssignbleOrBindable = 12,
     BindableAndAssignable = 3
+}
+export declare const enum ParenthesizedState {
+    None = 0,
+    ReservedWords = 1,
+    Yield = 2,
+    Await = 4,
+    SequenceExpression = 8,
+    Arrow = 16
 }
 export declare type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start?: number, end?: number) => any);
 export declare type OnToken = void | Token[] | ((token: Token, start?: number, end?: number) => any);
@@ -183,7 +195,7 @@ export declare function checkForDuplicateLexicals(scope: ScopeState, key: string
 export declare function checkIfExistInLexicalBindings(state: ParserState, context: Context, scope: ScopeState, origin: Origin, skipParent: any): boolean;
 export declare function checkIfExistInLexicalParentScope(state: ParserState, context: Context, scope: ScopeState, origin: Origin, key: string): void;
 export declare function addFunctionName(state: any, context: Context, scope: any, bindingType: Type, origin: Origin, isVarDecl: boolean): void;
-export declare function validateFunctionArgs(state: ParserState, arg: any): void;
+export declare function validateFunctionArgs(state: ParserState, arg: any, isSimple: boolean): void;
 export declare function lookAheadOrScan<T>(state: ParserState, context: Context, callback: (state: ParserState, context: Context) => T, isLookahead: boolean): T;
 export declare function isLexical(state: ParserState, context: Context): boolean;
 export declare function reinterpret(state: ParserState, ast: any): void;
