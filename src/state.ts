@@ -1,56 +1,5 @@
-import * as ESTree from './estree';
-import {
-  Context,
-  Flags,
-  LabelState,
-  LabelledState,
-  OnComment,
-  OnToken,
-  ParserState,
-  consumeSemicolon,
-  Type,
-  Origin,
-  Arrows,
-  Grammar,
-  reinterpret,
-  validateBindingIdentifier,
-  addToExportedNamesAndCheckForDuplicates,
-  addToExportedBindings,
-  nextTokenIsFuncKeywordOnSameLine,
-  isValidSimpleAssignmentTarget,
-  getLabel,
-  validateContinueLabel,
-  validateBreakStatement,
-  addCrossingBoundary,
-  addLabel,
-  addVariableAndDeduplicate,
-  isValidIdentifier,
-  ScopeState,
-  ScopeType,
-  createSubScope,
-  createScope,
-  Modifiers,
-  nextTokenIsLeftParenOrPeriod,
-  acquireGrammar,
-  secludeGrammar,
-  nameIsArgumentsOrEval,
-  finishNode,
-  ParenthesizedState
-} from './common';
-import { Token, KeywordDescTable } from './token';
-import { next } from './scanner';
-import { scanTemplateTail } from './scanner/template';
-import {
-  optional,
-  expect,
-  addVariable,
-  checkIfExistInLexicalBindings,
-  validateFunctionArgs,
-  addFunctionName,
-  isLexical,
-  lookAheadOrScan
-} from './common';
-import { report, Errors } from './errors';
+import { Flags, LabelState, OnComment, OnToken, ParserState, Grammar } from './common';
+import { Token } from './token';
 
 /**
  * Create a new Parser object.
