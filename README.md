@@ -99,6 +99,33 @@ This will return when serialized in json:
 }
 ```
 
+## Expression parsing
+
+It's possible to parse only expressions in eihter script or module goal code.
+
+```js
+
+cherow.parseExpressions('foo', { ranges: true });
+
+```
+
+This will return when serialized in json:
+
+```js
+{
+      body: {
+        end: 3,
+        name: 'foo',
+        start: 0,
+        type: 'Identifier'
+      },
+      end: 3,
+      sourceType: 'script',
+      start: 0,
+      type: 'Program'
+    }
+```
+
 ## Options
 
 The second argument allows you to specify various options:

@@ -134,7 +134,7 @@ export function parseSource(source: string, options: Options | void, context: Co
   let body;
   let sourceType: 'module' | 'script' = 'script';
   if (context & Context.Expression) {
-    sourceType = context & Context.Module ? (sourceType = 'module') : (sourceType = 'script');
+    sourceType = context & Context.Module ? 'module' : 'script';
     next(state, context);
     body = parseExpression(state, context);
   } else if (context & Context.Module) {
