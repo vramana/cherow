@@ -1,9 +1,10 @@
 import { create } from './state';
 import { parseModuleItem } from './parser/module';
 import { parseStatementList } from './parser/statement';
+import { parseExpression } from './parser/expression';
 import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context, createScope, ScopeType } from './common';
-import { skipHashBang } from './scanner';
+import { skipHashBang, next } from './scanner';
 import { report, Errors } from './errors';
 
 /**
@@ -132,7 +133,11 @@ export function parseSource(source: string, options: Options | void, context: Co
   const scope = createScope(ScopeType.BlockStatement);
   let body;
   let sourceType: 'module' | 'script' = 'script';
-  if (context & Context.Module) {
+  if (context & Context.Expression) {
+    sourceType = context & Context.Module ? (sourceType = 'module') : (sourceType = 'script');
+    next(state, context);
+    body = parseExpression(state, context);
+  } else if (context & Context.Module) {
     sourceType = 'module';
     body = parseModuleItem(state, context | Context.TopLevel, scope);
     for (const key in state.exportedBindings) {
@@ -201,4 +206,21 @@ export function parseScript(source: string, options?: Options): ESTree.Program {
  */
 export function parseModule(source: string, options?: Options): ESTree.Program {
   return parseSource(source, options, Context.Strict | Context.Module);
+}
+
+/**
+ * Parse expressions in either script code or module code
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-scripts)
+ * @see [Link](https://tc39.github.io/ecma262/#sec-modules)
+ *
+ * @param source source code to parse
+ * @param options parser options
+ */
+export function parseExpressions(source: string, options?: Options): ESTree.Program {
+  return parseSource(
+    source,
+    options,
+    options && options.module ? Context.Expression | Context.Strict | Context.Module : Context.Expression
+  );
 }
