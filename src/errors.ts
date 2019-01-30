@@ -280,19 +280,20 @@ export const errorMessages: {
   [Errors.InvalidAssignmentTarget]: 'Invalid destructuring assignment target'
 };
 
-export function constructError(index: number, line: number, column: number, description: string): void {
-  const error: any = new SyntaxError(`Line ${line}, column ${column}: ${description}`);
-
+export function report(state: ParserState, type: Errors, ...params: string[]): never {
+  const { index, line, column } = state;
+  let message = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+  message += ' (' + line + ':' + column + ')';
+  let lines = state.source.split('\n');
+  message = message + '\n' + lines[line - 1] + '\n';
+  for (var i = 0; i < column; i++) {
+    message += ' ';
+  }
+  message += '^\n';
+  const error: any = new SyntaxError(message);
   error.index = index;
   error.line = line;
   error.column = column;
-  error.description = description;
-  return error;
-}
-
-export function report(parser: ParserState, type: Errors, ...params: string[]): never {
-  const { index, line, column } = parser;
-  const message = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
-  const error = constructError(index, line, column, message);
+  error.description = message;
   throw error;
 }
