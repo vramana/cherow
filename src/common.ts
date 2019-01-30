@@ -289,7 +289,8 @@ export function expect(state: ParserState, context: Context, t: Token): void {
   } else {
     report(
       state,
-      t === Token.EscapedKeyword || t === Token.EscapedStrictReserved ? Errors.InvalidEscapedKeyword : Errors.Unexpected
+      t === Token.EscapedKeyword || t === Token.EscapedStrictReserved ? Errors.InvalidEscapedKeyword : Errors.Expected,
+      KeywordDescTable[t & Token.Type]
     );
   }
 }
@@ -628,12 +629,12 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
       report(state, Errors.InvalidEscapedKeyword);
     }
     if ((token & Token.FutureReserved) === Token.FutureReserved) {
-      report(state, Errors.InvalidStrictReservedWord);
+      report(state, Errors.FutureReservedWordInStrictModeNotId);
     }
   }
 
   // (fkleuver): Investigate why this doesn't trigger an error
-  if (token === Token.EnumKeyword) report(state, Errors.InvalidStrictReservedWord);
+  if (token === Token.EnumKeyword) report(state, Errors.FutureReservedWordInStrictModeNotId);
 
   if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
     report(state, Errors.AwaitOutsideAsync);
@@ -654,7 +655,7 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
   }
 
   if ((token & Token.Reserved) === Token.Reserved) {
-    report(state, Errors.InvalidStrictReservedWord);
+    report(state, Errors.KeywordNotId);
   }
 
   return true;

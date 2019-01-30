@@ -54,7 +54,7 @@ export function parseClassDeclaration(
     validateBindingIdentifier(state, context | Context.Strict, Type.ClassExprDecl);
     addVariableAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, state.tokenValue);
     id = parseIdentifier(state, context);
-  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.Unexpected);
+  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Class');
 
   if (optional(state, context, Token.ExtendsKeyword)) {
     superClass = secludeGrammar(state, context, 0, parseLeftHandSideExpression);
@@ -125,7 +125,7 @@ export function parseFunctionDeclaration(
     funcScope = createSubScope(funcScope, ScopeType.BlockStatement);
     firstRestricted = state.tokenValue;
     id = parseIdentifier(state, context);
-  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.Unexpected);
+  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Function');
 
   context =
     (context |

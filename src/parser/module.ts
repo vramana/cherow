@@ -132,7 +132,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
         );
       }
       expect(state, context, Token.FromKeyword);
-      if (state.token !== <Token>Token.StringLiteral) report(state, Errors.Unexpected);
+      if (state.token !== <Token>Token.StringLiteral) report(state, Errors.InvalidExportImportSource, 'Export');
       source = parseLiteral(state, context);
       consumeSemicolon(state, context);
       return context & Context.OptionsExperimental && specifiers
@@ -288,7 +288,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
       parseImportNamespace(state, context, scope, start, specifiers);
     } else if (state.token === Token.LeftBrace) {
       parseImportSpecifierOrNamedImports(state, context, scope, start, specifiers);
-    } else report(state, Errors.Unexpected);
+    } else report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
 
     source = parseModuleSpecifier(state, context);
   }

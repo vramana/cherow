@@ -357,7 +357,7 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
       test = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
     } else {
       expect(state, context, Token.DefaultKeyword);
-      if (seenDefault) report(state, Errors.Unexpected);
+      if (seenDefault) report(state, Errors.DupDefault);
       seenDefault = true;
     }
     cases.push(parseCaseOrDefaultClauses(state, context, test, switchScope, subStart));
@@ -541,7 +541,7 @@ export function parseTryStatement(state: ParserState, context: Context, scope: S
         createSubScope(scope, ScopeType.BlockStatement)
       )
     : null;
-  if (!handler && !finalizer) report(state, Errors.Unexpected);
+  if (!handler && !finalizer) report(state, Errors.NoCatchOrFinally);
   return finishNode(state, context, startIndex, {
     type: 'TryStatement',
     block,
@@ -727,7 +727,7 @@ function parseForStatement(
   }
 
   if (optional(state, context | Context.AllowPossibleRegEx, Token.OfKeyword)) {
-    if (state.inCatch) report(state, Errors.Unexpected);
+    if (state.inCatch) report(state, Errors.InvalidVarForOfCatch);
     if (isPattern) {
       if (!state.assignable || init.type === 'AssignmentExpression') {
         report(state, Errors.InvalidLHSInForLoop);

@@ -60,12 +60,12 @@ export function parseBindingIdentifier(
   checkForDuplicates: boolean
 ): ESTree.Identifier {
   const { tokenValue: name, token, startIndex } = state;
-  if ((token & Token.IsIdentifier) === 0 && token !== Token.EscapedStrictReserved) report(state, Errors.Unexpected);
+  if ((token & Token.IsIdentifier) === 0 && token !== Token.EscapedStrictReserved) report(state, Errors.NoIdent);
 
   // TODO: (fkleuver) This should be tokens in 'token.ts', and validated inside 'validateBindingIdentifier'
   if (context & Context.Strict) {
-    if (nameIsArgumentsOrEval(name) || name === 'enum') report(state, Errors.Unexpected);
-  } else if (name === 'enum') report(state, Errors.Unexpected);
+    if (nameIsArgumentsOrEval(name) || name === 'enum') report(state, Errors.InvalidEvalArgument, name);
+  } else if (name === 'enum') report(state, Errors.KeywordNotId);
 
   validateBindingIdentifier(state, context, type);
   addVariable(

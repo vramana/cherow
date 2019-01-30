@@ -218,7 +218,7 @@ export function parseFunctionBody(
   expect(state, origin & Origin.Declaration ? context | Context.AllowPossibleRegEx : context, Token.RightBrace);
 
   // Either '=' or '=>' after blockstatement
-  if (state.token === Token.Assign || state.token === Token.Arrow) report(state, Errors.Unexpected);
+  if (state.token === Token.Assign || state.token === Token.Arrow) report(state, Errors.InvalidAssignmentTarget);
 
   return finishNode(state, context, start, {
     type: 'BlockStatement',
@@ -328,10 +328,10 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
     ) {
       const { tokenValue } = state;
       const arg = parseIdentifier(state, context);
-      if (state.token !== Token.Arrow) report(state, Errors.Unexpected);
+      if (state.token !== Token.Arrow)
+        report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
       const scope = createScope(ScopeType.ArgumentList);
       addVariableAndDeduplicate(state, context, scope, Type.ArgList, Origin.None, true, tokenValue);
-      if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
       return parseArrowFunctionExpression(state, context, scope, [arg], true, start, Type.ConciseBody);
     }
 
@@ -363,7 +363,7 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
   let operator: Token = Token.EndOfSource;
   if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
     if (context & Context.Strict && nameIsArgumentsOrEval((expr as ESTree.Identifier).name)) {
-      report(state, Errors.Unexpected);
+      report(state, Errors.InvalidEvalArgument, expr.name === 'eval' ? 'eval' : 'arguments');
     } else if (state.token === Token.Assign) {
       if (!state.assignable) report(state, Errors.InvalidLHSInAssignment);
       reinterpret(state, expr);
@@ -681,7 +681,7 @@ function parseCallExpression(state: ParserState, context: Context, start: number
     expect(state, context, Token.RightParen);
 
     if (state.token === <Token>Token.Arrow) {
-      if (flags & Flags.NewLine) report(state, Errors.Unexpected);
+      if (flags & Flags.NewLine) report(state, Errors.InvalidLineBreak, '=>');
 
       if (pState & ParenthesizedState.Yield) {
         if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.YieldInParameter);
@@ -695,7 +695,7 @@ function parseCallExpression(state: ParserState, context: Context, start: number
       state.flags = (state.flags | Flags.HasYield | Flags.HasAwait) ^ (Flags.HasYield | Flags.HasAwait);
 
       // Fixes cases like: `async().foo13 () => 1`
-      if (!state.bindable) report(state, Errors.Unexpected);
+      if (!state.bindable) report(state, Errors.InvalidDestructExpr);
       state.bindable = state.assignable = false;
       if (spreadCount > 0) report(state, Errors.TrailingCommaAfterRest);
       state.bindable = false;
@@ -1575,11 +1575,12 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
       state.assignable = false;
 
       if (state.token === <Token>Token.Ellipsis) {
-        if (!state.bindable) report(state, Errors.Unexpected);
+        if (!state.bindable) report(state, Errors.InvalidDestructExpr);
         state.flags = state.flags | Flags.SimpleParameterList;
         const restElement = parseRestElement(state, context, scope, Type.ArgList, Origin.None);
         expect(state, context, Token.RightParen);
-        if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
+        if (state.token !== <Token>Token.Arrow)
+          report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
         state.bindable = false;
         params.push(restElement);
         return {
@@ -1588,7 +1589,8 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
           params: params
         };
       } else if (optional(state, context, Token.RightParen)) {
-        if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
+        if (state.token !== <Token>Token.Arrow)
+          report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
         return {
           type: Arrows.Plain,
           scope,
@@ -1841,7 +1843,7 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
     modifier |= Modifiers.Constructor;
   }
 
-  if (state.token !== Token.LeftParen) report(state, Errors.Unexpected);
+  if (state.token !== Token.LeftParen) report(state, Errors.Expected, '(');
 
   return finishNode(state, context, start, {
     type: 'MethodDefinition',
@@ -1970,7 +1972,7 @@ function parseObjectLiteral(
         } else if (state.token === <Token>Token.LeftBracket) {
           key = parseComputedPropertyName(state, context);
           if (token === <Token>Token.AsyncKeyword) {
-            if (newLine) report(state, Errors.Unexpected);
+            if (newLine) report(state, Errors.InvalidLineBreak, 'async');
             objState |= Modifiers.Async | Modifiers.Computed | Modifiers.Method;
           } else {
             if (token === Token.GetKeyword) objState = (objState & ~Modifiers.Setter) | Modifiers.Getter;
@@ -1993,7 +1995,7 @@ function parseObjectLiteral(
             key = parseIdentifier(state, context);
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             if (token === <Token>Token.AsyncKeyword) {
-              if (newLine) report(state, Errors.Unexpected);
+              if (newLine) report(state, Errors.InvalidLineBreak, 'async');
               objState |= Modifiers.Async | Modifiers.Method;
             } else if (token === <Token>Token.GetKeyword) {
               objState = (objState & ~Modifiers.Setter) | Modifiers.Getter;
@@ -2006,7 +2008,7 @@ function parseObjectLiteral(
             key = parseLiteral(state, context);
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             if (token === <Token>Token.AsyncKeyword) {
-              if (newLine) report(state, Errors.Unexpected);
+              if (newLine) report(state, Errors.InvalidLineBreak, 'async');
               objState |= Modifiers.Async | Modifiers.Method;
             } else if (token === <Token>Token.GetKeyword) {
               objState = (objState & ~Modifiers.Setter) | Modifiers.Getter;
@@ -2017,7 +2019,7 @@ function parseObjectLiteral(
             value = parseMethodDeclaration(state, context, objState);
           } else if (state.token === <Token>Token.LeftBracket) {
             if (token === <Token>Token.AsyncKeyword) {
-              if (newLine) report(state, Errors.Unexpected);
+              if (newLine) report(state, Errors.InvalidLineBreak, 'async');
               objState |= Modifiers.Async | Modifiers.Method;
             } else if (token === <Token>Token.GetKeyword) {
               objState = (objState & ~Modifiers.Setter) | Modifiers.Getter;
@@ -2032,7 +2034,7 @@ function parseObjectLiteral(
         tokenValue = state.tokenValue;
         key = parseLiteral(state, context);
 
-        if (state.token === <Token>Token.Assign) report(state, Errors.Unexpected);
+        if (state.token === <Token>Token.Assign) report(state, Errors.InvalidAssignmentTarget);
 
         if (optional(state, context | Context.AllowPossibleRegEx, Token.Colon)) {
           if (tokenValue === '__proto__') {
@@ -2059,7 +2061,7 @@ function parseObjectLiteral(
           value = parseAssignmentExpression(state, context | Context.AllowPossibleRegEx);
         } else {
           objState |= Modifiers.Method;
-          if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
+          if (state.token !== <Token>Token.LeftParen) report(state, Errors.Expected, '(');
           state.bindable = state.assignable = false;
           value = parseMethodDeclaration(state, context, objState);
         }
@@ -2132,7 +2134,7 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
 
   const result = parsePropertyMethod(state, context | Context.InMethod, objState);
   if (state.pendingCoverInitializeError !== null) {
-    report(state, Errors.Unexpected);
+    report(state, Errors.UnexpectedToken, KeywordDescTable[(state.token, Token.Type)]);
   }
 
   state.bindable = bindable;
