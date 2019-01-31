@@ -41,11 +41,13 @@ import {
 } from './expression';
 
 /**
- * Parse a module body, function body, script body, etc.
+ * Parses statement list item
+ *
+ * @param state  Parser object
+ * @param context Context masks
+ * @param scope scope state
  */
 export function parseStatementList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
-  // Prime the scanner
-  next(state, context | Context.AllowPossibleRegEx);
   const statements: ESTree.Statement[] = [];
   while (state.token === Token.StringLiteral) {
     const tokenValue = state.tokenValue;
