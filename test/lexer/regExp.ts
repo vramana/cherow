@@ -27,14 +27,19 @@ describe('Lexer - RegExp', () => {
     });
   }
 
-  function fail(name: string, context: Context, opts: any) {
+  function fail(name: string, source: string, context: Context) {
     it(name, () => {
-      const state = create(opts.source, undefined, undefined);
-      t.throws(() => {
-        next(state, context);
-      });
+      const state = create(source, undefined, pushToken(context, []));
+      t.throws(() => next(state, Context.AllowPossibleRegEx | Context.OptionsRaw));
     });
   }
+
+  fail('fails on /a/gg', '/a/gg', Context.Empty);
+  fail('fails on /a/gg', '/a/ii', Context.Empty);
+  fail('fails on /a/gg', '/a/ss', Context.Empty);
+  fail('fails on /a/gg', '/a/yy', Context.Empty);
+  fail('fails on /a/gg', '/a/mm', Context.Empty);
+  fail('fails on /a/gg', '/a/uu', Context.Empty);
 
   pass('should scan simple regular expression', {
     source: '/f/',

@@ -3,7 +3,7 @@ import { Token } from '../token';
 import { Context, Flags } from '../common';
 import { ParserState } from '../common';
 import { report, Errors } from '../errors';
-import { consumeOpt, consumeLineFeed, consumeAny, Type } from './common';
+import { consumeOpt, consumeLineFeed } from './common';
 
 export const enum CommentType {
   Single,

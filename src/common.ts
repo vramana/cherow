@@ -384,11 +384,8 @@ export function addVariable(
 
     let x = lex['@' + key];
 
-    if (x === undefined) x = 1;
-    else if (checkDuplicates) {
-      if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
-        report(state, Errors.MultipleLexicals, key);
-      }
+    if (x === undefined) {
+      x = 1;
     } else {
       ++x;
     }

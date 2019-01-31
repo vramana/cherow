@@ -2,7 +2,7 @@ import { ParserState, Context, Flags } from '../common';
 import { Chars } from '../chars';
 import { Token } from '../token';
 import { report, Errors } from '../errors';
-import { fromCodePoint, toHex, nextChar, Escape, scanNext } from './common';
+import { fromCodePoint, toHex, Escape, scanNext } from './common';
 
 /**
  * Scan a string literal
@@ -47,7 +47,9 @@ export function scanStringLiteral(state: ParserState, context: Context, quote: n
   return Token.StringLiteral;
 }
 
-export const table = new Array<(state: ParserState, context: Context, first: number) => number>(128).fill(nextChar);
+export const table = new Array<(state: ParserState, context: Context, first: number) => number>(128).fill(
+  (state: ParserState) => state.source.charCodeAt(state.index)
+);
 
 table[Chars.LowerB] = () => Chars.Backspace;
 table[Chars.LowerF] = () => Chars.FormFeed;

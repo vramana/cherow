@@ -1485,8 +1485,8 @@ function parseArrowFunctionExpression(
   }
 
   context =
-    ((context | Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.ParentheziedContext) ^
-      (Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.ParentheziedContext)) |
+    ((context | Context.AwaitContext | Context.InArgList | Context.ParentheziedContext) ^
+      (Context.AwaitContext | Context.InArgList | Context.ParentheziedContext)) |
     (isAsync ? Context.AwaitContext : 0);
 
   const expression = state.token !== Token.LeftBrace;
@@ -1549,12 +1549,11 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
 
   if (token === Token.LeftBrace || token === Token.LeftBracket) state.flags |= Flags.SimpleParameterList;
 
-  if ((token & Token.FutureReserved) === Token.FutureReserved) {
+  if ((token & Token.FutureReserved) === Token.FutureReserved || (token & Token.IsYield) === Token.IsYield) {
+    if ((token & Token.IsYield) === Token.IsYield) state.flags = state.flags | Flags.HasYield;
     pState = pState | ParenthesizedState.ReservedWords;
   } else if ((token & Token.IsAwait) === Token.IsAwait) {
     state.flags = state.flags | Flags.HasAwait;
-  } else if ((token & Token.IsYield) === Token.IsYield) {
-    state.flags = state.flags | Flags.HasYield;
   }
 
   if ((token as Token) === Token.Identifier) {
@@ -1612,13 +1611,16 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
         if ((state.token as Token) === Token.LeftBrace || (state.token as Token) === Token.LeftBracket) {
           state.flags = state.flags | Flags.SimpleParameterList;
         }
-        if ((state.token & Token.FutureReserved) === Token.FutureReserved) {
+        if (
+          (state.token & Token.FutureReserved) === Token.FutureReserved ||
+          (state.token & Token.IsYield) === Token.IsYield
+        ) {
+          state.flags = state.flags | Flags.HasYield;
           pState = pState | ParenthesizedState.ReservedWords;
         } else if ((state.token & Token.IsAwait) === Token.IsAwait) {
           state.flags = state.flags | Flags.HasAwait;
-        } else if ((state.token & Token.IsYield) === Token.IsYield) {
-          state.flags = state.flags | Flags.HasYield;
         }
+
         if ((state.token as Token) === Token.Identifier) {
           addVariable(state, context, scope, Type.ArgList, Origin.None, false, false, state.tokenValue);
         }
@@ -1646,7 +1648,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
     if (pState & ParenthesizedState.ReservedWords) {
       if (context & Context.Strict) report(state, Errors.UnexpectedStrictReserved);
       state.flags = state.flags | Flags.HasStrictReserved;
-    } else if (state.flags & Flags.HasYield) {
+    } else if (context & (Context.Strict | Context.YieldContext) && state.flags & Flags.HasYield) {
       report(state, Errors.YieldInParameter);
     } else if (context & (Context.Module | Context.AwaitContext) && state.flags & Flags.HasAwait) {
       report(state, Errors.AwaitInParameter);
