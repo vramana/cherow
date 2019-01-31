@@ -12,18 +12,18 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
+**Work in progress**
 
 ## Features
 
 * Conforms to the standard ECMAScript® 2019 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification (*draft*)
 * Support for all stage 3 proposals via option.
-* JSX support via option.
 * Experimental feature support via option.
 * Optionally track syntactic node locations
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
-* Very well tested (~26 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
+* Very well tested (~24 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * Supports all module loaders
-* Lightweight - ~70 KB minified (*18 kb smaller than Acorn*)
+* Lightweight - ~72 KB minified (*17 kb smaller than Acorn*)
 
 ## ESNext features
 
@@ -31,7 +31,6 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 
 * [Import()](https://github.com/tc39/proposal-dynamic-import)
 * [Hashbang Grammar](https://github.com/tc39/proposal-hashbang)
-* [Private methods and getter/setters for JavaScript classes](https://github.com/tc39/proposal-private-methods)
 * [BigInt](https://github.com/tc39/proposal-bigint)
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
 
@@ -100,6 +99,31 @@ This will return when serialized in json:
 }
 ```
 
+The API also allows you to use Cherow as a stand-alone  [expression parser](https://tc39.github.io/ecma262/#sec-ecmascript-language-expressions) and let you parse your code in either script or module goal code.
+
+```js
+
+cherow.parseExpressions('foo', { ranges: true });
+
+```
+
+This will return when serialized in json:
+
+```js
+{
+      body: {
+        end: 3,
+        name: 'foo',
+        start: 0,
+        type: 'Identifier'
+      },
+      end: 3,
+      sourceType: 'script',
+      start: 0,
+      type: 'Program'
+    }
+```
+
 ## Options
 
 The second argument allows you to specify various options:
@@ -107,17 +131,13 @@ The second argument allows you to specify various options:
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
 | `module`          | Enable module syntax |
-| `loc`             | Attach line/column location information to each node |
 | `ranges`          | Append start and end offsets to each node |
 | `globalReturn`    | Allow return in the global scope |
 | `webcompat`       | Enable web compability (*AnnexB*) |
 | `impliedStrict`   | Enable strict mode initial enforcement |
 | `next`            | Enable stage 3 support (*ESNext*)  |
-| `jsx`             | Enable React JSX parsing  |
-| `source`          | Set to true to record the source file in every node's `loc` object when the `loc option` is set.  |
 | `experimental`    | Enable experimental features
 | `raw`             | Attach raw property to each literal node and identifier node |
-| `native`          | Enable "native" NodeJS / V8 features |
 | `directives`      | Enable [directive prologue](https://github.com/danez/estree/blob/directive/es5.md#directive) to each literal node |
 | `onComment`       | Accept either callback or array to collect comment |
 | `onToken`         | Accept either callback or array and returns each found token |

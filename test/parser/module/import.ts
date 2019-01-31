@@ -363,7 +363,7 @@ describe('Module - Import', () => {
   }
 
   // valid tests
-  const valids: Array<[string, Context, any]> = [
+  pass('Module - Export', [
     [
       'import {} from "y"',
       Context.Strict | Context.Module,
@@ -1185,6 +1185,428 @@ describe('Module - Import', () => {
       }
     ],
     [
+      `import("bug_OS12095746_mod0.js")
+      .then((m)=>{ console.log('mod0 fail'); })
+      .catch((e)=>{ console.log("mod0 catch:"+e.message); });
+
+  import('bug_OS12095746_mod1.js')
+      .then((m)=>{ console.log('mod1 fail'); })
+      .catch((e)=>{
+          console.log('mod1 catch:'+e.message);
+          import('bug_OS12095746_mod2.js')
+              .then((m)=>{ print('mod2 fail'); })
+              .catch((e)=>{ print('mod2 catch:'+e.message); });
+          });`,
+      Context.Strict | Context.Module | Context.OptionsNext,
+      {
+        type: 'Program',
+        sourceType: 'module',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'CallExpression',
+                  callee: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'CallExpression',
+                      callee: {
+                        type: 'Import'
+                      },
+                      arguments: [
+                        {
+                          type: 'Literal',
+                          value: 'bug_OS12095746_mod0.js'
+                        }
+                      ]
+                    },
+                    computed: false,
+                    property: {
+                      type: 'Identifier',
+                      name: 'then'
+                    }
+                  },
+                  arguments: [
+                    {
+                      type: 'ArrowFunctionExpression',
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'ExpressionStatement',
+                            expression: {
+                              type: 'CallExpression',
+                              callee: {
+                                type: 'MemberExpression',
+                                object: {
+                                  type: 'Identifier',
+                                  name: 'console'
+                                },
+                                computed: false,
+                                property: {
+                                  type: 'Identifier',
+                                  name: 'log'
+                                }
+                              },
+                              arguments: [
+                                {
+                                  type: 'Literal',
+                                  value: 'mod0 fail'
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'm'
+                        }
+                      ],
+                      id: null,
+                      async: false,
+                      expression: false
+                    }
+                  ]
+                },
+                computed: false,
+                property: {
+                  type: 'Identifier',
+                  name: 'catch'
+                }
+              },
+              arguments: [
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ExpressionStatement',
+                        expression: {
+                          type: 'CallExpression',
+                          callee: {
+                            type: 'MemberExpression',
+                            object: {
+                              type: 'Identifier',
+                              name: 'console'
+                            },
+                            computed: false,
+                            property: {
+                              type: 'Identifier',
+                              name: 'log'
+                            }
+                          },
+                          arguments: [
+                            {
+                              type: 'BinaryExpression',
+                              left: {
+                                type: 'Literal',
+                                value: 'mod0 catch:'
+                              },
+                              right: {
+                                type: 'MemberExpression',
+                                object: {
+                                  type: 'Identifier',
+                                  name: 'e'
+                                },
+                                computed: false,
+                                property: {
+                                  type: 'Identifier',
+                                  name: 'message'
+                                }
+                              },
+                              operator: '+'
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'e'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: false
+                }
+              ]
+            }
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'CallExpression',
+                  callee: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'CallExpression',
+                      callee: {
+                        type: 'Import'
+                      },
+                      arguments: [
+                        {
+                          type: 'Literal',
+                          value: 'bug_OS12095746_mod1.js'
+                        }
+                      ]
+                    },
+                    computed: false,
+                    property: {
+                      type: 'Identifier',
+                      name: 'then'
+                    }
+                  },
+                  arguments: [
+                    {
+                      type: 'ArrowFunctionExpression',
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'ExpressionStatement',
+                            expression: {
+                              type: 'CallExpression',
+                              callee: {
+                                type: 'MemberExpression',
+                                object: {
+                                  type: 'Identifier',
+                                  name: 'console'
+                                },
+                                computed: false,
+                                property: {
+                                  type: 'Identifier',
+                                  name: 'log'
+                                }
+                              },
+                              arguments: [
+                                {
+                                  type: 'Literal',
+                                  value: 'mod1 fail'
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'm'
+                        }
+                      ],
+                      id: null,
+                      async: false,
+                      expression: false
+                    }
+                  ]
+                },
+                computed: false,
+                property: {
+                  type: 'Identifier',
+                  name: 'catch'
+                }
+              },
+              arguments: [
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ExpressionStatement',
+                        expression: {
+                          type: 'CallExpression',
+                          callee: {
+                            type: 'MemberExpression',
+                            object: {
+                              type: 'Identifier',
+                              name: 'console'
+                            },
+                            computed: false,
+                            property: {
+                              type: 'Identifier',
+                              name: 'log'
+                            }
+                          },
+                          arguments: [
+                            {
+                              type: 'BinaryExpression',
+                              left: {
+                                type: 'Literal',
+                                value: 'mod1 catch:'
+                              },
+                              right: {
+                                type: 'MemberExpression',
+                                object: {
+                                  type: 'Identifier',
+                                  name: 'e'
+                                },
+                                computed: false,
+                                property: {
+                                  type: 'Identifier',
+                                  name: 'message'
+                                }
+                              },
+                              operator: '+'
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        type: 'ExpressionStatement',
+                        expression: {
+                          type: 'CallExpression',
+                          callee: {
+                            type: 'MemberExpression',
+                            object: {
+                              type: 'CallExpression',
+                              callee: {
+                                type: 'MemberExpression',
+                                object: {
+                                  type: 'CallExpression',
+                                  callee: {
+                                    type: 'Import'
+                                  },
+                                  arguments: [
+                                    {
+                                      type: 'Literal',
+                                      value: 'bug_OS12095746_mod2.js'
+                                    }
+                                  ]
+                                },
+                                computed: false,
+                                property: {
+                                  type: 'Identifier',
+                                  name: 'then'
+                                }
+                              },
+                              arguments: [
+                                {
+                                  type: 'ArrowFunctionExpression',
+                                  body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                      {
+                                        type: 'ExpressionStatement',
+                                        expression: {
+                                          type: 'CallExpression',
+                                          callee: {
+                                            type: 'Identifier',
+                                            name: 'print'
+                                          },
+                                          arguments: [
+                                            {
+                                              type: 'Literal',
+                                              value: 'mod2 fail'
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  params: [
+                                    {
+                                      type: 'Identifier',
+                                      name: 'm'
+                                    }
+                                  ],
+                                  id: null,
+                                  async: false,
+                                  expression: false
+                                }
+                              ]
+                            },
+                            computed: false,
+                            property: {
+                              type: 'Identifier',
+                              name: 'catch'
+                            }
+                          },
+                          arguments: [
+                            {
+                              type: 'ArrowFunctionExpression',
+                              body: {
+                                type: 'BlockStatement',
+                                body: [
+                                  {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                      type: 'CallExpression',
+                                      callee: {
+                                        type: 'Identifier',
+                                        name: 'print'
+                                      },
+                                      arguments: [
+                                        {
+                                          type: 'BinaryExpression',
+                                          left: {
+                                            type: 'Literal',
+                                            value: 'mod2 catch:'
+                                          },
+                                          right: {
+                                            type: 'MemberExpression',
+                                            object: {
+                                              type: 'Identifier',
+                                              name: 'e'
+                                            },
+                                            computed: false,
+                                            property: {
+                                              type: 'Identifier',
+                                              name: 'message'
+                                            }
+                                          },
+                                          operator: '+'
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              },
+                              params: [
+                                {
+                                  type: 'Identifier',
+                                  name: 'e'
+                                }
+                              ],
+                              id: null,
+                              async: false,
+                              expression: false
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'e'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
       'import {x as a, z as b,} from "y"',
       Context.Strict | Context.Module,
       {
@@ -1225,7 +1647,5 @@ describe('Module - Import', () => {
         sourceType: 'module'
       }
     ]
-  ];
-
-  pass('Module - Export', valids);
+  ]);
 });
