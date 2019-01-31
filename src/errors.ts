@@ -135,7 +135,8 @@ export const enum Errors {
   Expected,
   InvalidAssignmentTarget,
   InvalidForAwait,
-  WebCompatFunction
+  WebCompatFunction,
+  InvalidUnaryWithNew
 }
 
 /*@internal*/
@@ -187,7 +188,7 @@ export const errorMessages: {
   [Errors.InvalidCatchVarBinding]: "The `catch` var '%0' can't be redefined",
   [Errors.StrictFunction]: 'In strict mode code, functions can only be declared at top level or inside a block',
   [Errors.WebCompatFunction]:
-    'Without web compability enabled functions cannot be declared at top level, inside a block, or as the body of an if statement',
+    'Without web compability enabled functions can not be declared at top level, inside a block, or as the body of an if statement',
   [Errors.SloppyFunction]:
     'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
   [Errors.InvalidLetInStrict]: "let can't be a variable name in strict mode",
@@ -227,7 +228,7 @@ export const errorMessages: {
   [Errors.PrivateFieldConstructor]: "Classes may not have a private field named '#constructor'",
   [Errors.PublicFieldConstructor]: "Classes may not have a field named 'constructor'",
   [Errors.PrivateStaticPrototype]: "Classes may not have a static private property named '#prototype'",
-  [Errors.AsyncRestricedProd]: 'Async methods are a restricted production and cannot have a newline following it',
+  [Errors.AsyncRestricedProd]: 'Async methods are a restricted production and can not have a newline following it',
   [Errors.OnlyMethodInClass]: 'Only methods are allowed in classes',
   [Errors.DeletePrivateField]: 'Private fields can not be deleted',
   [Errors.StrictLHSPrefixPostFix]: 'Private fields can not be deleted',
@@ -248,10 +249,10 @@ export const errorMessages: {
   [Errors.RestricedLetProduction]: '`let \n [` is a restricted production at the start of a statement',
   [Errors.AlreadyBoundAsLexical]: '%0 is already bound as a lexical binding',
   [Errors.MultipleLexicals]: 'The lexical binding %0 has been bound multiple times',
-  [Errors.BoundLexicalAsParam]: 'Cannot use `let` or `const` with the same name as bound to a parameter',
+  [Errors.BoundLexicalAsParam]: 'Can not use `let` or `const` with the same name as bound to a parameter',
   [Errors.DoubleDeclBinding]: 'Double declaration of the same binding name in a `catch` var',
   [Errors.DeclarationMissingInitializer]: 'Destructuring declarations %0 must have an initializer',
-  [Errors.ForInOfLoopInitializer]: "'for-%0' loop head declarations cannot have an initializer",
+  [Errors.ForInOfLoopInitializer]: "'for-%0' loop head declarations can not have an initializer",
   [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
   [Errors.AwaitInParameter]: 'Await expression not allowed in formal parameter',
   [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
@@ -282,7 +283,8 @@ export const errorMessages: {
   [Errors.InvalidDestructExpr]: 'Unexpected destructuring expression',
   [Errors.Expected]: 'Expected %0',
   [Errors.InvalidAssignmentTarget]: 'Invalid destructuring assignment target',
-  [Errors.InvalidForAwait]: '`for await` only accepts the `for-of` type'
+  [Errors.InvalidForAwait]: '`for await` only accepts the `for-of` type',
+  [Errors.InvalidUnaryWithNew]: 'Invalid use of %0 inside `new`'
 };
 
 export function report(state: ParserState, type: Errors, ...params: string[]): never {

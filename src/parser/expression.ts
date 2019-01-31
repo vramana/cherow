@@ -1138,6 +1138,12 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
       ? report(state, Errors.Unexpected)
       : parseMetaProperty(state, context, id);
   }
+
+  // Unary expression are forbidden inside 'new', so we create a nice error message here and
+  // bail out quick
+  if ((state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
+    report(state, Errors.InvalidUnaryWithNew, KeywordDescTable[state.token & Token.Type]);
+  }
   const callee =
     context & Context.OptionsNext && state.token === Token.ImportKeyword
       ? parseCallImportOrMetaProperty(state, context, true)
@@ -1284,7 +1290,8 @@ export function parsePrimaryExpression(state: ParserState, context: Context, sta
         state,
         state.token === Token.EscapedKeyword || (state.token as Token) === Token.EscapedStrictReserved
           ? Errors.InvalidEscapedKeyword
-          : Errors.Unexpected
+          : Errors.UnexpectedToken,
+        KeywordDescTable[state.token & Token.Type]
       );
   }
 }

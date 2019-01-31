@@ -128,6 +128,13 @@ function run(isModule: boolean) {
     column: 0
   });
 
+  pass('skips text after HTML close', {
+    source: '\n-->',
+    hasNext: false,
+    line: 2,
+    column: 3
+  });
+
   pass('skips multi line comment with escaped newline', {
     source: '/* \\n \\r \\x0a \\u000a */',
     hasNext: false,

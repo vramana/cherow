@@ -13,11 +13,39 @@ describe('Expressions - New', () => {
     ['var f = new foo ++', Context.Empty],
     ['new x()\n/y/', Context.Empty],
     ['new x\n/y/', Context.Empty],
-    ['function f(){ new.foo }', Context.Empty]
+    ['function f(){ new.foo }', Context.Empty],
+    ['++new x()', Context.Empty],
+    ['new delete x.y', Context.Empty],
+    ['new x()++', Context.Empty],
+    ['++new x()', Context.Empty],
+    ['new delete x.y', Context.Empty],
+    ['new typeof x', Context.Empty],
+    ['new typeof x.y', Context.Empty],
+    ['new typeof x().y', Context.Empty],
+    ['new ++x', Context.Empty],
+    ['new ++x.y', Context.Empty],
+    ['new ++x().y', Context.Empty],
+    ['new x.y++', Context.Empty],
+    ['new let', Context.Strict],
+    ['new new', Context.Strict]
   ]);
 
   const validSyntax = [
+    // '++new',
     'new foo',
+    'new class{}',
+    'new class extends x{}',
+    'class x extends (x) {}',
+    'class x extends {} {}',
+    'new this',
+    'new true',
+    'new eval',
+    'new arguments',
+    'new async',
+    'new async function(){}',
+    'new async()',
+    'new eval()',
+    'new false',
     'new foo();',
     'new foo(1);',
     'new foo(1, 2);',
@@ -76,7 +104,38 @@ describe('Expressions - New', () => {
     });
   }
 
-  const valids: Array<[string, Context, any]> = [
+  pass('Expressions - New (pass)', [
+    [
+      'var f = new await()',
+      Context.Empty,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'f',
+                  type: 'Identifier'
+                },
+                init: {
+                  arguments: [],
+                  callee: {
+                    name: 'await',
+                    type: 'Identifier'
+                  },
+                  type: 'NewExpression'
+                },
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
     [
       'new foo.bar().baz',
       Context.Empty,
@@ -1389,7 +1448,5 @@ describe('Expressions - New', () => {
         ]
       }
     ]
-  ];
-
-  pass('Expressions - New (pass)', valids);
+  ]);
 });
