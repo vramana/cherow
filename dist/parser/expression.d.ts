@@ -1,0 +1,23 @@
+import * as ESTree from '../estree';
+import { Context, ParserState, Type, Origin, ScopeState, Modifiers } from '../common';
+export declare function parseFormalParameters(state: ParserState, context: Context, scope: ScopeState, origin: Origin, objState: Modifiers): any;
+export declare function parseRestElement(state: ParserState, context: Context, scope: ScopeState, type: Type, origin: Origin): any;
+export declare function parseFunctionBody(state: ParserState, context: Context, scope: ScopeState, firstRestricted: string | undefined, origin: Origin): ESTree.BlockStatement;
+export declare function parseExpression(state: ParserState, context: Context): any;
+export declare function parseSequenceExpression(state: ParserState, context: Context, left: ESTree.Expression, start: number): ESTree.SequenceExpression;
+export declare function parseAssignmentExpression(state: ParserState, context: Context): any;
+export declare function parseLeftHandSideExpression(state: ParserState, context: Context, start: number): any;
+export declare function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): any;
+export declare function parseAndClassifyIdentifier(state: ParserState, context: Context): void;
+export declare function parsePrimaryExpression(state: ParserState, context: Context, start: number): any;
+export declare function parseArrayLiteral(state: ParserState, context: Context): ESTree.ArrayExpression;
+export declare function parseParenthesizedExpression(state: ParserState, context: Context): any;
+export declare function parseClassBodyAndElementList(state: ParserState, context: Context, origin: Origin): ESTree.ClassBody;
+export declare function parseLiteral(state: ParserState, context: Context): ESTree.Literal;
+export declare function parseNullOrTrueOrFalseLiteral(state: ParserState, context: Context): ESTree.Literal;
+export declare function parseThisExpression(state: ParserState, context: Context): ESTree.ThisExpression;
+export declare function parseIdentifier(state: ParserState, context: Context): ESTree.Identifier;
+export declare function parseRegExpLiteral(state: ParserState, context: Context): ESTree.RegExpLiteral;
+export declare function parseBigIntLiteral(state: ParserState, context: Context): ESTree.BigIntLiteral;
+export declare function parseComputedPropertyName(state: ParserState, context: Context): ESTree.Expression;
+//# sourceMappingURL=expression.d.ts.map

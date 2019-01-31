@@ -26,4 +26,5 @@ export declare function parseSource(source: string, options: Options | void, con
 export declare function parse(source: string, options?: Options): ESTree.Program;
 export declare function parseScript(source: string, options?: Options): ESTree.Program;
 export declare function parseModule(source: string, options?: Options): ESTree.Program;
+export declare function parseExpressions(source: string, options?: Options): ESTree.Program;
 //# sourceMappingURL=cherow.d.ts.map
