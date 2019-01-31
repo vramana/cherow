@@ -29,6 +29,249 @@ fail('Expressions - Unary (fail)', [
 
 pass('Expressions - Unary (pass)', [
   [
+    'let x = () => ++a;',
+    Context.Empty,
+    {
+      body: [
+        {
+          declarations: [
+            {
+              id: {
+                name: 'x',
+                type: 'Identifier'
+              },
+              init: {
+                async: false,
+                body: {
+                  argument: {
+                    name: 'a',
+                    type: 'Identifier'
+                  },
+                  operator: '++',
+                  prefix: true,
+                  type: 'UpdateExpression'
+                },
+                expression: true,
+                id: null,
+                params: [],
+                type: 'ArrowFunctionExpression'
+              },
+              type: 'VariableDeclarator'
+            }
+          ],
+          kind: 'let',
+          type: 'VariableDeclaration'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
+    'if (a) ++a;',
+    Context.OptionsRanges,
+    {
+      type: 'Program',
+      start: 0,
+      end: 11,
+      body: [
+        {
+          type: 'IfStatement',
+          start: 0,
+          end: 11,
+          test: {
+            type: 'Identifier',
+            start: 4,
+            end: 5,
+            name: 'a'
+          },
+          consequent: {
+            type: 'ExpressionStatement',
+            start: 7,
+            end: 11,
+            expression: {
+              type: 'UpdateExpression',
+              start: 7,
+              end: 10,
+              operator: '++',
+              prefix: true,
+              argument: {
+                type: 'Identifier',
+                start: 9,
+                end: 10,
+                name: 'a'
+              }
+            }
+          },
+          alternate: null
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    'function f(){ return ++\na; }',
+    Context.Empty,
+    {
+      body: [
+        {
+          async: false,
+          body: {
+            body: [
+              {
+                argument: {
+                  argument: {
+                    name: 'a',
+                    type: 'Identifier'
+                  },
+                  operator: '++',
+                  prefix: true,
+                  type: 'UpdateExpression'
+                },
+                type: 'ReturnStatement'
+              }
+            ],
+            type: 'BlockStatement'
+          },
+          generator: false,
+          id: {
+            name: 'f',
+            type: 'Identifier'
+          },
+          params: [],
+          type: 'FunctionDeclaration'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
+    'let x = () => ++\na;',
+    Context.Empty,
+    {
+      body: [
+        {
+          declarations: [
+            {
+              id: {
+                name: 'x',
+                type: 'Identifier'
+              },
+              init: {
+                async: false,
+                body: {
+                  argument: {
+                    name: 'a',
+                    type: 'Identifier'
+                  },
+                  operator: '++',
+                  prefix: true,
+                  type: 'UpdateExpression'
+                },
+                expression: true,
+                id: null,
+                params: [],
+                type: 'ArrowFunctionExpression'
+              },
+              type: 'VariableDeclarator'
+            }
+          ],
+          kind: 'let',
+          type: 'VariableDeclaration'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+
+  [
+    '--\na',
+    Context.Empty,
+    {
+      body: [
+        {
+          expression: {
+            argument: {
+              name: 'a',
+              type: 'Identifier'
+            },
+            operator: '--',
+            prefix: true,
+            type: 'UpdateExpression'
+          },
+          type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
+    'if (++a);',
+    Context.Empty,
+    {
+      body: [
+        {
+          alternate: null,
+          consequent: {
+            type: 'EmptyStatement'
+          },
+          test: {
+            argument: {
+              name: 'a',
+              type: 'Identifier'
+            },
+            operator: '++',
+            prefix: true,
+            type: 'UpdateExpression'
+          },
+          type: 'IfStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
+    'function f(){ return ++a; }',
+    Context.Empty,
+    {
+      body: [
+        {
+          async: false,
+          body: {
+            body: [
+              {
+                argument: {
+                  argument: {
+                    name: 'a',
+                    type: 'Identifier'
+                  },
+                  operator: '++',
+                  prefix: true,
+                  type: 'UpdateExpression'
+                },
+                type: 'ReturnStatement'
+              }
+            ],
+            type: 'BlockStatement'
+          },
+          generator: false,
+          id: {
+            name: 'f',
+            type: 'Identifier'
+          },
+          params: [],
+          type: 'FunctionDeclaration'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
     '"use strict"; delete this;',
     Context.OptionsDirectives | Context.OptionsRaw | Context.OptionsRanges,
     {

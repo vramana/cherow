@@ -989,10 +989,11 @@ function parseTemplate(state: ParserState, context: Context, start: number): EST
    *   SourceCharacter (but not one of ` or \ or $)
    *
    */
+
   const quasis = [parseTemplateSpans(state, context, start, /* tail */ false)];
   expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
+  state.bindable = state.assignable = false;
   const expressions = [parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext)];
-
   while ((state.token = scanTemplateTail(state, context)) !== Token.TemplateTail) {
     quasis.push(parseTemplateSpans(state, context, state.startIndex, /* tail */ false));
     expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
