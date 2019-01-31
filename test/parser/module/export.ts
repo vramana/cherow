@@ -301,7 +301,11 @@ describe('Module - Export', () => {
     ['export * as foo;', Context.Strict | Context.Module],
     ['export * as foo from;', Context.Strict | Context.Module],
     ["export * as foo from ';", Context.Strict | Context.Module],
-    ["export * as ,foo from 'bar'", Context.Strict | Context.Module]
+    ["export * as ,foo from 'bar'", Context.Strict | Context.Module],
+    ['export { decrypt as encrypt }; function encrypt() {}', Context.Strict | Context.Module],
+    ['export { encrypt }; if (true) function encrypt() {}', Context.Strict | Context.Module],
+    ['{ function encrypt() {} } export { encrypt }', Context.Strict | Context.Module],
+    ['class A extends B { foo() { (super).foo } }', Context.OptionsWebCompat]
   ];
 
   fail('Declarations - Functions (fail)', inValids);

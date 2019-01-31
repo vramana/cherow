@@ -3992,7 +3992,8 @@ switch (1) {
     console.log(bar)
 }
 
-func('foo', 'bar')`
+func('foo', 'bar')`,
+    'console.log(a, ...(cond ? [a, b, c] : [d, e, f]));'
   ];
 
   for (const arg of programs) {

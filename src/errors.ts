@@ -133,7 +133,9 @@ export const enum Errors {
   InvalidVarForOfCatch,
   InvalidDestructExpr,
   Expected,
-  InvalidAssignmentTarget
+  InvalidAssignmentTarget,
+  InvalidForAwait,
+  WebCompatFunction
 }
 
 /*@internal*/
@@ -184,6 +186,8 @@ export const errorMessages: {
   [Errors.InvalidDuplicateBinding]: "Duplicate binding '%0'",
   [Errors.InvalidCatchVarBinding]: "The `catch` var '%0' can't be redefined",
   [Errors.StrictFunction]: 'In strict mode code, functions can only be declared at top level or inside a block',
+  [Errors.WebCompatFunction]:
+    'Without web compability enabled functions cannot be declared at top level, inside a block, or as the body of an if statement',
   [Errors.SloppyFunction]:
     'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
   [Errors.InvalidLetInStrict]: "let can't be a variable name in strict mode",
@@ -277,7 +281,8 @@ export const errorMessages: {
   [Errors.InvalidVarForOfCatch]: 'Invalid usage of `var` declaration for a name used in catch binding',
   [Errors.InvalidDestructExpr]: 'Unexpected destructuring expression',
   [Errors.Expected]: 'Expected %0',
-  [Errors.InvalidAssignmentTarget]: 'Invalid destructuring assignment target'
+  [Errors.InvalidAssignmentTarget]: 'Invalid destructuring assignment target',
+  [Errors.InvalidForAwait]: '`for await` only accepts the `for-of` type'
 };
 
 export function report(state: ParserState, type: Errors, ...params: string[]): never {

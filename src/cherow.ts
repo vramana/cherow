@@ -6,6 +6,7 @@ import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context, createScope, ScopeType } from './common';
 import { skipHashBang, next } from './scanner';
 import { report, Errors } from './errors';
+import * as Scanner from './scanner';
 
 /**
  * `ECMAScript version
