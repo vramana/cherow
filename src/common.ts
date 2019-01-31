@@ -97,9 +97,10 @@ export const enum Origin {
   ClassExprDecl = 1 << 6,
   Declaration = 1 << 7,
   AsyncArrow = 1 << 8,
-  AsyncFunction = 1 << 9,
-  ArrayLiteral = 1 << 10,
-  ObjectExpression = 1 << 11
+  Arrow = 1 << 9,
+  AsyncFunction = 1 << 10,
+  ArrayLiteral = 1 << 11,
+  ObjectExpression = 1 << 12
 }
 
 export const enum ScopeType {

@@ -215,7 +215,11 @@ export function parseFunctionBody(
     state.iterationStatement = previousIterationStatement;
   }
 
-  expect(state, origin & Origin.Declaration ? context | Context.AllowPossibleRegEx : context, Token.RightBrace);
+  expect(
+    state,
+    origin & (Origin.Arrow | Origin.Declaration) ? context | Context.AllowPossibleRegEx : context,
+    Token.RightBrace
+  );
 
   // Either '=' or '=>' after blockstatement
   if (state.token === Token.Assign || state.token === Token.Arrow) report(state, Errors.InvalidAssignmentTarget);
@@ -1485,7 +1489,7 @@ function parseArrowFunctionExpression(
         (context | Context.TopLevel) ^ Context.TopLevel,
         createSubScope(scope, ScopeType.BlockStatement),
         state.tokenValue,
-        Origin.None
+        Origin.Arrow
       );
   return finishNode(state, context, start, {
     type: 'ArrowFunctionExpression',

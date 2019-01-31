@@ -10,7 +10,10 @@ describe('Expressions - New', () => {
     ['new ++foo`;', Context.Empty],
     ['new foo ++', Context.Empty],
     ['var f = new ++foo`;', Context.Empty],
-    ['var f = new foo ++', Context.Empty]
+    ['var f = new foo ++', Context.Empty],
+    ['new x()\n/y/', Context.Empty],
+    ['new x\n/y/', Context.Empty],
+    ['function f(){ new.foo }', Context.Empty]
   ]);
 
   const validSyntax = [
@@ -24,6 +27,9 @@ describe('Expressions - New', () => {
     'new foo.bar();',
     'new foo.bar.baz;',
     'new foo.bar().baz;',
+    'new x\n/y/g',
+    'new x()\n/y',
+    'new x()\n/y/g',
     'new foo[bar];',
     'new foo[bar]();',
     'new foo[bar][baz];',

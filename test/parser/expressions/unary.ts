@@ -13,6 +13,10 @@ fail('Expressions - Unary (fail)', [
   ['"use strict"; delete eval;', Context.Strict],
   ['"use strict"; delete (foo);', Context.Strict],
   ['"use strict"; delete interface;', Context.Strict],
+  ['delete a.b\n/foo/', Context.Empty],
+  ['typeof function f(){}\n/foo/', Context.Empty],
+  ['typeof async function f(){}\n/foo/', Context.Empty],
+
   // ['typeof async () => x', Context.Empty],
   // ['typeof async \n () => x', Context.Empty],
   // ['let x = typeof async \n (x) => x', Context.Empty],
@@ -64,6 +68,100 @@ pass('Expressions - Unary (pass)', [
       ],
       start: 0,
       end: 26
+    }
+  ],
+  [
+    'typeof function f(){}\n/foo/g',
+    Context.Empty,
+    {
+      body: [
+        {
+          expression: {
+            left: {
+              left: {
+                argument: {
+                  async: false,
+                  body: {
+                    body: [],
+                    type: 'BlockStatement'
+                  },
+                  generator: false,
+                  id: {
+                    name: 'f',
+                    type: 'Identifier'
+                  },
+                  params: [],
+                  type: 'FunctionExpression'
+                },
+                operator: 'typeof',
+                prefix: true,
+                type: 'UnaryExpression'
+              },
+              operator: '/',
+              right: {
+                name: 'foo',
+                type: 'Identifier'
+              },
+              type: 'BinaryExpression'
+            },
+            operator: '/',
+            right: {
+              name: 'g',
+              type: 'Identifier'
+            },
+            type: 'BinaryExpression'
+          },
+          type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
+    'delete a.b\n/foo/g',
+    Context.Empty,
+    {
+      body: [
+        {
+          expression: {
+            left: {
+              left: {
+                argument: {
+                  computed: false,
+                  object: {
+                    name: 'a',
+                    type: 'Identifier'
+                  },
+                  property: {
+                    name: 'b',
+                    type: 'Identifier'
+                  },
+                  type: 'MemberExpression'
+                },
+                operator: 'delete',
+                prefix: true,
+                type: 'UnaryExpression'
+              },
+              operator: '/',
+              right: {
+                name: 'foo',
+                type: 'Identifier'
+              },
+              type: 'BinaryExpression'
+            },
+            operator: '/',
+            right: {
+              name: 'g',
+              type: 'Identifier'
+            },
+            type: 'BinaryExpression'
+          },
+          type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
     }
   ],
   [

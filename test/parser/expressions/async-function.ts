@@ -16,6 +16,7 @@ describe('Expressions - Async Functions', () => {
     ['var asyncFn = async function(await) {};', Context.Empty],
     ['async function * f() {([a = 1] of [])}', Context.Empty],
     ['(async function*(x = await 1) { });', Context.Empty],
+    ['async function f(){ await foo\n/foo/ }', Context.Empty],
 
     //    ['function f(x = await y){}', Context.Empty],
     //    ['function *f(x = await y){}', Context.Empty],
@@ -249,6 +250,57 @@ describe('Expressions - Async Functions', () => {
   }
 
   const valids: Array<[string, Context, any]> = [
+    [
+      'async function f(){ await foo\n/foo/g }',
+      Context.Empty,
+      {
+        body: [
+          {
+            async: true,
+            body: {
+              body: [
+                {
+                  expression: {
+                    left: {
+                      left: {
+                        argument: {
+                          name: 'foo',
+                          type: 'Identifier'
+                        },
+                        type: 'AwaitExpression'
+                      },
+                      operator: '/',
+                      right: {
+                        name: 'foo',
+                        type: 'Identifier'
+                      },
+                      type: 'BinaryExpression'
+                    },
+                    operator: '/',
+                    right: {
+                      name: 'g',
+                      type: 'Identifier'
+                    },
+                    type: 'BinaryExpression'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
     [
       '(async function foo(a, b = 39,) {})',
       Context.Empty,
