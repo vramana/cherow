@@ -221,159 +221,6 @@ var cherow = (function (exports) {
       as: { value: 16920683 }
   });
 
-  const errorMessages = {
-      [0]: 'Unexpected token',
-      [2]: 'Nothing to repeat',
-      [3]: '\\ at end of pattern',
-      [4]: 'Invalid property name',
-      [5]: 'Invalid decimal escape',
-      [6]: 'Back references can not have more two or more consecutive numbers',
-      [7]: 'Invalid named reference',
-      [8]: 'Invalid regular expression',
-      [9]: 'Invalid Escape',
-      [24]: 'Invalid named capture referenced',
-      [11]: 'Invalid regular expression without u-flag',
-      [12]: 'Invalid regular expression with u-flag',
-      [10]: 'Invalid unicode Escape',
-      [13]: 'Range out of order in character class',
-      [14]: 'Invalid character class',
-      [15]: 'Unterminated character class',
-      [23]: 'No group to terminate',
-      [16]: 'Invalid quantifier',
-      [17]: 'Invalid quantifier without u-flag and web compatible mode',
-      [18]: 'Unclosed group',
-      [19]: 'Invalid group',
-      [20]: 'Invalid capture group name',
-      [21]: 'Invalid extended unicode escape',
-      [22]: "Already declared group name '%0'",
-      [25]: 'Lone quantifier brackets',
-      [26]: "Duplicate regular expression flag '%0'",
-      [27]: 'Unterminated MultiLineComment',
-      [28]: 'HTML comments are not allowed in modules',
-      [29]: "Illegal character '%0'",
-      [34]: 'Unterminated string literal',
-      [35]: 'Unterminated template literal',
-      [33]: 'Octal escapes are not allowed in strict mode',
-      [32]: 'Escapes \\8 or \\9 are not syntactically valid escapes',
-      [31]: 'Invalid hexadecimal escape sequence',
-      [30]: 'Unicode codepoint must not be greater than 0x10FFFF',
-      [36]: 'Missing exponent',
-      [38]: 'Invalid BigIntLiteral',
-      [37]: 'Identifier starts immediately after numeric literal',
-      [39]: 'Expected number in radix %0',
-      [40]: 'Legacy octal literals are not allowed in strict mode',
-      [41]: "Identifier '%0' has already been declared",
-      [45]: "Duplicate binding '%0'",
-      [42]: "The `catch` var '%0' can't be redefined",
-      [44]: 'In strict mode code, functions can only be declared at top level or inside a block',
-      [43]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
-      [46]: "let can't be a variable name in strict mode",
-      [47]: "Exported binding '%0' is not declared",
-      [48]: "Exported binding '%0' has already been declared",
-      [49]: 'Const must be initialized',
-      [54]: 'Illegal newline after throw',
-      [55]: 'Illegal return statement',
-      [50]: 'Illegal continue statement: no surrounding iteration statement',
-      [51]: 'Illegal break statement',
-      [53]: "Label '%0' has already been declared",
-      [52]: 'Strict mode code may not include a with statement',
-      [56]: 'Calling delete on expression not allowed in strict mode',
-      [57]: 'Unary expressions as the left operand of an exponentation expression must be disambiguated with parentheses',
-      [58]: 'Calls to super must be in the "constructor" method of a class expression or class declaration that has a superclass',
-      [59]: 'Member access on super must be in a method',
-      [1]: "Unexpected token '%0'",
-      [60]: 'Duplicate constructor method in class',
-      [61]: 'Function name may not be eval or arguments in strict mode',
-      [62]: "Classes may not have a static property named 'prototype'",
-      [63]: 'Class constructor may not be a %0',
-      [64]: 'Unterminated regular expression',
-      [65]: 'Unexpected regular expression flag',
-      [66]: "'yield' is a reserved keyword within generator function bodies",
-      [67]: "'%0' may not be used as an identifier in this context",
-      [68]: "Can not use 'let' as a class name",
-      [69]: 'Can not use `let` when binding through `let` or `const`',
-      [70]: 'Can not use `let` as variable name in strict mode',
-      [71]: 'Await is only valid in async functions',
-      [72]: '`Static` is a reserved word in strict mode',
-      [73]: ' Invalid use of reserved word as a variable name in strict mode',
-      [74]: "%0 can't appear in single-statement context",
-      [75]: 'Async functions can only be declared at the top level or inside a block',
-      [76]: "Classes may not have a private field named '#constructor'",
-      [77]: "Classes may not have a field named 'constructor'",
-      [78]: "Classes may not have a static private property named '#prototype'",
-      [79]: 'Async methods are a restricted production and cannot have a newline following it',
-      [80]: 'Only methods are allowed in classes',
-      [81]: 'Private fields can not be deleted',
-      [82]: 'Private fields can not be deleted',
-      [82]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
-      [83]: 'Invalid left-hand side in assignment',
-      [84]: 'Unexpected eval or arguments in strict mode',
-      [85]: 'Unexpected strict mode reserved word',
-      [86]: 'Invalid shorthand property initializer',
-      [87]: 'Illegal arrow function parameter list',
-      [88]: 'Invalid left-hand side in for-in loop',
-      [89]: 'Invalid left-hand side in for-loop',
-      [90]: 'Use of disabled experimental feature',
-      [91]: 'A trailing comma is not permitted after the rest element ',
-      [92]: 'Legacy octal literals are not allowed in strict mode',
-      [93]: '%0 functions must have exactly %1 argument%2',
-      [94]: 'Setter function argument must not be a rest parameter',
-      [95]: '%0 statement must be nested within an iteration statement',
-      [96]: '`let \n [` is a restricted production at the start of a statement',
-      [97]: '%0 is already bound as a lexical binding',
-      [98]: 'The lexical binding %0 has been bound multiple times',
-      [100]: 'Cannot use `let` or `const` with the same name as bound to a parameter',
-      [99]: 'Double declaration of the same binding name in a `catch` var',
-      [102]: 'Destructuring declarations %0 must have an initializer',
-      [101]: "'for-%0' loop head declarations cannot have an initializer",
-      [103]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
-      [104]: 'Await expression not allowed in formal parameter',
-      [105]: 'Yield expression not allowed in formal parameter',
-      [106]: 'Only a identifier can be used to indicate alias',
-      [107]: "'%0' export binding already bound",
-      [120]: "'%0' binding already bound",
-      [108]: "Only '*' or '{...}' can be imported after default",
-      [109]: '%0 source must be string',
-      [110]: 'The %0 keyword can only be used with the module goal',
-      [111]: 'The identifier contained dynamic unicode escape that was not closed',
-      [112]: 'The identifier escape did not yield a valid identifier character',
-      [113]: 'Invalid codepoint value in the escape sequence',
-      [114]: 'Invalid escaped keyword',
-      [115]: "No line break is allowed after '%0'",
-      [117]: "Illegal 'use strict' directive in function with non-simple parameter list",
-      [119]: 'Duplicate formal parameter names not allowed with non-simnple arguments',
-      [118]: 'Duplicate formal parameter names not allowed in strict mode',
-      [116]: 'The left hand side of the arrow can only be destructed through assignment',
-      [121]: 'The use of a future reserved word for an identifier is invalid. The identifier name is reserved in strict mode',
-      [122]: 'The use of a keyword for an identifier is invalid',
-      [123]: '%0 declaration must have a name in this context',
-      [124]: 'Invalid usage of %0 in strict mode',
-      [125]: 'Expected identifier',
-      [126]: "'default' can only appear once in a 'switch' statement",
-      [127]: 'Missing catch or finally after try',
-      [128]: 'Invalid usage of `var` declaration for a name used in catch binding',
-      [129]: 'Unexpected destructuring expression',
-      [130]: 'Expected %0',
-      [131]: 'Invalid destructuring assignment target'
-  };
-  function report(state, type, ...params) {
-      const { index, line, column } = state;
-      let message = errorMessages[type].replace(/%(\d+)/g, (_, i) => params[i]);
-      message += ' (' + line + ':' + column + ')';
-      let lines = state.source.split('\n');
-      message = message + '\n' + lines[line - 1] + '\n';
-      for (var i = 0; i < column; i++) {
-          message += ' ';
-      }
-      message += '^\n';
-      const error = new SyntaxError(message);
-      error.index = index;
-      error.line = line;
-      error.column = column;
-      error.description = message;
-      throw error;
-  }
-
   const unicodeLookup = ((compressed, lookup) => {
       const result = new Uint32Array(104448);
       let index = 0;
@@ -3992,15 +3839,181 @@ var cherow = (function (exports) {
       65532
   ]);
 
+  const AsciiLookup = new Uint8Array(0x80)
+      .fill(3, 0x24, 0x25)
+      .fill(4, 0x30, 0x3a)
+      .fill(3, 0x41, 0x5b)
+      .fill(3, 0x5f, 0x60)
+      .fill(3, 0x61, 0x7b);
+  function isIdentifierPart(code) {
+      return (AsciiLookup[code] & 1) > 0 || ((unicodeLookup[(code >>> 5) + 0] >>> code) & 31 & 1) > 0;
+  }
+  function isIdentifierStart(code) {
+      return (AsciiLookup[code] & 2) > 0 || ((unicodeLookup[(code >>> 5) + 34816] >>> code) & 31 & 1) > 0;
+  }
+
+  const errorMessages = {
+      [0]: 'Unexpected token',
+      [2]: 'Nothing to repeat',
+      [3]: '\\ at end of pattern',
+      [4]: 'Invalid property name',
+      [5]: 'Invalid decimal escape',
+      [6]: 'Back references can not have more two or more consecutive numbers',
+      [7]: 'Invalid named reference',
+      [8]: 'Invalid regular expression',
+      [9]: 'Invalid Escape',
+      [24]: 'Invalid named capture referenced',
+      [11]: 'Invalid regular expression without u-flag',
+      [12]: 'Invalid regular expression with u-flag',
+      [10]: 'Invalid unicode Escape',
+      [13]: 'Range out of order in character class',
+      [14]: 'Invalid character class',
+      [15]: 'Unterminated character class',
+      [23]: 'No group to terminate',
+      [16]: 'Invalid quantifier',
+      [17]: 'Invalid quantifier without u-flag and web compatible mode',
+      [18]: 'Unclosed group',
+      [19]: 'Invalid group',
+      [20]: 'Invalid capture group name',
+      [21]: 'Invalid extended unicode escape',
+      [22]: "Already declared group name '%0'",
+      [25]: 'Lone quantifier brackets',
+      [26]: "Duplicate regular expression flag '%0'",
+      [27]: 'Unterminated MultiLineComment',
+      [28]: 'HTML comments are not allowed in modules',
+      [29]: "Illegal character '%0'",
+      [34]: 'Unterminated string literal',
+      [35]: 'Unterminated template literal',
+      [33]: 'Octal escapes are not allowed in strict mode',
+      [32]: 'Escapes \\8 or \\9 are not syntactically valid escapes',
+      [31]: 'Invalid hexadecimal escape sequence',
+      [30]: 'Unicode codepoint must not be greater than 0x10FFFF',
+      [36]: 'Missing exponent',
+      [38]: 'Invalid BigIntLiteral',
+      [37]: 'Identifier starts immediately after numeric literal',
+      [39]: 'Expected number in radix %0',
+      [40]: 'Legacy octal literals are not allowed in strict mode',
+      [41]: "Identifier '%0' has already been declared",
+      [45]: "Duplicate binding '%0'",
+      [42]: "The `catch` var '%0' can't be redefined",
+      [44]: 'In strict mode code, functions can only be declared at top level or inside a block',
+      [133]: 'Without web compability enabled functions can not be declared at top level, inside a block, or as the body of an if statement',
+      [43]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+      [46]: "let can't be a variable name in strict mode",
+      [47]: "Exported binding '%0' is not declared",
+      [48]: "Exported binding '%0' has already been declared",
+      [49]: 'Const must be initialized',
+      [54]: 'Illegal newline after throw',
+      [55]: 'Illegal return statement',
+      [50]: 'Illegal continue statement: no surrounding iteration statement',
+      [51]: 'Illegal break statement',
+      [53]: "Label '%0' has already been declared",
+      [52]: 'Strict mode code may not include a with statement',
+      [56]: 'Calling delete on expression not allowed in strict mode',
+      [57]: 'Unary expressions as the left operand of an exponentation expression must be disambiguated with parentheses',
+      [58]: 'Calls to super must be in the "constructor" method of a class expression or class declaration that has a superclass',
+      [59]: 'Member access on super must be in a method',
+      [1]: "Unexpected token '%0'",
+      [60]: 'Duplicate constructor method in class',
+      [61]: 'Function name may not be eval or arguments in strict mode',
+      [62]: "Classes may not have a static property named 'prototype'",
+      [63]: 'Class constructor may not be a %0',
+      [64]: 'Unterminated regular expression',
+      [65]: 'Unexpected regular expression flag',
+      [66]: "'yield' is a reserved keyword within generator function bodies",
+      [67]: "'%0' may not be used as an identifier in this context",
+      [68]: "Can not use 'let' as a class name",
+      [69]: 'Can not use `let` when binding through `let` or `const`',
+      [70]: 'Can not use `let` as variable name in strict mode',
+      [71]: 'Await is only valid in async functions',
+      [72]: '`Static` is a reserved word in strict mode',
+      [73]: ' Invalid use of reserved word as a variable name in strict mode',
+      [74]: "%0 can't appear in single-statement context",
+      [75]: 'Async functions can only be declared at the top level or inside a block',
+      [76]: "Classes may not have a private field named '#constructor'",
+      [77]: "Classes may not have a field named 'constructor'",
+      [78]: "Classes may not have a static private property named '#prototype'",
+      [79]: 'Async methods are a restricted production and can not have a newline following it',
+      [80]: 'Only methods are allowed in classes',
+      [81]: 'Private fields can not be deleted',
+      [82]: 'Private fields can not be deleted',
+      [82]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
+      [83]: 'Invalid left-hand side in assignment',
+      [84]: 'Unexpected eval or arguments in strict mode',
+      [85]: 'Unexpected strict mode reserved word',
+      [86]: 'Invalid shorthand property initializer',
+      [87]: 'Illegal arrow function parameter list',
+      [88]: 'Invalid left-hand side in for-in loop',
+      [89]: 'Invalid left-hand side in for-loop',
+      [90]: 'Use of disabled experimental feature',
+      [91]: 'A trailing comma is not permitted after the rest element ',
+      [92]: 'Legacy octal literals are not allowed in strict mode',
+      [93]: '%0 functions must have exactly %1 argument%2',
+      [94]: 'Setter function argument must not be a rest parameter',
+      [95]: '%0 statement must be nested within an iteration statement',
+      [96]: '`let \n [` is a restricted production at the start of a statement',
+      [97]: '%0 is already bound as a lexical binding',
+      [98]: 'The lexical binding %0 has been bound multiple times',
+      [100]: 'Can not use `let` or `const` with the same name as bound to a parameter',
+      [99]: 'Double declaration of the same binding name in a `catch` var',
+      [102]: 'Destructuring declarations %0 must have an initializer',
+      [101]: "'for-%0' loop head declarations can not have an initializer",
+      [103]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
+      [104]: 'Await expression not allowed in formal parameter',
+      [105]: 'Yield expression not allowed in formal parameter',
+      [106]: 'Only a identifier can be used to indicate alias',
+      [107]: "'%0' export binding already bound",
+      [120]: "'%0' binding already bound",
+      [108]: "Only '*' or '{...}' can be imported after default",
+      [109]: '%0 source must be string',
+      [110]: 'The %0 keyword can only be used with the module goal',
+      [111]: 'The identifier contained dynamic unicode escape that was not closed',
+      [112]: 'The identifier escape did not yield a valid identifier character',
+      [113]: 'Invalid codepoint value in the escape sequence',
+      [114]: 'Invalid escaped keyword',
+      [115]: "No line break is allowed after '%0'",
+      [117]: "Illegal 'use strict' directive in function with non-simple parameter list",
+      [119]: 'Duplicate formal parameter names not allowed with non-simnple arguments',
+      [118]: 'Duplicate formal parameter names not allowed in strict mode',
+      [116]: 'The left hand side of the arrow can only be destructed through assignment',
+      [121]: 'The use of a future reserved word for an identifier is invalid. The identifier name is reserved in strict mode',
+      [122]: 'The use of a keyword for an identifier is invalid',
+      [123]: '%0 declaration must have a name in this context',
+      [124]: 'Invalid usage of %0 in strict mode',
+      [125]: 'Expected identifier',
+      [126]: "'default' can only appear once in a 'switch' statement",
+      [127]: 'Missing catch or finally after try',
+      [128]: 'Invalid usage of `var` declaration for a name used in catch binding',
+      [129]: 'Unexpected destructuring expression',
+      [130]: 'Expected %0',
+      [131]: 'Invalid destructuring assignment target',
+      [132]: '`for await` only accepts the `for-of` type',
+      [134]: 'Invalid use of %0 inside `new`'
+  };
+  function report(state, type, ...params) {
+      const { index, line, column } = state;
+      let message = errorMessages[type].replace(/%(\d+)/g, (_, i) => params[i]);
+      message += ' (' + line + ':' + column + ')';
+      let lines = state.source.split('\n');
+      message = message + '\n' + lines[line - 1] + '\n';
+      for (var i = 0; i < column; i++) {
+          message += ' ';
+      }
+      message += '^\n';
+      const error = new SyntaxError(message);
+      error.index = index;
+      error.line = line;
+      error.column = column;
+      error.description = message;
+      throw error;
+  }
+
   function scanNext(state, err) {
       state.index++;
       state.column++;
       if (state.index >= state.length)
           report(state, err);
       return state.source.charCodeAt(state.index);
-  }
-  function nextChar(parser) {
-      return parser.source.charCodeAt(parser.index);
   }
   function consumeOpt(state, code) {
       if (state.source.charCodeAt(state.index) !== code)
@@ -4041,125 +4054,6 @@ var cherow = (function (exports) {
   }
   function isDigit(ch) {
       return ch >= 48 && ch <= 57;
-  }
-
-  const CommentTypes = ['SingleLine', 'MultiLine', 'HTMLOpen', 'HTMLClose', 'HashbangComment'];
-  function skipHashBang(state, context) {
-      let index = state.index;
-      if (index === state.source.length)
-          return;
-      if (state.source.charCodeAt(index) === 65519) {
-          index++;
-          state.index = index;
-      }
-      if (context & 1 && index < state.source.length && state.source.charCodeAt(index) === 35) {
-          index++;
-          if (index < state.source.length && state.source.charCodeAt(index) === 33) {
-              state.index = index + 1;
-              skipSingleLineComment(state, 4);
-          }
-          else {
-              report(state, 0);
-          }
-      }
-  }
-  function skipSingleHTMLComment(state, context, type) {
-      if (context & 2048)
-          report(state, 28);
-      return skipSingleLineComment(state, type);
-  }
-  function skipSingleLineComment(state, type) {
-      const { index: start } = state;
-      while (state.index < state.length) {
-          const next = state.source.charCodeAt(state.index);
-          if ((next & 8) === 8 && (next & 83) < 3) {
-              if (next === 13) {
-                  ++state.index;
-                  state.column = 0;
-                  ++state.line;
-                  if (state.index < state.length && state.source.charCodeAt(state.index) === 10)
-                      state.index++;
-                  state.flags |= 1;
-                  break;
-              }
-              else if (next === 10 || (next ^ 8233) <= 1) {
-                  ++state.index;
-                  state.column = 0;
-                  ++state.line;
-                  state.flags |= 1;
-                  break;
-              }
-              else {
-                  ++state.index;
-                  ++state.column;
-              }
-          }
-          else {
-              ++state.index;
-              ++state.column;
-          }
-      }
-      if (state.onComment)
-          state.onComment(CommentTypes[type & 0xff], state.source.slice(start, state.index), start, state.index);
-      return 1073741824;
-  }
-  function skipBlockComment(state) {
-      const { index: start } = state;
-      while (state.index < state.length) {
-          const next = state.source.charCodeAt(state.index);
-          if (next === 42) {
-              state.index++;
-              state.column++;
-              state.flags &= ~2;
-              if (consumeOpt(state, 47)) {
-                  if (state.onComment)
-                      state.onComment(CommentTypes[1 & 0xff], state.source.slice(start, state.index - 2), start, state.index);
-                  return 1073741824;
-              }
-          }
-          else if ((next & 8) === 8) {
-              if ((next & 83) < 3 && next === 13) {
-                  state.flags |= 1 | 2;
-                  state.index++;
-                  state.column = 0;
-                  state.line++;
-              }
-              else if (next === 10) {
-                  consumeLineFeed(state, (state.flags & 2) !== 0);
-                  state.flags = (state.flags & ~2) | 1;
-              }
-              else if ((next ^ 8233) <= 1) {
-                  state.flags = (state.flags & ~2) | 1;
-                  state.index++;
-                  state.column = 0;
-                  state.line++;
-              }
-              else {
-                  state.flags &= ~2;
-                  state.index++;
-                  state.column++;
-              }
-          }
-          else {
-              state.flags &= ~2;
-              state.index++;
-              state.column++;
-          }
-      }
-      return report(state, 27);
-  }
-
-  const AsciiLookup = new Uint8Array(0x80)
-      .fill(3, 0x24, 0x25)
-      .fill(4, 0x30, 0x3a)
-      .fill(3, 0x41, 0x5b)
-      .fill(3, 0x5f, 0x60)
-      .fill(3, 0x61, 0x7b);
-  function isIdentifierPart(code) {
-      return (AsciiLookup[code] & 1) > 0 || ((unicodeLookup[(code >>> 5) + 0] >>> code) & 31 & 1) > 0;
-  }
-  function isIdentifierStart(code) {
-      return (AsciiLookup[code] & 2) > 0 || ((unicodeLookup[(code >>> 5) + 34816] >>> code) & 31 & 1) > 0;
   }
 
   function scanMaybeIdentifier(state, _, first) {
@@ -4358,6 +4252,360 @@ var cherow = (function (exports) {
       return value;
   }
 
+  function returnBigIntOrNumericToken(state) {
+      if (state.source.charCodeAt(state.index) === 110) {
+          if (state.flags & 4)
+              report(state, 38);
+          state.index++;
+          state.column++;
+          return 116;
+      }
+      else {
+          if ((state.flags & (16 | 8)) === 0)
+              state.tokenValue = +state.tokenValue;
+          return 131074;
+      }
+  }
+  function scanNumeric(state, context) {
+      let { index, column } = state;
+      while (isDigit(state.source.charCodeAt(index))) {
+          index++;
+          column++;
+      }
+      if (state.source.charCodeAt(index) === 46) {
+          index++;
+          column++;
+          state.flags = 4;
+          while (isDigit(state.source.charCodeAt(index))) {
+              index++;
+              column++;
+          }
+      }
+      let end = index;
+      switch (state.source.charCodeAt(index)) {
+          case 69:
+          case 101: {
+              index++;
+              column++;
+              state.flags = 4;
+              if (state.source.charCodeAt(index) === 43 || state.source.charCodeAt(index) === 45) {
+                  index++;
+                  column++;
+              }
+              if (!isDigit(state.source.charCodeAt(index)))
+                  report(state, 36);
+              index++;
+              column++;
+              while (isDigit(state.source.charCodeAt(index))) {
+                  index++;
+                  column++;
+              }
+              end = index;
+          }
+          default:
+      }
+      const code = state.source.charCodeAt(index);
+      if (code !== 110 && (isDigit(code) || isIdentifierStart(code)))
+          report(state, 37);
+      state.index = index;
+      state.column = column;
+      state.tokenValue = state.source.slice(state.startIndex, end);
+      if (context & 8)
+          state.tokenRaw = state.tokenValue;
+      return returnBigIntOrNumericToken(state);
+  }
+  function scanHexIntegerLiteral(state) {
+      let { index, column } = state;
+      let value = toHex(state.source.charCodeAt(index));
+      if (value < 0)
+          report(state, 0);
+      index++;
+      column++;
+      while (index < state.length) {
+          const digit = toHex(state.source.charCodeAt(index));
+          if (digit < 0)
+              break;
+          value = value * 16 + digit;
+          index++;
+          column++;
+      }
+      state.index = index;
+      state.column = column;
+      state.tokenValue = value;
+      return returnBigIntOrNumericToken(state);
+  }
+  function scanBinaryOrOctalDigits(state, base) {
+      let { index, column } = state;
+      let value = 0;
+      let numberOfDigits = 0;
+      while (index < state.length) {
+          const ch = state.source.charCodeAt(index);
+          const converted = ch - 48;
+          if (!(ch >= 48 && ch <= 57) || converted >= base)
+              break;
+          value = value * base + converted;
+          index++;
+          column++;
+          numberOfDigits++;
+      }
+      if (numberOfDigits === 0)
+          report(state, 39, '' + base);
+      state.flags |= 16;
+      state.index = index;
+      state.column = column;
+      state.tokenValue = value;
+      return returnBigIntOrNumericToken(state);
+  }
+  function scanImplicitOctalDigits(state, context) {
+      if ((context & 1024) !== 0)
+          report(state, 40);
+      let { index, column } = state;
+      let code = 0;
+      while (index < state.length) {
+          const next = state.source.charCodeAt(index);
+          if (next < 48 || next > 55) {
+              state.flags |= 4;
+              return scanNumeric(state, context);
+          }
+          else {
+              code = code * 8 + (next - 48);
+              index++;
+              column++;
+          }
+      }
+      state.flags |= 8;
+      state.index = index;
+      state.column = column;
+      state.tokenValue = code;
+      return 131074;
+  }
+
+  var RegexState;
+  (function (RegexState) {
+      RegexState[RegexState["Empty"] = 0] = "Empty";
+      RegexState[RegexState["Escape"] = 1] = "Escape";
+      RegexState[RegexState["Class"] = 2] = "Class";
+  })(RegexState || (RegexState = {}));
+  var RegexFlags;
+  (function (RegexFlags) {
+      RegexFlags[RegexFlags["Empty"] = 0] = "Empty";
+      RegexFlags[RegexFlags["IgnoreCase"] = 1] = "IgnoreCase";
+      RegexFlags[RegexFlags["Global"] = 2] = "Global";
+      RegexFlags[RegexFlags["Multiline"] = 4] = "Multiline";
+      RegexFlags[RegexFlags["Unicode"] = 8] = "Unicode";
+      RegexFlags[RegexFlags["Sticky"] = 16] = "Sticky";
+      RegexFlags[RegexFlags["DotAll"] = 32] = "DotAll";
+  })(RegexFlags || (RegexFlags = {}));
+  function scanRegularExpression(state, context) {
+      const bodyStart = state.index;
+      let preparseState = RegexState.Empty;
+      loop: while (true) {
+          const ch = state.source.charCodeAt(state.index);
+          state.index++;
+          state.column++;
+          if (preparseState & RegexState.Escape) {
+              preparseState &= ~RegexState.Escape;
+          }
+          else {
+              switch (ch) {
+                  case 47:
+                      if (!preparseState)
+                          break loop;
+                      else
+                          break;
+                  case 92:
+                      preparseState |= RegexState.Escape;
+                      break;
+                  case 91:
+                      preparseState |= RegexState.Class;
+                      break;
+                  case 93:
+                      preparseState &= RegexState.Escape;
+                      break;
+                  case 13:
+                  case 10:
+                  case 8232:
+                  case 8233:
+                      report(state, 64);
+                  default:
+              }
+          }
+          if (state.index >= state.source.length) {
+              report(state, 64);
+          }
+      }
+      const bodyEnd = state.index - 1;
+      let mask = RegexFlags.Empty;
+      const { index: flagStart } = state;
+      loop: while (state.index < state.source.length) {
+          const code = state.source.charCodeAt(state.index);
+          switch (code) {
+              case 103:
+                  if (mask & RegexFlags.Global)
+                      report(state, 26, 'g');
+                  mask |= RegexFlags.Global;
+                  break;
+              case 105:
+                  if (mask & RegexFlags.IgnoreCase)
+                      report(state, 26, 'i');
+                  mask |= RegexFlags.IgnoreCase;
+                  break;
+              case 109:
+                  if (mask & RegexFlags.Multiline)
+                      report(state, 26, 'm');
+                  mask |= RegexFlags.Multiline;
+                  break;
+              case 117:
+                  if (mask & RegexFlags.Unicode)
+                      report(state, 26, 'u');
+                  mask |= RegexFlags.Unicode;
+                  break;
+              case 121:
+                  if (mask & RegexFlags.Sticky)
+                      report(state, 26, 'y');
+                  mask |= RegexFlags.Sticky;
+                  break;
+              case 115:
+                  if (mask & RegexFlags.DotAll)
+                      report(state, 26, 's');
+                  mask |= RegexFlags.DotAll;
+                  break;
+              default:
+                  if (!isIdentifierPart(code))
+                      break loop;
+                  report(state, 65, fromCodePoint(code));
+          }
+          state.index++;
+          state.column++;
+      }
+      const flags = state.source.slice(flagStart, state.index);
+      const pattern = state.source.slice(bodyStart, bodyEnd);
+      state.tokenRegExp = { pattern, flags };
+      if (context & 8)
+          state.tokenRaw = state.source.slice(state.startIndex, state.index);
+      state.tokenValue = validate(state, pattern, flags);
+      return 131076;
+  }
+  function validate(state, pattern, flags) {
+      try {
+      }
+      catch (e) {
+          report(state, 64);
+      }
+      try {
+          return new RegExp(pattern, flags);
+      }
+      catch (e) {
+          return null;
+      }
+  }
+
+  const CommentTypes = ['SingleLine', 'MultiLine', 'HTMLOpen', 'HTMLClose', 'HashbangComment'];
+  function skipHashBang(state, context) {
+      let index = state.index;
+      if (index === state.source.length)
+          return;
+      if (state.source.charCodeAt(index) === 65519) {
+          index++;
+          state.index = index;
+      }
+      if (context & 1 && index < state.source.length && state.source.charCodeAt(index) === 35) {
+          index++;
+          if (index < state.source.length && state.source.charCodeAt(index) === 33) {
+              state.index = index + 1;
+              skipSingleLineComment(state, 4);
+          }
+          else {
+              report(state, 0);
+          }
+      }
+  }
+  function skipSingleHTMLComment(state, context, type) {
+      if (context & 2048)
+          report(state, 28);
+      return skipSingleLineComment(state, type);
+  }
+  function skipSingleLineComment(state, type) {
+      const { index: start } = state;
+      while (state.index < state.length) {
+          const next = state.source.charCodeAt(state.index);
+          if ((next & 8) === 8 && (next & 83) < 3) {
+              if (next === 13) {
+                  ++state.index;
+                  state.column = 0;
+                  ++state.line;
+                  if (state.index < state.length && state.source.charCodeAt(state.index) === 10)
+                      state.index++;
+                  state.flags |= 1;
+                  break;
+              }
+              else if (next === 10 || (next ^ 8233) <= 1) {
+                  ++state.index;
+                  state.column = 0;
+                  ++state.line;
+                  state.flags |= 1;
+                  break;
+              }
+              else {
+                  ++state.index;
+                  ++state.column;
+              }
+          }
+          else {
+              ++state.index;
+              ++state.column;
+          }
+      }
+      if (state.onComment)
+          state.onComment(CommentTypes[type & 0xff], state.source.slice(start, state.index), start, state.index);
+      return 1073741824;
+  }
+  function skipBlockComment(state) {
+      const { index: start } = state;
+      while (state.index < state.length) {
+          const next = state.source.charCodeAt(state.index);
+          if (next === 42) {
+              state.index++;
+              state.column++;
+              state.flags &= ~2;
+              if (consumeOpt(state, 47)) {
+                  if (state.onComment)
+                      state.onComment(CommentTypes[1 & 0xff], state.source.slice(start, state.index - 2), start, state.index);
+                  return 1073741824;
+              }
+          }
+          else if ((next & 8) === 8) {
+              if ((next & 83) < 3 && next === 13) {
+                  state.flags |= 1 | 2;
+                  state.index++;
+                  state.column = 0;
+                  state.line++;
+              }
+              else if (next === 10) {
+                  consumeLineFeed(state, (state.flags & 2) !== 0);
+                  state.flags = (state.flags & ~2) | 1;
+              }
+              else if ((next ^ 8233) <= 1) {
+                  state.flags = (state.flags & ~2) | 1;
+                  state.index++;
+                  state.column = 0;
+                  state.line++;
+              }
+              else {
+                  state.flags &= ~2;
+                  state.index++;
+                  state.column++;
+              }
+          }
+          else {
+              state.flags &= ~2;
+              state.index++;
+              state.column++;
+          }
+      }
+      return report(state, 27);
+  }
+
   function scanStringLiteral(state, context, quote) {
       const { index: start, lastChar } = state;
       let ret = '';
@@ -4397,7 +4645,7 @@ var cherow = (function (exports) {
       state.lastChar = lastChar;
       return 131075;
   }
-  const table = new Array(128).fill(nextChar);
+  const table = new Array(128).fill((state) => state.source.charCodeAt(state.index));
   table[98] = () => 8;
   table[102] = () => 12;
   table[114] = () => 13;
@@ -4580,12 +4828,6 @@ var cherow = (function (exports) {
                   }
                   break;
               case 13:
-                  if (state.index < state.length && state.source.charCodeAt(state.index) === 10) {
-                      if (ret != null)
-                          ret += fromCodePoint(ch);
-                      ch = state.source.charCodeAt(state.index);
-                      state.index++;
-                  }
               case 10:
               case 8232:
               case 8233:
@@ -4627,254 +4869,6 @@ var cherow = (function (exports) {
       state.index--;
       state.column--;
       return scanTemplate(state, context);
-  }
-
-  var RegexState;
-  (function (RegexState) {
-      RegexState[RegexState["Empty"] = 0] = "Empty";
-      RegexState[RegexState["Escape"] = 1] = "Escape";
-      RegexState[RegexState["Class"] = 2] = "Class";
-  })(RegexState || (RegexState = {}));
-  var RegexFlags;
-  (function (RegexFlags) {
-      RegexFlags[RegexFlags["Empty"] = 0] = "Empty";
-      RegexFlags[RegexFlags["IgnoreCase"] = 1] = "IgnoreCase";
-      RegexFlags[RegexFlags["Global"] = 2] = "Global";
-      RegexFlags[RegexFlags["Multiline"] = 4] = "Multiline";
-      RegexFlags[RegexFlags["Unicode"] = 8] = "Unicode";
-      RegexFlags[RegexFlags["Sticky"] = 16] = "Sticky";
-      RegexFlags[RegexFlags["DotAll"] = 32] = "DotAll";
-  })(RegexFlags || (RegexFlags = {}));
-  function scanRegularExpression(state, context) {
-      const bodyStart = state.index;
-      let preparseState = RegexState.Empty;
-      loop: while (true) {
-          const ch = state.source.charCodeAt(state.index);
-          state.index++;
-          state.column++;
-          if (preparseState & RegexState.Escape) {
-              preparseState &= ~RegexState.Escape;
-          }
-          else {
-              switch (ch) {
-                  case 47:
-                      if (!preparseState)
-                          break loop;
-                      else
-                          break;
-                  case 92:
-                      preparseState |= RegexState.Escape;
-                      break;
-                  case 91:
-                      preparseState |= RegexState.Class;
-                      break;
-                  case 93:
-                      preparseState &= RegexState.Escape;
-                      break;
-                  case 13:
-                  case 10:
-                  case 8232:
-                  case 8233:
-                      report(state, 64);
-                  default:
-              }
-          }
-          if (state.index >= state.source.length) {
-              report(state, 64);
-          }
-      }
-      const bodyEnd = state.index - 1;
-      let mask = RegexFlags.Empty;
-      const { index: flagStart } = state;
-      loop: while (state.index < state.source.length) {
-          const code = state.source.charCodeAt(state.index);
-          switch (code) {
-              case 103:
-                  if (mask & RegexFlags.Global)
-                      report(state, 26, 'g');
-                  mask |= RegexFlags.Global;
-                  break;
-              case 105:
-                  if (mask & RegexFlags.IgnoreCase)
-                      report(state, 26, 'i');
-                  mask |= RegexFlags.IgnoreCase;
-                  break;
-              case 109:
-                  if (mask & RegexFlags.Multiline)
-                      report(state, 26, 'm');
-                  mask |= RegexFlags.Multiline;
-                  break;
-              case 117:
-                  if (mask & RegexFlags.Unicode)
-                      report(state, 26, 'u');
-                  mask |= RegexFlags.Unicode;
-                  break;
-              case 121:
-                  if (mask & RegexFlags.Sticky)
-                      report(state, 26, 'y');
-                  mask |= RegexFlags.Sticky;
-                  break;
-              case 115:
-                  if (mask & RegexFlags.DotAll)
-                      report(state, 26, 's');
-                  mask |= RegexFlags.DotAll;
-                  break;
-              default:
-                  if (!isIdentifierPart(code))
-                      break loop;
-                  report(state, 65, fromCodePoint(code));
-          }
-          state.index++;
-          state.column++;
-      }
-      const flags = state.source.slice(flagStart, state.index);
-      const pattern = state.source.slice(bodyStart, bodyEnd);
-      state.tokenRegExp = { pattern, flags };
-      if (context & 8)
-          state.tokenRaw = state.source.slice(state.startIndex, state.index);
-      state.tokenValue = validate(state, pattern, flags);
-      return 131076;
-  }
-  function validate(state, pattern, flags) {
-      try {
-      }
-      catch (e) {
-          report(state, 64);
-      }
-      try {
-          return new RegExp(pattern, flags);
-      }
-      catch (e) {
-          return null;
-      }
-  }
-
-  function returnBigIntOrNumericToken(state) {
-      if (state.source.charCodeAt(state.index) === 110) {
-          if (state.flags & 4)
-              report(state, 38);
-          state.index++;
-          state.column++;
-          return 116;
-      }
-      else {
-          if ((state.flags & (16 | 8)) === 0)
-              state.tokenValue = +state.tokenValue;
-          return 131074;
-      }
-  }
-  function scanNumeric(state, context) {
-      let { index, column } = state;
-      while (isDigit(state.source.charCodeAt(index))) {
-          index++;
-          column++;
-      }
-      if (state.source.charCodeAt(index) === 46) {
-          index++;
-          column++;
-          state.flags = 4;
-          while (isDigit(state.source.charCodeAt(index))) {
-              index++;
-              column++;
-          }
-      }
-      let end = index;
-      switch (state.source.charCodeAt(index)) {
-          case 69:
-          case 101: {
-              index++;
-              column++;
-              state.flags = 4;
-              if (state.source.charCodeAt(index) === 43 || state.source.charCodeAt(index) === 45) {
-                  index++;
-                  column++;
-              }
-              if (!isDigit(state.source.charCodeAt(index)))
-                  report(state, 36);
-              index++;
-              column++;
-              while (isDigit(state.source.charCodeAt(index))) {
-                  index++;
-                  column++;
-              }
-              end = index;
-          }
-          default:
-      }
-      const code = state.source.charCodeAt(index);
-      if (code !== 110 && (isDigit(code) || isIdentifierStart(code)))
-          report(state, 37);
-      state.index = index;
-      state.column = column;
-      state.tokenValue = state.source.slice(state.startIndex, end);
-      if (context & 8)
-          state.tokenRaw = state.tokenValue;
-      return returnBigIntOrNumericToken(state);
-  }
-  function scanHexIntegerLiteral(state) {
-      let { index, column } = state;
-      let value = toHex(state.source.charCodeAt(index));
-      if (value < 0)
-          report(state, 0);
-      index++;
-      column++;
-      while (index < state.length) {
-          const digit = toHex(state.source.charCodeAt(index));
-          if (digit < 0)
-              break;
-          value = value * 16 + digit;
-          index++;
-          column++;
-      }
-      state.index = index;
-      state.column = column;
-      state.tokenValue = value;
-      return returnBigIntOrNumericToken(state);
-  }
-  function scanBinaryOrOctalDigits(state, base) {
-      let { index, column } = state;
-      let value = 0;
-      let numberOfDigits = 0;
-      while (index < state.length) {
-          const ch = state.source.charCodeAt(index);
-          const converted = ch - 48;
-          if (!(ch >= 48 && ch <= 57) || converted >= base)
-              break;
-          value = value * base + converted;
-          index++;
-          column++;
-          numberOfDigits++;
-      }
-      if (numberOfDigits === 0)
-          report(state, 39, '' + base);
-      state.flags |= 16;
-      state.index = index;
-      state.column = column;
-      state.tokenValue = value;
-      return returnBigIntOrNumericToken(state);
-  }
-  function scanImplicitOctalDigits(state, context) {
-      if ((context & 1024) !== 0)
-          report(state, 40);
-      let { index, column } = state;
-      let code = 0;
-      while (index < state.length) {
-          const next = state.source.charCodeAt(index);
-          if (next < 48 || next > 55) {
-              state.flags |= 4;
-              return scanNumeric(state, context);
-          }
-          else {
-              code = code * 8 + (next - 48);
-              index++;
-              column++;
-          }
-      }
-      state.flags |= 8;
-      state.index = index;
-      state.column = column;
-      state.tokenValue = code;
-      return 131074;
   }
 
   const OneCharPunc = new Array(128).fill(0);
@@ -5343,12 +5337,8 @@ var cherow = (function (exports) {
               }
           }
           let x = lex['@' + key];
-          if (x === undefined)
+          if (x === undefined) {
               x = 1;
-          else if (checkDuplicates) {
-              if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
-                  report(state, 98, key);
-              }
           }
           else {
               ++x;
@@ -5361,7 +5351,7 @@ var cherow = (function (exports) {
           ? true
           : (context & 16) === 0
               ? true
-              : origin & 512
+              : origin & 1024
                   ? true
                   : (scope.lex.funcs[key] === true) === false
                       ? true
@@ -5924,7 +5914,7 @@ var cherow = (function (exports) {
           state.switchStatement = previousSwitchStatement;
           state.iterationStatement = previousIterationStatement;
       }
-      expect(state, origin & 128 ? context | 32768 : context, 536870927);
+      expect(state, origin & (512 | 128) ? context | 32768 : context, 536870927);
       if (state.token === 8388637 || state.token === 131082)
           report(state, 131);
       return finishNode(state, context, start, {
@@ -6386,6 +6376,7 @@ var cherow = (function (exports) {
   function parseTemplate(state, context, start) {
       const quasis = [parseTemplateSpans(state, context, start, false)];
       expect(state, context | 32768, 131080);
+      state.bindable = state.assignable = false;
       const expressions = [parseExpression(state, (context | 8192) ^ 8192)];
       while ((state.token = scanTemplateTail(state, context)) !== 131081) {
           quasis.push(parseTemplateSpans(state, context, state.startIndex, false));
@@ -6436,11 +6427,11 @@ var cherow = (function (exports) {
   function parseSpreadElement(state, context, origin) {
       const { startIndex: start } = state;
       expect(state, context | 32768, 14);
-      if (origin & 2048 && (state.token === 131091 || state.token === 131084)) {
+      if (origin & 4096 && (state.token === 131091 || state.token === 131084)) {
           state.bindable = state.assignable = false;
       }
       const argument = acquireGrammar(state, context, 0, parseAssignmentExpression);
-      if (origin & ((origin & 2048) | 1024)) {
+      if (origin & ((origin & 4096) | 2048)) {
           if (argument.type !== 'ArrayExpression' &&
               argument.type !== 'ObjectExpression' &&
               !isValidSimpleAssignmentTarget(argument)) {
@@ -6464,6 +6455,9 @@ var cherow = (function (exports) {
           return (context & 67108864) < 1 || state.tokenValue !== 'target'
               ? report(state, 0)
               : parseMetaProperty(state, context, id);
+      }
+      if ((state.token & 33685504) === 33685504) {
+          report(state, 134, KeywordDescTable[state.token & 255]);
       }
       const callee = context & 1 && state.token === 151641
           ? parseCallImportOrMetaProperty(state, context, true)
@@ -6563,7 +6557,7 @@ var cherow = (function (exports) {
               }
               report(state, state.token === 121 || state.token === 126
                   ? 114
-                  : 0);
+                  : 1, KeywordDescTable[state.token & 255]);
       }
   }
   function parseDoExpression(state, context) {
@@ -6588,7 +6582,7 @@ var cherow = (function (exports) {
               }
           }
           else if (state.token === 14) {
-              elements.push(parseSpreadElement(state, context, 1024));
+              elements.push(parseSpreadElement(state, context, 2048));
               if (state.token !== 20) {
                   state.bindable = state.assignable = false;
                   expect(state, context, 18);
@@ -6673,13 +6667,13 @@ var cherow = (function (exports) {
           }
       }
       context =
-          ((context | 4194304 | 2097152 | 8388608 | 1048576) ^
-              (4194304 | 2097152 | 8388608 | 1048576)) |
+          ((context | 4194304 | 8388608 | 1048576) ^
+              (4194304 | 8388608 | 1048576)) |
               (isAsync ? 4194304 : 0);
       const expression = state.token !== 131084;
       const body = expression
           ? secludeGrammar(state, context, 0, parseAssignmentExpression)
-          : parseFunctionBody(state, (context | 4096) ^ 4096, createSubScope(scope, 1), state.tokenValue, 0);
+          : parseFunctionBody(state, (context | 4096) ^ 4096, createSubScope(scope, 1), state.tokenValue, 512);
       return finishNode(state, context, start, {
           type: 'ArrowFunctionExpression',
           body,
@@ -6722,14 +6716,13 @@ var cherow = (function (exports) {
       const { token, startIndex: start } = state;
       if (token === 131084 || token === 131091)
           state.flags |= 64;
-      if ((token & 36864) === 36864) {
+      if ((token & 36864) === 36864 || (token & 2097152) === 2097152) {
+          if ((token & 2097152) === 2097152)
+              state.flags = state.flags | 8192;
           pState = pState | 1;
       }
       else if ((token & 524288) === 524288) {
           state.flags = state.flags | 4096;
-      }
-      else if ((token & 2097152) === 2097152) {
-          state.flags = state.flags | 8192;
       }
       if (token === 405505) {
           addVariable(state, context, scope, 1, 0, false, false, state.tokenValue);
@@ -6780,14 +6773,13 @@ var cherow = (function (exports) {
                   if (state.token === 131084 || state.token === 131091) {
                       state.flags = state.flags | 64;
                   }
-                  if ((state.token & 36864) === 36864) {
+                  if ((state.token & 36864) === 36864 ||
+                      (state.token & 2097152) === 2097152) {
+                      state.flags = state.flags | 8192;
                       pState = pState | 1;
                   }
                   else if ((state.token & 524288) === 524288) {
                       state.flags = state.flags | 4096;
-                  }
-                  else if ((state.token & 2097152) === 2097152) {
-                      state.flags = state.flags | 8192;
                   }
                   if (state.token === 405505) {
                       addVariable(state, context, scope, 1, 0, false, false, state.tokenValue);
@@ -6809,7 +6801,7 @@ var cherow = (function (exports) {
                   report(state, 85);
               state.flags = state.flags | 512;
           }
-          else if (state.flags & 8192) {
+          else if (context & (1024 | 2097152) && state.flags & 8192) {
               report(state, 105);
           }
           else if (context & (2048 | 4194304) && state.flags & 4096) {
@@ -7046,7 +7038,7 @@ var cherow = (function (exports) {
       state.pendingCoverInitializeError = null;
       while (state.token !== 536870927) {
           if (state.token === 14) {
-              properties.push(parseSpreadElement(state, context, 2048));
+              properties.push(parseSpreadElement(state, context, 4096));
           }
           else {
               const { startIndex: objStart } = state;
@@ -7604,7 +7596,6 @@ var cherow = (function (exports) {
   }
 
   function parseStatementList(state, context, scope) {
-      next(state, context | 32768);
       const statements = [];
       while (state.token === 131075) {
           const tokenValue = state.tokenValue;
@@ -7643,7 +7634,7 @@ var cherow = (function (exports) {
   }
   function parseAsyncFunctionOrExpressionStatement(state, context, scope) {
       return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-          ? parseFunctionDeclaration(state, context, scope, 512, true)
+          ? parseFunctionDeclaration(state, context, scope, 1024, true)
           : parseExpressionOrLabelledStatement(state, context, scope, 2);
   }
   function parseLetOrExpressionStatement(state, context, scope) {
@@ -7694,7 +7685,11 @@ var cherow = (function (exports) {
               case 20566:
                   return parseForStatement(state, context, scope);
               case 151639:
-                  report(state, context & 1024 ? 44 : 43);
+                  report(state, context & 1024
+                      ? 44
+                      : (context & 16) === 0
+                          ? 133
+                          : 43);
               case 151629:
                   report(state, 74, KeywordDescTable[token & 255]);
               default:
@@ -8040,10 +8035,15 @@ var cherow = (function (exports) {
               await: forAwait
           });
       }
+      if (forAwait)
+          report(state, 132);
       if (optional(state, context, 33707825)) {
           if (isPattern) {
               if (!state.assignable || init.type === 'AssignmentExpression') {
-                  report(state, 88);
+                  if (context & 16 && (context & 1024) === 0) ;
+                  else {
+                      report(state, 88);
+                  }
               }
               reinterpret(state, init);
           }
@@ -8064,9 +8064,8 @@ var cherow = (function (exports) {
           init = parseSequenceExpression(state, (context | 8192) ^ 8192, init, sequencePos);
       }
       expect(state, context, 536870929);
-      if (state.token !== 536870929) {
+      if (state.token !== 536870929)
           test = parseExpression(state, context);
-      }
       expect(state, context, 536870929);
       if (state.token !== 16)
           update = parseExpression(state, (context | 8192) ^ 8192);
@@ -8141,7 +8140,6 @@ var cherow = (function (exports) {
   }
 
   function parseModuleItem(state, context, scope) {
-      next(state, context | 32768);
       const statements = [];
       while (state.token === 131075) {
           const tokenValue = state.tokenValue;
@@ -8451,14 +8449,11 @@ var cherow = (function (exports) {
       skipHashBang(state, context);
       const scope = createScope(1);
       let body;
-      let sourceType = 'script';
+      next(state, context | 32768);
       if (context & 268435456) {
-          sourceType = context & 2048 ? 'module' : 'script';
-          next(state, context);
           body = parseExpression(state, context);
       }
       else if (context & 2048) {
-          sourceType = 'module';
           body = parseModuleItem(state, context | 4096, scope);
           for (const key in state.exportedBindings) {
               if (key[0] === '@' && key !== '#default' && (scope.var[key] === undefined && scope.lex[key] === undefined)) {
@@ -8471,7 +8466,7 @@ var cherow = (function (exports) {
       }
       const node = {
           type: 'Program',
-          sourceType,
+          sourceType: context & 2048 ? 'module' : 'script',
           body
       };
       if (context & 2) {

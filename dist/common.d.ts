@@ -71,9 +71,10 @@ export declare const enum Origin {
     ClassExprDecl = 64,
     Declaration = 128,
     AsyncArrow = 256,
-    AsyncFunction = 512,
-    ArrayLiteral = 1024,
-    ObjectExpression = 2048
+    Arrow = 512,
+    AsyncFunction = 1024,
+    ArrayLiteral = 2048,
+    ObjectExpression = 4096
 }
 export declare const enum ScopeType {
     None = 0,
