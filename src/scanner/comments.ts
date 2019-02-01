@@ -53,24 +53,24 @@ export function skipSingleLineComment(state: ParserState, type: CommentType): To
   const { index: start } = state;
   while (state.index < state.length) {
     const next = state.source.charCodeAt(state.index);
-    if ((next & 8) === 8 && (next & 83) < 3) {
-      if (next === Chars.CarriageReturn) {
+    // Fast check for characters that require special handling.
+    // Catches 0, \n, \r, 0x2028, and 0x2029 as efficiently
+    // as possible, and lets through all common ASCII characters.
+    if (
+      (next - 0xe) & 0x2000 &&
+      (next === Chars.CarriageReturn || next === Chars.LineFeed || (next ^ Chars.ParagraphSeparator) <= 1)
+    ) {
+      ++state.index;
+      state.column = 0;
+      ++state.line;
+      if (
+        state.index < state.length &&
+        next === Chars.CarriageReturn &&
+        state.source.charCodeAt(state.index) === Chars.LineFeed
+      )
         ++state.index;
-        state.column = 0;
-        ++state.line;
-        if (state.index < state.length && state.source.charCodeAt(state.index) === Chars.LineFeed) state.index++;
-        state.flags |= Flags.NewLine;
-        break;
-      } else if (next === Chars.LineFeed || (next ^ Chars.ParagraphSeparator) <= 1) {
-        ++state.index;
-        state.column = 0;
-        ++state.line;
-        state.flags |= Flags.NewLine;
-        break;
-      } else {
-        ++state.index;
-        ++state.column;
-      }
+      state.flags |= Flags.NewLine;
+      break;
     } else {
       ++state.index;
       ++state.column;
@@ -100,7 +100,7 @@ export function skipBlockComment(state: ParserState): Token {
           );
         return Token.WhiteSpace;
       }
-    } else if ((next & 8) === 8) {
+    } else if ((next - 0xe) & 0x2000) {
       if ((next & 83) < 3 && next === Chars.CarriageReturn) {
         state.flags |= Flags.NewLine | Flags.LastIsCR;
         state.index++;
@@ -114,10 +114,6 @@ export function skipBlockComment(state: ParserState): Token {
         state.index++;
         state.column = 0;
         state.line++;
-      } else {
-        state.flags &= ~Flags.LastIsCR;
-        state.index++;
-        state.column++;
       }
     } else {
       state.flags &= ~Flags.LastIsCR;

@@ -203,13 +203,13 @@ function scanUnicodeEscape(state: ParserState): number {
 
     ch = source.charCodeAt(index++);
 
-    while (ch !== Chars.RightBrace) {
+    do {
       const digit = toHex(ch);
       if (digit < 0) return report(state, Errors.InvalidIdentChar);
-      value = (value << 4) | digit;
+      value = (value << 4) | toHex(ch);
       if (value > 0x10ffff) report(state, Errors.UnicodeOverflow);
       ch = source.charCodeAt(index++);
-    }
+    } while (ch !== Chars.RightBrace);
 
     if (value < 0 || ch !== Chars.RightBrace) report(state, Errors.InvalidDynamicUnicode);
   } else {

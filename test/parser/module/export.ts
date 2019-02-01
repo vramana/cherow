@@ -4,6 +4,25 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Module - Export', () => {
+  // Namespace export parsing
+  for (const arg of [
+    "export * as arguments from 'bar'",
+    "export * as await from 'bar'",
+    "export * as default from 'bar'",
+    "export * as enum from 'bar'",
+    "export * as foo from 'bar'",
+    "export * as for from 'bar'",
+    "export * as let from 'bar'",
+    "export * as static from 'bar'",
+    "export * as yield from 'bar'"
+  ]) {
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
+
   const failures = [
     'export {',
     'var a; export { a',
@@ -323,6 +342,13 @@ describe('Module - Export', () => {
     'export {get}; function get() {};',
     'function f() {}; f(); export { f };',
     'export let x = 0;',
+    "export { a as b } from 'm.js';",
+    "export * from 'p.js';",
+    'export var foo;',
+    'export function goo() {};',
+    'export let hoo;',
+    'export const joo = 42;',
+    'export default (function koo() {});',
     'export var y = 0;',
     'export const z = 0;',
     'export function func() { };',

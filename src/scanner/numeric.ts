@@ -28,10 +28,16 @@ export function returnBigIntOrNumericToken(state: ParserState): Token {
  * @param context Context masks
  */
 export function scanNumeric(state: ParserState, context: Context, first: number): Token {
-  do {
+  state.tokenValue = 0;
+  while (isDigit((first = state.source.charCodeAt(state.index)))) {
+    state.tokenValue = 10 * state.tokenValue + (first - Chars.Zero);
     advanceOne(state);
-  } while (isDigit((first = state.source.charCodeAt(state.index))));
+  }
 
+  if (state.index < state.length && first !== Chars.Period && !isIdentifierStart(first)) {
+    if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
+    return returnBigIntOrNumericToken(state);
+  }
   if (first === Chars.Period) {
     advanceOne(state);
     state.flags = Flags.Float;
@@ -56,10 +62,8 @@ export function scanNumeric(state: ParserState, context: Context, first: number)
     }
   }
 
-  let end = state.index;
-
   if (first !== Chars.LowerN && (isDigit(first) || isIdentifierStart(first))) report(state, Errors.IDStartAfterNumber);
-  state.tokenValue = state.source.slice(state.startIndex, end);
+  state.tokenValue = state.source.slice(state.startIndex, state.index);
   if (context & Context.OptionsRaw) state.tokenRaw = state.tokenValue;
   return returnBigIntOrNumericToken(state);
 }
