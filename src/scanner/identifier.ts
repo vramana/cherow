@@ -4,41 +4,6 @@ import { Chars, isIdentifierStart, isIdentifierPart } from '../chars';
 import { Errors, report } from '../errors';
 import { fromCodePoint, toHex, advanceOne, advance } from './common';
 
-export function scanMaybeIdentifier(state: ParserState, _: Context, first: number): Token | void {
-  switch (first) {
-    case Chars.NonBreakingSpace:
-    case Chars.Ogham:
-    case Chars.EnQuad:
-    case Chars.EmQuad:
-    case Chars.EnSpace:
-    case Chars.EmSpace:
-    case Chars.ThreePerEmSpace:
-    case Chars.FourPerEmSpace:
-    case Chars.SixPerEmSpace:
-    case Chars.FigureSpace:
-    case Chars.PunctuationSpace:
-    case Chars.ThinSpace:
-    case Chars.HairSpace:
-    case Chars.NarrowNoBreakSpace:
-    case Chars.MathematicalSpace:
-    case Chars.IdeographicSpace:
-    case Chars.Zwj:
-    case Chars.Zwnj:
-      state.index++;
-      state.column++;
-      return Token.WhiteSpace;
-    case Chars.LineSeparator:
-    case Chars.ParagraphSeparator:
-      state.flags = (state.flags & ~Flags.LastIsCR) | Flags.NewLine;
-      state.index++;
-      state.column = 0;
-      state.line++;
-      return Token.WhiteSpace;
-  }
-  // TODO
-  report(state, Errors.IllegalCaracter, String.fromCharCode(first));
-}
-
 /**
  * Scan identifier or keyword.
  *
@@ -47,13 +12,13 @@ export function scanMaybeIdentifier(state: ParserState, _: Context, first: numbe
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanIdentifierOrKeyword(state: ParserState, context: Context): Token {
+export function scanIdentifierOrKeyword(state: ParserState, context: Context, first: number): Token {
   const { index, column } = state;
-  while (isIdentifierPart(state.source.charCodeAt(state.index))) {
+  while (isIdentifierPart((first = state.source.charCodeAt(state.index)))) {
     advanceOne(state);
   }
   state.tokenValue = state.source.slice(state.startIndex, state.index);
-  if (state.source.charCodeAt(state.index) === Chars.Backslash) {
+  if (state.index < state.length && first === Chars.Backslash) {
     state.index = index;
     state.column = column;
     return scanIdentifierRest(state, context);
@@ -74,16 +39,53 @@ export function scanIdentifierOrKeyword(state: ParserState, context: Context): T
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanIdentifier(state: ParserState, context: Context): Token {
-  while (isIdentifierPart(state.source.charCodeAt(state.index))) {
+export function scanIdentifier(state: ParserState, context: Context, first: number): Token {
+  const { index, column } = state;
+  while (isIdentifierPart((first = state.source.charCodeAt(state.index)))) {
     advanceOne(state);
   }
   state.tokenValue = state.source.slice(state.startIndex, state.index);
-  if (state.source.charCodeAt(state.index) === Chars.Backslash) {
+  if (state.index < state.length && first === Chars.Backslash) {
+    state.index = index;
+    state.column = column;
     return scanIdentifierRest(state, context);
   }
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
   return Token.Identifier;
+}
+
+export function scanMaybeIdentifier(state: ParserState, _: Context, first: number): Token | void {
+  switch (first) {
+    case Chars.NonBreakingSpace:
+    case Chars.Ogham:
+    case Chars.EnQuad:
+    case Chars.EmQuad:
+    case Chars.EnSpace:
+    case Chars.EmSpace:
+    case Chars.ThreePerEmSpace:
+    case Chars.FourPerEmSpace:
+    case Chars.SixPerEmSpace:
+    case Chars.FigureSpace:
+    case Chars.PunctuationSpace:
+    case Chars.ThinSpace:
+    case Chars.HairSpace:
+    case Chars.NarrowNoBreakSpace:
+    case Chars.MathematicalSpace:
+    case Chars.IdeographicSpace:
+    case Chars.Zwj:
+    case Chars.Zwnj:
+      advanceOne(state);
+      return Token.WhiteSpace;
+    case Chars.LineSeparator:
+    case Chars.ParagraphSeparator:
+      state.flags = (state.flags & ~Flags.LastIsCR) | Flags.NewLine;
+      ++state.index;
+      state.column = 0;
+      ++state.line;
+      return Token.WhiteSpace;
+  }
+  first = nextIdentifierChar(state);
+  report(state, Errors.IllegalCaracter, String.fromCharCode(first));
 }
 
 /**
@@ -108,17 +110,17 @@ export function scanPrivateName(state: ParserState, _: Context): Token {
 }
 
 export function nextIdentifierChar(state: ParserState) {
-  let cp = state.source.charCodeAt(state.index);
-  if (cp >= 0xd800 && cp <= 0xdbff) {
-    let second = state.source.charCodeAt(state.index + 1);
-    if ((second & 0xfc00) == 0xdc00) {
-      cp = ((cp & 0x3ff) << 10) | (second & 0x3ff) | 0x10000;
-      state.index++;
+  let hi = state.source.charCodeAt(state.index);
+  if (hi >= 0xd800 && hi <= 0xdbff) {
+    let lo = state.source.charCodeAt(state.index + 1);
+    if ((lo & 0xfc00) === 0xdc00) {
+      hi = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
+      ++state.index;
     }
-    state.column++;
+    ++state.column;
   }
 
-  return cp;
+  return hi;
 }
 
 export function scanIdentifierRest(state: ParserState, context: Context): Token {

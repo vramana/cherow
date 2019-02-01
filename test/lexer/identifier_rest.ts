@@ -247,6 +247,28 @@ describe('Lexer - Identifiers', () => {
       column: 6
     });
 
+    pass('scan \\u{5A}', {
+      value: 'aZb',
+      source: 'a\\u{5A}b',
+      hasNext: false,
+      raw: 'a\\u{5A}b',
+      token: Token.Identifier,
+      index: 8,
+      line: 1,
+      column: 8
+    });
+
+    pass('scan \\u{5A}', {
+      value: 'aZbaZb',
+      source: 'a\\u{5A}ba\\u{5A}b',
+      hasNext: false,
+      raw: 'a\\u{5A}ba\\u{5A}b',
+      token: Token.Identifier,
+      index: 16,
+      line: 1,
+      column: 16
+    });
+
     if (isModule) {
     }
   }
