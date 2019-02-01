@@ -18,7 +18,7 @@ import {
   finishNode
 } from '../common';
 import { Token, KeywordDescTable } from '../token';
-import { next } from '../scanner';
+import { scanSingleToken } from '../scanner';
 import { optional, checkIfExistInLexicalBindings, addFunctionName } from '../common';
 import { report, Errors } from '../errors';
 import {
@@ -44,7 +44,7 @@ export function parseClassDeclaration(
   scope: ScopeState
 ): ESTree.ClassDeclaration {
   const { startIndex: start } = state;
-  next(state, context);
+  scanSingleToken(state, context);
   // class bodies are implicitly strict
   context = (context | Context.Strict | Context.InConstructor) ^ Context.InConstructor;
 
@@ -90,7 +90,7 @@ export function parseFunctionDeclaration(
   isAsync: boolean
 ) {
   const { startIndex: start } = state;
-  next(state, context);
+  scanSingleToken(state, context);
 
   const isGenerator: boolean = (origin & Origin.Statement) < 1 && optional(state, context, Token.Multiply);
 
@@ -180,7 +180,7 @@ export function parseHostedClassDeclaration(
   isNotDefault: boolean
 ): ESTree.ClassDeclaration {
   const { startIndex: start } = state;
-  next(state, context);
+  scanSingleToken(state, context);
   context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
 
   let id: ESTree.Expression | null = null;
@@ -221,7 +221,7 @@ export function parseHoistableFunctionDeclaration(
   isAsync: boolean
 ) {
   const { startIndex: start } = state;
-  next(state, context);
+  scanSingleToken(state, context);
 
   const isGenerator: boolean = optional(state, context, Token.Multiply);
 
@@ -297,7 +297,7 @@ export function parseLexicalDeclaration(
 ): ESTree.VariableDeclaration {
   const { token } = state;
   const { startIndex: start } = state;
-  next(state, context);
+  scanSingleToken(state, context);
   const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
   if (checkIfExistInLexicalBindings(state, context, scope, origin, false)) {
     report(state, Errors.DuplicateBinding, KeywordDescTable[token & Token.Type]);

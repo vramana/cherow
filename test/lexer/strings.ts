@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { next } from '../../src/scanner';
+import { scanSingleToken } from '../../src/scanner';
 import { fromCodePoint } from '../../src/scanner/common';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
@@ -24,7 +24,7 @@ describe('Lexer - string literal', () => {
 
           t.deepEqual(
             {
-              token: next(state, context),
+              token: scanSingleToken(state, context),
               hasNext: state.index < state.length,
               value: state.tokenValue,
               raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
@@ -47,7 +47,7 @@ describe('Lexer - string literal', () => {
 
           t.deepEqual(
             {
-              token: next(state, context | Context.Strict),
+              token: scanSingleToken(state, context | Context.Strict),
               hasNext: state.index < state.length,
               value: state.tokenValue,
               raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
@@ -79,14 +79,14 @@ describe('Lexer - string literal', () => {
         if (strict !== true) {
           const state = create(isEnd ? source : `${source} `, undefined);
           t.throws(() => {
-            next(state, context);
+            scanSingleToken(state, context);
           });
         }
 
         if (strict !== false) {
           const state = create(isEnd ? source : `${source} `, undefined);
           t.throws(() => {
-            next(state, context | Context.Strict);
+            scanSingleToken(state, context | Context.Strict);
           });
         }
       });
@@ -222,7 +222,7 @@ describe('Lexer - string literal', () => {
 
         t.deepEqual(
           {
-            token: next(state, context),
+            token: scanSingleToken(state, context),
             hasNext: state.index < state.length,
             value: state.tokenValue,
             raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
@@ -245,7 +245,7 @@ describe('Lexer - string literal', () => {
 
         t.deepEqual(
           {
-            token: next(state, context | Context.Strict),
+            token: scanSingleToken(state, context | Context.Strict),
             hasNext: state.index < state.length,
             value: state.tokenValue,
             raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
@@ -475,14 +475,14 @@ describe('Lexer - string literal', () => {
         if (strict !== true) {
           const state = create(source, undefined);
           assertError(message, () => {
-            next(state, context);
+            scanSingleToken(state, context);
           });
         }
 
         if (strict !== false) {
           const state = create(source, undefined);
           assertError(message, () => {
-            next(state, context | Context.Strict);
+            scanSingleToken(state, context | Context.Strict);
           });
         }
       }

@@ -15,8 +15,7 @@ import {
   scanIdentifierRest
 } from './identifier';
 
-// Table for one char punctuator lookup
-const OneCharPunc = new Array(128).fill(0) as Token[];
+const oneCharTokens = new Array(128).fill(0) as Token[];
 
 const table = new Array(0xffff).fill(scanMaybeIdentifier, 0x80) as ((
   state: ParserState,
@@ -26,8 +25,54 @@ const table = new Array(0xffff).fill(scanMaybeIdentifier, 0x80) as ((
 
 function scanChar(state: ParserState, _: Context, first: number): Token {
   advanceOne(state);
-  return OneCharPunc[first];
+  return oneCharTokens[first];
 }
+
+// `,`
+table[Chars.Comma] = scanChar;
+oneCharTokens[Chars.Comma] = Token.Comma;
+
+// `?`
+table[Chars.QuestionMark] = scanChar;
+oneCharTokens[Chars.QuestionMark] = Token.QuestionMark;
+
+// `A`...`Z`
+for (let i = Chars.UpperA; i <= Chars.UpperZ; i++) {
+  table[i] = scanIdentifier;
+}
+
+// `a`...`z`
+for (let i = Chars.LowerA; i <= Chars.LowerZ; i++) {
+  table[i] = scanIdentifierOrKeyword;
+}
+
+// `[`
+table[Chars.LeftBracket] = scanChar;
+oneCharTokens[Chars.LeftBracket] = Token.LeftBracket;
+
+// `]`
+table[Chars.RightBracket] = scanChar;
+oneCharTokens[Chars.RightBracket] = Token.RightBracket;
+
+// `{`
+table[Chars.LeftBrace] = scanChar;
+oneCharTokens[Chars.LeftBrace] = Token.LeftBrace;
+
+// `}`
+table[Chars.RightBrace] = scanChar;
+oneCharTokens[Chars.RightBrace] = Token.RightBrace;
+
+// `~`
+table[Chars.Tilde] = scanChar;
+oneCharTokens[Chars.Tilde] = Token.Complement;
+
+// `(`
+table[Chars.LeftParen] = scanChar;
+oneCharTokens[Chars.LeftParen] = Token.LeftParen;
+
+// `)`
+table[Chars.RightParen] = scanChar;
+oneCharTokens[Chars.RightParen] = Token.RightParen;
 
 // `#`
 table[Chars.Hash] = scanPrivateName;
@@ -41,13 +86,14 @@ table[Chars.DoubleQuote] = scanStringLiteral;
 // `'string'`
 table[Chars.SingleQuote] = scanStringLiteral;
 
-// `(`
-table[Chars.LeftParen] = scanChar;
-OneCharPunc[Chars.LeftParen] = Token.LeftParen;
+// `\\u{N}var`
+table[Chars.Backslash] = scanIdentifierRest;
 
-// `)`
-table[Chars.RightParen] = scanChar;
-OneCharPunc[Chars.RightParen] = Token.RightParen;
+// `_var`
+table[Chars.Underscore] = scanIdentifier;
+
+// ``string``
+table[Chars.Backtick] = scanTemplate;
 
 // `1`...`9`
 for (let i = Chars.One; i <= Chars.Nine; i++) {
@@ -56,11 +102,11 @@ for (let i = Chars.One; i <= Chars.Nine; i++) {
 
 // `:`
 table[Chars.Colon] = scanChar;
-OneCharPunc[Chars.Colon] = Token.Colon;
+oneCharTokens[Chars.Colon] = Token.Colon;
 
 // `;`
 table[Chars.Semicolon] = scanChar;
-OneCharPunc[Chars.Semicolon] = Token.Semicolon;
+oneCharTokens[Chars.Semicolon] = Token.Semicolon;
 
 table[Chars.Zero] = (state, context) => {
   const index = state.index + 1;
@@ -140,9 +186,7 @@ table[Chars.Asterisk] = s => {
 // `+`, `++`, `+=`
 table[Chars.Plus] = s => {
   advanceOne(s);
-  if (s.index >= s.length) return Token.Add;
   const next = s.source.charCodeAt(s.index);
-
   if (next === Chars.Plus) {
     advanceOne(s);
     return Token.Increment;
@@ -155,10 +199,6 @@ table[Chars.Plus] = s => {
 
   return Token.Add;
 };
-
-// `,`
-table[Chars.Comma] = scanChar;
-OneCharPunc[Chars.Comma] = Token.Comma;
 
 // `-`, `--`, `-=`
 table[Chars.Hyphen] = (state, context) => {
@@ -184,25 +224,23 @@ table[Chars.Hyphen] = (state, context) => {
 
 // `.`, `...`, `.123` (numeric literal)
 table[Chars.Period] = (state, context) => {
-  let index = state.index + 1;
-  if (index < state.length) {
-    const next = state.source.charCodeAt(index);
+  advanceOne(state);
+  if (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
 
     if (next === Chars.Period) {
-      index++;
-      if (index < state.length && state.source.charCodeAt(index) === Chars.Period) {
-        state.index = index + 1;
-        state.column += 3;
-        return Token.Ellipsis;
-      }
+      advanceOne(state);
+      if (consumeOpt(state, Chars.Period)) return Token.Ellipsis;
+      state.index -= 2;
+      state.column -= 2;
     } else if (next >= Chars.Zero && next <= Chars.Nine) {
-      scanNumeric(state, context);
-      return Token.NumericLiteral;
+      // Rewind the initial token.
+      state.index--;
+      state.column--;
+      return scanNumeric(state, context);
     }
   }
 
-  state.index++;
-  state.column++;
   return Token.Period;
 };
 
@@ -287,14 +325,9 @@ table[Chars.EqualSign] = s => {
   advanceOne(s);
   if (s.index >= s.length) return Token.Assign;
   const next = s.source.charCodeAt(s.index);
-
   if (next === Chars.EqualSign) {
     advanceOne(s);
-    if (consumeOpt(s, Chars.EqualSign)) {
-      return Token.StrictEqual;
-    } else {
-      return Token.LooseEqual;
-    }
+    return consumeOpt(s, Chars.EqualSign) ? Token.StrictEqual : Token.LooseEqual;
   } else if (next === Chars.GreaterThan) {
     advanceOne(s);
     return Token.Arrow;
@@ -357,49 +390,6 @@ table[Chars.VerticalBar] = s => {
   return Token.BitwiseOr;
 };
 
-// `?`
-table[Chars.QuestionMark] = scanChar;
-OneCharPunc[Chars.QuestionMark] = Token.QuestionMark;
-
-// `A`...`Z`
-for (let i = Chars.UpperA; i <= Chars.UpperZ; i++) {
-  table[i] = scanIdentifier;
-}
-
-// `a`...`z`
-for (let i = Chars.LowerA; i <= Chars.LowerZ; i++) {
-  table[i] = scanIdentifierOrKeyword;
-}
-
-// `[`
-table[Chars.LeftBracket] = scanChar;
-OneCharPunc[Chars.LeftBracket] = Token.LeftBracket;
-
-// `\\u{N}var`
-table[Chars.Backslash] = scanIdentifierRest;
-
-// `]`
-table[Chars.RightBracket] = scanChar;
-OneCharPunc[Chars.RightBracket] = Token.RightBracket;
-
-// `_var`
-table[Chars.Underscore] = scanIdentifier;
-
-// ``string``
-table[Chars.Backtick] = scanTemplate;
-
-// `{`
-table[Chars.LeftBrace] = scanChar;
-OneCharPunc[Chars.LeftBrace] = Token.LeftBrace;
-
-// `}`
-table[Chars.RightBrace] = scanChar;
-OneCharPunc[Chars.RightBrace] = Token.RightBrace;
-
-// `~`
-table[Chars.Tilde] = scanChar;
-OneCharPunc[Chars.Tilde] = Token.Complement;
-
 // General whitespace
 table[Chars.Space] = table[Chars.Tab] = table[Chars.FormFeed] = table[Chars.VerticalTab] = state => {
   state.index++;
@@ -423,8 +413,15 @@ table[Chars.CarriageReturn] = state => {
   return Token.WhiteSpace;
 };
 
-export function next(state: ParserState, context: Context): Token {
-  state.flags &= ~Flags.NewLine; // reset the 'NewLine' flag for each scan
+/**
+ *
+ * Scan for a single token
+ *
+ * @param state Parser object
+ * @param context Context masks
+ */
+export function scanSingleToken(state: ParserState, context: Context): Token {
+  state.flags &= ~Flags.NewLine;
   state.endIndex = state.index;
   while (state.index < state.length) {
     state.startIndex = state.index;
@@ -434,6 +431,5 @@ export function next(state: ParserState, context: Context): Token {
       return state.token;
     }
   }
-
   return (state.token = Token.EndOfSource);
 }

@@ -4,9 +4,8 @@ import { parseStatementList } from './parser/statement';
 import { parseExpression } from './parser/expression';
 import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context, createScope, ScopeType } from './common';
-import { skipHashBang, next } from './scanner';
+import { skipHashBang, scanSingleToken } from './scanner';
 import { report, Errors } from './errors';
-import * as Scanner from './scanner';
 
 /**
  * `ECMAScript version
@@ -135,7 +134,7 @@ export function parseSource(source: string, options: Options | void, context: Co
   let body;
 
   // Prime the scanner
-  next(state, context | Context.AllowPossibleRegEx);
+  scanSingleToken(state, context | Context.AllowPossibleRegEx);
 
   if (context & Context.Expression) {
     body = parseExpression(state, context);

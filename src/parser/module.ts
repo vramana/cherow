@@ -16,7 +16,7 @@ import {
   finishNode
 } from '../common';
 import { Token, KeywordDescTable } from '../token';
-import { next } from '../scanner';
+import { scanSingleToken } from '../scanner';
 import { optional, expect, addVariable, checkIfExistInLexicalBindings, lookAheadOrScan } from '../common';
 import { report, Errors } from '../errors';
 import { parseDirective, parseStatementListItem, parseVariableStatement } from './statement';
@@ -119,7 +119,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
   switch (state.token) {
     case Token.Multiply: {
-      next(state, context); // '*'
+      scanSingleToken(state, context); // '*'
       if (context & Context.OptionsExperimental && optional(state, context, Token.AsKeyword)) {
         addVariableAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
         specifiers.push(
@@ -154,7 +154,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
         const local = parseIdentifier(state, context);
         let exported: any;
         if (state.token === <Token>Token.AsKeyword) {
-          next(state, context);
+          scanSingleToken(state, context);
           if ((state.token & Token.IsIdentifier) === 0) report(state, Errors.InvalidKeywordAsAlias);
           exportedNames.push(state.tokenValue);
           exportedBindings.push(tokenValue);
@@ -221,7 +221,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       declaration = parseHoistableFunctionDeclaration(state, context, scope, true, false);
       break;
     case Token.AsyncKeyword:
-      next(state, context);
+      scanSingleToken(state, context);
       if ((state.flags & Flags.NewLine) === 0 && (state.token as Token) === Token.FunctionKeyword) {
         declaration = parseHoistableFunctionDeclaration(state, context, scope, false, true);
         break;
@@ -380,7 +380,7 @@ function parseImportNamespace(
 ): void {
   // NameSpaceImport:
   //  * as ImportedBinding
-  next(state, context);
+  scanSingleToken(state, context);
   expect(state, context, Token.AsKeyword);
   validateBindingIdentifier(state, context, Type.Const);
   addVariable(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);

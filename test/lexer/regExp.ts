@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { next } from '../../src/scanner';
+import { scanSingleToken } from '../../src/scanner';
 import { create } from '../../src/state';
 import { Context, pushToken } from '../../src/common';
 import { Token } from '../../src/token';
@@ -10,7 +10,7 @@ describe('Lexer - RegExp', () => {
       const state = create(opts.source, undefined, pushToken(Context.OptionsLoc, []));
       t.deepEqual(
         {
-          token: next(state, Context.AllowPossibleRegEx),
+          token: scanSingleToken(state, Context.AllowPossibleRegEx),
           line: state.line,
           value: state.tokenValue,
           column: state.column,
@@ -30,7 +30,7 @@ describe('Lexer - RegExp', () => {
   function fail(name: string, source: string, context: Context) {
     it(name, () => {
       const state = create(source, undefined, pushToken(context, []));
-      t.throws(() => next(state, Context.AllowPossibleRegEx | Context.OptionsRaw));
+      t.throws(() => scanSingleToken(state, Context.AllowPossibleRegEx | Context.OptionsRaw));
     });
   }
 

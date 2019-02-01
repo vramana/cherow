@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { next } from '../../src/scanner';
+import { scanSingleToken } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
 
@@ -21,7 +21,7 @@ describe('Lexer - Identifiers', () => {
     function pass(name: string, opts: Opts) {
       it(name, () => {
         const state = create(opts.source, undefined);
-        next(state, Context.Strict);
+        scanSingleToken(state, Context.Strict);
         t.deepEqual(
           {
             value: state.tokenValue,

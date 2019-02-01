@@ -1,8 +1,8 @@
 import * as t from 'assert';
-import { next, scanIdentifierRest } from '../../src/scanner';
+import { scanIdentifierRest } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
-import { Token } from 'token';
+import { Token } from '../../src/token';
 
 describe('Lexer - Identifiers', () => {
   describe('Identifiers', () => {

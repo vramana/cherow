@@ -1,6 +1,6 @@
 import * as ESTree from './estree';
 import { Token, KeywordDescTable } from './token';
-import { next } from './scanner';
+import { scanSingleToken } from './scanner';
 import { Errors, report } from './errors';
 
 // prettier-ignore
@@ -277,7 +277,7 @@ export function finishNode<T extends ESTree.Node>(state: ParserState, context: C
 
 export function optional(state: ParserState, context: Context, t: Token): boolean {
   if (state.token === t) {
-    next(state, context);
+    scanSingleToken(state, context);
     return true;
   }
   return false;
@@ -285,7 +285,7 @@ export function optional(state: ParserState, context: Context, t: Token): boolea
 
 export function expect(state: ParserState, context: Context, t: Token): void {
   if (state.token === t) {
-    next(state, context);
+    scanSingleToken(state, context);
   } else {
     report(
       state,
@@ -550,7 +550,7 @@ export function lookAheadOrScan<T>(
  * @param context  Context masks
  */
 export function isLexical(state: ParserState, context: Context): boolean {
-  next(state, context);
+  scanSingleToken(state, context);
   const { token } = state;
   return !!(
     (token & Token.Identifier) === Token.IsIdentifier ||
@@ -675,7 +675,7 @@ export function addToExportedBindings(state: ParserState, exportedName: any) {
 
 export function nextTokenIsFuncKeywordOnSameLine(state: ParserState, context: Context): boolean {
   const line = state.line;
-  next(state, context);
+  scanSingleToken(state, context);
   return state.token === Token.FunctionKeyword && state.line === line;
 }
 
@@ -844,7 +844,7 @@ export function createSubScope(parent: ScopeState, type: ScopeType): ScopeState 
  * @param context  Context masks
  */
 export function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Context): boolean {
-  next(state, context);
+  scanSingleToken(state, context);
   return state.token === Token.LeftParen || state.token === Token.Period;
 }
 

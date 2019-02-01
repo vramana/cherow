@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { next } from '../../src/scanner';
+import { scanSingleToken } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
 import { Token, KeywordDescTable } from '../../src/token';
@@ -74,7 +74,7 @@ describe('Lexer - Punctuators', () => {
   for (const [ctx, token, op] of tokens) {
     it(`scans '${op}'`, () => {
       const state = create(op, undefined);
-      const found = next(state, ctx);
+      const found = scanSingleToken(state, ctx);
 
       t.deepEqual(
         {
@@ -95,7 +95,7 @@ describe('Lexer - Punctuators', () => {
 
   it("scans '.' in '..'", () => {
     const state = create('..', undefined);
-    const found = next(state, Context.Empty);
+    const found = scanSingleToken(state, Context.Empty);
     t.deepEqual(
       {
         token: KeywordDescTable[found & Token.Type],
@@ -107,7 +107,7 @@ describe('Lexer - Punctuators', () => {
         token: KeywordDescTable[Token.Period & Token.Type],
         hasNext: true,
         line: 1,
-        column: 1
+        column: 0
       }
     );
   });
