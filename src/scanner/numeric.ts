@@ -1,5 +1,5 @@
-import { ParserState, Context, Flags } from '../common';
-import { toHex, isDigit } from './common';
+import { ParserState, Context, Flags, addVariableAndDeduplicate } from '../common';
+import { toHex, isDigit, advanceOne, consumeOpt } from './common';
 import { Chars, isIdentifierStart } from '../chars';
 import { Token } from '../token';
 import { Errors, report } from '../errors';
@@ -11,8 +11,7 @@ import { Errors, report } from '../errors';
 export function returnBigIntOrNumericToken(state: ParserState): Token {
   if (state.source.charCodeAt(state.index) === Chars.LowerN) {
     if (state.flags & Flags.Float) report(state, Errors.InvalidBigInt);
-    state.index++;
-    state.column++;
+    advanceOne(state);
     return Token.BigIntLiteral;
   } else {
     if ((state.flags & (Flags.Binary | Flags.Octal)) === 0) state.tokenValue = +state.tokenValue;
@@ -28,50 +27,38 @@ export function returnBigIntOrNumericToken(state: ParserState): Token {
  * @param state Parser object
  * @param context Context masks
  */
-export function scanNumeric(state: ParserState, context: Context): Token {
-  let { index, column } = state;
-  while (isDigit(state.source.charCodeAt(index))) {
-    index++;
-    column++;
-  }
-  if (state.source.charCodeAt(index) === Chars.Period) {
-    index++;
-    column++;
+export function scanNumeric(state: ParserState, context: Context, first: number): Token {
+  do {
+    advanceOne(state);
+  } while (isDigit((first = state.source.charCodeAt(state.index))));
+
+  if (first === Chars.Period) {
+    advanceOne(state);
     state.flags = Flags.Float;
-    while (isDigit(state.source.charCodeAt(index))) {
-      index++;
-      column++;
+    while (isDigit((first = state.source.charCodeAt(state.index)))) {
+      advanceOne(state);
     }
   }
-  let end = index;
 
-  switch (state.source.charCodeAt(index)) {
-    case Chars.UpperE:
-    case Chars.LowerE: {
-      index++;
-      column++;
-      state.flags = Flags.Float;
-      if (state.source.charCodeAt(index) === Chars.Plus || state.source.charCodeAt(index) === Chars.Hyphen) {
-        index++;
-        column++;
-      }
-
-      if (!isDigit(state.source.charCodeAt(index))) report(state, Errors.MissingExponent); // must have at least one char after +-
-      index++;
-      column++;
-      while (isDigit(state.source.charCodeAt(index))) {
-        index++;
-        column++;
-      }
-      end = index;
+  if (consumeOpt(state, Chars.LowerE) || consumeOpt(state, Chars.UpperE)) {
+    state.flags = Flags.Float;
+    first = state.source.charCodeAt(state.index);
+    if (first === Chars.Plus || first === Chars.Hyphen) {
+      first = state.source.charCodeAt(++state.index);
+      state.column++;
     }
-    default: // ignore
+
+    if (!isDigit(first)) report(state, Errors.MissingExponent); // must have at least one char after +-
+    first = state.source.charCodeAt(++state.index);
+    state.column++;
+    while (isDigit((first = state.source.charCodeAt(state.index)))) {
+      advanceOne(state);
+    }
   }
 
-  const code = state.source.charCodeAt(index);
-  if (code !== Chars.LowerN && (isDigit(code) || isIdentifierStart(code))) report(state, Errors.IDStartAfterNumber);
-  state.index = index;
-  state.column = column;
+  let end = state.index;
+
+  if (first !== Chars.LowerN && (isDigit(first) || isIdentifierStart(first))) report(state, Errors.IDStartAfterNumber);
   state.tokenValue = state.source.slice(state.startIndex, end);
   if (context & Context.OptionsRaw) state.tokenRaw = state.tokenValue;
   return returnBigIntOrNumericToken(state);
@@ -86,20 +73,15 @@ export function scanNumeric(state: ParserState, context: Context): Token {
  * @param context Context masks
  */
 export function scanHexIntegerLiteral(state: ParserState): number {
-  let { index, column } = state;
-  let value = toHex(state.source.charCodeAt(index));
-  if (value < 0) report(state, Errors.Unexpected);
-  index++;
-  column++;
-  while (index < state.length) {
-    const digit = toHex(state.source.charCodeAt(index));
-    if (digit < 0) break;
+  let ch = state.source.charCodeAt(state.index);
+  let value = 0;
+  let digit = toHex(ch);
+  if (digit < 0) report(state, Errors.Unexpected);
+  while (digit >= 0) {
     value = value * 16 + digit;
-    index++;
-    column++;
+    advanceOne(state);
+    digit = toHex(state.source.charCodeAt(state.index));
   }
-  state.index = index;
-  state.column = column;
   state.tokenValue = value;
   return returnBigIntOrNumericToken(state);
 }
@@ -114,16 +96,14 @@ export function scanHexIntegerLiteral(state: ParserState): number {
  * @param base Context masks
  */
 export function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token {
-  let { index, column } = state;
   let value = 0;
   let numberOfDigits = 0;
-  while (index < state.length) {
-    const ch = state.source.charCodeAt(index);
+  while (state.index < state.length) {
+    const ch = state.source.charCodeAt(state.index);
     const converted = ch - Chars.Zero;
     if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= base) break;
     value = value * base + converted;
-    index++;
-    column++;
+    advanceOne(state);
     numberOfDigits++;
   }
 
@@ -132,8 +112,6 @@ export function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token 
   // Set this flag here to avoid unnecessary 'cast' to numbers when
   // checking for 'BigIntLiteral'
   state.flags |= Flags.Binary;
-  state.index = index;
-  state.column = column;
   state.tokenValue = value;
   return returnBigIntOrNumericToken(state);
 }
@@ -146,7 +124,7 @@ export function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token 
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanImplicitOctalDigits(state: ParserState, context: Context): number {
+export function scanImplicitOctalDigits(state: ParserState, context: Context, first: number): number {
   if ((context & Context.Strict) !== 0) report(state, Errors.LegacyOctalsInStrictMode);
   let { index, column } = state;
   let code = 0;
@@ -158,7 +136,7 @@ export function scanImplicitOctalDigits(state: ParserState, context: Context): n
       // Note: Implicit octal digits should fail with BigInt so we add
       // the 'Float' mask to make sure that happen. Hackish??
       state.flags |= Flags.Float;
-      return scanNumeric(state, context);
+      return scanNumeric(state, context, first);
     } else {
       code = code * 8 + (next - Chars.Zero);
       index++;

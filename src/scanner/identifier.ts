@@ -2,7 +2,7 @@ import { ParserState, Context, Flags } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars, isIdentifierStart, isIdentifierPart } from '../chars';
 import { Errors, report } from '../errors';
-import { fromCodePoint, toHex } from './common';
+import { fromCodePoint, toHex, advanceOne } from './common';
 
 export function scanMaybeIdentifier(state: ParserState, _: Context, first: number): Token | void {
   switch (first) {
@@ -50,8 +50,7 @@ export function scanMaybeIdentifier(state: ParserState, _: Context, first: numbe
 export function scanIdentifierOrKeyword(state: ParserState, context: Context): Token {
   const { index, column } = state;
   while (isIdentifierPart(state.source.charCodeAt(state.index))) {
-    state.index++;
-    state.column++;
+    advanceOne(state);
   }
   state.tokenValue = state.source.slice(state.startIndex, state.index);
   if (state.source.charCodeAt(state.index) === Chars.Backslash) {

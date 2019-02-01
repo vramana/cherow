@@ -1,7 +1,7 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { consumeOpt, consumeLineFeed, advanceOne } from './common';
+import { consumeOpt, consumeLineFeed, advanceOne, advance } from './common';
 import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';
 import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
@@ -15,8 +15,11 @@ import {
   scanIdentifierRest
 } from './identifier';
 
+// Table of one-character tokens
 const oneCharTokens = new Array(128).fill(0) as Token[];
 
+// It's a table dispatch to avoid frequent branch prediction fails, and for
+// faster multi-character token lookup.
 const table = new Array(0xffff).fill(scanMaybeIdentifier, 0x80) as ((
   state: ParserState,
   context: Context,
@@ -108,7 +111,7 @@ oneCharTokens[Chars.Colon] = Token.Colon;
 table[Chars.Semicolon] = scanChar;
 oneCharTokens[Chars.Semicolon] = Token.Semicolon;
 
-table[Chars.Zero] = (state, context) => {
+table[Chars.Zero] = (state, context, first) => {
   const index = state.index + 1;
   if (index < state.length) {
     // either 0, 0exxx, 0Exxx, 0.xxx, a hex number, a binary number or
@@ -128,10 +131,10 @@ table[Chars.Zero] = (state, context) => {
       state.column += 2;
       return scanBinaryOrOctalDigits(state, /* base */ 8);
     } else if (index < state.length && (next >= Chars.Zero && next <= Chars.Nine)) {
-      return scanImplicitOctalDigits(state, context);
+      return scanImplicitOctalDigits(state, context, first);
     }
   }
-  return scanNumeric(state, context);
+  return scanNumeric(state, context, first);
 };
 
 // `!`, `!=`, `!==`
@@ -223,7 +226,7 @@ table[Chars.Hyphen] = (state, context) => {
 };
 
 // `.`, `...`, `.123` (numeric literal)
-table[Chars.Period] = (state, context) => {
+table[Chars.Period] = (state, context, first) => {
   advanceOne(state);
   if (state.index < state.length) {
     const next = state.source.charCodeAt(state.index);
@@ -237,7 +240,7 @@ table[Chars.Period] = (state, context) => {
       // Rewind the initial token.
       state.index--;
       state.column--;
-      return scanNumeric(state, context);
+      return scanNumeric(state, context, first);
     }
   }
 
@@ -250,12 +253,10 @@ table[Chars.Slash] = (state, context) => {
   if (state.index < state.length) {
     const next = state.source.charCodeAt(state.index);
     if (next === Chars.Slash) {
-      state.index++;
-      state.column++;
+      advanceOne(state);
       return skipSingleLineComment(state, CommentType.Single);
     } else if (next === Chars.Asterisk) {
-      state.index++;
-      state.column++;
+      advanceOne(state);
       return skipBlockComment(state);
     } else if (context & Context.AllowPossibleRegEx) {
       return scanRegularExpression(state, context);
@@ -392,8 +393,7 @@ table[Chars.VerticalBar] = s => {
 
 // General whitespace
 table[Chars.Space] = table[Chars.Tab] = table[Chars.FormFeed] = table[Chars.VerticalTab] = state => {
-  state.index++;
-  state.column++;
+  advanceOne(state);
   return Token.WhiteSpace;
 };
 
@@ -407,9 +407,9 @@ table[Chars.LineFeed] = state => {
 // CarriageReturn
 table[Chars.CarriageReturn] = state => {
   state.flags |= Flags.NewLine | Flags.LastIsCR;
-  state.index++;
+  ++state.index;
   state.column = 0;
-  state.line++;
+  ++state.line;
   return Token.WhiteSpace;
 };
 
