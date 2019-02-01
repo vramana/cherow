@@ -111,32 +111,6 @@ oneCharTokens[Chars.Colon] = Token.Colon;
 table[Chars.Semicolon] = scanChar;
 oneCharTokens[Chars.Semicolon] = Token.Semicolon;
 
-table[Chars.Zero] = (state, context, first) => {
-  const index = state.index + 1;
-  if (index < state.length) {
-    // either 0, 0exxx, 0Exxx, 0.xxx, a hex number, a binary number or
-    // an octal number.
-    const next = state.source.charCodeAt(index);
-    if (next === Chars.UpperX || next === Chars.LowerX) {
-      // x or X
-      state.index = index + 1;
-      state.column += 2;
-      return scanHexIntegerLiteral(state);
-    } else if (next === Chars.UpperB || next === Chars.LowerB) {
-      state.index = index + 1;
-      state.column += 2;
-      return scanBinaryOrOctalDigits(state, context, /* base */ 2);
-    } else if (next === Chars.UpperO || next === Chars.LowerO) {
-      state.index = index + 1;
-      state.column += 2;
-      return scanBinaryOrOctalDigits(state, context, /* base */ 8);
-    } else if (index < state.length && (next >= Chars.Zero && next <= Chars.Nine)) {
-      return scanImplicitOctalDigits(state, context, first);
-    }
-  }
-  return scanNumeric(state, context, first);
-};
-
 // `!`, `!=`, `!==`
 table[Chars.Exclamation] = s => {
   advanceOne(s);
@@ -389,6 +363,32 @@ table[Chars.VerticalBar] = s => {
   }
 
   return Token.BitwiseOr;
+};
+
+table[Chars.Zero] = (state, context, first) => {
+  const index = state.index + 1;
+  if (index < state.length) {
+    // either 0, 0exxx, 0Exxx, 0.xxx, a hex number, a binary number or
+    // an octal number.
+    const next = state.source.charCodeAt(index);
+    if (next === Chars.UpperX || next === Chars.LowerX) {
+      // x or X
+      state.index = index + 1;
+      state.column += 2;
+      return scanHexIntegerLiteral(state);
+    } else if (next === Chars.UpperB || next === Chars.LowerB) {
+      state.index = index + 1;
+      state.column += 2;
+      return scanBinaryOrOctalDigits(state, /* base */ 2);
+    } else if (next === Chars.UpperO || next === Chars.LowerO) {
+      state.index = index + 1;
+      state.column += 2;
+      return scanBinaryOrOctalDigits(state, /* base */ 8);
+    } else if (index < state.length && (next >= Chars.Zero && next <= Chars.Nine)) {
+      return scanImplicitOctalDigits(state, context, first);
+    }
+  }
+  return scanNumeric(state, context, first);
 };
 
 // General whitespace

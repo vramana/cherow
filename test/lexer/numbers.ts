@@ -284,15 +284,6 @@ describe('Lexer - Numbers', () => {
       column: 3
     });
 
-    pass(`Scans 0b1_1`, {
-      source: '0b1_1',
-      value: 3,
-      hasNext: false,
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 5
-    });
-
     pass(`Scans 0b00011100011111010101010101`, {
       source: '0b00011100011111010101010101',
       value: 7468373,
