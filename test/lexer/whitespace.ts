@@ -54,8 +54,7 @@ function run(isModule: boolean) {
   fail('fails on Mongolian vowel separator without webcompat', '\u180Ea', Context.Empty);
   fail('fails on unclosed multiline comment', '/*', Context.Empty);
   fail('fails on unexpected character', '€', Context.Empty);
-  // FIXME! script & module
-  // fail('fails on HTML comment in strict mode', '<!-- foo bar', Context.Strict | Context.Module);
+  fail('fails on HTML comment in strict mode', '<!-- foo bar', Context.Module);
 
   pass('skips white space', {
     source: '\u0020',
@@ -126,6 +125,13 @@ function run(isModule: boolean) {
     hasNext: false,
     line: 2,
     column: 0
+  });
+
+  pass('skips text after HTML close', {
+    source: '\n-->',
+    hasNext: false,
+    line: 2,
+    column: 3
   });
 
   pass('skips multi line comment with escaped newline', {

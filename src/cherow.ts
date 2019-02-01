@@ -6,6 +6,7 @@ import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context, createScope, ScopeType } from './common';
 import { skipHashBang, next } from './scanner';
 import { report, Errors } from './errors';
+import * as Scanner from './scanner';
 
 /**
  * `ECMAScript version
@@ -132,13 +133,13 @@ export function parseSource(source: string, options: Options | void, context: Co
 
   const scope = createScope(ScopeType.BlockStatement);
   let body;
-  let sourceType: 'module' | 'script' = 'script';
+
+  // Prime the scanner
+  next(state, context | Context.AllowPossibleRegEx);
+
   if (context & Context.Expression) {
-    sourceType = context & Context.Module ? 'module' : 'script';
-    next(state, context);
     body = parseExpression(state, context);
   } else if (context & Context.Module) {
-    sourceType = 'module';
     body = parseModuleItem(state, context | Context.TopLevel, scope);
     for (const key in state.exportedBindings) {
       if (key[0] === '@' && key !== '#default' && (scope.var[key] === undefined && scope.lex[key] === undefined)) {
@@ -151,7 +152,7 @@ export function parseSource(source: string, options: Options | void, context: Co
 
   const node: ESTree.Program = {
     type: 'Program',
-    sourceType,
+    sourceType: context & Context.Module ? 'module' : 'script',
     body
   };
 

@@ -15,7 +15,14 @@ describe('Expressions - New target', () => {
     'function f() { new.anythingElse; }',
     'new.prop',
     'var f = function() { new.unknown_property; }',
-    'function f() { new..target; }'
+    'function f() { new..target; }',
+    'new.target',
+    '_ => new.target',
+    '_ => _ => _ => _ => new.target',
+    'function f(){ new.target = foo }',
+    'function f(){ ++new.target }',
+    '(f=new.target) => {}',
+    'function f(){ new.foo }'
   ]) {
     it(`${arg}`, () => {
       t.throws(() => {

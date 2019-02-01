@@ -42,7 +42,6 @@ export const enum Context {
   AllowNewTarget = 1 << 26,
   AllowReturn = 1 << 27,
   Expression  = 1 << 28,
-
   LocationTracking = OptionsLoc | OptionsRanges
 }
 
@@ -97,9 +96,10 @@ export const enum Origin {
   ClassExprDecl = 1 << 6,
   Declaration = 1 << 7,
   AsyncArrow = 1 << 8,
-  AsyncFunction = 1 << 9,
-  ArrayLiteral = 1 << 10,
-  ObjectExpression = 1 << 11
+  Arrow = 1 << 9,
+  AsyncFunction = 1 << 10,
+  ArrayLiteral = 1 << 11,
+  ObjectExpression = 1 << 12
 }
 
 export const enum ScopeType {
@@ -384,11 +384,8 @@ export function addVariable(
 
     let x = lex['@' + key];
 
-    if (x === undefined) x = 1;
-    else if (checkDuplicates) {
-      if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
-        report(state, Errors.MultipleLexicals, key);
-      }
+    if (x === undefined) {
+      x = 1;
     } else {
       ++x;
     }

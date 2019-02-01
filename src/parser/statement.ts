@@ -41,11 +41,13 @@ import {
 } from './expression';
 
 /**
- * Parse a module body, function body, script body, etc.
+ * Parses statement list item
+ *
+ * @param state  Parser object
+ * @param context Context masks
+ * @param scope scope state
  */
 export function parseStatementList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
-  // Prime the scanner
-  next(state, context | Context.AllowPossibleRegEx);
   const statements: ESTree.Statement[] = [];
   while (state.token === Token.StringLiteral) {
     const tokenValue = state.tokenValue;
@@ -180,7 +182,15 @@ function parseStatement(
       case Token.ForKeyword:
         return parseForStatement(state, context, scope);
       case Token.FunctionKeyword:
-        report(state, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
+        report(
+          state,
+          context & Context.Strict
+            ? Errors.StrictFunction
+            : (context & Context.OptionsWebCompat) === 0
+            ? Errors.WebCompatFunction
+            : Errors.SloppyFunction
+        );
+
       case Token.ClassKeyword:
         report(state, Errors.ForbiddenAsStatement, KeywordDescTable[token & Token.Type]);
       default: // ignore
@@ -748,11 +758,15 @@ function parseForStatement(
       await: forAwait
     });
   }
-
+  if (forAwait) report(state, Errors.InvalidForAwait);
   if (optional(state, context, Token.InKeyword)) {
     if (isPattern) {
       if (!state.assignable || init.type === 'AssignmentExpression') {
-        report(state, Errors.InvalidLHSInForIn);
+        if (context & Context.OptionsWebCompat && (context & Context.Strict) === 0) {
+          // TODO
+        } else {
+          report(state, Errors.InvalidLHSInForIn);
+        }
       }
       reinterpret(state, init);
     }
@@ -781,9 +795,7 @@ function parseForStatement(
 
   expect(state, context, Token.Semicolon);
 
-  if (state.token !== Token.Semicolon) {
-    test = parseExpression(state, context);
-  }
+  if (state.token !== Token.Semicolon) test = parseExpression(state, context);
 
   expect(state, context, Token.Semicolon);
 

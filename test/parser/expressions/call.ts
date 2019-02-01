@@ -64,6 +64,7 @@ describe('Expressions - Call', () => {
     'a.b.c( foo() );',
     'a.b( o.bar );',
     'a.b( o["bar"] );',
+    'a().b',
     'a.b( foo() );',
     'a.b.c( foo() );',
     'a.b( foo() );',

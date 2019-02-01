@@ -59,13 +59,6 @@ export function scanTemplate(state: ParserState, context: Context): Token {
         break;
 
       case Chars.CarriageReturn:
-        if (state.index < state.length && state.source.charCodeAt(state.index) === Chars.LineFeed) {
-          if (ret != null) ret += fromCodePoint(ch);
-          ch = state.source.charCodeAt(state.index);
-          state.index++;
-        }
-      // falls through
-
       case Chars.LineFeed:
       case Chars.LineSeparator:
       case Chars.ParagraphSeparator:

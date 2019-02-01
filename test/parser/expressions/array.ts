@@ -89,7 +89,10 @@ for (const arg of [
   `[,,a,]`,
   `[,,a,]`,
   `[,,,a]`,
-  `[,,a,a]`
+  `[,,a,a]`,
+  '([].x);',
+  'async([].x);',
+  'async([].x) => x;'
 ]) {
   it(`${arg}`, () => {
     t.doesNotThrow(() => {

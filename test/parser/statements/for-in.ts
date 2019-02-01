@@ -11,6 +11,12 @@ describe('Statements - For in', () => {
     ['for (let x in y) { var x; }', Context.Empty],
     ['for (const x in y) { var x; }', Context.Empty],
     ['for (let x of y) { var x; }', Context.Empty],
+    ['for (let foo = bar, zoo = boo in x);', Context.Empty],
+    ['for (let foo = bar, zoo = boo in x);', Context.Empty],
+    ['for (let foo = bar in x);', Context.Empty],
+    ['for (let foo = bar of x);', Context.Empty],
+    ['for (let foo = bar, zoo = boo of x', Context.Empty],
+    ['for (let x of y) { var x; }', Context.Empty],
     ['for (const a;;);', Context.Empty],
     ['for (const a,b,c;;);', Context.Empty],
     ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.Empty],
@@ -486,6 +492,530 @@ describe('Statements - For in', () => {
             }
           }
         ]
+      }
+    ],
+    [
+      'for (var a = 0 in stored = a, {});',
+      Context.OptionsWebCompat | Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 34,
+        body: [
+          {
+            type: 'ForInStatement',
+            start: 0,
+            end: 34,
+            left: {
+              type: 'VariableDeclaration',
+              start: 5,
+              end: 14,
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  start: 9,
+                  end: 14,
+                  id: {
+                    type: 'Identifier',
+                    start: 9,
+                    end: 10,
+                    name: 'a'
+                  },
+                  init: {
+                    type: 'Literal',
+                    start: 13,
+                    end: 14,
+                    value: 0
+                  }
+                }
+              ],
+              kind: 'var'
+            },
+            right: {
+              type: 'SequenceExpression',
+              start: 18,
+              end: 32,
+              expressions: [
+                {
+                  type: 'AssignmentExpression',
+                  start: 18,
+                  end: 28,
+                  operator: '=',
+                  left: {
+                    type: 'Identifier',
+                    start: 18,
+                    end: 24,
+                    name: 'stored'
+                  },
+                  right: {
+                    type: 'Identifier',
+                    start: 27,
+                    end: 28,
+                    name: 'a'
+                  }
+                },
+                {
+                  type: 'ObjectExpression',
+                  start: 30,
+                  end: 32,
+                  properties: []
+                }
+              ]
+            },
+            body: {
+              type: 'EmptyStatement',
+              start: 33,
+              end: 34
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (var a = (++effects, -1) in x);',
+      Context.OptionsWebCompat | Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 35,
+        body: [
+          {
+            type: 'ForInStatement',
+            start: 0,
+            end: 35,
+            left: {
+              type: 'VariableDeclaration',
+              start: 5,
+              end: 28,
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  start: 9,
+                  end: 28,
+                  id: {
+                    type: 'Identifier',
+                    start: 9,
+                    end: 10,
+                    name: 'a'
+                  },
+                  init: {
+                    type: 'SequenceExpression',
+                    start: 14,
+                    end: 27,
+                    expressions: [
+                      {
+                        type: 'UpdateExpression',
+                        start: 14,
+                        end: 23,
+                        operator: '++',
+                        prefix: true,
+                        argument: {
+                          type: 'Identifier',
+                          start: 16,
+                          end: 23,
+                          name: 'effects'
+                        }
+                      },
+                      {
+                        type: 'UnaryExpression',
+                        start: 25,
+                        end: 27,
+                        operator: '-',
+                        prefix: true,
+                        argument: {
+                          type: 'Literal',
+                          start: 26,
+                          end: 27,
+                          value: 1
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              kind: 'var'
+            },
+            right: {
+              type: 'Identifier',
+              start: 32,
+              end: 33,
+              name: 'x'
+            },
+            body: {
+              type: 'EmptyStatement',
+              start: 34,
+              end: 35
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (var a in stored = a, {a: 0, b: 1, c: 2});',
+      Context.OptionsWebCompat | Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 46,
+        body: [
+          {
+            type: 'ForInStatement',
+            start: 0,
+            end: 46,
+            left: {
+              type: 'VariableDeclaration',
+              start: 5,
+              end: 10,
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  start: 9,
+                  end: 10,
+                  id: {
+                    type: 'Identifier',
+                    start: 9,
+                    end: 10,
+                    name: 'a'
+                  },
+                  init: null
+                }
+              ],
+              kind: 'var'
+            },
+            right: {
+              type: 'SequenceExpression',
+              start: 14,
+              end: 44,
+              expressions: [
+                {
+                  type: 'AssignmentExpression',
+                  start: 14,
+                  end: 24,
+                  operator: '=',
+                  left: {
+                    type: 'Identifier',
+                    start: 14,
+                    end: 20,
+                    name: 'stored'
+                  },
+                  right: {
+                    type: 'Identifier',
+                    start: 23,
+                    end: 24,
+                    name: 'a'
+                  }
+                },
+                {
+                  type: 'ObjectExpression',
+                  start: 26,
+                  end: 44,
+                  properties: [
+                    {
+                      type: 'Property',
+                      start: 27,
+                      end: 31,
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 27,
+                        end: 28,
+                        name: 'a'
+                      },
+                      value: {
+                        type: 'Literal',
+                        start: 30,
+                        end: 31,
+                        value: 0
+                      },
+                      kind: 'init'
+                    },
+                    {
+                      type: 'Property',
+                      start: 33,
+                      end: 37,
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 33,
+                        end: 34,
+                        name: 'b'
+                      },
+                      value: {
+                        type: 'Literal',
+                        start: 36,
+                        end: 37,
+                        value: 1
+                      },
+                      kind: 'init'
+                    },
+                    {
+                      type: 'Property',
+                      start: 39,
+                      end: 43,
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 39,
+                        end: 40,
+                        name: 'c'
+                      },
+                      value: {
+                        type: 'Literal',
+                        start: 42,
+                        end: 43,
+                        value: 2
+                      },
+                      kind: 'init'
+                    }
+                  ]
+                }
+              ]
+            },
+            body: {
+              type: 'EmptyStatement',
+              start: 45,
+              end: 46
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (var a = (++effects, -1) in stored = a, {a: 0, b: 1, c: 2});',
+      Context.OptionsWebCompat | Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 64,
+        body: [
+          {
+            type: 'ForInStatement',
+            start: 0,
+            end: 64,
+            left: {
+              type: 'VariableDeclaration',
+              start: 5,
+              end: 28,
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  start: 9,
+                  end: 28,
+                  id: {
+                    type: 'Identifier',
+                    start: 9,
+                    end: 10,
+                    name: 'a'
+                  },
+                  init: {
+                    type: 'SequenceExpression',
+                    start: 14,
+                    end: 27,
+                    expressions: [
+                      {
+                        type: 'UpdateExpression',
+                        start: 14,
+                        end: 23,
+                        operator: '++',
+                        prefix: true,
+                        argument: {
+                          type: 'Identifier',
+                          start: 16,
+                          end: 23,
+                          name: 'effects'
+                        }
+                      },
+                      {
+                        type: 'UnaryExpression',
+                        start: 25,
+                        end: 27,
+                        operator: '-',
+                        prefix: true,
+                        argument: {
+                          type: 'Literal',
+                          start: 26,
+                          end: 27,
+                          value: 1
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              kind: 'var'
+            },
+            right: {
+              type: 'SequenceExpression',
+              start: 32,
+              end: 62,
+              expressions: [
+                {
+                  type: 'AssignmentExpression',
+                  start: 32,
+                  end: 42,
+                  operator: '=',
+                  left: {
+                    type: 'Identifier',
+                    start: 32,
+                    end: 38,
+                    name: 'stored'
+                  },
+                  right: {
+                    type: 'Identifier',
+                    start: 41,
+                    end: 42,
+                    name: 'a'
+                  }
+                },
+                {
+                  type: 'ObjectExpression',
+                  start: 44,
+                  end: 62,
+                  properties: [
+                    {
+                      type: 'Property',
+                      start: 45,
+                      end: 49,
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 45,
+                        end: 46,
+                        name: 'a'
+                      },
+                      value: {
+                        type: 'Literal',
+                        start: 48,
+                        end: 49,
+                        value: 0
+                      },
+                      kind: 'init'
+                    },
+                    {
+                      type: 'Property',
+                      start: 51,
+                      end: 55,
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 51,
+                        end: 52,
+                        name: 'b'
+                      },
+                      value: {
+                        type: 'Literal',
+                        start: 54,
+                        end: 55,
+                        value: 1
+                      },
+                      kind: 'init'
+                    },
+                    {
+                      type: 'Property',
+                      start: 57,
+                      end: 61,
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 57,
+                        end: 58,
+                        name: 'c'
+                      },
+                      value: {
+                        type: 'Literal',
+                        start: 60,
+                        end: 61,
+                        value: 2
+                      },
+                      kind: 'init'
+                    }
+                  ]
+                }
+              ]
+            },
+            body: {
+              type: 'EmptyStatement',
+              start: 63,
+              end: 64
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (var a = ++b in c);',
+      Context.OptionsWebCompat | Context.OptionsRanges,
+      {
+        type: 'Program',
+        start: 0,
+        end: 23,
+        body: [
+          {
+            type: 'ForInStatement',
+            start: 0,
+            end: 23,
+            left: {
+              type: 'VariableDeclaration',
+              start: 5,
+              end: 16,
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  start: 9,
+                  end: 16,
+                  id: {
+                    type: 'Identifier',
+                    start: 9,
+                    end: 10,
+                    name: 'a'
+                  },
+                  init: {
+                    type: 'UpdateExpression',
+                    start: 13,
+                    end: 16,
+                    operator: '++',
+                    prefix: true,
+                    argument: {
+                      type: 'Identifier',
+                      start: 15,
+                      end: 16,
+                      name: 'b'
+                    }
+                  }
+                }
+              ],
+              kind: 'var'
+            },
+            right: {
+              type: 'Identifier',
+              start: 20,
+              end: 21,
+              name: 'c'
+            },
+            body: {
+              type: 'EmptyStatement',
+              start: 22,
+              end: 23
+            }
+          }
+        ],
+        sourceType: 'script'
       }
     ],
     [

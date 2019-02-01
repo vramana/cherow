@@ -22,7 +22,10 @@ describe('Miscellaneous - Trailing comma', () => {
     ['for (a of b,c) d;', Context.Empty],
     ['do x, y while (z)', Context.Empty],
     ['a ? b, c : d', Context.Empty],
-    ['f(....a)', Context.Empty]
+    ['f(....a)', Context.Empty],
+    ['foo(a,,);', Context.Empty],
+    ['function f(,){}', Context.Empty],
+    ['function f(a,,){}', Context.Empty]
   ]);
 
   pass('Miscellaneous - Trailing comma (pass)', [

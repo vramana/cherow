@@ -31,8 +31,6 @@ import { parseAssignmentExpression, parseIdentifier, parseLiteral } from './expr
  * Parse a module body, function body, script body, etc.
  */
 export function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
-  // Prime the scanner
-  next(state, context | Context.AllowPossibleRegEx);
   const statements: ESTree.Statement[] = [];
   while (state.token === Token.StringLiteral) {
     const tokenValue = state.tokenValue;

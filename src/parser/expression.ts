@@ -215,7 +215,11 @@ export function parseFunctionBody(
     state.iterationStatement = previousIterationStatement;
   }
 
-  expect(state, origin & Origin.Declaration ? context | Context.AllowPossibleRegEx : context, Token.RightBrace);
+  expect(
+    state,
+    origin & (Origin.Arrow | Origin.Declaration) ? context | Context.AllowPossibleRegEx : context,
+    Token.RightBrace
+  );
 
   // Either '=' or '=>' after blockstatement
   if (state.token === Token.Assign || state.token === Token.Arrow) report(state, Errors.InvalidAssignmentTarget);
@@ -985,10 +989,11 @@ function parseTemplate(state: ParserState, context: Context, start: number): EST
    *   SourceCharacter (but not one of ` or \ or $)
    *
    */
+
   const quasis = [parseTemplateSpans(state, context, start, /* tail */ false)];
   expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
+  state.bindable = state.assignable = false;
   const expressions = [parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext)];
-
   while ((state.token = scanTemplateTail(state, context)) !== Token.TemplateTail) {
     quasis.push(parseTemplateSpans(state, context, state.startIndex, /* tail */ false));
     expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
@@ -1132,6 +1137,12 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
     return (context & Context.AllowNewTarget) < 1 || state.tokenValue !== 'target'
       ? report(state, Errors.Unexpected)
       : parseMetaProperty(state, context, id);
+  }
+
+  // Unary expression are forbidden inside 'new', so we create a nice error message here and
+  // bail out quick
+  if ((state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
+    report(state, Errors.InvalidUnaryWithNew, KeywordDescTable[state.token & Token.Type]);
   }
   const callee =
     context & Context.OptionsNext && state.token === Token.ImportKeyword
@@ -1279,7 +1290,8 @@ export function parsePrimaryExpression(state: ParserState, context: Context, sta
         state,
         state.token === Token.EscapedKeyword || (state.token as Token) === Token.EscapedStrictReserved
           ? Errors.InvalidEscapedKeyword
-          : Errors.Unexpected
+          : Errors.UnexpectedToken,
+        KeywordDescTable[state.token & Token.Type]
       );
   }
 }
@@ -1473,8 +1485,8 @@ function parseArrowFunctionExpression(
   }
 
   context =
-    ((context | Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.ParentheziedContext) ^
-      (Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.ParentheziedContext)) |
+    ((context | Context.AwaitContext | Context.InArgList | Context.ParentheziedContext) ^
+      (Context.AwaitContext | Context.InArgList | Context.ParentheziedContext)) |
     (isAsync ? Context.AwaitContext : 0);
 
   const expression = state.token !== Token.LeftBrace;
@@ -1485,7 +1497,7 @@ function parseArrowFunctionExpression(
         (context | Context.TopLevel) ^ Context.TopLevel,
         createSubScope(scope, ScopeType.BlockStatement),
         state.tokenValue,
-        Origin.None
+        Origin.Arrow
       );
   return finishNode(state, context, start, {
     type: 'ArrowFunctionExpression',
@@ -1537,12 +1549,11 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
 
   if (token === Token.LeftBrace || token === Token.LeftBracket) state.flags |= Flags.SimpleParameterList;
 
-  if ((token & Token.FutureReserved) === Token.FutureReserved) {
+  if ((token & Token.FutureReserved) === Token.FutureReserved || (token & Token.IsYield) === Token.IsYield) {
+    if ((token & Token.IsYield) === Token.IsYield) state.flags = state.flags | Flags.HasYield;
     pState = pState | ParenthesizedState.ReservedWords;
   } else if ((token & Token.IsAwait) === Token.IsAwait) {
     state.flags = state.flags | Flags.HasAwait;
-  } else if ((token & Token.IsYield) === Token.IsYield) {
-    state.flags = state.flags | Flags.HasYield;
   }
 
   if ((token as Token) === Token.Identifier) {
@@ -1600,13 +1611,16 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
         if ((state.token as Token) === Token.LeftBrace || (state.token as Token) === Token.LeftBracket) {
           state.flags = state.flags | Flags.SimpleParameterList;
         }
-        if ((state.token & Token.FutureReserved) === Token.FutureReserved) {
+        if (
+          (state.token & Token.FutureReserved) === Token.FutureReserved ||
+          (state.token & Token.IsYield) === Token.IsYield
+        ) {
+          state.flags = state.flags | Flags.HasYield;
           pState = pState | ParenthesizedState.ReservedWords;
         } else if ((state.token & Token.IsAwait) === Token.IsAwait) {
           state.flags = state.flags | Flags.HasAwait;
-        } else if ((state.token & Token.IsYield) === Token.IsYield) {
-          state.flags = state.flags | Flags.HasYield;
         }
+
         if ((state.token as Token) === Token.Identifier) {
           addVariable(state, context, scope, Type.ArgList, Origin.None, false, false, state.tokenValue);
         }
@@ -1634,7 +1648,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
     if (pState & ParenthesizedState.ReservedWords) {
       if (context & Context.Strict) report(state, Errors.UnexpectedStrictReserved);
       state.flags = state.flags | Flags.HasStrictReserved;
-    } else if (state.flags & Flags.HasYield) {
+    } else if (context & (Context.Strict | Context.YieldContext) && state.flags & Flags.HasYield) {
       report(state, Errors.YieldInParameter);
     } else if (context & (Context.Module | Context.AwaitContext) && state.flags & Flags.HasAwait) {
       report(state, Errors.AwaitInParameter);

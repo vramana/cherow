@@ -18,6 +18,8 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 
 * Conforms to the standard ECMAScript® 2019 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification (*draft*)
 * Support for all stage 3 proposals via option.
+* Support for parsing with and without web compability (*AnnexB*)
+* Support to only parse [expressions](https://tc39.github.io/ecma262/#sec-ecmascript-language-expressions)
 * Experimental feature support via option.
 * Optionally track syntactic node locations
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
