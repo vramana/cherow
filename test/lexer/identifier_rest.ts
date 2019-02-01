@@ -82,6 +82,17 @@ describe('Lexer - Identifiers', () => {
       column: 10
     });
 
+    pass('scan _𞸃', {
+      value: '_𞸃',
+      source: '_𞸃',
+      hasNext: false,
+      raw: '_𞸃',
+      token: Token.Identifier,
+      index: 3,
+      line: 1,
+      column: 3
+    });
+
     pass('scan int\\u0065rface', {
       value: 'interface',
       source: 'int\\u0065rface',
