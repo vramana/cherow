@@ -93,6 +93,44 @@ describe('Lexer - Punctuators', () => {
     });
   }
 
+  it("scans '<' in '<//**/'", () => {
+    const state = create('<//**/', undefined);
+    const found = scanSingleToken(state, Context.OptionsJSX);
+    t.deepEqual(
+      {
+        token: found,
+        hasNext: state.index < state.length,
+        line: state.line,
+        column: state.column
+      },
+      {
+        token: Token.LessThan,
+        hasNext: true,
+        line: 1,
+        column: 1
+      }
+    );
+  });
+
+  it("scans '<' in '<//**/'", () => {
+    const state = create('<//**/', undefined);
+    const found = scanSingleToken(state, Context.Empty);
+    t.deepEqual(
+      {
+        token: found,
+        hasNext: state.index < state.length,
+        line: state.line,
+        column: state.column
+      },
+      {
+        token: Token.LessThan,
+        hasNext: true,
+        line: 1,
+        column: 1
+      }
+    );
+  });
+
   it("scans '.' in '..'", () => {
     const state = create('..', undefined);
     const found = scanSingleToken(state, Context.Empty);
@@ -107,7 +145,7 @@ describe('Lexer - Punctuators', () => {
         token: KeywordDescTable[Token.Period & Token.Type],
         hasNext: true,
         line: 1,
-        column: 0
+        column: 2
       }
     );
   });

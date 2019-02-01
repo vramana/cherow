@@ -1,7 +1,7 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { consumeOpt, consumeLineFeed, advanceOne, advance } from './common';
+import { consumeOpt, consumeLineFeed, advanceOne, advance, isDigit } from './common';
 import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';
 import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
@@ -202,23 +202,15 @@ table[Chars.Hyphen] = (state, context) => {
 // `.`, `...`, `.123` (numeric literal)
 table[Chars.Period] = (state, context, first) => {
   advanceOne(state);
-  if (state.index < state.length) {
-    const next = state.source.charCodeAt(state.index);
-
-    if (next === Chars.Period) {
-      advanceOne(state);
+  const next = state.source.charCodeAt(state.index);
+  if (!isDigit(next)) {
+    if (consumeOpt(state, Chars.Period)) {
       if (consumeOpt(state, Chars.Period)) return Token.Ellipsis;
-      state.index -= 2;
-      state.column -= 2;
-    } else if (next >= Chars.Zero && next <= Chars.Nine) {
-      // Rewind the initial token.
-      state.index--;
-      state.column--;
-      return scanNumeric(state, context, first);
+      state.column = state.index--;
     }
+    return Token.Period;
   }
-
-  return Token.Period;
+  return scanNumeric(state, context, first);
 };
 
 // `/`, `/=`, `/>`
@@ -288,8 +280,7 @@ table[Chars.LessThan] = (state, context) => {
     }
 
     default:
-      // ignore
-      return Token.LessThan;
+    // ignore
   }
 
   return Token.LessThan;
