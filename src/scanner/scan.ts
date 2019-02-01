@@ -1,7 +1,7 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { consumeOpt, consumeLineFeed } from './common';
+import { consumeOpt, consumeLineFeed, advanceOne } from './common';
 import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';
 import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
@@ -25,8 +25,7 @@ const table = new Array(0xffff).fill(scanMaybeIdentifier, 0x80) as ((
 ) => Token)[];
 
 function scanChar(state: ParserState, _: Context, first: number): Token {
-  state.index++;
-  state.column++;
+  advanceOne(state);
   return OneCharPunc[first];
 }
 
@@ -90,83 +89,68 @@ table[Chars.Zero] = (state, context) => {
 };
 
 // `!`, `!=`, `!==`
-table[Chars.Exclamation] = state => {
-  state.index++;
-  state.column++;
-  if (consumeOpt(state, Chars.EqualSign)) {
-    if (consumeOpt(state, Chars.EqualSign)) {
-      return Token.StrictNotEqual;
-    }
-    return Token.LooseNotEqual;
-  }
-  return Token.Negate;
+table[Chars.Exclamation] = s => {
+  advanceOne(s);
+  if (!consumeOpt(s, Chars.EqualSign)) return Token.Negate;
+  if (!consumeOpt(s, Chars.EqualSign)) return Token.LooseNotEqual;
+  return Token.StrictNotEqual;
 };
 
 // `%`, `%=`
-table[Chars.Percent] = state => {
-  state.index++;
-  state.column++;
-  return consumeOpt(state, Chars.EqualSign) ? Token.ModuloAssign : Token.Modulo;
+table[Chars.Percent] = s => {
+  advanceOne(s);
+  if (!consumeOpt(s, Chars.EqualSign)) return Token.Modulo;
+  return Token.ModuloAssign;
 };
 
 // `&`, `&&`, `&=`
-table[Chars.Ampersand] = state => {
-  state.index++;
-  state.column++;
-  if (state.index < state.length) {
-    const next = state.source.charCodeAt(state.index);
+table[Chars.Ampersand] = s => {
+  advanceOne(s);
+  if (s.index >= s.length) return Token.BitwiseAnd;
+  const next = s.source.charCodeAt(s.index);
+  if (next === Chars.Ampersand) {
+    advanceOne(s);
+    return Token.LogicalAnd;
+  }
 
-    if (next === Chars.Ampersand) {
-      state.index++;
-      state.column++;
-      return Token.LogicalAnd;
-    } else if (next === Chars.EqualSign) {
-      state.index++;
-      state.column++;
-      return Token.BitwiseAndAssign;
-    }
+  if (next === Chars.EqualSign) {
+    advanceOne(s);
+    return Token.BitwiseAndAssign;
   }
 
   return Token.BitwiseAnd;
 };
 
 // `*`, `**`, `*=`, `**=`
-table[Chars.Asterisk] = state => {
-  state.index++;
-  state.column++;
-  if (state.index < state.length) {
-    const next = state.source.charCodeAt(state.index);
-
-    if (next === Chars.Asterisk) {
-      state.index++;
-      state.column++;
-      return consumeOpt(state, Chars.EqualSign) ? Token.ExponentiateAssign : Token.Exponentiate;
-    } else if (next === Chars.EqualSign) {
-      state.index++;
-      state.column++;
-      return Token.MultiplyAssign;
-    }
+table[Chars.Asterisk] = s => {
+  advanceOne(s);
+  if (s.index >= s.length) return Token.Multiply;
+  const next = s.source.charCodeAt(s.index);
+  if (next === Chars.EqualSign) {
+    advanceOne(s);
+    return Token.MultiplyAssign;
   }
 
-  return Token.Multiply;
+  if (next !== Chars.Asterisk) return Token.Multiply;
+  advanceOne(s);
+  if (!consumeOpt(s, Chars.EqualSign)) return Token.Exponentiate;
+  return Token.ExponentiateAssign;
 };
 
 // `+`, `++`, `+=`
-table[Chars.Plus] = state => {
-  state.index++;
-  state.column++;
-  if (state.index < state.length) {
-    const next = state.source.charCodeAt(state.index);
+table[Chars.Plus] = s => {
+  advanceOne(s);
+  if (s.index >= s.length) return Token.Add;
+  const next = s.source.charCodeAt(s.index);
 
-    if (next === Chars.Plus) {
-      state.index++;
-      state.column++;
-      return Token.Increment;
-    } else if (next === Chars.EqualSign) {
-      state.index++;
-      state.column++;
-      return Token.AddAssign;
-    }
+  if (next === Chars.Plus) {
+    advanceOne(s);
+    return Token.Increment;
+  }
+
+  if (next === Chars.EqualSign) {
+    advanceOne(s);
+    return Token.AddAssign;
   }
 
   return Token.Add;
@@ -178,25 +162,21 @@ OneCharPunc[Chars.Comma] = Token.Comma;
 
 // `-`, `--`, `-=`
 table[Chars.Hyphen] = (state, context) => {
-  state.index++;
-  state.column++;
-  if (state.index < state.length) {
-    const next = state.source.charCodeAt(state.index);
-    if (next === Chars.Hyphen) {
-      state.index++;
-      state.column++;
-      if (
-        context & Context.OptionsWebCompat &&
-        ((state.flags & Flags.NewLine || state.startIndex === 0) && consumeOpt(state, Chars.GreaterThan))
-      ) {
-        return skipSingleHTMLComment(state, context, CommentType.HTMLClose);
-      }
-      return Token.Decrement;
-    } else if (next === Chars.EqualSign) {
-      state.index++;
-      state.column++;
-      return Token.SubtractAssign;
+  advanceOne(state);
+  if (state.index >= state.length) return Token.Subtract;
+  const next = state.source.charCodeAt(state.index);
+  if (next === Chars.Hyphen) {
+    advanceOne(state);
+    if (
+      context & Context.OptionsWebCompat &&
+      ((state.flags & Flags.NewLine || state.startIndex === 0) && consumeOpt(state, Chars.GreaterThan))
+    ) {
+      return skipSingleHTMLComment(state, context, CommentType.HTMLClose);
     }
+    return Token.Decrement;
+  } else if (next === Chars.EqualSign) {
+    advanceOne(state);
+    return Token.SubtractAssign;
   }
 
   return Token.Subtract;
@@ -228,13 +208,10 @@ table[Chars.Period] = (state, context) => {
 
 // `/`, `/=`, `/>`
 table[Chars.Slash] = (state, context) => {
-  state.index++;
-  state.column++;
+  advanceOne(state);
   if (state.index < state.length) {
     const next = state.source.charCodeAt(state.index);
-    if (context & Context.AllowPossibleRegEx && (next !== Chars.Asterisk && next !== Chars.Slash)) {
-      return scanRegularExpression(state, context);
-    } else if (next === Chars.Slash) {
+    if (next === Chars.Slash) {
       state.index++;
       state.column++;
       return skipSingleLineComment(state, CommentType.Single);
@@ -242,13 +219,13 @@ table[Chars.Slash] = (state, context) => {
       state.index++;
       state.column++;
       return skipBlockComment(state);
+    } else if (context & Context.AllowPossibleRegEx) {
+      return scanRegularExpression(state, context);
     } else if (next === Chars.EqualSign) {
-      state.index++;
-      state.column++;
+      advanceOne(state);
       return Token.DivideAssign;
     } else if (next === Chars.GreaterThan) {
-      state.index++;
-      state.column++;
+      advanceOne(state);
       return Token.JSXAutoClose;
     }
   }
@@ -258,68 +235,69 @@ table[Chars.Slash] = (state, context) => {
 
 // `<`, `<=`, `<<`, `<<=`, `</`, `<!--`
 table[Chars.LessThan] = (state, context) => {
-  state.index++;
-  state.column++;
-  if (state.index < state.length) {
-    switch (state.source.charCodeAt(state.index)) {
-      case Chars.LessThan:
-        state.index++;
-        state.column++;
-        return consumeOpt(state, Chars.EqualSign) ? Token.ShiftLeftAssign : Token.ShiftLeft;
-
-      case Chars.EqualSign:
-        state.index++;
-        state.column++;
-        return Token.LessThanOrEqual;
-
-      case Chars.Exclamation: {
-        const index = state.index + 1;
-        const next = state.source.charCodeAt(index);
-        if (next === Chars.Hyphen && state.source.charCodeAt(index + 1) === Chars.Hyphen) {
-          state.index = index;
-          state.column++;
-          return skipSingleHTMLComment(state, context, CommentType.HTMLOpen);
-        }
+  advanceOne(state);
+  if (state.index >= state.length) return Token.LessThan;
+  switch (state.source.charCodeAt(state.index)) {
+    case Chars.LessThan:
+      advanceOne(state);
+      if (consumeOpt(state, Chars.EqualSign)) {
+        return Token.ShiftLeftAssign;
+      } else {
+        return Token.ShiftLeft;
       }
 
-      case Chars.Slash: {
-        if (!(context & Context.OptionsJSX)) break;
-        const index = state.index + 1;
+    case Chars.EqualSign:
+      advanceOne(state);
+      return Token.LessThanOrEqual;
 
-        // Check that it's not a comment start.
-        if (index < state.length) {
-          const next = state.source.charCodeAt(index);
-          if (next === Chars.Asterisk || next === Chars.Slash) break;
-        }
-
-        state.index++;
+    case Chars.Exclamation: {
+      const index = state.index + 1;
+      const next = state.source.charCodeAt(index);
+      if (next === Chars.Hyphen && state.source.charCodeAt(index + 1) === Chars.Hyphen) {
+        state.index = index;
         state.column++;
-        return Token.JSXClose;
+        return skipSingleHTMLComment(state, context, CommentType.HTMLOpen);
       }
-
-      default: // ignore
     }
+
+    case Chars.Slash: {
+      if (!(context & Context.OptionsJSX)) break;
+      const index = state.index + 1;
+
+      // Check that it's not a comment start.
+      if (index < state.source.length) {
+        const next = state.source.charCodeAt(index);
+        if (next === Chars.Asterisk || next === Chars.Slash) break;
+      }
+
+      advanceOne(state);
+      return Token.JSXClose;
+    }
+
+    default:
+      // ignore
+      return Token.LessThan;
   }
 
   return Token.LessThan;
 };
 
 // `=`, `==`, `===`, `=>`
-table[Chars.EqualSign] = state => {
-  state.index++;
-  state.column++;
-  if (state.index < state.length) {
-    const next = state.source.charCodeAt(state.index);
+table[Chars.EqualSign] = s => {
+  advanceOne(s);
+  if (s.index >= s.length) return Token.Assign;
+  const next = s.source.charCodeAt(s.index);
 
-    if (next === Chars.EqualSign) {
-      state.index++;
-      state.column++;
-      return consumeOpt(state, Chars.EqualSign) ? Token.StrictEqual : Token.LooseEqual;
-    } else if (next === Chars.GreaterThan) {
-      state.index++;
-      state.column++;
-      return Token.Arrow;
+  if (next === Chars.EqualSign) {
+    advanceOne(s);
+    if (consumeOpt(s, Chars.EqualSign)) {
+      return Token.StrictEqual;
+    } else {
+      return Token.LooseEqual;
     }
+  } else if (next === Chars.GreaterThan) {
+    advanceOne(s);
+    return Token.Arrow;
   }
 
   return Token.Assign;
@@ -327,38 +305,56 @@ table[Chars.EqualSign] = state => {
 
 // `>`, `>=`, `>>`, `>>>`, `>>=`, `>>>=`
 table[Chars.GreaterThan] = state => {
-  state.index++;
-  state.column++;
-  if (state.index < state.length) {
-    const next = state.source.charCodeAt(state.index);
+  advanceOne(state);
+  if (state.index >= state.length) return Token.GreaterThan;
 
-    if (next === Chars.GreaterThan) {
-      state.index++;
-      state.column++;
+  const next = state.source.charCodeAt(state.index);
 
-      if (state.index < state.length) {
-        const next = state.source.charCodeAt(state.index);
+  if (next === Chars.GreaterThan) {
+    advanceOne(state);
+    if (state.index < state.length) {
+      const next = state.source.charCodeAt(state.index);
 
-        if (next === Chars.GreaterThan) {
-          state.index++;
-          state.column++;
-          return consumeOpt(state, Chars.EqualSign) ? Token.LogicalShiftRightAssign : Token.LogicalShiftRight;
-        } else if (next === Chars.EqualSign) {
-          state.index++;
-          state.column++;
-          return Token.ShiftRightAssign;
-        }
+      if (next === Chars.GreaterThan) {
+        advanceOne(state);
+        return consumeOpt(state, Chars.EqualSign) ? Token.LogicalShiftRightAssign : Token.LogicalShiftRight;
+      } else if (next === Chars.EqualSign) {
+        advanceOne(state);
+        return Token.ShiftRightAssign;
       }
-
-      return Token.ShiftRight;
-    } else if (next === Chars.EqualSign) {
-      state.index++;
-      state.column++;
-      return Token.GreaterThanOrEqual;
     }
+
+    return Token.ShiftRight;
+  } else if (next === Chars.EqualSign) {
+    advanceOne(state);
+    return Token.GreaterThanOrEqual;
   }
 
   return Token.GreaterThan;
+};
+
+// `^`, `^=`
+table[Chars.Caret] = s => {
+  advanceOne(s);
+  if (!consumeOpt(s, Chars.EqualSign)) return Token.BitwiseXor;
+  return Token.BitwiseXorAssign;
+};
+
+// `|`, `||`, `|=`
+table[Chars.VerticalBar] = s => {
+  advanceOne(s);
+  if (s.index >= s.length) return Token.BitwiseOr;
+  const next = s.source.charCodeAt(s.index);
+
+  if (next === Chars.VerticalBar) {
+    advanceOne(s);
+    return Token.LogicalOr;
+  } else if (next === Chars.EqualSign) {
+    advanceOne(s);
+    return Token.BitwiseOrAssign;
+  }
+
+  return Token.BitwiseOr;
 };
 
 // `?`
@@ -403,34 +399,6 @@ OneCharPunc[Chars.RightBrace] = Token.RightBrace;
 // `~`
 table[Chars.Tilde] = scanChar;
 OneCharPunc[Chars.Tilde] = Token.Complement;
-
-// `^`, `^=`
-table[Chars.Caret] = state => {
-  state.index++;
-  state.column++;
-  return consumeOpt(state, Chars.EqualSign) ? Token.BitwiseXorAssign : Token.BitwiseXor;
-};
-
-// `|`, `||`, `|=`
-table[Chars.VerticalBar] = state => {
-  state.index++;
-  state.column++;
-  if (state.index < state.length) {
-    const next = state.source.charCodeAt(state.index);
-
-    if (next === Chars.VerticalBar) {
-      state.index++;
-      state.column++;
-      return Token.LogicalOr;
-    } else if (next === Chars.EqualSign) {
-      state.index++;
-      state.column++;
-      return Token.BitwiseOrAssign;
-    }
-  }
-
-  return Token.BitwiseOr;
-};
 
 // General whitespace
 table[Chars.Space] = table[Chars.Tab] = table[Chars.FormFeed] = table[Chars.VerticalTab] = state => {
