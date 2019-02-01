@@ -551,7 +551,9 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
     });
   }
 
-  return context & Context.AwaitContext && token & Token.IsAwait
+  return (context & Context.AwaitContext ||
+    ((context & Context.AllowReturn) === 0 && context & Context.OptionsGlobalAwait)) &&
+    token & Token.IsAwait
     ? parseAwaitExpression(state, context, start)
     : parseUpdateExpression(state, context, start);
 }

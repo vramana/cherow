@@ -50,6 +50,9 @@ export interface Options {
   // The flag to allow return in the global scope
   globalReturn?: boolean;
 
+  // The flag to allow await in the global scope
+  globalAwait?: boolean;
+
   // The flag to allow experimental features
   experimental?: boolean;
 
@@ -99,6 +102,8 @@ export function parseSource(source: string, options: Options | void, context: Co
     if (options.raw) context |= Context.OptionsRaw;
     // The flag to allow return in the global scope
     if (options.globalReturn) context |= Context.OptionsGlobalReturn;
+    // The flag to allow await in the global scope
+    if (options.globalAwait) context |= Context.OptionsGlobalAwait;
     // The flag to enable implied strict mode
     if (options.impliedStrict) context |= Context.Strict;
     // The flag to enable experimental features

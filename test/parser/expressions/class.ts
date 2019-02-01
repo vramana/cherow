@@ -58,7 +58,9 @@ describe('Expressions - Class', () => {
     'static async *method([...x = []] = []) {}',
     '*method([...[ x ] = []] = []) {}',
     '*method([...x, y] = [1, 2, 3]) {}',
-    'static async method(...x = []) {}'
+    'static async method(...x = []) {}',
+    'constructor() { class B extends super() {} }',
+    'constructor() { super(); }'
   ];
   for (const arg of invalidSyntax) {
     it(`(class {${arg}})`, () => {

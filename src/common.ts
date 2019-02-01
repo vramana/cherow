@@ -42,6 +42,7 @@ export const enum Context {
   AllowNewTarget = 1 << 26,
   AllowReturn = 1 << 27,
   Expression  = 1 << 28,
+  OptionsGlobalAwait = 1 << 29,
   LocationTracking = OptionsLoc | OptionsRanges
 }
 

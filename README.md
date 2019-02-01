@@ -135,6 +135,7 @@ The second argument allows you to specify various options:
 | `module`          | Enable module syntax |
 | `ranges`          | Append start and end offsets to each node |
 | `globalReturn`    | Allow return in the global scope |
+| `globalAwait`     | Allow await in the global scope |
 | `webcompat`       | Enable web compability (*AnnexB*) |
 | `impliedStrict`   | Enable strict mode initial enforcement |
 | `next`            | Enable stage 3 support (*ESNext*)  |
