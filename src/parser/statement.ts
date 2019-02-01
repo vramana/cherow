@@ -3,7 +3,6 @@ import {
   Context,
   Flags,
   LabelState,
-  LabelledState,
   ParserState,
   consumeSemicolon,
   Type,
@@ -65,7 +64,7 @@ export function parseStatementListItem(state: ParserState, context: Context, sco
       report(state, Errors.InvalidImportExportSloppy, KeywordDescTable[state.token & Token.Type]);
     case Token.ImportKeyword:
       return (context & Context.OptionsNext) !== 0
-        ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.AllowAsLabelled)
+        ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, true)
         : report(state, Errors.InvalidImportExportSloppy, KeywordDescTable[state.token & Token.Type]);
     case Token.FunctionKeyword:
       return parseFunctionDeclaration(state, context, scope, Origin.Declaration, false);
@@ -78,12 +77,7 @@ export function parseStatementListItem(state: ParserState, context: Context, sco
     case Token.AsyncKeyword:
       return parseAsyncFunctionOrExpressionStatement(state, context, scope);
     default:
-      return parseStatement(
-        state,
-        (context | Context.TopLevel) ^ Context.TopLevel,
-        scope,
-        LabelledState.AllowAsLabelled
-      );
+      return parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, true);
   }
 }
 
@@ -103,7 +97,7 @@ function parseAsyncFunctionOrExpressionStatement(
 ): ReturnType<typeof parseFunctionDeclaration | typeof parseExpressionOrLabelledStatement> {
   return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
     ? parseFunctionDeclaration(state, context, scope, Origin.AsyncFunction, true)
-    : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
+    : parseExpressionOrLabelledStatement(state, context, scope, false);
 }
 
 function parseLetOrExpressionStatement(
@@ -113,7 +107,7 @@ function parseLetOrExpressionStatement(
 ): ReturnType<typeof parseVariableStatement | typeof parseExpressionOrLabelledStatement> {
   return lookAheadOrScan(state, context, isLexical, true)
     ? parseLexicalDeclaration(state, context, Type.Let, Origin.Statement, scope)
-    : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
+    : parseExpressionOrLabelledStatement(state, context, scope, false);
 }
 
 /**
@@ -129,7 +123,7 @@ function parseStatement(
   state: ParserState,
   context: Context,
   scope: ScopeState,
-  label: LabelledState
+  allowFunctionDeclarationAsStatement: boolean
 ): ESTree.Statement {
   const { token } = state;
   if (
@@ -144,7 +138,7 @@ function parseStatement(
         report(state, Errors.AsyncFunctionInSingleStatementContext);
       }
     }
-    return parseExpressionOrLabelledStatement(state, context, scope, label);
+    return parseExpressionOrLabelledStatement(state, context, scope, allowFunctionDeclarationAsStatement);
   }
 
   if ((token & Token.Keyword) === Token.Keyword) {
@@ -329,7 +323,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
 
 function parseConsequentOrAlternate(state: ParserState, context: Context, scope: ScopeState): any {
   return context & Context.Strict || (context & Context.OptionsWebCompat) === 0 || state.token !== Token.FunctionKeyword
-    ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow)
+    ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, false)
     : parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
 }
 
@@ -418,7 +412,7 @@ export function parseWhileStatement(state: ParserState, context: Context, scope:
   expect(state, context, Token.RightParen);
   const previousIterationStatement = state.iterationStatement;
   state.iterationStatement = LabelState.Iteration;
-  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, false);
   state.iterationStatement = previousIterationStatement;
   return finishNode(state, context, startIndex, {
     type: 'WhileStatement',
@@ -496,7 +490,7 @@ export function parseWithStatement(state: ParserState, context: Context, scope: 
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const object = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
   expect(state, context, Token.RightParen);
-  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, false);
   return finishNode(state, context, startIndex, {
     type: 'WithStatement',
     object,
@@ -607,7 +601,7 @@ export function parseDoWhileStatement(state: ParserState, context: Context, scop
   expect(state, context, Token.DoKeyword);
   const previousIterationStatement = state.iterationStatement;
   state.iterationStatement = LabelState.Iteration;
-  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, false);
   state.iterationStatement = previousIterationStatement;
   expect(state, context, Token.WhileKeyword);
   expect(state, context, Token.LeftParen);
@@ -741,7 +735,7 @@ function parseForStatement(
     expect(state, context, Token.RightParen);
     const previousIterationStatement = state.iterationStatement;
     state.iterationStatement = LabelState.Iteration;
-    const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+    const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, false);
     state.iterationStatement = previousIterationStatement;
     return finishNode(state, context, startIndex, {
       type: 'ForOfStatement',
@@ -767,7 +761,7 @@ function parseForStatement(
     expect(state, context, Token.RightParen);
     const previousIterationStatement = state.iterationStatement;
     state.iterationStatement = LabelState.Iteration;
-    const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+    const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, false);
     state.iterationStatement = previousIterationStatement;
     return finishNode(state, context, startIndex, {
       type: 'ForInStatement',
@@ -799,7 +793,7 @@ function parseForStatement(
 
   const previousIterationStatement = state.iterationStatement;
   state.iterationStatement = LabelState.Iteration;
-  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, false);
   state.iterationStatement = previousIterationStatement;
 
   return finishNode(state, context, startIndex, {
@@ -823,7 +817,7 @@ export function parseExpressionOrLabelledStatement(
   state: ParserState,
   context: Context,
   scope: ScopeState,
-  label: LabelledState
+  allowFunctionDeclarationAsStatement: boolean
 ): any {
   const { token, tokenValue, startIndex } = state;
   const expr: ESTree.Expression = parseExpression(
@@ -839,13 +833,19 @@ export function parseExpressionOrLabelledStatement(
     addLabel(state, tokenValue);
     let body: any = null;
     if (
-      (state.token as Token) === Token.FunctionKeyword &&
       (context & Context.Strict) === 0 &&
       context & Context.OptionsWebCompat &&
-      label === LabelledState.AllowAsLabelled
+      allowFunctionDeclarationAsStatement &&
+      (state.token as Token) === Token.FunctionKeyword
     ) {
       body = parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
-    } else body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label);
+    } else
+      body = parseStatement(
+        state,
+        (context | Context.TopLevel) ^ Context.TopLevel,
+        scope,
+        allowFunctionDeclarationAsStatement
+      );
     state.labelDepth--;
     return finishNode(state, context, startIndex, {
       type: 'LabeledStatement',

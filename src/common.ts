@@ -93,16 +93,17 @@ export const enum Origin {
   Statement = 1 << 0,
   ForStatement = 1 << 1,
   Export = 1 << 2,
-  CatchClause = 1 << 3,
-  AsyncArgs = 1 << 4,
-  ArgList = 1 << 5,
-  ClassExprDecl = 1 << 6,
-  Declaration = 1 << 7,
-  AsyncArrow = 1 << 8,
-  Arrow = 1 << 9,
-  AsyncFunction = 1 << 10,
-  ArrayLiteral = 1 << 11,
-  ObjectExpression = 1 << 12
+  ExportDefault = 1 << 3,
+  CatchClause = 1 << 4,
+  AsyncArgs = 1 << 5,
+  ArgList = 1 << 6,
+  ClassExprDecl = 1 << 7,
+  Declaration = 1 << 8,
+  AsyncArrow = 1 << 9,
+  Arrow = 1 << 10,
+  AsyncFunction = 1 << 11,
+  ArrayLiteral = 1 << 12,
+  ObjectExpression = 1 << 13,
 }
 
 export const enum ScopeType {
@@ -112,12 +113,6 @@ export const enum ScopeType {
   SwitchStatement = 3,
   CatchClause = 4,
   ArgumentList = 5
-}
-
-export const enum LabelledState {
-  None = 0,
-  AllowAsLabelled = 1 << 0,
-  Disallow = 1 << 1
 }
 
 export const enum Modifiers {

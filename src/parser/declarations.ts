@@ -217,7 +217,7 @@ export function parseHoistableFunctionDeclaration(
   state: ParserState,
   context: Context,
   scope: ScopeState,
-  isNotDefault: boolean,
+  origin: Origin,
   isAsync: boolean
 ) {
   const { startIndex: start } = state;
@@ -231,7 +231,7 @@ export function parseHoistableFunctionDeclaration(
   let id: ESTree.Identifier | null = null;
   let name: string = '';
 
-  if (state.token & Token.IsIdentifier || state.token === Token.EscapedStrictReserved) {
+  if (state.token & Token.IsIdentifier) {
     name = state.tokenValue;
     validateBindingIdentifier(state, context, Type.Let);
     addFunctionName(state, context, scope, Type.Let, Origin.None, true);
@@ -239,7 +239,7 @@ export function parseHoistableFunctionDeclaration(
     id = parseIdentifier(state, context);
   }
 
-  if (isNotDefault) addToExportedNamesAndCheckForDuplicates(state, name);
+  if ((origin & Origin.ExportDefault) === 0) addToExportedNamesAndCheckForDuplicates(state, name);
   addToExportedBindings(state, name);
 
   context =
