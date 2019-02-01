@@ -18,10 +18,8 @@ describe('Statements - Try', () => {
     ['try {} catch (foo) { function foo() {} }', Context.Empty],
     ['try {} catch (e) { for (var e;;) {} }', Context.Empty],
     ['try {} catch (e) { for (var e in y) {} }', Context.Empty],
-    ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
     ['try {} catch (e) { let e = x; }', Context.Empty],
     ['try {} catch (e) { var e = x; }', Context.Empty],
-    ['try {} catch (e) { for (var e of y) {} }', Context.OptionsWebCompat],
     ['try {} catch (e) { let e = x; }', Context.Empty],
     ['try {} catch (e) { const e = x; }', Context.Empty],
     ['try {} catch(e) { var e; }', Context.Empty],
@@ -269,6 +267,63 @@ describe('Statements - Try', () => {
             finalizer: null
           }
         ]
+      }
+    ],
+
+    [
+      'try {} catch (e) { for (var e of y) {} }',
+      Context.OptionsWebCompat,
+      {
+        body: [
+          {
+            block: {
+              body: [],
+              type: 'BlockStatement'
+            },
+            finalizer: null,
+            handler: {
+              body: {
+                body: [
+                  {
+                    await: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
+                    },
+                    left: {
+                      declarations: [
+                        {
+                          id: {
+                            name: 'e',
+                            type: 'Identifier'
+                          },
+                          init: null,
+                          type: 'VariableDeclarator'
+                        }
+                      ],
+                      kind: 'var',
+                      type: 'VariableDeclaration'
+                    },
+                    right: {
+                      name: 'y',
+                      type: 'Identifier'
+                    },
+                    type: 'ForOfStatement'
+                  }
+                ],
+                type: 'BlockStatement'
+              },
+              param: {
+                name: 'e',
+                type: 'Identifier'
+              },
+              type: 'CatchClause'
+            },
+            type: 'TryStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [

@@ -731,7 +731,6 @@ function parseForStatement(
   }
 
   if (optional(state, context | Context.AllowPossibleRegEx, Token.OfKeyword)) {
-    if (state.inCatch) report(state, Errors.InvalidVarForOfCatch);
     if (isPattern) {
       if (!state.assignable || init.type === 'AssignmentExpression') {
         report(state, Errors.InvalidLHSInForLoop);

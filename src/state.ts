@@ -28,7 +28,6 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
     length: source.length,
     currentChar: source.charCodeAt(0),
     lastChar: 0,
-    inCatch: false,
     assignable: true,
     bindable: true,
     exportedNames: [],

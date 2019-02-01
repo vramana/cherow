@@ -216,7 +216,6 @@ export interface ParserState {
   numCapturingParens: number;
   largestBackReference: number;
   lastChar: number;
-  inCatch: boolean;
   assignable: boolean;
   bindable: boolean;
   exportedNames: any[];
@@ -345,7 +344,6 @@ export function addVariable(
       if (lex['@' + key] !== undefined) {
         if (type === ScopeType.CatchClause) {
           if (isVarDecl && context & Context.OptionsWebCompat) {
-            state.inCatch = true;
           } else {
             report(state, Errors.InvalidCatchVarBinding, key);
           }
