@@ -23,7 +23,7 @@ describe('Lexer - Numbers', () => {
     function pass(name: string, opts: Opts) {
       it(name, () => {
         const state = create(opts.source, undefined);
-        const found = scanSingleToken(state, Context.Empty);
+        const found = scanSingleToken(state, Context.OptionsExperimental);
         t.deepEqual(
           {
             value: state.tokenValue,
@@ -282,6 +282,15 @@ describe('Lexer - Numbers', () => {
       token: Token.NumericLiteral,
       line: 1,
       column: 3
+    });
+
+    pass(`Scans 0b1_1`, {
+      source: '0b1_1',
+      value: 3,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 5
     });
 
     pass(`Scans 0b00011100011111010101010101`, {

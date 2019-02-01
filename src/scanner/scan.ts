@@ -125,11 +125,11 @@ table[Chars.Zero] = (state, context, first) => {
     } else if (next === Chars.UpperB || next === Chars.LowerB) {
       state.index = index + 1;
       state.column += 2;
-      return scanBinaryOrOctalDigits(state, /* base */ 2);
+      return scanBinaryOrOctalDigits(state, context, /* base */ 2);
     } else if (next === Chars.UpperO || next === Chars.LowerO) {
       state.index = index + 1;
       state.column += 2;
-      return scanBinaryOrOctalDigits(state, /* base */ 8);
+      return scanBinaryOrOctalDigits(state, context, /* base */ 8);
     } else if (index < state.length && (next >= Chars.Zero && next <= Chars.Nine)) {
       return scanImplicitOctalDigits(state, context, first);
     }

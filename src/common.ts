@@ -65,6 +65,8 @@ export const enum Flags {
   HasConstructor = 1 << 11,
   HasAwait  = 1 << 12,
   HasYield   = 1 << 13,
+  ContainsSeparator = 1 << 14,
+
 }
 // prettier-ignore
 /**
