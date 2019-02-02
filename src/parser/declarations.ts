@@ -43,7 +43,7 @@ export function parseClassDeclaration(
   context: Context,
   scope: ScopeState
 ): ESTree.ClassDeclaration {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   // class bodies are implicitly strict
   context = (context | Context.Strict | Context.InConstructor) ^ Context.InConstructor;
@@ -57,7 +57,8 @@ export function parseClassDeclaration(
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Class');
 
   if (optional(state, context, Token.ExtendsKeyword)) {
-    superClass = secludeGrammar(state, context, 0, parseLeftHandSideExpression);
+    //superClass = secludeGrammar(state, context, 0, parseLeftHandSideExpression);
+    superClass = parseLeftHandSideExpression(state, context, start, line, column);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
@@ -65,7 +66,7 @@ export function parseClassDeclaration(
 
   const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.Declaration);
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'ClassDeclaration',
     id,
     superClass,
@@ -89,7 +90,7 @@ export function parseFunctionDeclaration(
   origin: Origin,
   isAsync: boolean
 ) {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
 
   const isGenerator: boolean = (origin & Origin.Statement) < 1 && optional(state, context, Token.Multiply);
@@ -163,7 +164,7 @@ export function parseFunctionDeclaration(
     origin
   );
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'FunctionDeclaration',
     params,
     body,
@@ -179,7 +180,7 @@ export function parseHostedClassDeclaration(
   scope: ScopeState,
   isNotDefault: boolean
 ): ESTree.ClassDeclaration {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
 
@@ -197,7 +198,7 @@ export function parseHostedClassDeclaration(
   addToExportedBindings(state, name);
 
   if (optional(state, context, Token.ExtendsKeyword)) {
-    superClass = parseLeftHandSideExpression(state, context, start);
+    superClass = parseLeftHandSideExpression(state, context, start, line, column);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
@@ -205,7 +206,7 @@ export function parseHostedClassDeclaration(
 
   const body = parseClassBodyAndElementList(state, context, Origin.Declaration);
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'ClassDeclaration',
     id,
     superClass,
@@ -220,7 +221,7 @@ export function parseHoistableFunctionDeclaration(
   origin: Origin,
   isAsync: boolean
 ) {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
 
   const isGenerator: boolean = optional(state, context, Token.Multiply);
@@ -267,7 +268,7 @@ export function parseHoistableFunctionDeclaration(
     Origin.None
   );
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'FunctionDeclaration',
     params,
     body,
@@ -295,15 +296,14 @@ export function parseLexicalDeclaration(
   origin: Origin,
   scope: ScopeState
 ): ESTree.VariableDeclaration {
-  const { token } = state;
-  const { startIndex: start } = state;
+  const { token, startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
   if (checkIfLexicalAlreadyBound(state, context, scope, origin, false)) {
     report(state, Errors.DuplicateBinding, KeywordDescTable[token & Token.Type]);
   }
   consumeSemicolon(state, context);
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'VariableDeclaration',
     kind: KeywordDescTable[token & Token.Type],
     declarations
@@ -370,7 +370,7 @@ function parseVariableDeclaration(
   checkForDuplicates: boolean,
   scope: ScopeState
 ): any {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   const isBinding = state.token === Token.LeftBrace || state.token === Token.LeftBracket;
   const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
 
@@ -393,7 +393,7 @@ function parseVariableDeclaration(
     report(state, Errors.DeclarationMissingInitializer, type & Type.Const ? 'const' : 'destructuring');
   }
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'VariableDeclarator',
     init,
     id

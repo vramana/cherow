@@ -198,6 +198,12 @@ describe('Expressions - Parenthesized', () => {
     });
   }
   pass('Expressions - Parenthesized (pass)', [
+    /*    [
+      '("\\u{10FFFF}")',
+      Context.Empty,
+      {
+      }
+    ], */
     [
       '(a)',
       Context.Empty,

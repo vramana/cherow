@@ -48,23 +48,25 @@ export function scanNumeric(state: ParserState, context: Context, first: number)
     }
   }
 
-  if (consumeOpt(state, Chars.LowerE) || consumeOpt(state, Chars.UpperE)) {
+  if (first === Chars.LowerE || first === Chars.UpperE) {
+    advanceOne(state);
     state.flags = Flags.Float;
     first = state.source.charCodeAt(state.index);
     if (first === Chars.Plus || first === Chars.Hyphen) {
       first = state.source.charCodeAt(++state.index);
-      state.column++;
+      ++state.column;
     }
-
-    if (!isDigit(first)) report(state, Errors.MissingExponent); // must have at least one char after +-
-    first = state.source.charCodeAt(++state.index);
-    state.column++;
-    while (isDigit((first = state.source.charCodeAt(state.index)))) {
-      advanceOne(state);
-    }
+    if (first >= Chars.Zero && first <= Chars.Nine) {
+      first = state.source.charCodeAt(++state.index);
+      ++state.column;
+      while (isDigit((first = state.source.charCodeAt(state.index)))) {
+        advanceOne(state);
+      }
+    } else report(state, Errors.MissingExponent); // must have at least one char after +-
   }
 
-  if (first !== Chars.LowerN && (isDigit(first) || isIdentifierStart(first))) report(state, Errors.IDStartAfterNumber);
+  if (first !== Chars.LowerN && ((first >= Chars.Zero && first <= Chars.Nine) || isIdentifierStart(first)))
+    report(state, Errors.IDStartAfterNumber);
   state.tokenValue = state.source.slice(state.startIndex, state.index);
   if (context & Context.OptionsRaw) state.tokenRaw = state.tokenValue;
   return returnBigIntOrNumericToken(state);

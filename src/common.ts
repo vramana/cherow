@@ -198,6 +198,8 @@ export interface ParserState {
   line: number;
   startIndex: number;
   endIndex: number;
+  endColumn: number;
+  endLine: number;
   startLine: number;
   startColumn: number;
   column: number;
@@ -262,10 +264,24 @@ export function pushToken(context: Context, array: any[]): any {
   };
 }
 
-export function finishNode<T extends ESTree.Node>(state: ParserState, context: Context, start: number, node: T): T {
+export function finishNode<T extends ESTree.Node>(
+  state: ParserState,
+  context: Context,
+  start: number,
+  line: number,
+  column: number,
+  node: T
+): T {
   if (context & Context.OptionsRanges) {
     node.start = start;
     node.end = state.endIndex;
+  }
+
+  if (context & Context.OptionsLoc) {
+    node.loc = {
+      start: { line, column },
+      end: { line: state.endLine, column: state.endColumn }
+    };
   }
 
   return node;

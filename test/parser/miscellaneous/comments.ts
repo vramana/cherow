@@ -1,8 +1,8 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
-describe('Expressions - Comments', () => {
-  fail('Miscellaneous - Failurea', [
+describe('Miscellaneous - Comments', () => {
+  fail('Miscellaneous - Comments (fail)', [
     ['x --> is eol-comment\nvar y = 37;\n', Context.Empty],
     ['"\\n" --> is eol-comment\nvar y = 37;\n', Context.Empty],
     ['x/* precomment */ --> is eol-comment\nvar y = 37;\n', Context.Empty],
@@ -10,7 +10,7 @@ describe('Expressions - Comments', () => {
     ['-->', Context.Module]
   ]);
 
-  pass('Expressions - Comments (pass)', [
+  pass('Miscellaneous - Comments (pass)', [
     [
       'var x = 42;/*\n*/-->is eol-comment\nvar y = 37;\n',
       Context.OptionsWebCompat,
