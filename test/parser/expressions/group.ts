@@ -223,23 +223,83 @@ describe('Expressions - Parenthesized', () => {
     ],
     [
       '(x.foo)',
-      Context.Empty,
+      Context.LocationTracking,
       {
         type: 'Program',
+        start: 0,
+        end: 7,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 7
+          }
+        },
         body: [
           {
             type: 'ExpressionStatement',
+            start: 0,
+            end: 7,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 7
+              }
+            },
             expression: {
               type: 'MemberExpression',
-              computed: false,
+              start: 1,
+              end: 6,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 1
+                },
+                end: {
+                  line: 1,
+                  column: 6
+                }
+              },
               object: {
                 type: 'Identifier',
+                start: 1,
+                end: 2,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 1
+                  },
+                  end: {
+                    line: 1,
+                    column: 2
+                  }
+                },
                 name: 'x'
               },
               property: {
                 type: 'Identifier',
+                start: 3,
+                end: 6,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 3
+                  },
+                  end: {
+                    line: 1,
+                    column: 6
+                  }
+                },
                 name: 'foo'
-              }
+              },
+              computed: false
             }
           }
         ],
@@ -248,21 +308,81 @@ describe('Expressions - Parenthesized', () => {
     ],
     [
       '(x + foo)',
-      Context.Empty,
+      Context.LocationTracking,
       {
         type: 'Program',
+        start: 0,
+        end: 9,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 9
+          }
+        },
         body: [
           {
             type: 'ExpressionStatement',
+            start: 0,
+            end: 9,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 9
+              }
+            },
             expression: {
               type: 'BinaryExpression',
-              operator: '+',
+              start: 1,
+              end: 8,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 1
+                },
+                end: {
+                  line: 1,
+                  column: 8
+                }
+              },
               left: {
                 type: 'Identifier',
+                start: 1,
+                end: 2,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 1
+                  },
+                  end: {
+                    line: 1,
+                    column: 2
+                  }
+                },
                 name: 'x'
               },
+              operator: '+',
               right: {
                 type: 'Identifier',
+                start: 5,
+                end: 8,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 5
+                  },
+                  end: {
+                    line: 1,
+                    column: 8
+                  }
+                },
                 name: 'foo'
               }
             }

@@ -386,127 +386,489 @@ pass('Expressions - Super (pass)', [
   ],
   [
     'class x extends y { constructor() { log(super.foo); super(); } }',
-    Context.Empty,
+    Context.LocationTracking,
     {
       type: 'Program',
-      sourceType: 'script',
+      start: 0,
+      end: 64,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 64
+        }
+      },
       body: [
         {
           type: 'ClassDeclaration',
+          start: 0,
+          end: 64,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 64
+            }
+          },
           id: {
             type: 'Identifier',
+            start: 6,
+            end: 7,
+            loc: {
+              start: {
+                line: 1,
+                column: 6
+              },
+              end: {
+                line: 1,
+                column: 7
+              }
+            },
             name: 'x'
           },
           superClass: {
             type: 'Identifier',
+            start: 16,
+            end: 17,
+            loc: {
+              start: {
+                line: 1,
+                column: 16
+              },
+              end: {
+                line: 1,
+                column: 17
+              }
+            },
             name: 'y'
           },
           body: {
             type: 'ClassBody',
+            start: 18,
+            end: 64,
+            loc: {
+              start: {
+                line: 1,
+                column: 18
+              },
+              end: {
+                line: 1,
+                column: 64
+              }
+            },
             body: [
               {
                 type: 'MethodDefinition',
+                start: 20,
+                end: 62,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 20
+                  },
+                  end: {
+                    line: 1,
+                    column: 62
+                  }
+                },
                 kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
                   type: 'Identifier',
+                  start: 20,
+                  end: 31,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 20
+                    },
+                    end: {
+                      line: 1,
+                      column: 31
+                    }
+                  },
                   name: 'constructor'
                 },
                 value: {
                   type: 'FunctionExpression',
+                  start: 31,
+                  end: 62,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 31
+                    },
+                    end: {
+                      line: 1,
+                      column: 62
+                    }
+                  },
+                  id: null,
+                  generator: false,
+                  async: false,
                   params: [],
                   body: {
                     type: 'BlockStatement',
+                    start: 34,
+                    end: 62,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 34
+                      },
+                      end: {
+                        line: 1,
+                        column: 62
+                      }
+                    },
                     body: [
                       {
                         type: 'ExpressionStatement',
+                        start: 36,
+                        end: 51,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 36
+                          },
+                          end: {
+                            line: 1,
+                            column: 51
+                          }
+                        },
                         expression: {
                           type: 'CallExpression',
+                          start: 36,
+                          end: 50,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 36
+                            },
+                            end: {
+                              line: 1,
+                              column: 50
+                            }
+                          },
                           callee: {
                             type: 'Identifier',
+                            start: 36,
+                            end: 39,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 36
+                              },
+                              end: {
+                                line: 1,
+                                column: 39
+                              }
+                            },
                             name: 'log'
                           },
                           arguments: [
                             {
                               type: 'MemberExpression',
-                              object: {
-                                type: 'Super'
+                              start: 40,
+                              end: 49,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 40
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 49
+                                }
                               },
-                              computed: false,
+                              object: {
+                                type: 'Super',
+                                start: 40,
+                                end: 45,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 40
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 45
+                                  }
+                                }
+                              },
                               property: {
                                 type: 'Identifier',
+                                start: 46,
+                                end: 49,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 46
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 49
+                                  }
+                                },
                                 name: 'foo'
-                              }
+                              },
+                              computed: false
                             }
                           ]
                         }
                       },
                       {
                         type: 'ExpressionStatement',
+                        start: 52,
+                        end: 60,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 52
+                          },
+                          end: {
+                            line: 1,
+                            column: 60
+                          }
+                        },
                         expression: {
                           type: 'CallExpression',
+                          start: 52,
+                          end: 59,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 52
+                            },
+                            end: {
+                              line: 1,
+                              column: 59
+                            }
+                          },
                           callee: {
-                            type: 'Super'
+                            type: 'Super',
+                            start: 52,
+                            end: 57,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 52
+                              },
+                              end: {
+                                line: 1,
+                                column: 57
+                              }
+                            }
                           },
                           arguments: []
                         }
                       }
                     ]
-                  },
-                  async: false,
-                  generator: false,
-                  id: null
+                  }
                 }
               }
             ]
           }
         }
-      ]
+      ],
+      sourceType: 'script'
     }
   ],
   [
     'class x extends y { constructor(x = super()) { } }',
-    Context.Empty,
+    Context.LocationTracking,
     {
       type: 'Program',
-      sourceType: 'script',
+      start: 0,
+      end: 50,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 50
+        }
+      },
       body: [
         {
           type: 'ClassDeclaration',
+          start: 0,
+          end: 50,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 50
+            }
+          },
           id: {
             type: 'Identifier',
+            start: 6,
+            end: 7,
+            loc: {
+              start: {
+                line: 1,
+                column: 6
+              },
+              end: {
+                line: 1,
+                column: 7
+              }
+            },
             name: 'x'
           },
           superClass: {
             type: 'Identifier',
+            start: 16,
+            end: 17,
+            loc: {
+              start: {
+                line: 1,
+                column: 16
+              },
+              end: {
+                line: 1,
+                column: 17
+              }
+            },
             name: 'y'
           },
           body: {
             type: 'ClassBody',
+            start: 18,
+            end: 50,
+            loc: {
+              start: {
+                line: 1,
+                column: 18
+              },
+              end: {
+                line: 1,
+                column: 50
+              }
+            },
             body: [
               {
                 type: 'MethodDefinition',
+                start: 20,
+                end: 48,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 20
+                  },
+                  end: {
+                    line: 1,
+                    column: 48
+                  }
+                },
                 kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
                   type: 'Identifier',
+                  start: 20,
+                  end: 31,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 20
+                    },
+                    end: {
+                      line: 1,
+                      column: 31
+                    }
+                  },
                   name: 'constructor'
                 },
                 value: {
                   type: 'FunctionExpression',
+                  start: 31,
+                  end: 48,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 31
+                    },
+                    end: {
+                      line: 1,
+                      column: 48
+                    }
+                  },
+                  id: null,
+                  generator: false,
+                  async: false,
                   params: [
                     {
                       type: 'AssignmentPattern',
+                      start: 32,
+                      end: 43,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 32
+                        },
+                        end: {
+                          line: 1,
+                          column: 43
+                        }
+                      },
                       left: {
                         type: 'Identifier',
+                        start: 32,
+                        end: 33,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 32
+                          },
+                          end: {
+                            line: 1,
+                            column: 33
+                          }
+                        },
                         name: 'x'
                       },
                       right: {
                         type: 'CallExpression',
+                        start: 36,
+                        end: 43,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 36
+                          },
+                          end: {
+                            line: 1,
+                            column: 43
+                          }
+                        },
                         callee: {
-                          type: 'Super'
+                          type: 'Super',
+                          start: 36,
+                          end: 41,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 36
+                            },
+                            end: {
+                              line: 1,
+                              column: 41
+                            }
+                          }
                         },
                         arguments: []
                       }
@@ -514,17 +876,27 @@ pass('Expressions - Super (pass)', [
                   ],
                   body: {
                     type: 'BlockStatement',
+                    start: 45,
+                    end: 48,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 45
+                      },
+                      end: {
+                        line: 1,
+                        column: 48
+                      }
+                    },
                     body: []
-                  },
-                  async: false,
-                  generator: false,
-                  id: null
+                  }
                 }
               }
             ]
           }
         }
-      ]
+      ],
+      sourceType: 'script'
     }
   ],
   [

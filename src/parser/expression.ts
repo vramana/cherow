@@ -903,7 +903,7 @@ export function parseMemberExpression(
   start: number,
   line: number,
   column: number,
-  expr: any
+  expr: ESTree.CallExpression | ESTree.Expression
 ): ESTree.Expression {
   while (true) {
     switch (state.token) {
@@ -911,23 +911,18 @@ export function parseMemberExpression(
         scanSingleToken(state, context);
         state.bindable = false;
         state.assignable = true;
-        const { startIndex: curIndex, startLine: curLine, startColumn: curColumn } = state;
-        expr = finishNode(state, context, curIndex, curLine, curColumn, {
+        expr = finishNode(state, context, start, line, column, {
           type: 'MemberExpression',
           object: expr,
           computed: false,
-          property:
-            context & Context.OptionsNext
-              ? parseIdentifierNameOrPrivateName(state, context)
-              : parseIdentifierName(state, context)
+          property: parseIdentifierName(state, context)
         });
         continue;
       case Token.LeftBracket: {
         scanSingleToken(state, context | Context.AllowPossibleRegEx);
         state.bindable = false;
         state.assignable = true;
-        const { startIndex: curIndex, startLine: curLine, startColumn: curColumn } = state;
-        expr = finishNode(state, context, curIndex, curLine, curColumn, {
+        expr = finishNode(state, context, start, line, column, {
           type: 'MemberExpression',
           object: expr,
           computed: true,

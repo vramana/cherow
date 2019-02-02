@@ -276,32 +276,104 @@ describe('Expressions - Exponentiation', () => {
     ],
     [
       '++x ** a',
-      Context.Empty,
+      Context.LocationTracking,
       {
         type: 'Program',
-        sourceType: 'script',
+        start: 0,
+        end: 8,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 8
+          }
+        },
         body: [
           {
             type: 'ExpressionStatement',
+            start: 0,
+            end: 8,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 8
+              }
+            },
             expression: {
               type: 'BinaryExpression',
+              start: 0,
+              end: 8,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 8
+                }
+              },
               left: {
                 type: 'UpdateExpression',
-                argument: {
-                  type: 'Identifier',
-                  name: 'x'
+                start: 0,
+                end: 3,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 3
+                  }
                 },
                 operator: '++',
-                prefix: true
+                prefix: true,
+                argument: {
+                  type: 'Identifier',
+                  start: 2,
+                  end: 3,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 2
+                    },
+                    end: {
+                      line: 1,
+                      column: 3
+                    }
+                  },
+                  name: 'x'
+                }
               },
+              operator: '**',
               right: {
                 type: 'Identifier',
+                start: 7,
+                end: 8,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 7
+                  },
+                  end: {
+                    line: 1,
+                    column: 8
+                  }
+                },
                 name: 'a'
-              },
-              operator: '**'
+              }
             }
           }
-        ]
+        ],
+        sourceType: 'script'
       }
     ],
     [
@@ -352,47 +424,154 @@ describe('Expressions - Exponentiation', () => {
     ],
     [
       'function *f() { yield x ** y }',
-      Context.Empty,
+      Context.LocationTracking,
       {
         type: 'Program',
-        sourceType: 'script',
+        start: 0,
+        end: 30,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 30
+          }
+        },
         body: [
           {
             type: 'FunctionDeclaration',
+            start: 0,
+            end: 30,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 30
+              }
+            },
+            id: {
+              type: 'Identifier',
+              start: 10,
+              end: 11,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 10
+                },
+                end: {
+                  line: 1,
+                  column: 11
+                }
+              },
+              name: 'f'
+            },
+            generator: true,
+            async: false,
             params: [],
             body: {
               type: 'BlockStatement',
+              start: 14,
+              end: 30,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 14
+                },
+                end: {
+                  line: 1,
+                  column: 30
+                }
+              },
               body: [
                 {
                   type: 'ExpressionStatement',
+                  start: 16,
+                  end: 28,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 16
+                    },
+                    end: {
+                      line: 1,
+                      column: 28
+                    }
+                  },
                   expression: {
                     type: 'YieldExpression',
+                    start: 16,
+                    end: 28,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 16
+                      },
+                      end: {
+                        line: 1,
+                        column: 28
+                      }
+                    },
+                    delegate: false,
                     argument: {
                       type: 'BinaryExpression',
+                      start: 22,
+                      end: 28,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 22
+                        },
+                        end: {
+                          line: 1,
+                          column: 28
+                        }
+                      },
                       left: {
                         type: 'Identifier',
+                        start: 22,
+                        end: 23,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 22
+                          },
+                          end: {
+                            line: 1,
+                            column: 23
+                          }
+                        },
                         name: 'x'
                       },
+                      operator: '**',
                       right: {
                         type: 'Identifier',
+                        start: 27,
+                        end: 28,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 27
+                          },
+                          end: {
+                            line: 1,
+                            column: 28
+                          }
+                        },
                         name: 'y'
-                      },
-                      operator: '**'
-                    },
-                    delegate: false
+                      }
+                    }
                   }
                 }
               ]
-            },
-            async: false,
-            generator: true,
-
-            id: {
-              type: 'Identifier',
-              name: 'f'
             }
           }
-        ]
+        ],
+        sourceType: 'script'
       }
     ],
     [

@@ -364,32 +364,116 @@ describe('Expressions - Switch', () => {
     ],
     [
       'switch (A) {case B: C;}',
-      Context.Empty,
+      Context.LocationTracking,
       {
         type: 'Program',
+        start: 0,
+        end: 23,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 23
+          }
+        },
         body: [
           {
             type: 'SwitchStatement',
+            start: 0,
+            end: 23,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 23
+              }
+            },
             discriminant: {
               type: 'Identifier',
+              start: 8,
+              end: 9,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 8
+                },
+                end: {
+                  line: 1,
+                  column: 9
+                }
+              },
               name: 'A'
             },
             cases: [
               {
                 type: 'SwitchCase',
-                test: {
-                  type: 'Identifier',
-                  name: 'B'
+                start: 12,
+                end: 22,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 12
+                  },
+                  end: {
+                    line: 1,
+                    column: 22
+                  }
                 },
                 consequent: [
                   {
                     type: 'ExpressionStatement',
+                    start: 20,
+                    end: 22,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 20
+                      },
+                      end: {
+                        line: 1,
+                        column: 22
+                      }
+                    },
                     expression: {
                       type: 'Identifier',
+                      start: 20,
+                      end: 21,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 20
+                        },
+                        end: {
+                          line: 1,
+                          column: 21
+                        }
+                      },
                       name: 'C'
                     }
                   }
-                ]
+                ],
+                test: {
+                  type: 'Identifier',
+                  start: 17,
+                  end: 18,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 17
+                    },
+                    end: {
+                      line: 1,
+                      column: 18
+                    }
+                  },
+                  name: 'B'
+                }
               }
             ]
           }
