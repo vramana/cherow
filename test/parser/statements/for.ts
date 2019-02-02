@@ -12,9 +12,10 @@ describe('Statements - For', () => {
     ['for (let x in y) { var x; }', Context.Empty],
     ['for (const x in y) { var x; }', Context.Empty],
     ['for (let x of y) { var x; }', Context.Empty],
+    ['for ([...[(x, y)]] in [[[]]]) ;', Context.Empty],
     ['for (const a;;);', Context.Empty],
     ['for (const a,b,c;;);', Context.Empty],
-    // ['for (const [x, x] in {}) {}', Context.Empty],
+    ['for (const [x, x] in {}) {}', Context.Empty],
     ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.Empty],
 
     // General
@@ -760,6 +761,62 @@ describe('Statements - For', () => {
       }
     ],
     [
+      'for ([...[(x, y)]] in [[[]]]) ;',
+      Context.OptionsWebCompat,
+      {
+        body: [
+          {
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              elements: [
+                {
+                  argument: {
+                    elements: [
+                      {
+                        expressions: [
+                          {
+                            name: 'x',
+                            type: 'Identifier'
+                          },
+                          {
+                            name: 'y',
+                            type: 'Identifier'
+                          }
+                        ],
+                        type: 'SequenceExpression'
+                      }
+                    ],
+                    type: 'ArrayPattern'
+                  },
+                  type: 'RestElement'
+                }
+              ],
+              type: 'ArrayPattern'
+            },
+            right: {
+              elements: [
+                {
+                  elements: [
+                    {
+                      elements: [],
+                      type: 'ArrayExpression'
+                    }
+                  ],
+                  type: 'ArrayExpression'
+                }
+              ],
+              type: 'ArrayExpression'
+            },
+            type: 'ForInStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'for (let foo = bar;;);',
       Context.Empty,
       {
@@ -855,6 +912,124 @@ describe('Statements - For', () => {
             test: null,
             type: 'ForStatement',
             update: null
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'for ([...{ get x() {} }] in [[[]]]) ;',
+      Context.OptionsWebCompat,
+      {
+        body: [
+          {
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              elements: [
+                {
+                  argument: {
+                    properties: [
+                      {
+                        computed: false,
+                        key: {
+                          name: 'x',
+                          type: 'Identifier'
+                        },
+                        kind: 'get',
+                        method: false,
+                        shorthand: false,
+                        type: 'Property',
+                        value: {
+                          async: false,
+                          body: {
+                            body: [],
+                            type: 'BlockStatement'
+                          },
+                          generator: false,
+                          id: null,
+                          params: [],
+                          type: 'FunctionExpression'
+                        }
+                      }
+                    ],
+                    type: 'ObjectPattern'
+                  },
+                  type: 'RestElement'
+                }
+              ],
+              type: 'ArrayPattern'
+            },
+            right: {
+              elements: [
+                {
+                  elements: [
+                    {
+                      elements: [],
+                      type: 'ArrayExpression'
+                    }
+                  ],
+                  type: 'ArrayExpression'
+                }
+              ],
+              type: 'ArrayExpression'
+            },
+            type: 'ForInStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'for ([[(x, y)]] in [[[]]]) ;',
+      Context.OptionsWebCompat,
+      {
+        body: [
+          {
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              elements: [
+                {
+                  elements: [
+                    {
+                      expressions: [
+                        {
+                          name: 'x',
+                          type: 'Identifier'
+                        },
+                        {
+                          name: 'y',
+                          type: 'Identifier'
+                        }
+                      ],
+                      type: 'SequenceExpression'
+                    }
+                  ],
+                  type: 'ArrayPattern'
+                }
+              ],
+              type: 'ArrayPattern'
+            },
+            right: {
+              elements: [
+                {
+                  elements: [
+                    {
+                      elements: [],
+                      type: 'ArrayExpression'
+                    }
+                  ],
+                  type: 'ArrayExpression'
+                }
+              ],
+              type: 'ArrayExpression'
+            },
+            type: 'ForInStatement'
           }
         ],
         sourceType: 'script',
