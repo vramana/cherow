@@ -64,10 +64,9 @@ export const enum Flags {
   HasStrictReserved = 1 << 9,
   StrictEvalArguments = 1 << 10,
   HasConstructor = 1 << 11,
-  HasAwait  = 1 << 12,
-  HasYield   = 1 << 13,
-  ContainsSeparator = 1 << 14,
-
+  SeenAwait  = 1 << 12,
+  SeenYield   = 1 << 13,
+  ContainsSeparator = 1 << 14
 }
 // prettier-ignore
 /**
@@ -629,12 +628,14 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
   // (fkleuver): Investigate why this doesn't trigger an error
   if (token === Token.EnumKeyword) report(state, Errors.FutureReservedWordInStrictModeNotId);
 
-  if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
-    report(state, Errors.AwaitOutsideAsync);
+  if (token & Token.IsAwait) {
+    if (context & (Context.AwaitContext | Context.Module)) report(state, Errors.AwaitOutsideAsync);
+    state.flags = state.flags | Flags.SeenAwait;
   }
 
-  if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
-    report(state, Errors.DisallowedInContext, 'yield');
+  if (token & Token.IsYield) {
+    if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.DisallowedInContext, 'yield');
+    state.flags = state.flags | Flags.SeenYield;
   }
 
   if (token === Token.LetKeyword) {

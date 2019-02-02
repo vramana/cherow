@@ -144,7 +144,7 @@ export function parseRestElement(
 ): any {
   const { startIndex: start } = state;
   expect(state, context, Token.Ellipsis);
-  if (context & Context.ParentheziedContext && state.token & Token.IsAwait) state.flags |= Flags.HasAwait;
+  if (context & Context.ParentheziedContext && state.token & Token.IsAwait) state.flags |= Flags.SeenAwait;
   const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, false);
   return finishNode(state, context, start, {
     type: 'RestElement',
@@ -376,9 +376,9 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
       if (context & Context.ParentheziedContext) {
         state.flags |= Flags.SimpleParameterList;
         if (context & (Context.Strict | Context.YieldContext) && state.token & Token.IsYield) {
-          state.flags |= Flags.HasYield;
+          state.flags |= Flags.SeenYield;
         } else if (state.token & Token.IsAwait) {
-          state.flags |= Flags.HasAwait;
+          state.flags |= Flags.SeenAwait;
         }
       }
     } else {
@@ -688,17 +688,14 @@ function parseCallExpression(state: ParserState, context: Context, start: number
 
     if (state.token === <Token>Token.Arrow) {
       if (flags & Flags.NewLine) report(state, Errors.InvalidLineBreak, '=>');
-
       if (pState & ParenthesizedState.Yield) {
         if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.YieldInParameter);
         state.flags |= Flags.HasStrictReserved;
-      } else if (state.flags & Flags.HasYield) {
+      } else if (state.flags & Flags.SeenYield) {
         report(state, Errors.YieldInParameter);
-      } else if (pState & ParenthesizedState.Await || state.flags & Flags.HasAwait) {
+      } else if (pState & ParenthesizedState.Await || state.flags & Flags.SeenAwait) {
         report(state, Errors.AwaitInParameter);
       }
-
-      state.flags = (state.flags | Flags.HasYield | Flags.HasAwait) ^ (Flags.HasYield | Flags.HasAwait);
 
       // Fixes cases like: `async().foo13 () => 1`
       if (!state.bindable) report(state, Errors.InvalidDestructExpr);
@@ -713,8 +710,8 @@ function parseCallExpression(state: ParserState, context: Context, start: number
     }
 
     state.flags =
-      (state.flags | Flags.HasYield | Flags.HasAwait | Flags.SimpleParameterList) ^
-      (Flags.HasYield | Flags.HasAwait | Flags.SimpleParameterList);
+      (state.flags | Flags.SeenYield | Flags.SeenAwait | Flags.SimpleParameterList) ^
+      (Flags.SeenYield | Flags.SeenAwait | Flags.SimpleParameterList);
 
     state.bindable = state.assignable = false;
     callee = finishNode(state, context, start, {
@@ -1075,6 +1072,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
 function parseSpreadElement(state: ParserState, context: Context, origin: Origin): ESTree.SpreadElement {
   const { startIndex: start } = state;
   expect(state, context | Context.AllowPossibleRegEx, Token.Ellipsis);
+  if (state.token & Token.IsAwait) state.flags = state.flags | Flags.SeenAwait;
   if (origin & Origin.ObjectExpression && (state.token === Token.LeftBracket || state.token === Token.LeftBrace)) {
     // Fixes cases where '{' or '[' directly follows after '...' in object expr. E.g. '({...{a, b}} = x):'
     // This has to be done before we parse out the 'AssignmentExpression' because none
@@ -1552,10 +1550,10 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
   if (token === Token.LeftBrace || token === Token.LeftBracket) state.flags |= Flags.SimpleParameterList;
 
   if ((token & Token.FutureReserved) === Token.FutureReserved || (token & Token.IsYield) === Token.IsYield) {
-    if ((token & Token.IsYield) === Token.IsYield) state.flags = state.flags | Flags.HasYield;
+    if ((token & Token.IsYield) === Token.IsYield) state.flags = state.flags | Flags.SeenYield;
     pState = pState | ParenthesizedState.ReservedWords;
   } else if ((token & Token.IsAwait) === Token.IsAwait) {
-    state.flags = state.flags | Flags.HasAwait;
+    state.flags = state.flags | Flags.SeenAwait;
   }
 
   if ((token as Token) === Token.Identifier) {
@@ -1617,10 +1615,10 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
           (state.token & Token.FutureReserved) === Token.FutureReserved ||
           (state.token & Token.IsYield) === Token.IsYield
         ) {
-          state.flags = state.flags | Flags.HasYield;
+          state.flags = state.flags | Flags.SeenYield;
           pState = pState | ParenthesizedState.ReservedWords;
         } else if ((state.token & Token.IsAwait) === Token.IsAwait) {
-          state.flags = state.flags | Flags.HasAwait;
+          state.flags = state.flags | Flags.SeenAwait;
         }
 
         if ((state.token as Token) === Token.Identifier) {
@@ -1650,13 +1648,13 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
     if (pState & ParenthesizedState.ReservedWords) {
       if (context & Context.Strict) report(state, Errors.UnexpectedStrictReserved);
       state.flags = state.flags | Flags.HasStrictReserved;
-    } else if (context & (Context.Strict | Context.YieldContext) && state.flags & Flags.HasYield) {
+    } else if (context & (Context.Strict | Context.YieldContext) && state.flags & Flags.SeenYield) {
       report(state, Errors.YieldInParameter);
-    } else if (context & (Context.Module | Context.AwaitContext) && state.flags & Flags.HasAwait) {
+    } else if (context & (Context.Module | Context.AwaitContext) && state.flags & Flags.SeenAwait) {
       report(state, Errors.AwaitInParameter);
     }
 
-    state.flags = (state.flags | Flags.HasYield | Flags.HasAwait) ^ (Flags.HasYield | Flags.HasAwait);
+    state.flags = (state.flags | Flags.SeenYield | Flags.SeenAwait) ^ (Flags.SeenYield | Flags.SeenAwait);
 
     state.assignable = state.bindable = false;
     return {
@@ -1672,8 +1670,8 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
   context = (context | Context.ParentheziedContext) ^ Context.ParentheziedContext;
 
   state.flags =
-    (state.flags | Flags.HasYield | Flags.HasAwait | Flags.SimpleParameterList) ^
-    (Flags.HasYield | Flags.HasAwait | Flags.SimpleParameterList);
+    (state.flags | Flags.SeenYield | Flags.SeenAwait | Flags.SimpleParameterList) ^
+    (Flags.SeenYield | Flags.SeenAwait | Flags.SimpleParameterList);
 
   if (!isValidSimpleAssignmentTarget(expr)) state.assignable = false;
 
@@ -1982,11 +1980,11 @@ function parseObjectLiteral(
           if ((state.token & Token.IsAwait) === Token.IsAwait) {
             if (context & (Context.Strict | Context.Module)) report(state, Errors.Unexpected);
             if (context & Context.ParentheziedContext) {
-              state.flags = state.flags | Flags.HasAwait;
+              state.flags = state.flags | Flags.SeenAwait;
             }
           } else if ((state.token & Token.IsYield) === Token.IsYield) {
             if (context & Context.ParentheziedContext) {
-              state.flags = state.flags | Flags.HasYield;
+              state.flags = state.flags | Flags.SeenYield;
             }
           }
 
