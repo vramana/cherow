@@ -589,7 +589,6 @@ describe('Expressions - Functions', () => {
                               },
                               async: false,
                               generator: false,
-                              expression: false,
                               id: null,
                               start: 46,
                               end: 51,
