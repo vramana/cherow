@@ -15,6 +15,7 @@ import {
   createScope,
   Modifiers,
   secludeGrammar,
+  secludeGrammarWithLocation,
   finishNode
 } from '../common';
 import { Token, KeywordDescTable } from '../token';
@@ -57,8 +58,7 @@ export function parseClassDeclaration(
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Class');
 
   if (optional(state, context, Token.ExtendsKeyword)) {
-    //superClass = secludeGrammar(state, context, 0, parseLeftHandSideExpression);
-    superClass = parseLeftHandSideExpression(state, context, start, line, column);
+    superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
@@ -198,7 +198,7 @@ export function parseHostedClassDeclaration(
   addToExportedBindings(state, name);
 
   if (optional(state, context, Token.ExtendsKeyword)) {
-    superClass = parseLeftHandSideExpression(state, context, start, line, column);
+    superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 

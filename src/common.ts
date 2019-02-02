@@ -900,6 +900,32 @@ export function secludeGrammar<T>(
   return result;
 }
 
+export function secludeGrammarWithLocation<T>(
+  state: ParserState,
+  context: Context,
+  start: number,
+  line: number,
+  column: number,
+  callback: (state: ParserState, context: Context, start: number, line: number, column: number) => T
+): T {
+  const { assignable, bindable, pendingCoverInitializeError } = state;
+
+  state.bindable = true;
+  state.assignable = true;
+  state.pendingCoverInitializeError = null;
+
+  const result = callback(state, context, start, line, column);
+  if (state.pendingCoverInitializeError !== null) {
+    report(state, state.pendingCoverInitializeError);
+  }
+
+  state.bindable = bindable;
+  state.assignable = assignable;
+  state.pendingCoverInitializeError = pendingCoverInitializeError;
+
+  return result;
+}
+
 /**
  * Restore current grammar to previous state, or unset necessary bitmasks
  *

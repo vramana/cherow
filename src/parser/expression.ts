@@ -21,6 +21,7 @@ import {
   Modifiers,
   acquireGrammar,
   secludeGrammar,
+  secludeGrammarWithLocation,
   nameIsArgumentsOrEval,
   finishNode,
   ParenthesizedState
@@ -657,7 +658,14 @@ export function parseLeftHandSideExpression(
       ? parseCallImportOrMetaProperty(state, context, false)
       : state.token === Token.SuperKeyword
       ? parseSuperExpression(state, context)
-      : parseMemberExpression(state, context, parsePrimaryExpression(state, context, start, line, column));
+      : parseMemberExpression(
+          state,
+          context,
+          start,
+          line,
+          column,
+          parsePrimaryExpression(state, context, start, line, column)
+        );
   return parseCallExpression(
     state,
     (context | Context.DisallowInContext) ^ Context.DisallowInContext,
@@ -689,7 +697,7 @@ function parseCallExpression(
   const { flags } = state;
   let pState = ParenthesizedState.None;
   while (true) {
-    callee = parseMemberExpression(state, context, callee);
+    callee = parseMemberExpression(state, context, start, line, column, callee);
     if (state.token !== Token.LeftParen) return callee;
 
     expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
@@ -892,10 +900,10 @@ function parseIdentifierName(state: ParserState, context: Context): ESTree.Ident
 export function parseMemberExpression(
   state: ParserState,
   context: Context,
-  expr: any,
-  start: number = state.startIndex,
-  line: number = state.startLine,
-  column: number = state.startColumn
+  start: number,
+  line: number,
+  column: number,
+  expr: any
 ): ESTree.Expression {
   while (true) {
     switch (state.token) {
@@ -1208,18 +1216,30 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
   const callee =
     context & Context.OptionsNext && state.token === Token.ImportKeyword
       ? parseCallImportOrMetaProperty(state, context, true)
-      : secludeGrammar(
-          state,
-          context,
-          parsePrimaryExpression(state, context, start, line, column),
-          parseMemberExpression
-        );
+      : secludeGrammarWithLocation(state, context, start, line, column, parseMemberExpressionOrHigher);
 
   return finishNode(state, context, start, line, column, {
     type: 'NewExpression',
     callee,
     arguments: state.token === Token.LeftParen ? parseArgumentList(state, context) : []
   });
+}
+
+function parseMemberExpressionOrHigher(
+  state: ParserState,
+  context: Context,
+  start: number,
+  line: number,
+  column: number
+): any {
+  return parseMemberExpression(
+    state,
+    context,
+    start,
+    line,
+    column,
+    parsePrimaryExpression(state, context, start, line, column)
+  );
 }
 
 export function parseAndClassifyIdentifier(state: ParserState, context: Context) {
@@ -1772,8 +1792,7 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
   }
 
   if (optional(state, context, Token.ExtendsKeyword)) {
-    //superClass = secludeGrammar(state, context, 0, parseLeftHandSideExpression);
-    superClass = parseLeftHandSideExpression(state, context, start, line, column);
+    superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
