@@ -344,6 +344,58 @@ describe('Expressions - Yield', () => {
 
   pass('Expressions - Yield (pass)', [
     [
+      'function *a() { (b) => b * yield; }',
+      Context.Empty,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [
+                {
+                  expression: {
+                    async: false,
+                    body: {
+                      left: {
+                        name: 'b',
+                        type: 'Identifier'
+                      },
+                      operator: '*',
+                      right: {
+                        name: 'yield',
+                        type: 'Identifier'
+                      },
+                      type: 'BinaryExpression'
+                    },
+                    expression: true,
+                    id: null,
+                    params: [
+                      {
+                        name: 'b',
+                        type: 'Identifier'
+                      }
+                    ],
+                    type: 'ArrowFunctionExpression'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            generator: true,
+            id: {
+              name: 'a',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'function* f(){ yield\n/foo/ }',
       Context.Empty,
       {

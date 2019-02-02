@@ -300,7 +300,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
   scanSingleToken(state, context);
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const test = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
-  expect(state, context, Token.RightParen);
+  expect(state, context | Context.AllowPossibleRegEx, Token.RightParen);
   const consequent = parseConsequentOrAlternate(state, context, scope);
   const alternate = optional(state, context, Token.ElseKeyword)
     ? parseConsequentOrAlternate(state, context, scope)

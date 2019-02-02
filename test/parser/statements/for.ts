@@ -631,7 +631,7 @@ describe('Statements - For', () => {
     'do { const foo = j } while (j)',
     'do { const [foo] = [j] } while (j)',
     'do { function foo() {return j} } while (j)',
-
+    'for (a(b in c)[1] in d);',
     'for (const [[...x] = [2, 1, 3]] = []; iterCount < 1; ) {}',
     'for (const [cover = (function () {}), xCover = (0, function() {})] = []; iterCount < 1; ) {}',
     'for (const [x = 23] = [undefined]; iterCount < 1; ) {}',

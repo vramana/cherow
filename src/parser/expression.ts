@@ -600,7 +600,7 @@ function parseUpdateExpression(state: ParserState, context: Context, start: numb
     }
     if (!state.assignable) report(state, Errors.InvalidLHSInAssignment);
     const operator = state.token;
-    scanSingleToken(state, context | Context.AllowPossibleRegEx);
+    scanSingleToken(state, context);
     state.bindable = state.assignable = false;
     return finishNode(state, context, start, {
       type: 'UpdateExpression',
@@ -631,7 +631,7 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
       : state.token === Token.SuperKeyword
       ? parseSuperExpression(state, context)
       : parseMemberExpression(state, context, parsePrimaryExpression(state, context, start));
-  return parseCallExpression(state, context, start, expr);
+  return parseCallExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext, start, expr);
 }
 
 /**
@@ -1485,8 +1485,8 @@ function parseArrowFunctionExpression(
   }
 
   context =
-    ((context | Context.AwaitContext | Context.InArgList | Context.ParentheziedContext) ^
-      (Context.AwaitContext | Context.InArgList | Context.ParentheziedContext)) |
+    ((context | Context.AwaitContext | Context.InArgList | Context.YieldContext | Context.ParentheziedContext) ^
+      (Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.ParentheziedContext)) |
     (isAsync ? Context.AwaitContext : 0);
 
   const expression = state.token !== Token.LeftBrace;
