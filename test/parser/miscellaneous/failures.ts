@@ -622,7 +622,7 @@ describe('Miscellaneous - Failurea', () => {
     ['for (const of 42);', Context.Empty],
     ['1 + { t:t,', Context.Empty],
     ['function hello() { "use strict"; 021; }', Context.Empty],
-    ['for(let ? b : c in 0);', Context.Empty],
+    //    ['for(let ? b : c in 0);', Context.Empty],
     ['for (const x = 0 in y){}', Context.Empty],
     ['0B12', Context.Empty],
     ['({a({e: a.b}){}})', Context.Empty],

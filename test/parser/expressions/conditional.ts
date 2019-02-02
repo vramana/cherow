@@ -36,7 +36,7 @@ for (const arg of validSyntax) {
 pass('Expressions - Conditional (pass)', [
   [
     'x = (0) ? 1 : 2',
-    Context.Empty,
+    Context.LocationTracking,
     {
       type: 'Program',
       sourceType: 'script',
@@ -47,27 +47,123 @@ pass('Expressions - Conditional (pass)', [
             type: 'AssignmentExpression',
             left: {
               type: 'Identifier',
-              name: 'x'
+              name: 'x',
+              start: 0,
+              end: 1,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 1
+                }
+              }
             },
             operator: '=',
             right: {
               type: 'ConditionalExpression',
               test: {
                 type: 'Literal',
-                value: 0
+                value: 0,
+                start: 5,
+                end: 6,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 5
+                  },
+                  end: {
+                    line: 1,
+                    column: 6
+                  }
+                }
               },
               consequent: {
                 type: 'Literal',
-                value: 1
+                value: 1,
+                start: 10,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 10
+                  },
+                  end: {
+                    line: 1,
+                    column: 11
+                  }
+                }
               },
               alternate: {
                 type: 'Literal',
-                value: 2
+                value: 2,
+                start: 14,
+                end: 15,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 14
+                  },
+                  end: {
+                    line: 1,
+                    column: 15
+                  }
+                }
+              },
+              start: 4,
+              end: 15,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 4
+                },
+                end: {
+                  line: 1,
+                  column: 15
+                }
               }
+            },
+            start: 0,
+            end: 15,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 15
+              }
+            }
+          },
+          start: 0,
+          end: 15,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 15
             }
           }
         }
-      ]
+      ],
+      start: 0,
+      end: 15,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 15
+        }
+      }
     }
   ],
   [
@@ -108,7 +204,7 @@ pass('Expressions - Conditional (pass)', [
   ],
   [
     'a ? !b : !c;',
-    Context.Empty,
+    Context.LocationTracking,
     {
       type: 'Program',
       sourceType: 'script',
@@ -119,29 +215,125 @@ pass('Expressions - Conditional (pass)', [
             type: 'ConditionalExpression',
             test: {
               type: 'Identifier',
-              name: 'a'
+              name: 'a',
+              start: 0,
+              end: 1,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 1
+                }
+              }
             },
             consequent: {
               type: 'UnaryExpression',
               operator: '!',
               argument: {
                 type: 'Identifier',
-                name: 'b'
+                name: 'b',
+                start: 5,
+                end: 6,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 5
+                  },
+                  end: {
+                    line: 1,
+                    column: 6
+                  }
+                }
               },
-              prefix: true
+              prefix: true,
+              start: 4,
+              end: 6,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 4
+                },
+                end: {
+                  line: 1,
+                  column: 6
+                }
+              }
             },
             alternate: {
               type: 'UnaryExpression',
               operator: '!',
               argument: {
                 type: 'Identifier',
-                name: 'c'
+                name: 'c',
+                start: 10,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 10
+                  },
+                  end: {
+                    line: 1,
+                    column: 11
+                  }
+                }
               },
-              prefix: true
+              prefix: true,
+              start: 9,
+              end: 11,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 9
+                },
+                end: {
+                  line: 1,
+                  column: 11
+                }
+              }
+            },
+            start: 0,
+            end: 11,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 11
+              }
+            }
+          },
+          start: 0,
+          end: 12,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 12
             }
           }
         }
-      ]
+      ],
+      start: 0,
+      end: 12,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 12
+        }
+      }
     }
   ],
   [
