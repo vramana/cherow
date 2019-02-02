@@ -2,7 +2,57 @@ import { ParserState, Context, Flags } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars, isIdentifierStart, isIdentifierPart } from '../chars';
 import { Errors, report } from '../errors';
-import { fromCodePoint, toHex } from './common';
+import { fromCodePoint, toHex, advanceOne, advance } from './common';
+
+/**
+ * Scan identifier or keyword.
+ *
+ * Note: A valid keyword start with a lowercase letter and are between 2 and 11 characters long
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function scanIdentifierOrKeyword(state: ParserState, context: Context, first: number): Token {
+  const { index, column } = state;
+  while (isIdentifierPart((first = state.source.charCodeAt(state.index)))) {
+    advanceOne(state);
+  }
+  state.tokenValue = state.source.slice(state.startIndex, state.index);
+  if (state.index < state.length && first === Chars.Backslash) {
+    state.index = index;
+    state.column = column;
+    return scanIdentifierRest(state, context);
+  }
+
+  const len = state.tokenValue.length;
+  if (len >= 2 && len <= 11) {
+    const keyword: Token | undefined = descKeywordTable[state.tokenValue];
+    if (keyword !== undefined) return keyword;
+  }
+  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
+  return Token.Identifier;
+}
+
+/**
+ * Scan identifier
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function scanIdentifier(state: ParserState, context: Context, first: number): Token {
+  const { index, column } = state;
+  while (isIdentifierPart((first = state.source.charCodeAt(state.index)))) {
+    advanceOne(state);
+  }
+  state.tokenValue = state.source.slice(state.startIndex, state.index);
+  if (state.index < state.length && first === Chars.Backslash) {
+    state.index = index;
+    state.column = column;
+    return scanIdentifierRest(state, context);
+  }
+  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
+  return Token.Identifier;
+}
 
 export function scanMaybeIdentifier(state: ParserState, _: Context, first: number): Token | void {
   switch (first) {
@@ -24,73 +74,18 @@ export function scanMaybeIdentifier(state: ParserState, _: Context, first: numbe
     case Chars.IdeographicSpace:
     case Chars.Zwj:
     case Chars.Zwnj:
-      state.index++;
-      state.column++;
+      advanceOne(state);
       return Token.WhiteSpace;
     case Chars.LineSeparator:
     case Chars.ParagraphSeparator:
       state.flags = (state.flags & ~Flags.LastIsCR) | Flags.NewLine;
-      state.index++;
+      ++state.index;
       state.column = 0;
-      state.line++;
+      ++state.line;
       return Token.WhiteSpace;
   }
-  // TODO
+  first = nextIdentifierChar(state);
   report(state, Errors.IllegalCaracter, String.fromCharCode(first));
-}
-
-/**
- * Scan identifier or keyword.
- *
- * Note: A valid keyword start with a lowercase letter and are between 2 and 11 characters long
- *
- * @param parser Parser object
- * @param context Context masks
- */
-export function scanIdentifierOrKeyword(state: ParserState, context: Context): Token {
-  const { index, column } = state;
-  while (isIdentifierPart(state.source.charCodeAt(state.index))) {
-    state.index++;
-    state.column++;
-  }
-  state.tokenValue = state.source.slice(state.startIndex, state.index);
-  if (state.source.charCodeAt(state.index) === Chars.Backslash) {
-    state.index = index;
-    state.column = column;
-    return scanIdentifierRest(state, context);
-  }
-
-  const len = state.tokenValue.length;
-  if (len >= 2 && len <= 11) {
-    const keyword: Token | undefined = descKeywordTable[state.tokenValue];
-    if (keyword !== undefined) return keyword;
-  }
-  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
-  return Token.Identifier;
-}
-
-/**
- * Scan identifier
- *
- * @param parser Parser object
- * @param context Context masks
- */
-export function scanIdentifier(state: ParserState, context: Context): Token {
-  let { index, column } = state;
-  while (isIdentifierPart(state.source.charCodeAt(index))) {
-    index++;
-    column++;
-  }
-  state.tokenValue = state.source.slice(state.startIndex, index);
-  if (state.source.charCodeAt(index) === Chars.Backslash) {
-    state.index = index;
-    state.column = column;
-    return scanIdentifierRest(state, context);
-  }
-  state.index = index;
-  state.column = column;
-  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, index);
-  return Token.Identifier;
 }
 
 /**
@@ -100,23 +95,32 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
  * @param context Context masks
  */
 export function scanPrivateName(state: ParserState, _: Context): Token {
-  let { index, column } = state;
-  index++;
-  column++;
-  const start = index;
+  advanceOne(state);
+  const start = state.index;
   // This validation is only to prevent `# x` and `# 3foo` cases.
   // Note: We have to be inside a class context for this to be valid
-  if (/*!(context & Context.InClass) ||*/ !isIdentifierStart(state.source.charCodeAt(index))) {
-    report(state, Errors.UnexpectedToken, fromCodePoint(state.source.charCodeAt(index)));
+  if (/*!(context & Context.InClass) ||*/ !isIdentifierStart(state.source.charCodeAt(state.index))) {
+    report(state, Errors.UnexpectedToken, fromCodePoint(state.source.charCodeAt(state.index)));
   }
-  while (isIdentifierStart(state.source.charCodeAt(index))) {
-    index++;
-    column++;
+  while (isIdentifierStart(state.source.charCodeAt(state.index))) {
+    advanceOne(state);
   }
-  state.tokenValue = state.source.slice(start, index);
-  state.index = index;
-  state.column = column;
+  state.tokenValue = state.source.slice(start, state.index);
   return Token.PrivateName;
+}
+
+export function nextIdentifierChar(state: ParserState) {
+  let hi = state.source.charCodeAt(state.index);
+  if (hi >= 0xd800 && hi <= 0xdbff) {
+    let lo = state.source.charCodeAt(state.index + 1);
+    if ((lo & 0xfc00) === 0xdc00) {
+      hi = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
+      ++state.index;
+    }
+    ++state.column;
+  }
+
+  return hi;
 }
 
 export function scanIdentifierRest(state: ParserState, context: Context): Token {
@@ -124,10 +128,9 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
   let result = '';
   let start = state.index;
   while (state.index < state.length) {
-    let ch = state.source.charCodeAt(state.index);
+    let ch = nextIdentifierChar(state);
     if (isIdentifierPart(ch)) {
-      state.index++;
-      state.column++;
+      advanceOne(state);
     } else if ((ch & 8) === 8 && ch === Chars.Backslash) {
       hasEscape = true;
       result += state.source.substring(start, state.index);
@@ -135,15 +138,6 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
       if (!isIdentifierPart(cookedChar)) report(state, Errors.InvalidIdentChar);
       result += fromCodePoint(cookedChar);
       start = state.index;
-    } else if (ch >= 0xd800 && ch <= 0xdbff) {
-      if (state.index >= state.length) report(state, Errors.Unexpected);
-      const lo = state.source.charCodeAt(state.index);
-      ++state.index;
-      ++state.column;
-      if (!(lo >= 0xdc00 && lo <= 0xdfff)) {
-        report(state, Errors.Unexpected);
-      }
-      ch = ((ch & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
     } else {
       break;
     }
@@ -180,11 +174,9 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
 
 export function scanIdentifierUnicodeEscape(state: ParserState) {
   // Read 'u' characters
-  state.index++;
-  state.column++;
+  advanceOne(state);
   if (state.source.charCodeAt(state.index) !== Chars.LowerU) report(state, Errors.UnsupportedIdentEscape);
-  state.index++;
-  state.column++;
+  advanceOne(state);
   return scanUnicodeEscape(state);
 }
 
@@ -204,13 +196,13 @@ function scanUnicodeEscape(state: ParserState): number {
 
     ch = source.charCodeAt(index++);
 
-    while (ch !== Chars.RightBrace) {
+    do {
       const digit = toHex(ch);
       if (digit < 0) return report(state, Errors.InvalidIdentChar);
-      value = (value << 4) | digit;
+      value = (value << 4) | toHex(ch);
       if (value > 0x10ffff) report(state, Errors.UnicodeOverflow);
       ch = source.charCodeAt(index++);
-    }
+    } while (ch !== Chars.RightBrace);
 
     if (value < 0 || ch !== Chars.RightBrace) report(state, Errors.InvalidDynamicUnicode);
   } else {

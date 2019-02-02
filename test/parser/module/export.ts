@@ -4,6 +4,25 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Module - Export', () => {
+  // Namespace export parsing
+  for (const arg of [
+    "export * as arguments from 'bar'",
+    "export * as await from 'bar'",
+    "export * as default from 'bar'",
+    "export * as enum from 'bar'",
+    "export * as foo from 'bar'",
+    "export * as for from 'bar'",
+    "export * as let from 'bar'",
+    "export * as static from 'bar'",
+    "export * as yield from 'bar'"
+  ]) {
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
+
   const failures = [
     'export {',
     'var a; export { a',
@@ -14,7 +33,22 @@ describe('Module - Export', () => {
     'var a, b; export { a as , b};',
     'export var {[x]} = z;',
     'export var {[x]};',
+    'export function p\\u0061ckage() {}',
+    'export function br\\u0065ak() {}',
     'export var {[x] = y} = z;',
+    'export async function f(){}; export {f};',
+    'export async function *f(){}; export {f};',
+    'export function f(){}; export {f};',
+    'export function f(){}; function f(){};',
+    'export function f(){}; async function f(){};',
+    'export function f(){}; class f{};',
+    'export async function f(){}; class f{};',
+    'export class f{}; function f(){};',
+    'export class f{}; async function f(){};',
+    'export foo; export bar; class f{}; async function foo(){};',
+    'export async function f(){}; function f(){};',
+    'export async function f(){}; const f = foo;',
+    'const f = foo; export async function f(){};',
     'export {x}; export let [...x] = y;',
     'export {x}; export let {...x} = y;',
     'export {x}; export let [x] = y;',
@@ -323,6 +357,13 @@ describe('Module - Export', () => {
     'export {get}; function get() {};',
     'function f() {}; f(); export { f };',
     'export let x = 0;',
+    "export { a as b } from 'm.js';",
+    "export * from 'p.js';",
+    'export var foo;',
+    'export function goo() {};',
+    'export let hoo;',
+    'export const joo = 42;',
+    'export default (function koo() {});',
     'export var y = 0;',
     'export const z = 0;',
     'export function func() { };',
@@ -892,6 +933,36 @@ describe('Module - Export', () => {
         ]
       }
     ],
+    [
+      'export function \\u{5A}() {}',
+      Context.Strict | Context.Module,
+      {
+        body: [
+          {
+            declaration: {
+              async: false,
+              body: {
+                body: [],
+                type: 'BlockStatement'
+              },
+              generator: false,
+              id: {
+                name: 'Z',
+                type: 'Identifier'
+              },
+              params: [],
+              type: 'FunctionDeclaration'
+            },
+            source: null,
+            specifiers: [],
+            type: 'ExportNamedDeclaration'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
+      }
+    ],
+
     [
       'export {foo} from "foo";',
       Context.Strict | Context.Module,
@@ -2235,106 +2306,6 @@ describe('Module - Export', () => {
           }
         ],
         sourceType: 'module'
-      }
-    ],
-    [
-      'export async function f(){}; export {f};',
-      Context.Strict | Context.Module,
-      {
-        type: 'Program',
-        sourceType: 'module',
-        body: [
-          {
-            type: 'ExportNamedDeclaration',
-            source: null,
-            specifiers: [],
-            declaration: {
-              type: 'FunctionDeclaration',
-              params: [],
-              body: {
-                type: 'BlockStatement',
-                body: []
-              },
-              async: true,
-              generator: false,
-              id: {
-                type: 'Identifier',
-                name: 'f'
-              }
-            }
-          },
-          {
-            type: 'EmptyStatement'
-          },
-          {
-            type: 'ExportNamedDeclaration',
-            source: null,
-            specifiers: [
-              {
-                type: 'ExportSpecifier',
-                local: {
-                  type: 'Identifier',
-                  name: 'f'
-                },
-                exported: {
-                  type: 'Identifier',
-                  name: 'f'
-                }
-              }
-            ],
-            declaration: null
-          }
-        ]
-      }
-    ],
-    [
-      'export async function *f(){}; export {f};',
-      Context.Strict | Context.Module,
-      {
-        type: 'Program',
-        sourceType: 'module',
-        body: [
-          {
-            type: 'ExportNamedDeclaration',
-            source: null,
-            specifiers: [],
-            declaration: {
-              type: 'FunctionDeclaration',
-              params: [],
-              body: {
-                type: 'BlockStatement',
-                body: []
-              },
-              async: true,
-              generator: true,
-              id: {
-                type: 'Identifier',
-                name: 'f'
-              }
-            }
-          },
-          {
-            type: 'EmptyStatement'
-          },
-          {
-            type: 'ExportNamedDeclaration',
-            source: null,
-            specifiers: [
-              {
-                type: 'ExportSpecifier',
-                local: {
-                  type: 'Identifier',
-                  name: 'f'
-                },
-                exported: {
-                  type: 'Identifier',
-                  name: 'f'
-                }
-              }
-            ],
-            declaration: null
-          }
-        ]
       }
     ],
 

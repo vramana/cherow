@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { next } from '../../src/scanner';
+import { scanSingleToken } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
 
@@ -24,7 +24,7 @@ describe('Lexer - OnComment', () => {
           end
         };
       });
-      next(state, Context.OptionsNext | Context.OptionsRanges);
+      scanSingleToken(state, Context.OptionsNext | Context.OptionsRanges);
       t.deepEqual(
         {
           hasNext: state.index < state.length,

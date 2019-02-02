@@ -63,3 +63,13 @@ export function toHex(code: number): number {
 export function isDigit(ch: number): boolean {
   return ch >= Chars.Zero && ch <= Chars.Nine;
 }
+
+export function advanceOne(state: ParserState): void {
+  state.index++;
+  state.column++;
+}
+
+export function advance(state: ParserState, ch: number): void {
+  advanceOne(state);
+  if (ch > 0xffff) state.index++;
+}

@@ -1,4 +1,4 @@
-import { next } from '../../src/scanner';
+import { scanSingleToken } from '../../src/scanner';
 import { fromCodePoint } from '../../src/scanner/common';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
@@ -30,7 +30,7 @@ describe('Lexer - Template literal', () => {
           if (result != null) {
             assert.match<TestResult>(
               {
-                token: next(state, actual),
+                token: scanSingleToken(state, actual),
                 hasNext: state.index < state.length,
                 value: state.tokenValue,
                 raw: state.tokenRaw,
@@ -41,7 +41,7 @@ describe('Lexer - Template literal', () => {
             );
           } else {
             assert.throws(SyntaxError, () => {
-              next(state, actual);
+              scanSingleToken(state, actual);
             });
           }
         }
@@ -214,7 +214,7 @@ describe('Lexer - Template literal', () => {
 
         assert.match(
           {
-            token: next(state, context),
+            token: scanSingleToken(state, context),
             hasNext: state.index < state.length,
             value: state.tokenValue,
             raw: state.tokenRaw,
@@ -236,7 +236,7 @@ describe('Lexer - Template literal', () => {
         const state = create(source, undefined);
         assert.match(
           {
-            token: next(state, context | Context.Strict),
+            token: scanSingleToken(state, context | Context.Strict),
             hasNext: state.index < state.length,
             value: state.tokenValue,
             raw: state.tokenRaw,

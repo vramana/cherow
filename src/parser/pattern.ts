@@ -13,7 +13,7 @@ import {
   nameIsArgumentsOrEval,
   finishNode
 } from '../common';
-import { next } from '../scanner';
+import { scanSingleToken } from '../scanner';
 import { parseAssignmentExpression, parseIdentifier, parseLiteral, parseComputedPropertyName } from './expression';
 import { report, Errors } from '../errors';
 import { optional, expect, addVariable } from '../common';
@@ -87,7 +87,7 @@ export function parseBindingIdentifier(
     addToExportedBindings(state, state.tokenValue);
   }
 
-  next(state, context | Context.AllowPossibleRegEx);
+  scanSingleToken(state, context | Context.AllowPossibleRegEx);
   return finishNode(state, context, startIndex, {
     type: 'Identifier',
     name

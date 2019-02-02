@@ -3993,7 +3993,27 @@ switch (1) {
 }
 
 func('foo', 'bar')`,
-    'console.log(a, ...(cond ? [a, b, c] : [d, e, f]));'
+    'console.log(a, ...(cond ? [a, b, c] : [d, e, f]));',
+    'let foo; ',
+    'let foo = 0; ',
+    'let [foo] = [1]; ',
+    'let {foo} = {foo: 2}; ',
+    'let {foo=3} = {}; ',
+    'var foo; ',
+    'var foo = 0; ',
+    'var [foo] = [1]; ',
+    'var {foo} = {foo: 2}; ',
+    'var {foo=3} = {}; ',
+    '{ var foo; }; ',
+    '{ var foo = 0; }; ',
+    '{ var [foo] = [1]; }; ',
+    '{ var {foo} = {foo: 2}; }; ',
+    '{ var {foo=3} = {}; }; ',
+    'function foo() {}; ',
+    'function* foo() {}; ',
+    'async function foo() {}; ',
+    'class foo {}; ',
+    'class foo extends null {}; '
   ];
 
   for (const arg of programs) {

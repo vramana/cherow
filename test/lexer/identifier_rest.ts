@@ -1,8 +1,8 @@
 import * as t from 'assert';
-import { next, scanIdentifierRest } from '../../src/scanner';
+import { scanIdentifierRest } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
-import { Token } from 'token';
+import { Token } from '../../src/token';
 
 describe('Lexer - Identifiers', () => {
   describe('Identifiers', () => {
@@ -80,6 +80,17 @@ describe('Lexer - Identifiers', () => {
       index: 10,
       line: 1,
       column: 10
+    });
+
+    pass('scan _𞸃', {
+      value: '_𞸃',
+      source: '_𞸃',
+      hasNext: false,
+      raw: '_𞸃',
+      token: Token.Identifier,
+      index: 3,
+      line: 1,
+      column: 3
     });
 
     pass('scan int\\u0065rface', {
@@ -234,6 +245,28 @@ describe('Lexer - Identifiers', () => {
       index: 6,
       line: 1,
       column: 6
+    });
+
+    pass('scan \\u{5A}', {
+      value: 'aZb',
+      source: 'a\\u{5A}b',
+      hasNext: false,
+      raw: 'a\\u{5A}b',
+      token: Token.Identifier,
+      index: 8,
+      line: 1,
+      column: 8
+    });
+
+    pass('scan \\u{5A}', {
+      value: 'aZbaZb',
+      source: 'a\\u{5A}ba\\u{5A}b',
+      hasNext: false,
+      raw: 'a\\u{5A}ba\\u{5A}b',
+      token: Token.Identifier,
+      index: 16,
+      line: 1,
+      column: 16
     });
 
     if (isModule) {

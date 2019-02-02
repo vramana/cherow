@@ -2,7 +2,7 @@ import { ParserState, Context, Flags } from '../common';
 import { Chars } from '../chars';
 import { Token } from '../token';
 import { report, Errors } from '../errors';
-import { fromCodePoint, toHex, Escape, scanNext } from './common';
+import { fromCodePoint, toHex, Escape, scanNext, advanceOne } from './common';
 
 /**
  * Scan a string literal
@@ -18,29 +18,27 @@ export function scanStringLiteral(state: ParserState, context: Context, quote: n
 
   let ch = scanNext(state, Errors.UnterminatedString);
   while (ch !== quote) {
-    if ((ch & 8) === 8) {
-      if (ch === Chars.Backslash) {
-        ch = scanNext(state, Errors.UnterminatedString);
+    if (ch === Chars.Backslash) {
+      ch = scanNext(state, Errors.UnterminatedString);
 
-        if (ch >= 128) {
-          ret += fromCodePoint(ch);
-        } else {
-          state.lastChar = ch;
-          const code = table[ch](state, context, ch);
+      if (ch >= 128) {
+        ret += fromCodePoint(ch);
+      } else {
+        state.lastChar = ch;
+        const code = table[ch](state, context, ch);
 
-          if (code >= 0) ret += fromCodePoint(code);
-          else reportInvalidEscapeError(state, code as Escape);
-          ch = state.lastChar;
-        }
-      } else if (((ch & 83) < 3 && ch === Chars.CarriageReturn) || ch === Chars.LineFeed) {
-        report(state, Errors.Unexpected);
-      } else ret += fromCodePoint(ch);
+        if (code >= 0) ret += fromCodePoint(code);
+        else reportInvalidEscapeError(state, code as Escape);
+        ch = state.lastChar;
+      }
+    } else if (((ch - 0xe) & 0x2000 && ch === Chars.CarriageReturn) || ch === Chars.LineFeed) {
+      report(state, Errors.Unexpected);
     } else ret += fromCodePoint(ch);
+
     ch = scanNext(state, Errors.UnterminatedString);
   }
 
-  state.index++; // Consume the quote
-  state.column++;
+  advanceOne(state); // Consume the quote
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(start, state.index);
   state.tokenValue = ret;
   state.lastChar = lastChar;

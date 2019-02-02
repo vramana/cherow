@@ -16,7 +16,7 @@ import {
   finishNode
 } from '../common';
 import { Token, KeywordDescTable } from '../token';
-import { next } from '../scanner';
+import { scanSingleToken } from '../scanner';
 import { optional, expect, addVariable, checkIfExistInLexicalBindings, lookAheadOrScan } from '../common';
 import { report, Errors } from '../errors';
 import { parseDirective, parseStatementListItem, parseVariableStatement } from './statement';
@@ -85,7 +85,13 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
     switch (state.token) {
       // export default HoistableDeclaration[Default]
       case Token.FunctionKeyword: {
-        declaration = parseHoistableFunctionDeclaration(state, context | Context.RequireIdentifier, scope, true, false);
+        declaration = parseHoistableFunctionDeclaration(
+          state,
+          context | Context.RequireIdentifier,
+          scope,
+          Origin.ExportDefault,
+          false
+        );
         break;
       }
       // export default ClassDeclaration[Default]
@@ -95,7 +101,12 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
       // export default HoistableDeclaration[Default]
       case Token.AsyncKeyword:
-        declaration = parseAsyncFunctionOrAssignmentExpression(state, context | Context.RequireIdentifier, scope, true);
+        declaration = parseAsyncFunctionOrAssignmentExpression(
+          state,
+          context | Context.RequireIdentifier,
+          scope,
+          Origin.ExportDefault
+        );
         break;
 
       default:
@@ -119,7 +130,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
   switch (state.token) {
     case Token.Multiply: {
-      next(state, context); // '*'
+      scanSingleToken(state, context); // '*'
       if (context & Context.OptionsExperimental && optional(state, context, Token.AsKeyword)) {
         addVariableAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
         specifiers.push(
@@ -154,7 +165,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
         const local = parseIdentifier(state, context);
         let exported: any;
         if (state.token === <Token>Token.AsKeyword) {
-          next(state, context);
+          scanSingleToken(state, context);
           if ((state.token & Token.IsIdentifier) === 0) report(state, Errors.InvalidKeywordAsAlias);
           exportedNames.push(state.tokenValue);
           exportedBindings.push(tokenValue);
@@ -218,12 +229,12 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       declaration = parseVariableStatement(state, context, Type.Variable, Origin.Export, scope);
       break;
     case Token.FunctionKeyword:
-      declaration = parseHoistableFunctionDeclaration(state, context, scope, true, false);
+      declaration = parseHoistableFunctionDeclaration(state, context, scope, Origin.Export, false);
       break;
     case Token.AsyncKeyword:
-      next(state, context);
+      scanSingleToken(state, context);
       if ((state.flags & Flags.NewLine) === 0 && (state.token as Token) === Token.FunctionKeyword) {
-        declaration = parseHoistableFunctionDeclaration(state, context, scope, false, true);
+        declaration = parseHoistableFunctionDeclaration(state, context, scope, Origin.Export, true);
         break;
       }
     // falls through
@@ -380,7 +391,7 @@ function parseImportNamespace(
 ): void {
   // NameSpaceImport:
   //  * as ImportedBinding
-  next(state, context);
+  scanSingleToken(state, context);
   expect(state, context, Token.AsKeyword);
   validateBindingIdentifier(state, context, Type.Const);
   addVariable(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);
@@ -423,9 +434,9 @@ export function parseAsyncFunctionOrAssignmentExpression(
   state: ParserState,
   context: Context,
   scope: ScopeState,
-  isDefault: boolean
+  origin: Origin
 ): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
   return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-    ? parseHoistableFunctionDeclaration(state, context, scope, isDefault, true)
+    ? parseHoistableFunctionDeclaration(state, context, scope, origin, true)
     : parseAssignmentExpression(state, context);
 }

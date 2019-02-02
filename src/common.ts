@@ -1,6 +1,6 @@
 import * as ESTree from './estree';
 import { Token, KeywordDescTable } from './token';
-import { next } from './scanner';
+import { scanSingleToken } from './scanner';
 import { Errors, report } from './errors';
 
 // prettier-ignore
@@ -42,6 +42,7 @@ export const enum Context {
   AllowNewTarget = 1 << 26,
   AllowReturn = 1 << 27,
   Expression  = 1 << 28,
+  OptionsGlobalAwait = 1 << 29,
   LocationTracking = OptionsLoc | OptionsRanges
 }
 
@@ -65,6 +66,8 @@ export const enum Flags {
   HasConstructor = 1 << 11,
   HasAwait  = 1 << 12,
   HasYield   = 1 << 13,
+  ContainsSeparator = 1 << 14,
+
 }
 // prettier-ignore
 /**
@@ -90,16 +93,17 @@ export const enum Origin {
   Statement = 1 << 0,
   ForStatement = 1 << 1,
   Export = 1 << 2,
-  CatchClause = 1 << 3,
-  AsyncArgs = 1 << 4,
-  ArgList = 1 << 5,
-  ClassExprDecl = 1 << 6,
-  Declaration = 1 << 7,
-  AsyncArrow = 1 << 8,
-  Arrow = 1 << 9,
-  AsyncFunction = 1 << 10,
-  ArrayLiteral = 1 << 11,
-  ObjectExpression = 1 << 12
+  ExportDefault = 1 << 3,
+  CatchClause = 1 << 4,
+  AsyncArgs = 1 << 5,
+  ArgList = 1 << 6,
+  ClassExprDecl = 1 << 7,
+  Declaration = 1 << 8,
+  AsyncArrow = 1 << 9,
+  Arrow = 1 << 10,
+  AsyncFunction = 1 << 11,
+  ArrayLiteral = 1 << 12,
+  ObjectExpression = 1 << 13,
 }
 
 export const enum ScopeType {
@@ -109,12 +113,6 @@ export const enum ScopeType {
   SwitchStatement = 3,
   CatchClause = 4,
   ArgumentList = 5
-}
-
-export const enum LabelledState {
-  None = 0,
-  AllowAsLabelled = 1 << 0,
-  Disallow = 1 << 1
 }
 
 export const enum Modifiers {
@@ -213,7 +211,6 @@ export interface ParserState {
   numCapturingParens: number;
   largestBackReference: number;
   lastChar: number;
-  inCatch: boolean;
   assignable: boolean;
   bindable: boolean;
   exportedNames: any[];
@@ -277,7 +274,7 @@ export function finishNode<T extends ESTree.Node>(state: ParserState, context: C
 
 export function optional(state: ParserState, context: Context, t: Token): boolean {
   if (state.token === t) {
-    next(state, context);
+    scanSingleToken(state, context);
     return true;
   }
   return false;
@@ -285,7 +282,7 @@ export function optional(state: ParserState, context: Context, t: Token): boolea
 
 export function expect(state: ParserState, context: Context, t: Token): void {
   if (state.token === t) {
-    next(state, context);
+    scanSingleToken(state, context);
   } else {
     report(
       state,
@@ -342,7 +339,6 @@ export function addVariable(
       if (lex['@' + key] !== undefined) {
         if (type === ScopeType.CatchClause) {
           if (isVarDecl && context & Context.OptionsWebCompat) {
-            state.inCatch = true;
           } else {
             report(state, Errors.InvalidCatchVarBinding, key);
           }
@@ -550,7 +546,7 @@ export function lookAheadOrScan<T>(
  * @param context  Context masks
  */
 export function isLexical(state: ParserState, context: Context): boolean {
-  next(state, context);
+  scanSingleToken(state, context);
   const { token } = state;
   return !!(
     (token & Token.Identifier) === Token.IsIdentifier ||
@@ -675,7 +671,7 @@ export function addToExportedBindings(state: ParserState, exportedName: any) {
 
 export function nextTokenIsFuncKeywordOnSameLine(state: ParserState, context: Context): boolean {
   const line = state.line;
-  next(state, context);
+  scanSingleToken(state, context);
   return state.token === Token.FunctionKeyword && state.line === line;
 }
 
@@ -844,7 +840,7 @@ export function createSubScope(parent: ScopeState, type: ScopeType): ScopeState 
  * @param context  Context masks
  */
 export function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Context): boolean {
-  next(state, context);
+  scanSingleToken(state, context);
   return state.token === Token.LeftParen || state.token === Token.Period;
 }
 

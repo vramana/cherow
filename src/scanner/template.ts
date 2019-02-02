@@ -1,7 +1,7 @@
 import { ParserState, Context } from '../common';
 import { Chars } from '../chars';
 import { Token } from '../token';
-import { Escape, fromCodePoint, scanNext } from './common';
+import { Escape, fromCodePoint, scanNext, advanceOne } from './common';
 import { table, reportInvalidEscapeError } from './string';
 import { report, Errors } from '../errors';
 
@@ -18,63 +18,51 @@ export function scanTemplate(state: ParserState, context: Context): Token {
 
   let ch = scanNext(state, Errors.UnterminatedTemplate);
 
-  loop: while (ch !== Chars.Backtick) {
-    switch (ch) {
-      case Chars.Dollar: {
-        if (state.index + 1 < state.source.length && state.source.charCodeAt(state.index + 1) === Chars.LeftBrace) {
-          state.index++;
-          state.column++;
-          tail = false;
-          break loop;
-        }
-        ret += '$';
+  while (ch !== Chars.Backtick) {
+    if (ch === Chars.Dollar) {
+      if (state.index + 1 < state.source.length && state.source.charCodeAt(state.index + 1) === Chars.LeftBrace) {
+        advanceOne(state);
+        tail = false;
         break;
       }
+      ret += '$';
+    } else if (ch === Chars.Backslash) {
+      ch = scanNext(state, Errors.UnterminatedTemplate);
 
-      case Chars.Backslash:
-        ch = scanNext(state, Errors.UnterminatedTemplate);
+      if (ch >= 128) {
+        ret += fromCodePoint(ch);
+      } else {
+        state.lastChar = ch;
+        const code = table[ch](state, context, ch);
 
-        if (ch >= 128) {
-          ret += fromCodePoint(ch);
-        } else {
-          state.lastChar = ch;
-          const code = table[ch](state, context, ch);
-
-          if (code >= 0) {
-            ret += fromCodePoint(code);
-          } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
-            ret = undefined;
-            ch = scanLooserTemplateSegment(state, state.lastChar);
-            if (ch < 0) {
-              ch = -ch;
-              tail = false;
-            }
-            break loop;
-          } else {
-            reportInvalidEscapeError(state, code as Escape);
+        if (code >= 0) {
+          ret += fromCodePoint(code);
+        } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
+          ret = undefined;
+          ch = scanLooserTemplateSegment(state, state.lastChar);
+          if (ch < 0) {
+            ch = -ch;
+            tail = false;
           }
-          ch = state.lastChar;
+          break;
+        } else {
+          reportInvalidEscapeError(state, code as Escape);
         }
-
-        break;
-
-      case Chars.CarriageReturn:
-      case Chars.LineFeed:
-      case Chars.LineSeparator:
-      case Chars.ParagraphSeparator:
+        ch = state.lastChar;
+      }
+    } else if ((ch - 0xe) & 0x2000) {
+      if (ch === Chars.CarriageReturn || ch === Chars.LineFeed || (ch ^ Chars.ParagraphSeparator) <= 1) {
         state.column = -1;
         state.line++;
-      // falls through
-
-      default:
-        if (ret != null) ret += fromCodePoint(ch);
-    }
+      }
+      // Anything else is just a normal character
+      if (ret != null) ret += fromCodePoint(ch);
+    } else if (ret != null) ret += fromCodePoint(ch);
 
     ch = scanNext(state, Errors.UnterminatedTemplate);
   }
 
-  state.index++;
-  state.column++; // Consume the quote or opening brace
+  advanceOne(state); // Consume the quote or opening brace
   state.tokenValue = ret;
   state.lastChar = lastChar;
   if (tail) {

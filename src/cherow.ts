@@ -4,9 +4,8 @@ import { parseStatementList } from './parser/statement';
 import { parseExpression } from './parser/expression';
 import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context, createScope, ScopeType } from './common';
-import { skipHashBang, next } from './scanner';
+import { skipHashBang, scanSingleToken } from './scanner';
 import { report, Errors } from './errors';
-import * as Scanner from './scanner';
 
 /**
  * `ECMAScript version
@@ -50,6 +49,9 @@ export interface Options {
 
   // The flag to allow return in the global scope
   globalReturn?: boolean;
+
+  // The flag to allow await in the global scope
+  globalAwait?: boolean;
 
   // The flag to allow experimental features
   experimental?: boolean;
@@ -100,6 +102,8 @@ export function parseSource(source: string, options: Options | void, context: Co
     if (options.raw) context |= Context.OptionsRaw;
     // The flag to allow return in the global scope
     if (options.globalReturn) context |= Context.OptionsGlobalReturn;
+    // The flag to allow await in the global scope
+    if (options.globalAwait) context |= Context.OptionsGlobalAwait;
     // The flag to enable implied strict mode
     if (options.impliedStrict) context |= Context.Strict;
     // The flag to enable experimental features
@@ -135,7 +139,7 @@ export function parseSource(source: string, options: Options | void, context: Co
   let body;
 
   // Prime the scanner
-  next(state, context | Context.AllowPossibleRegEx);
+  scanSingleToken(state, context | Context.AllowPossibleRegEx);
 
   if (context & Context.Expression) {
     body = parseExpression(state, context);

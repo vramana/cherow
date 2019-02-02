@@ -25,7 +25,7 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
 * Very well tested (~24 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * Supports all module loaders
-* Lightweight - ~72 KB minified (*17 kb smaller than Acorn*)
+* Lightweight - ~72 KB minified
 
 ## ESNext features
 
@@ -135,6 +135,7 @@ The second argument allows you to specify various options:
 | `module`          | Enable module syntax |
 | `ranges`          | Append start and end offsets to each node |
 | `globalReturn`    | Allow return in the global scope |
+| `globalAwait`     | Allow await in the global scope |
 | `webcompat`       | Enable web compability (*AnnexB*) |
 | `impliedStrict`   | Enable strict mode initial enforcement |
 | `next`            | Enable stage 3 support (*ESNext*)  |
@@ -143,6 +144,17 @@ The second argument allows you to specify various options:
 | `directives`      | Enable [directive prologue](https://github.com/danez/estree/blob/directive/es5.md#directive) to each literal node |
 | `onComment`       | Accept either callback or array to collect comment |
 | `onToken`         | Accept either callback or array and returns each found token |
+
+## Experimental features
+
+Cherow aim to support the same experimental features as found in V8 when enabling the 'experimental' flag. However. An exception has been made for the
+[numeric separators](https://github.com/tc39/proposal-numeric-separator) proposal. It's currently pending on Stage 2 after being "*degraded*" from Stage 3. The future of this proposal seems uncertain at the moment and will *not* be implemented.
+
+Also the [proposal-decorators](https://github.com/tc39/proposal-decorators) are constantly changing so at current stage this will *not* be implemented.
+
+## Nightly builds
+
+It's available on NPM.
 
 ## Contributing
 

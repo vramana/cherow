@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { next } from '../../src/scanner';
+import { scanSingleToken } from '../../src/scanner';
 import { Context, pushComment } from '../../src/common';
 import { create } from '../../src/state';
 
@@ -19,7 +19,7 @@ function run(isModule: boolean) {
   function pass(name: string, opts: Opts) {
     it(name, () => {
       const state = create(opts.source, pushComment(Context.OptionsLoc, []));
-      next(state, Context.OptionsWebCompat);
+      scanSingleToken(state, Context.OptionsWebCompat);
       t.deepEqual(
         {
           hasNext: state.index < state.length,
@@ -38,7 +38,7 @@ function run(isModule: boolean) {
   function fail(name: string, source: string, context: Context) {
     it(name, () => {
       const state = create(source, undefined);
-      t.throws(() => next(state, context));
+      t.throws(() => scanSingleToken(state, context));
     });
   }
 

@@ -9,6 +9,8 @@ describe('Expressions - API', () => {
       parse('foo', {
         experimental: true,
         loc: false,
+        globalAwait: true,
+        globalReturn: true,
         ranges: true,
         native: true,
         jsx: true,
