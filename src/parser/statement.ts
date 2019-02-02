@@ -43,8 +43,7 @@ import { parseExpression, parseSequenceExpression, parseAssignmentExpression, pa
 export function parseStatementList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
   const statements: ESTree.Statement[] = [];
   while (state.token === Token.StringLiteral) {
-    const tokenValue = state.tokenValue;
-    if (!(context & Context.Strict) && tokenValue.length === 10 && tokenValue === 'use strict') {
+    if (state.index - state.startIndex <= 12 && state.tokenValue === 'use strict') {
       context |= Context.Strict;
     }
     statements.push(parseDirective(state, context, scope));
@@ -598,7 +597,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
  */
 export function parseDoWhileStatement(state: ParserState, context: Context, scope: ScopeState): any {
   const { startIndex } = state;
-  expect(state, context, Token.DoKeyword);
+  expect(state, context | Context.AllowPossibleRegEx, Token.DoKeyword);
   const previousIterationStatement = state.iterationStatement;
   state.iterationStatement = LabelState.Iteration;
   const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, false);
@@ -727,7 +726,7 @@ function parseForStatement(
   if (optional(state, context | Context.AllowPossibleRegEx, Token.OfKeyword)) {
     if (isPattern) {
       if (!state.assignable || init.type === 'AssignmentExpression') {
-        report(state, Errors.InvalidLHSInForLoop);
+        report(state, Errors.InvalidLHSInOfForLoop, 'of');
       }
       reinterpret(state, init);
     }
@@ -750,7 +749,7 @@ function parseForStatement(
     if (isPattern) {
       if (!state.assignable || init.type === 'AssignmentExpression') {
         if (context & Context.Strict || (context & Context.OptionsWebCompat) === 0) {
-          report(state, Errors.InvalidLHSInForIn);
+          report(state, Errors.InvalidLHSInOfForLoop, 'in');
         }
       }
       reinterpret(state, init);
@@ -867,8 +866,8 @@ export function parseExpressionOrLabelledStatement(
  * @param context Context masks
  */
 export function parseDirective(state: ParserState, context: Context, scope: ScopeState): any {
-  const { startIndex } = state;
   if ((context & Context.OptionsDirectives) < 1) return parseStatementListItem(state, context, scope);
+  const { startIndex } = state;
   const directive = state.tokenRaw.slice(1, -1);
   const expression = parseExpression(state, context);
   consumeSemicolon(state, context);

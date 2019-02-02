@@ -23,6 +23,34 @@ describe('Statements - Do while', () => {
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [
+      'do /x/; while (false);',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              expression: {
+                regex: {
+                  flags: '',
+                  pattern: 'x'
+                },
+                type: 'Literal',
+                value: /x/
+              },
+              type: 'ExpressionStatement'
+            },
+            test: {
+              type: 'Literal',
+              value: false
+            },
+            type: 'DoWhileStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'do async \n () \n while (y)',
       Context.Empty,
       {

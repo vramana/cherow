@@ -828,67 +828,6 @@ describe('Lexer - Template literal', () => {
         column: 13
       });
     });
-
-    context('legacy octal', () => {
-      function taggedCharPart(desc: string, source: string, raw: string, strict: boolean) {
-        attemptPart(`${desc} (has next)`, `${source} `, undefined, raw, source.length, strict);
-        attemptPart(`${desc} (end)`, source, undefined, raw, source.length, strict);
-      }
-
-      it('scans \\0 - \\7 (with possible leading zeroes)', () => {
-        for (let code = 0; code <= 6; code++) {
-          const ch = fromCodePoint(code);
-
-          const escape0 = `\\${code}`;
-          testCharPart(`\`${escape0}\``, `\`${escape0}\``, ch, escape0, false);
-          testCharPart(`\`${escape0}\${`, `\`${escape0}\${`, ch, escape0, false);
-          if (code !== 0) {
-            taggedCharPart(`\`${escape0}\``, `\`${escape0}\``, escape0, true);
-            taggedCharPart(`\`${escape0}\${`, `\`${escape0}\${`, escape0, true);
-          }
-
-          const escape1 = `\\0${code}`;
-          testCharPart(`\`${escape1}\``, `\`${escape1}\``, ch, escape1, false);
-          testCharPart(`\`${escape1}\${`, `\`${escape1}\${`, ch, escape1, false);
-          taggedCharPart(`\`${escape1}\``, `\`${escape1}\``, escape1, true);
-          taggedCharPart(`\`${escape1}\${`, `\`${escape1}\${`, escape1, true);
-
-          const escape2 = `\\00${code}`;
-          testCharPart(`\`${escape2}\``, `\`${escape2}\``, ch, escape2, false);
-          testCharPart(`\`${escape2}\${`, `\`${escape2}\${`, ch, escape2, false);
-          taggedCharPart(`\`${escape2}\``, `\`${escape2}\``, escape2, true);
-          taggedCharPart(`\`${escape2}\${`, `\`${escape2}\${`, escape2, true);
-        }
-      });
-
-      it('scans \\10 - \\77 (with possible leading zeroes)', () => {
-        for (let code = 0o10; code <= 0o77; code++) {
-          const ch = fromCodePoint(code);
-          const escape0 = `\\${code.toString(8)}`;
-          testCharPart(`\`${escape0}\``, `\`${escape0}\``, ch, escape0, false);
-          testCharPart(`\`${escape0}\${`, `\`${escape0}\${`, ch, escape0, false);
-          taggedCharPart(`\`${escape0}\``, `\`${escape0}\``, escape0, true);
-          taggedCharPart(`\`${escape0}\${`, `\`${escape0}\${`, escape0, true);
-
-          const escape1 = `\\0${code.toString(8)}`;
-          testCharPart(`\`${escape1}\``, `\`${escape1}\``, ch, escape1, false);
-          testCharPart(`\`${escape1}\${`, `\`${escape1}\${`, ch, escape1, false);
-          taggedCharPart(`\`${escape1}\``, `\`${escape1}\``, escape1, true);
-          taggedCharPart(`\`${escape1}\${`, `\`${escape1}\${`, escape1, true);
-        }
-      });
-
-      it('scans \\100 - \\377 (with possible leading zeroes)', () => {
-        for (let code = 0o100; code <= 0o377; code++) {
-          const ch = fromCodePoint(code);
-          const escape = `\\${code.toString(8)}`;
-          testCharPart(`\`${escape}\``, `\`${escape}\``, ch, escape, false);
-          testCharPart(`\`${escape}\${`, `\`${escape}\${`, ch, escape, false);
-          taggedCharPart(`\`${escape}\``, `\`${escape}\``, escape, true);
-          taggedCharPart(`\`${escape}\${`, `\`${escape}\${`, escape, true);
-        }
-      });
-    });
   })();
 
   fail("doesn't scan '\\'", { source: "'\\'" });

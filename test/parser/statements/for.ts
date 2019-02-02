@@ -20,6 +20,7 @@ describe('Statements - For', () => {
 
     // General
 
+    ['for (var x = 1 of y);', Context.Empty],
     ['for (const let = 1; let < 1; let++) {}', Context.Empty],
     ['for (const let in {}) {}', Context.Empty],
     ['for (const let of []) {}', Context.Empty],

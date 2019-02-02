@@ -191,7 +191,7 @@ export function parseHostedClassDeclaration(
     validateBindingIdentifier(state, context, Type.ClassExprDecl);
     recordTokenValueAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, name);
     id = parseIdentifier(state, context);
-  }
+  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Class');
 
   if (isNotDefault) addToExportedNamesAndCheckForDuplicates(state, name);
   addToExportedBindings(state, name);
@@ -237,7 +237,7 @@ export function parseHoistableFunctionDeclaration(
     addFunctionName(state, context, scope, Type.Let, Origin.None, true);
     funcScope = createSubScope(funcScope, ScopeType.BlockStatement);
     id = parseIdentifier(state, context);
-  }
+  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Function');
 
   if ((origin & Origin.ExportDefault) === 0) addToExportedNamesAndCheckForDuplicates(state, name);
   addToExportedBindings(state, name);
@@ -378,15 +378,16 @@ function parseVariableDeclaration(
 
   if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
     init = secludeGrammar(state, context, 0, parseAssignmentExpression);
-    if (isInOrOf(state) && (origin & Origin.ForStatement || isBinding)) {
+    if (origin & Origin.ForStatement || isBinding) {
       // https://github.com/tc39/test262/blob/master/test/annexB/language/statements/for-in/strict-initializer.js
-      if (
-        (type & Type.Variable) < 1 ||
-        ((context & Context.OptionsWebCompat) === 0 || context & Context.Strict) ||
-        isBinding
-      ) {
-        report(state, Errors.ForInOfLoopInitializer);
-      }
+      if (state.token === Token.InKeyword) {
+        if (
+          isBinding ||
+          ((type & Type.Variable) < 1 || ((context & Context.OptionsWebCompat) === 0 || context & Context.Strict))
+        ) {
+          report(state, Errors.ForInOfLoopInitializer);
+        }
+      } else if (state.token === Token.OfKeyword) report(state, Errors.ForInOfLoopInitializer);
     }
   } else if ((type & Type.Const || isBinding) && !isInOrOf(state)) {
     report(state, Errors.DeclarationMissingInitializer, type & Type.Const ? 'const' : 'destructuring');

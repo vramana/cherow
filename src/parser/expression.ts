@@ -176,7 +176,7 @@ export function parseFunctionBody(
   context = context | (Context.TopLevel | Context.AllowReturn);
 
   while (state.token === Token.StringLiteral) {
-    if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
+    if (state.index - state.startIndex <= 12 && state.tokenValue === 'use strict') {
       if (state.flags & Flags.SimpleParameterList) report(state, Errors.IllegalUseStrict);
       context |= Context.Strict;
     }

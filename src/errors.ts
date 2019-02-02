@@ -90,8 +90,7 @@ export const enum Errors {
   UnexpectedStrictReserved,
   InvalidCoverInitializedName,
   InvalidArrowFuncParamList,
-  InvalidLHSInForIn,
-  InvalidLHSInForLoop,
+  InvalidLHSInOfForLoop,
   NoExperimentalOption,
   TrailingCommaAfterRest,
   StrictOctalLiteral,
@@ -136,7 +135,8 @@ export const enum Errors {
   InvalidAssignmentTarget,
   InvalidForAwait,
   WebCompatFunction,
-  InvalidUnaryWithNew
+  InvalidUnaryWithNew,
+  TemplateOctalLiteral
 }
 
 /*@internal*/
@@ -238,8 +238,7 @@ export const errorMessages: {
   [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
   [Errors.InvalidCoverInitializedName]: 'Invalid shorthand property initializer',
   [Errors.InvalidArrowFuncParamList]: 'Illegal arrow function parameter list',
-  [Errors.InvalidLHSInForIn]: 'Invalid left-hand side in for-in loop',
-  [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop',
+  [Errors.InvalidLHSInOfForLoop]: 'Left-hand side of the for-%0 loop must be assignable',
   [Errors.NoExperimentalOption]: 'Use of disabled experimental feature',
   [Errors.TrailingCommaAfterRest]: 'A trailing comma is not permitted after the rest element ',
   [Errors.StrictOctalLiteral]: 'Legacy octal literals are not allowed in strict mode',
@@ -284,7 +283,8 @@ export const errorMessages: {
   [Errors.Expected]: 'Expected %0',
   [Errors.InvalidAssignmentTarget]: 'Invalid destructuring assignment target',
   [Errors.InvalidForAwait]: '`for await` only accepts the `for-of` type',
-  [Errors.InvalidUnaryWithNew]: 'Invalid use of %0 inside `new`'
+  [Errors.InvalidUnaryWithNew]: 'Invalid use of %0 inside `new`',
+  [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences'
 };
 
 export function report(state: ParserState, type: Errors, ...params: string[]): never {

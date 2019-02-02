@@ -31,6 +31,8 @@ describe('Module - Export', () => {
     'var a; export { a, ;',
     'var a; export { a as };',
     'var a, b; export { a as , b};',
+    'export function () {}',
+    'export class () {}',
     'export var {[x]} = z;',
     'export var {[x]};',
     'export function p\\u0061ckage() {}',
