@@ -43,16 +43,12 @@ import { parseExpression, parseSequenceExpression, parseAssignmentExpression, pa
 export function parseStatementList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
   const statements: ESTree.Statement[] = [];
   while (state.token === Token.StringLiteral) {
-    if (state.index - state.startIndex <= 12 && state.tokenValue === 'use strict') {
-      context |= Context.Strict;
-    }
+    // "use strict" must be the exact literal without escape sequences or line continuation.
+    if (state.index - state.startIndex < 13 && state.tokenValue === 'use strict') context |= Context.Strict;
     statements.push(parseDirective(state, context, scope));
   }
 
-  while (state.token !== Token.EndOfSource) {
-    statements.push(parseStatementListItem(state, context, scope));
-  }
-
+  while (state.token !== Token.EndOfSource) statements.push(parseStatementListItem(state, context, scope));
   return statements;
 }
 
@@ -867,14 +863,13 @@ export function parseExpressionOrLabelledStatement(
  */
 export function parseDirective(state: ParserState, context: Context, scope: ScopeState): any {
   if ((context & Context.OptionsDirectives) < 1) return parseStatementListItem(state, context, scope);
-  const { startIndex } = state;
-  const directive = state.tokenRaw.slice(1, -1);
+  const { startIndex, tokenRaw } = state;
   const expression = parseExpression(state, context);
   consumeSemicolon(state, context);
   return finishNode(state, context, startIndex, {
     type: 'ExpressionStatement',
     expression,
-    directive
+    directive: tokenRaw.slice(1, -1)
   });
 }
 

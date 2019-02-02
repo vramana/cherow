@@ -33,7 +33,8 @@ import { parseAssignmentExpression, parseIdentifier, parseLiteral } from './expr
 export function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
   const statements: ESTree.Statement[] = [];
   while (state.token === Token.StringLiteral) {
-    if (state.index - state.startIndex <= 12 && state.tokenValue === 'use strict') {
+    // "use strict" must be the exact literal without escape sequences or line continuation.
+    if (state.index - state.startIndex < 13 && state.tokenValue === 'use strict') {
       context |= Context.Strict;
     }
     statements.push(parseDirective(state, context, scope));
