@@ -20,4 +20,6 @@ export declare function consumeLineFeed(state: ParserState, lastIsCR: boolean): 
 export declare function fromCodePoint(code: number): string;
 export declare function toHex(code: number): number;
 export declare function isDigit(ch: number): boolean;
+export declare function advanceOne(state: ParserState): void;
+export declare function advance(state: ParserState, ch: number): void;
 //# sourceMappingURL=common.d.ts.map

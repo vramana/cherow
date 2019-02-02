@@ -13,6 +13,7 @@ export interface Options {
     source?: string;
     impliedStrict?: boolean;
     globalReturn?: boolean;
+    globalAwait?: boolean;
     experimental?: boolean;
     native?: boolean;
     tokenize?: boolean;

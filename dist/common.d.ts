@@ -32,6 +32,7 @@ export declare const enum Context {
     AllowNewTarget = 67108864,
     AllowReturn = 134217728,
     Expression = 268435456,
+    OptionsGlobalAwait = 536870912,
     LocationTracking = 34
 }
 export declare const enum Flags {
@@ -49,7 +50,8 @@ export declare const enum Flags {
     StrictEvalArguments = 1024,
     HasConstructor = 2048,
     HasAwait = 4096,
-    HasYield = 8192
+    HasYield = 8192,
+    ContainsSeparator = 16384
 }
 export declare const enum Type {
     None = 0,
@@ -65,16 +67,17 @@ export declare const enum Origin {
     Statement = 1,
     ForStatement = 2,
     Export = 4,
-    CatchClause = 8,
-    AsyncArgs = 16,
-    ArgList = 32,
-    ClassExprDecl = 64,
-    Declaration = 128,
-    AsyncArrow = 256,
-    Arrow = 512,
-    AsyncFunction = 1024,
-    ArrayLiteral = 2048,
-    ObjectExpression = 4096
+    ExportDefault = 8,
+    CatchClause = 16,
+    AsyncArgs = 32,
+    ArgList = 64,
+    ClassExprDecl = 128,
+    Declaration = 256,
+    AsyncArrow = 512,
+    Arrow = 1024,
+    AsyncFunction = 2048,
+    ArrayLiteral = 4096,
+    ObjectExpression = 8192
 }
 export declare const enum ScopeType {
     None = 0,
@@ -83,11 +86,6 @@ export declare const enum ScopeType {
     SwitchStatement = 3,
     CatchClause = 4,
     ArgumentList = 5
-}
-export declare const enum LabelledState {
-    None = 0,
-    AllowAsLabelled = 1,
-    Disallow = 2
 }
 export declare const enum Modifiers {
     None = 0,
@@ -165,7 +163,6 @@ export interface ParserState {
     numCapturingParens: number;
     largestBackReference: number;
     lastChar: number;
-    inCatch: boolean;
     assignable: boolean;
     bindable: boolean;
     exportedNames: any[];
