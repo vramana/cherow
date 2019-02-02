@@ -1,4 +1,4 @@
-import { ParserState, Context, Flags, addVariableAndDeduplicate } from '../common';
+import { ParserState, Context, Flags } from '../common';
 import { toHex, isDigit, advanceOne, consumeOpt } from './common';
 import { Chars, isIdentifierStart } from '../chars';
 import { Token } from '../token';
