@@ -306,7 +306,7 @@ describe('Expressions - Arrows', () => {
   pass('Expressions - Arrows (pass)', [
     [
       `eval => "use strict";`,
-      Context.Empty,
+      Context.OptionsLoc | Context.OptionsRanges,
       {
         type: 'Program',
         sourceType: 'script',
@@ -317,20 +317,80 @@ describe('Expressions - Arrows', () => {
               type: 'ArrowFunctionExpression',
               body: {
                 type: 'Literal',
-                value: 'use strict'
+                value: 'use strict',
+                start: 8,
+                end: 20,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 8
+                  },
+                  end: {
+                    line: 1,
+                    column: 20
+                  }
+                }
               },
               params: [
                 {
                   type: 'Identifier',
-                  name: 'eval'
+                  name: 'eval',
+                  start: 0,
+                  end: 4,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 4
+                    }
+                  }
                 }
               ],
               id: null,
               async: false,
-              expression: true
+              expression: true,
+              start: 0,
+              end: 20,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 20
+                }
+              }
+            },
+            start: 0,
+            end: 21,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 21
+              }
             }
           }
-        ]
+        ],
+        start: 0,
+        end: 21,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 21
+          }
+        }
       }
     ],
     [

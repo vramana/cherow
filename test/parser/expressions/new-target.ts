@@ -469,7 +469,6 @@ describe('Expressions - New target', () => {
             },
             async: false,
             generator: false,
-
             id: {
               type: 'Identifier',
               name: 'f'

@@ -239,7 +239,7 @@ pass('Expressions - Array (pass)', [
   ],
   [
     '[x, ...y, z]',
-    Context.Empty,
+    Context.OptionsRanges | Context.OptionsLoc,
     {
       type: 'Program',
       sourceType: 'script',
@@ -251,23 +251,107 @@ pass('Expressions - Array (pass)', [
             elements: [
               {
                 type: 'Identifier',
-                name: 'x'
+                name: 'x',
+                start: 1,
+                end: 2,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 1
+                  },
+                  end: {
+                    line: 1,
+                    column: 2
+                  }
+                }
               },
               {
                 type: 'SpreadElement',
                 argument: {
                   type: 'Identifier',
-                  name: 'y'
+                  name: 'y',
+                  start: 7,
+                  end: 8,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 7
+                    },
+                    end: {
+                      line: 1,
+                      column: 8
+                    }
+                  }
+                },
+                start: 4,
+                end: 8,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 4
+                  },
+                  end: {
+                    line: 1,
+                    column: 8
+                  }
                 }
               },
               {
                 type: 'Identifier',
-                name: 'z'
+                name: 'z',
+                start: 10,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 10
+                  },
+                  end: {
+                    line: 1,
+                    column: 11
+                  }
+                }
               }
-            ]
+            ],
+            start: 0,
+            end: 12,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 12
+              }
+            }
+          },
+          start: 0,
+          end: 12,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 12
+            }
           }
         }
-      ]
+      ],
+      start: 0,
+      end: 12,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 12
+        }
+      }
     }
   ],
   [

@@ -532,123 +532,303 @@ describe('Expressions - Object Spread', () => {
     ],
     [
       'const fn = ({text = "default", ...props}) => text + props.children',
-      Context.OptionsRanges,
+      Context.OptionsRanges | Context.OptionsLoc,
       {
         type: 'Program',
-        start: 0,
-        end: 66,
+        sourceType: 'script',
         body: [
           {
             type: 'VariableDeclaration',
-            start: 0,
-            end: 66,
+            kind: 'const',
             declarations: [
               {
                 type: 'VariableDeclarator',
-                start: 6,
-                end: 66,
-                id: {
-                  type: 'Identifier',
-                  start: 6,
-                  end: 8,
-                  name: 'fn'
-                },
                 init: {
                   type: 'ArrowFunctionExpression',
-                  start: 11,
-                  end: 66,
-                  id: null,
-                  expression: true,
-                  async: false,
+                  body: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'text',
+                      start: 45,
+                      end: 49,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 45
+                        },
+                        end: {
+                          line: 1,
+                          column: 49
+                        }
+                      }
+                    },
+                    right: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'props',
+                        start: 52,
+                        end: 57,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 52
+                          },
+                          end: {
+                            line: 1,
+                            column: 57
+                          }
+                        }
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: 'children',
+                        start: 58,
+                        end: 66,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 58
+                          },
+                          end: {
+                            line: 1,
+                            column: 66
+                          }
+                        }
+                      },
+                      start: 52,
+                      end: 66,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 52
+                        },
+                        end: {
+                          line: 1,
+                          column: 66
+                        }
+                      }
+                    },
+                    operator: '+',
+                    start: 45,
+                    end: 66,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 45
+                      },
+                      end: {
+                        line: 1,
+                        column: 66
+                      }
+                    }
+                  },
                   params: [
                     {
                       type: 'ObjectPattern',
-                      start: 12,
-                      end: 40,
                       properties: [
                         {
                           type: 'Property',
-                          start: 13,
-                          end: 29,
-                          method: false,
-                          shorthand: true,
-                          computed: false,
                           key: {
                             type: 'Identifier',
+                            name: 'text',
                             start: 13,
                             end: 17,
-                            name: 'text'
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 13
+                              },
+                              end: {
+                                line: 1,
+                                column: 17
+                              }
+                            }
                           },
-                          kind: 'init',
                           value: {
                             type: 'AssignmentPattern',
-                            start: 13,
-                            end: 29,
                             left: {
                               type: 'Identifier',
+                              name: 'text',
                               start: 13,
                               end: 17,
-                              name: 'text'
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 13
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 17
+                                }
+                              }
                             },
                             right: {
                               type: 'Literal',
+                              value: 'default',
                               start: 20,
                               end: 29,
-                              value: 'default'
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 20
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 29
+                                }
+                              }
+                            },
+                            start: 13,
+                            end: 29,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 13
+                              },
+                              end: {
+                                line: 1,
+                                column: 29
+                              }
+                            }
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: true,
+                          start: 13,
+                          end: 29,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 13
+                            },
+                            end: {
+                              line: 1,
+                              column: 29
                             }
                           }
                         },
                         {
                           type: 'RestElement',
-                          start: 31,
-                          end: 39,
                           argument: {
                             type: 'Identifier',
+                            name: 'props',
                             start: 34,
                             end: 39,
-                            name: 'props'
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 34
+                              },
+                              end: {
+                                line: 1,
+                                column: 39
+                              }
+                            }
+                          },
+                          start: 31,
+                          end: 39,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 31
+                            },
+                            end: {
+                              line: 1,
+                              column: 39
+                            }
                           }
                         }
-                      ]
+                      ],
+                      start: 12,
+                      end: 40,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 40
+                        }
+                      }
                     }
                   ],
-                  body: {
-                    type: 'BinaryExpression',
-                    start: 45,
-                    end: 66,
-                    left: {
-                      type: 'Identifier',
-                      start: 45,
-                      end: 49,
-                      name: 'text'
+                  id: null,
+                  async: false,
+                  expression: true,
+                  start: 11,
+                  end: 66,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 11
                     },
-                    operator: '+',
-                    right: {
-                      type: 'MemberExpression',
-                      start: 58,
-                      end: 66,
-                      object: {
-                        type: 'Identifier',
-                        start: 52,
-                        end: 57,
-                        name: 'props'
-                      },
-                      property: {
-                        type: 'Identifier',
-                        start: 58,
-                        end: 66,
-                        name: 'children'
-                      },
-                      computed: false
+                    end: {
+                      line: 1,
+                      column: 66
                     }
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'fn',
+                  start: 6,
+                  end: 8,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 6
+                    },
+                    end: {
+                      line: 1,
+                      column: 8
+                    }
+                  }
+                },
+                start: 6,
+                end: 66,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 6
+                  },
+                  end: {
+                    line: 1,
+                    column: 66
                   }
                 }
               }
             ],
-            kind: 'const'
+            start: 0,
+            end: 66,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 66
+              }
+            }
           }
         ],
-        sourceType: 'script'
+        start: 0,
+        end: 66,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 66
+          }
+        }
       }
     ],
     [
@@ -1116,5 +1296,5 @@ describe('Expressions - Object Spread', () => {
     ]
   ];
 
-  pass('Expressions - New (pass)', valids);
+  pass('Expressions - Object spread (pass)', valids);
 });

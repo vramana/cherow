@@ -75,7 +75,7 @@ function parseModuleItemList(state: ParserState, context: Context, scope: ScopeS
  * @param context Context masks
  */
 function parseExportDeclaration(state: ParserState, context: Context, scope: ScopeState): any {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context, Token.ExportKeyword);
   const specifiers: any[] = [];
 
@@ -122,7 +122,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
     addToExportedBindings(state, '*default*');
     recordTokenValue(state, context, scope, Type.None, Origin.None, true, false, '*default*');
 
-    return finishNode(state, context, start, {
+    return finishNode(state, context, start, line, column, {
       type: 'ExportDefaultDeclaration',
       declaration
     });
@@ -134,7 +134,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       if (context & Context.OptionsExperimental && optional(state, context, Token.AsKeyword)) {
         recordTokenValueAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
         specifiers.push(
-          finishNode(state, context, state.startIndex, {
+          finishNode(state, context, state.startIndex, state.startLine, state.startColumn, {
             type: 'ExportNamespaceSpecifier',
             specifier: parseIdentifier(state, context)
           } as any)
@@ -145,12 +145,12 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       source = parseLiteral(state, context);
       consumeSemicolon(state, context);
       return context & Context.OptionsExperimental && specifiers
-        ? finishNode(state, context, start, {
+        ? finishNode(state, context, start, line, column, {
             type: 'ExportNamedDeclaration',
             source,
             specifiers
           } as any)
-        : finishNode(state, context, start, {
+        : finishNode(state, context, start, line, column, {
             type: 'ExportAllDeclaration',
             source
           } as any);
@@ -177,7 +177,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
         }
 
         specifiers.push(
-          finishNode(state, context, start, {
+          finishNode(state, context, start, line, column, {
             type: 'ExportSpecifier',
             local,
             exported
@@ -242,7 +242,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
   }
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'ExportNamedDeclaration',
     source,
     specifiers,
@@ -259,7 +259,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
  * @param context Context masks
  */
 export function parseImportDeclaration(state: ParserState, context: Context, scope: ScopeState): any {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context, Token.ImportKeyword);
 
   let source: ESTree.Literal;
@@ -272,7 +272,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
     validateBindingIdentifier(state, context, Type.Const);
     recordTokenValueAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
     specifiers.push(
-      finishNode(state, context, start, {
+      finishNode(state, context, start, line, column, {
         type: 'ImportDefaultSpecifier',
         local: parseIdentifier(state, context)
       })
@@ -281,9 +281,9 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
     // NameSpaceImport
     if (optional(state, context, Token.Comma)) {
       if (state.token === Token.Multiply) {
-        parseImportNamespace(state, context, scope, start, specifiers);
+        parseImportNamespace(state, context, scope, start, line, column, specifiers);
       } else if (state.token === Token.LeftBrace) {
-        parseImportSpecifierOrNamedImports(state, context, scope, start, specifiers);
+        parseImportSpecifierOrNamedImports(state, context, scope, start, line, column, specifiers);
       } else report(state, Errors.InvalidDefaultImport);
     }
 
@@ -294,9 +294,9 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
     source = parseLiteral(state, context);
   } else {
     if (state.token === Token.Multiply) {
-      parseImportNamespace(state, context, scope, start, specifiers);
+      parseImportNamespace(state, context, scope, start, line, column, specifiers);
     } else if (state.token === Token.LeftBrace) {
-      parseImportSpecifierOrNamedImports(state, context, scope, start, specifiers);
+      parseImportSpecifierOrNamedImports(state, context, scope, start, line, column, specifiers);
     } else report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
 
     source = parseModuleSpecifier(state, context);
@@ -304,7 +304,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
 
   consumeSemicolon(state, context);
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'ImportDeclaration',
     specifiers,
     source
@@ -326,6 +326,8 @@ function parseImportSpecifierOrNamedImports(
   context: Context,
   scope: ScopeState,
   start: number,
+  line: number,
+  column: number,
   specifiers: ESTree.Specifiers[]
 ): void {
   // NamedImports :
@@ -360,7 +362,7 @@ function parseImportSpecifierOrNamedImports(
     }
 
     specifiers.push(
-      finishNode(state, context, start, {
+      finishNode(state, context, start, line, column, {
         type: 'ImportSpecifier',
         local,
         imported
@@ -387,6 +389,8 @@ function parseImportNamespace(
   context: Context,
   scope: ScopeState,
   start: number,
+  line: number,
+  column: number,
   specifiers: ESTree.Specifiers[]
 ): void {
   // NameSpaceImport:
@@ -398,7 +402,7 @@ function parseImportNamespace(
   recordTokenValue(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);
   const local = parseIdentifier(state, context);
   specifiers.push(
-    finishNode(state, context, start, {
+    finishNode(state, context, start, line, column, {
       type: 'ImportNamespaceSpecifier',
       local
     })

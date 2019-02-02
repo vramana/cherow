@@ -53,35 +53,119 @@ pass('Expressions - Binary (pass)', [
   ],
   [
     'b && c == d',
-    Context.Empty,
+    Context.OptionsRanges | Context.OptionsLoc,
     {
       type: 'Program',
+      sourceType: 'script',
       body: [
         {
           type: 'ExpressionStatement',
           expression: {
             type: 'LogicalExpression',
-            operator: '&&',
             left: {
               type: 'Identifier',
-              name: 'b'
+              name: 'b',
+              start: 0,
+              end: 1,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 1
+                }
+              }
             },
             right: {
               type: 'BinaryExpression',
-              operator: '==',
               left: {
                 type: 'Identifier',
-                name: 'c'
+                name: 'c',
+                start: 5,
+                end: 6,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 5
+                  },
+                  end: {
+                    line: 1,
+                    column: 6
+                  }
+                }
               },
               right: {
                 type: 'Identifier',
-                name: 'd'
+                name: 'd',
+                start: 10,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 10
+                  },
+                  end: {
+                    line: 1,
+                    column: 11
+                  }
+                }
+              },
+              operator: '==',
+              start: 5,
+              end: 11,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 5
+                },
+                end: {
+                  line: 1,
+                  column: 11
+                }
               }
+            },
+            operator: '&&',
+            start: 0,
+            end: 11,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 11
+              }
+            }
+          },
+          start: 0,
+          end: 11,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 11
             }
           }
         }
       ],
-      sourceType: 'script'
+      start: 0,
+      end: 11,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 11
+        }
+      }
     }
   ],
   [

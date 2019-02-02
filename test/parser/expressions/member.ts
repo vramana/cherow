@@ -6,30 +6,80 @@ describe('Expressions - Member', () => {});
 pass('Expressions - Member (pass)', [
   [
     'foo.bar',
-    Context.OptionsRanges,
+    Context.OptionsRanges | Context.OptionsLoc,
     {
       type: 'Program',
       start: 0,
       end: 7,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 7
+        }
+      },
       body: [
         {
           type: 'ExpressionStatement',
           start: 0,
           end: 7,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 7
+            }
+          },
           expression: {
             type: 'MemberExpression',
-            start: 4,
+            start: 0,
             end: 7,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 7
+              }
+            },
             object: {
               type: 'Identifier',
               start: 0,
               end: 3,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 3
+                }
+              },
               name: 'foo'
             },
             property: {
               type: 'Identifier',
               start: 4,
               end: 7,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 4
+                },
+                end: {
+                  line: 1,
+                  column: 7
+                }
+              },
               name: 'bar'
             },
             computed: false
@@ -41,7 +91,7 @@ pass('Expressions - Member (pass)', [
   ],
   [
     'a().b',
-    Context.Empty,
+    Context.LocationTracking,
     {
       type: 'Program',
       sourceType: 'script',
@@ -54,18 +104,90 @@ pass('Expressions - Member (pass)', [
               type: 'CallExpression',
               callee: {
                 type: 'Identifier',
-                name: 'a'
+                name: 'a',
+                start: 0,
+                end: 1,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 1
+                  }
+                }
               },
-              arguments: []
+              arguments: [],
+              start: 0,
+              end: 3,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 3
+                }
+              }
             },
             computed: false,
             property: {
               type: 'Identifier',
-              name: 'b'
+              name: 'b',
+              start: 4,
+              end: 5,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 4
+                },
+                end: {
+                  line: 1,
+                  column: 5
+                }
+              }
+            },
+            start: 0,
+            end: 5,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 5
+              }
+            }
+          },
+          start: 0,
+          end: 5,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 5
             }
           }
         }
-      ]
+      ],
+      start: 0,
+      end: 5,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 5
+        }
+      }
     }
   ],
   [
@@ -202,43 +324,151 @@ pass('Expressions - Member (pass)', [
   ],
   [
     'a.$._.B0',
-    Context.Empty,
+    Context.LocationTracking,
     {
       type: 'Program',
-      sourceType: 'script',
+      start: 0,
+      end: 8,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 8
+        }
+      },
       body: [
         {
           type: 'ExpressionStatement',
+          start: 0,
+          end: 8,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 8
+            }
+          },
           expression: {
             type: 'MemberExpression',
-            object: {
-              type: 'MemberExpression',
-              object: {
-                type: 'MemberExpression',
-                object: {
-                  type: 'Identifier',
-                  name: 'a'
-                },
-                computed: false,
-                property: {
-                  type: 'Identifier',
-                  name: '$'
-                }
+            start: 0,
+            end: 8,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              computed: false,
-              property: {
-                type: 'Identifier',
-                name: '_'
+              end: {
+                line: 1,
+                column: 8
               }
             },
-            computed: false,
+            object: {
+              type: 'MemberExpression',
+              start: 0,
+              end: 5,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 5
+                }
+              },
+              object: {
+                type: 'MemberExpression',
+                start: 0,
+                end: 3,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 3
+                  }
+                },
+                object: {
+                  type: 'Identifier',
+                  start: 0,
+                  end: 1,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 1
+                    }
+                  },
+                  name: 'a'
+                },
+                property: {
+                  type: 'Identifier',
+                  start: 2,
+                  end: 3,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 2
+                    },
+                    end: {
+                      line: 1,
+                      column: 3
+                    }
+                  },
+                  name: '$'
+                },
+                computed: false
+              },
+              property: {
+                type: 'Identifier',
+                start: 4,
+                end: 5,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 4
+                  },
+                  end: {
+                    line: 1,
+                    column: 5
+                  }
+                },
+                name: '_'
+              },
+              computed: false
+            },
             property: {
               type: 'Identifier',
+              start: 6,
+              end: 8,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 6
+                },
+                end: {
+                  line: 1,
+                  column: 8
+                }
+              },
               name: 'B0'
-            }
+            },
+            computed: false
           }
         }
-      ]
+      ],
+      sourceType: 'script'
     }
   ],
   [

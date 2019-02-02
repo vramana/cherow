@@ -17,6 +17,8 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
     startIndex: 0,
     endIndex: 0,
     startLine: 1,
+    endLine: 0,
+    endColumn: 0,
     startColumn: 0,
     token: Token.EndOfSource,
     tokenValue: undefined,

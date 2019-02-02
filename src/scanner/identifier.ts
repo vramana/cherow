@@ -186,23 +186,19 @@ export function scanIdentifierUnicodeEscape(state: ParserState) {
  * @param state ParserState instance
  */
 function scanUnicodeEscape(state: ParserState): number {
-  let { index, source, length } = state;
-  let ch = state.source.charCodeAt(index++);
+  let ch = state.source.charCodeAt(state.index++);
   let value = 0;
   if (ch === Chars.LeftBrace) {
-    value = toHex(source.charCodeAt(index++));
-
-    if (value < 0 || index === length) return report(state, Errors.InvalidIdentChar);
-
-    ch = source.charCodeAt(index++);
-
-    do {
+    value = toHex(state.source.charCodeAt(state.index++));
+    if (value < 0 || state.index === state.length) return report(state, Errors.InvalidIdentChar);
+    ch = state.source.charCodeAt(state.index++);
+    while (ch !== Chars.RightBrace) {
       const digit = toHex(ch);
       if (digit < 0) return report(state, Errors.InvalidIdentChar);
-      value = (value << 4) | toHex(ch);
+      value = (value << 4) | digit;
       if (value > 0x10ffff) report(state, Errors.UnicodeOverflow);
-      ch = source.charCodeAt(index++);
-    } while (ch !== Chars.RightBrace);
+      ch = state.source.charCodeAt(state.index++);
+    }
 
     if (value < 0 || ch !== Chars.RightBrace) report(state, Errors.InvalidDynamicUnicode);
   } else {
@@ -211,13 +207,13 @@ function scanUnicodeEscape(state: ParserState): number {
     if (value < 0) report(state, Errors.InvalidIdentChar);
 
     for (let i = 0; i < 3; i++) {
-      if (index === length) report(state, Errors.InvalidUnicodeEscape);
-      ch = source.charCodeAt(index++);
+      if (state.index === state.length) report(state, Errors.InvalidUnicodeEscape);
+      ch = state.source.charCodeAt(state.index++);
       const digit = toHex(ch);
       if (digit < 0) report(state, Errors.InvalidIdentChar);
       value = (value << 4) | digit;
     }
   }
-  state.index = state.column = index;
+  state.column = state.index;
   return value;
 }

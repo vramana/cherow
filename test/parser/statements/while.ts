@@ -23,6 +23,34 @@ describe('Statements - While', () => {
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [
+      'while (1) /foo/',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              expression: {
+                regex: {
+                  flags: '',
+                  pattern: 'foo'
+                },
+                type: 'Literal',
+                value: /foo/
+              },
+              type: 'ExpressionStatement'
+            },
+            test: {
+              type: 'Literal',
+              value: 1
+            },
+            type: 'WhileStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'while (i-->1) {}',
       Context.Empty,
       {
