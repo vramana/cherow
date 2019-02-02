@@ -5,13 +5,9 @@ import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Arrows', () => {
   fail('Expressions - Functions', [
-    ['await => { let x; }', Context.AwaitContext],
-    ['async await => {}', Context.Empty],
-
     ['!()=>{}', Context.Empty],
     ['0 || (x,y) => 0', Context.Empty],
     ['0 || (x) => 0', Context.Empty],
-
     [`eval => { 'use strict'; return eval + 1; }`, Context.Empty],
     ['(x, x) => { }', Context.Empty],
     ['(a, b, a) => { }', Context.Empty],

@@ -1979,6 +1979,17 @@ function parseObjectLiteral(
             } else hasProto = true;
           }
 
+          if ((state.token & Token.IsAwait) === Token.IsAwait) {
+            if (context & (Context.Strict | Context.Module)) report(state, Errors.Unexpected);
+            if (context & Context.ParentheziedContext) {
+              state.flags = state.flags | Flags.HasAwait;
+            }
+          } else if ((state.token & Token.IsYield) === Token.IsYield) {
+            if (context & Context.ParentheziedContext) {
+              state.flags = state.flags | Flags.HasYield;
+            }
+          }
+
           value = acquireGrammar(
             state,
             (context | Context.DisallowInContext) ^ Context.DisallowInContext,
