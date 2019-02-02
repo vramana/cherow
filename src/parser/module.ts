@@ -9,7 +9,7 @@ import {
   validateBindingIdentifier,
   addToExportedNamesAndCheckForDuplicates,
   addToExportedBindings,
-  addVariableAndDeduplicate,
+  recordTokenValueAndDeduplicate,
   ScopeState,
   nextTokenIsLeftParenOrPeriod,
   nextTokenIsFuncKeywordOnSameLine,
@@ -17,7 +17,7 @@ import {
 } from '../common';
 import { Token, KeywordDescTable } from '../token';
 import { scanSingleToken } from '../scanner';
-import { optional, expect, addVariable, checkIfExistInLexicalBindings, lookAheadOrScan } from '../common';
+import { optional, expect, recordTokenValue, checkIfLexicalAlreadyBound, lookAheadOrScan } from '../common';
 import { report, Errors } from '../errors';
 import { parseDirective, parseStatementListItem, parseVariableStatement } from './statement';
 import {
@@ -120,7 +120,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
     // See: https://www.ecma-international.org/ecma-262/9.0/index.html#sec-exports-static-semantics-exportedbindings
     addToExportedBindings(state, '*default*');
-    addVariable(state, context, scope, Type.None, Origin.None, true, false, '*default*');
+    recordTokenValue(state, context, scope, Type.None, Origin.None, true, false, '*default*');
 
     return finishNode(state, context, start, {
       type: 'ExportDefaultDeclaration',
@@ -132,7 +132,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
     case Token.Multiply: {
       scanSingleToken(state, context); // '*'
       if (context & Context.OptionsExperimental && optional(state, context, Token.AsKeyword)) {
-        addVariableAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
+        recordTokenValueAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
         specifiers.push(
           finishNode(state, context, state.startIndex, {
             type: 'ExportNamespaceSpecifier',
@@ -217,12 +217,12 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       break;
     case Token.LetKeyword:
       declaration = parseLexicalDeclaration(state, context, Type.Let, Origin.Export, scope);
-      if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, false))
+      if (checkIfLexicalAlreadyBound(state, context, scope, Origin.None, false))
         report(state, Errors.DuplicateExportBinding, 'let');
       break;
     case Token.ConstKeyword:
       declaration = parseLexicalDeclaration(state, context, Type.Const, Origin.Export, scope);
-      if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, false))
+      if (checkIfLexicalAlreadyBound(state, context, scope, Origin.None, false))
         report(state, Errors.DuplicateExportBinding, 'const');
       break;
     case Token.VarKeyword:
@@ -270,7 +270,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
     // V8: 'VariableMode::kConst',
     // Cherow: 'Type.Const'
     validateBindingIdentifier(state, context, Type.Const);
-    addVariableAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
+    recordTokenValueAndDeduplicate(state, context, scope, Type.None, Origin.None, false, state.tokenValue);
     specifiers.push(
       finishNode(state, context, start, {
         type: 'ImportDefaultSpecifier',
@@ -349,13 +349,13 @@ function parseImportSpecifierOrNamedImports(
     if (optional(state, context, Token.AsKeyword)) {
       if ((state.token & Token.IsIdentifier) === 0) report(state, Errors.InvalidKeywordAsAlias);
       validateBindingIdentifier(state, context, Type.Const);
-      addVariableAndDeduplicate(state, context, scope, Type.Const, Origin.None, false, state.tokenValue);
+      recordTokenValueAndDeduplicate(state, context, scope, Type.Const, Origin.None, false, state.tokenValue);
       local = parseIdentifier(state, context);
     } else {
       // An import name that is a keyword is a syntax error if it is not followed
       // by the keyword 'as'.
       validateBindingIdentifier(state, context, Type.Const, token);
-      addVariableAndDeduplicate(state, context, scope, Type.Const, Origin.None, false, tokenValue);
+      recordTokenValueAndDeduplicate(state, context, scope, Type.Const, Origin.None, false, tokenValue);
       local = imported;
     }
 
@@ -393,8 +393,9 @@ function parseImportNamespace(
   //  * as ImportedBinding
   scanSingleToken(state, context);
   expect(state, context, Token.AsKeyword);
+  // 'import * as class from "foo":'
   validateBindingIdentifier(state, context, Type.Const);
-  addVariable(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);
+  recordTokenValue(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);
   const local = parseIdentifier(state, context);
   specifiers.push(
     finishNode(state, context, start, {

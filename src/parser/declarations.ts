@@ -8,7 +8,7 @@ import {
   validateBindingIdentifier,
   addToExportedNamesAndCheckForDuplicates,
   addToExportedBindings,
-  addVariableAndDeduplicate,
+  recordTokenValueAndDeduplicate,
   ScopeState,
   ScopeType,
   createSubScope,
@@ -19,7 +19,7 @@ import {
 } from '../common';
 import { Token, KeywordDescTable } from '../token';
 import { scanSingleToken } from '../scanner';
-import { optional, checkIfExistInLexicalBindings, addFunctionName } from '../common';
+import { optional, checkIfLexicalAlreadyBound, addFunctionName } from '../common';
 import { report, Errors } from '../errors';
 import {
   parseAssignmentExpression,
@@ -52,7 +52,7 @@ export function parseClassDeclaration(
   let superClass: ESTree.Expression | null = null;
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
     validateBindingIdentifier(state, context | Context.Strict, Type.ClassExprDecl);
-    addVariableAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, state.tokenValue);
+    recordTokenValueAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, state.tokenValue);
     id = parseIdentifier(state, context);
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Class');
 
@@ -189,7 +189,7 @@ export function parseHostedClassDeclaration(
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
     name = state.tokenValue;
     validateBindingIdentifier(state, context, Type.ClassExprDecl);
-    addVariableAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, name);
+    recordTokenValueAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, name);
     id = parseIdentifier(state, context);
   }
 
@@ -299,7 +299,7 @@ export function parseLexicalDeclaration(
   const { startIndex: start } = state;
   scanSingleToken(state, context);
   const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
-  if (checkIfExistInLexicalBindings(state, context, scope, origin, false)) {
+  if (checkIfLexicalAlreadyBound(state, context, scope, origin, false)) {
     report(state, Errors.DuplicateBinding, KeywordDescTable[token & Token.Type]);
   }
   consumeSemicolon(state, context);

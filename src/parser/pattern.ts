@@ -16,7 +16,7 @@ import {
 import { scanSingleToken } from '../scanner';
 import { parseAssignmentExpression, parseIdentifier, parseLiteral, parseComputedPropertyName } from './expression';
 import { report, Errors } from '../errors';
-import { optional, expect, addVariable } from '../common';
+import { optional, expect, recordTokenValue } from '../common';
 
 // 12.15.5 Destructuring Assignment
 /**
@@ -68,7 +68,7 @@ export function parseBindingIdentifier(
   } else if (name === 'enum') report(state, Errors.KeywordNotId);
 
   validateBindingIdentifier(state, context, type);
-  addVariable(
+  recordTokenValue(
     state,
     context,
     scope,
@@ -322,7 +322,7 @@ function parseAssignmentProperty(
         addToExportedNamesAndCheckForDuplicates(state, state.tokenValue);
         addToExportedBindings(state, state.tokenValue);
       }
-      addVariable(state, context, scope, type, origin, false, false, tokenValue);
+      recordTokenValue(state, context, scope, type, origin, false, false, tokenValue);
       const hasInitializer = optional(state, context, Token.Assign);
       value = hasInitializer ? parseAssignmentPattern(state, context, key, start) : key;
     } else value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);

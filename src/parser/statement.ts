@@ -23,7 +23,7 @@ import {
 import { Token, KeywordDescTable } from '../token';
 import { scanSingleToken } from '../scanner';
 import { parseBindingIdentifierOrPattern } from './pattern';
-import { optional, expect, checkIfExistInLexicalBindings, isLexical, lookAheadOrScan } from '../common';
+import { optional, expect, checkIfLexicalAlreadyBound, isLexical, lookAheadOrScan } from '../common';
 import { report, Errors } from '../errors';
 import {
   parseFunctionDeclaration,
@@ -575,7 +575,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
   if (optional(state, context, Token.LeftParen)) {
     const catchScope = createSubScope(scope, ScopeType.CatchClause);
     param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.ArgList, Origin.CatchClause, false);
-    if (checkIfExistInLexicalBindings(state, context, catchScope, Origin.None, true))
+    if (checkIfLexicalAlreadyBound(state, context, catchScope, Origin.None, true))
       report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
     expect(state, context, Token.RightParen);
     secondScope = createSubScope(catchScope, ScopeType.BlockStatement);
@@ -709,7 +709,7 @@ function parseForStatement(
         }
       } else if (optional(state, context, Token.ConstKeyword)) {
         declarations = parseVariableDeclarationList(state, context, Type.Const, Origin.ForStatement, false, scope);
-        if (checkIfExistInLexicalBindings(state, context, scope, Origin.None, true))
+        if (checkIfLexicalAlreadyBound(state, context, scope, Origin.None, true))
           report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
         init = finishNode(state, context, varStart, {
           type: 'VariableDeclaration',
