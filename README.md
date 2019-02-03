@@ -47,7 +47,7 @@ Here is a quick example to parse a script:
 
 ```js
 
-cherow.parseScript('g_plane = chinese');
+cherow.parseScript('foo = bar');
 
 // or
 
@@ -139,7 +139,8 @@ The second argument allows you to specify various options:
 | `webcompat`       | Enable web compability (*AnnexB*) |
 | `impliedStrict`   | Enable strict mode initial enforcement |
 | `next`            | Enable stage 3 support (*ESNext*)  |
-| `experimental`    | Enable experimental features
+| `experimental`    | Enable experimental features    |
+| `parenthesizedExpr` | Enable non-standard parenthesized expression node |
 | `raw`             | Attach raw property to each literal node and identifier node |
 | `directives`      | Enable [directive prologue](https://github.com/danez/estree/blob/directive/es5.md#directive) to each literal node |
 | `onComment`       | Accept either callback or array to collect comment |
