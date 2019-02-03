@@ -1,7 +1,7 @@
-import { ParserState, Context, Flags } from '../common';
+import { ParserState, Context, Flags, convertTokenType } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { consumeOpt, consumeLineFeed, advanceOne, advance, isDigit } from './common';
+import { consumeOpt, consumeLineFeed, advanceOne, isDigit } from './common';
 import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';
 import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
@@ -422,7 +422,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
     state.startLine = state.line;
     const first = state.source.charCodeAt(state.index);
     if (((state.token = table[first](state, context, first)) & Token.WhiteSpace) !== Token.WhiteSpace) {
-      if (state.onToken) state.onToken(state.token, state.startIndex, state.index);
+      if (state.onToken) state.onToken(convertTokenType(state.token), state.startIndex, state.index);
       return state.token;
     }
   }
