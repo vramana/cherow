@@ -11,32 +11,104 @@ fail('Expressions - Template', [
 pass('Expressions - Postfix (pass)', [
   [
     'foo.bar--',
-    Context.Empty,
+    Context.LocationTracking,
     {
       type: 'Program',
-      sourceType: 'script',
+      start: 0,
+      end: 9,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 9
+        }
+      },
       body: [
         {
           type: 'ExpressionStatement',
+          start: 0,
+          end: 9,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 9
+            }
+          },
           expression: {
             type: 'UpdateExpression',
-            argument: {
-              type: 'MemberExpression',
-              object: {
-                type: 'Identifier',
-                name: 'foo'
+            start: 0,
+            end: 9,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              computed: false,
-              property: {
-                type: 'Identifier',
-                name: 'bar'
+              end: {
+                line: 1,
+                column: 9
               }
             },
             operator: '--',
-            prefix: false
+            prefix: false,
+            argument: {
+              type: 'MemberExpression',
+              start: 0,
+              end: 7,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 7
+                }
+              },
+              object: {
+                type: 'Identifier',
+                start: 0,
+                end: 3,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 3
+                  }
+                },
+                name: 'foo'
+              },
+              property: {
+                type: 'Identifier',
+                start: 4,
+                end: 7,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 4
+                  },
+                  end: {
+                    line: 1,
+                    column: 7
+                  }
+                },
+                name: 'bar'
+              },
+              computed: false
+            }
           }
         }
-      ]
+      ],
+      sourceType: 'script'
     }
   ],
   [

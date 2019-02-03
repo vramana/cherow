@@ -23,6 +23,34 @@ describe('Statements - Do while', () => {
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [
+      'do /x/; while (false);',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              expression: {
+                regex: {
+                  flags: '',
+                  pattern: 'x'
+                },
+                type: 'Literal',
+                value: /x/
+              },
+              type: 'ExpressionStatement'
+            },
+            test: {
+              type: 'Literal',
+              value: false
+            },
+            type: 'DoWhileStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'do async \n () \n while (y)',
       Context.Empty,
       {
@@ -52,36 +80,86 @@ describe('Statements - Do while', () => {
     ],
     [
       'do foo; while (bar);',
-      Context.OptionsRanges,
+      Context.LocationTracking,
       {
         type: 'Program',
-        sourceType: 'script',
+        start: 0,
+        end: 20,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 20
+          }
+        },
         body: [
           {
             type: 'DoWhileStatement',
+            start: 0,
+            end: 20,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 20
+              }
+            },
             body: {
               type: 'ExpressionStatement',
+              start: 3,
+              end: 7,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 3
+                },
+                end: {
+                  line: 1,
+                  column: 7
+                }
+              },
               expression: {
                 type: 'Identifier',
-                name: 'foo',
                 start: 3,
-                end: 6
-              },
-              start: 3,
-              end: 7
+                end: 6,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 3
+                  },
+                  end: {
+                    line: 1,
+                    column: 6
+                  }
+                },
+                name: 'foo'
+              }
             },
             test: {
               type: 'Identifier',
-              name: 'bar',
               start: 15,
-              end: 18
-            },
-            start: 0,
-            end: 20
+              end: 18,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 15
+                },
+                end: {
+                  line: 1,
+                  column: 18
+                }
+              },
+              name: 'bar'
+            }
           }
         ],
-        start: 0,
-        end: 20
+        sourceType: 'script'
       }
     ]
   ];

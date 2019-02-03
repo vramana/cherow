@@ -156,7 +156,21 @@ describe('Expressions - Async arrow', () => {
     ['async \n (x, y) => x', Context.Empty],
     ['async \n () => x', Context.Empty],
     ['break async \n () => x', Context.Empty],
-    // ['async: for (;;) break async \n () => x', Context.Empty],
+    ['await => { let x; }', Context.AwaitContext],
+    ['async await => {}', Context.Empty],
+    ['async (...await) => 1', Context.Empty],
+    ['async ({await}) => 1', Context.Strict | Context.Module],
+    ['async ({a: await}) => 1', Context.Empty],
+    ['async await => foo', Context.Empty],
+    ['async ([...await]) => 1', Context.Empty],
+    ['async (b = {await}) => 1', Context.Strict | Context.Module],
+    ['async (b = {a: await}) => 1', Context.Empty],
+    ['async (b = [await]) => 1', Context.Strict | Context.Module],
+    ['async (b = [...await]) => 1', Context.Empty],
+    //  ['async (b = class await {}) => 1', Context.Empty],
+    ['async (b = (await) => {}) => 1', Context.Strict | Context.Module],
+    ['async (await, b = async () => {}) => 1', Context.Empty],
+    //['async: for (;;) break async \n () => x', Context.Empty],
     ['continue async \n () => x', Context.Empty],
     ['let x = {[async () => x, y]: z}', Context.Empty],
     ['var x = async \n () => x, y', Context.Empty],
@@ -342,7 +356,7 @@ describe('Expressions - Async arrow', () => {
     'async () => {}',
     'async () => {}',
     'async () => {}',
-
+    'async ({await: a}) => 1',
     'async x => { return x; }',
     'async (x) => { return x; }',
     'async (x, y) => { return x + y; }',
@@ -408,6 +422,51 @@ describe('Expressions - Async arrow', () => {
   }
 
   pass('Expressions - Async arrow (pass)', [
+    [
+      `async ({await: a}) => 1`,
+      Context.Strict | Context.Module,
+      {
+        body: [
+          {
+            expression: {
+              async: true,
+              body: {
+                type: 'Literal',
+                value: 1
+              },
+              expression: true,
+              id: null,
+              params: [
+                {
+                  properties: [
+                    {
+                      computed: false,
+                      key: {
+                        name: 'await',
+                        type: 'Identifier'
+                      },
+                      kind: 'init',
+                      method: false,
+                      shorthand: false,
+                      type: 'Property',
+                      value: {
+                        name: 'a',
+                        type: 'Identifier'
+                      }
+                    }
+                  ],
+                  type: 'ObjectPattern'
+                }
+              ],
+              type: 'ArrowFunctionExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
+      }
+    ],
     [
       `id = async x => x, square = async (y) => { y * y }`,
       Context.Empty,

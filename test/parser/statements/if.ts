@@ -16,6 +16,36 @@ describe('Statements - if', () => {
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      'if(1)/  foo/',
+      Context.OptionsWebCompat,
+      {
+        body: [
+          {
+            alternate: null,
+            consequent: {
+              expression: {
+                regex: {
+                  flags: '',
+                  pattern: '  foo'
+                },
+                type: 'Literal',
+                value: /  foo/
+              },
+              type: 'ExpressionStatement'
+            },
+            test: {
+              type: 'Literal',
+              value: 1
+            },
+            type: 'IfStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+
     // Should only pass with AnnexB
     [
       'if (a) function a(){}',

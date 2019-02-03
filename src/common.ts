@@ -64,10 +64,9 @@ export const enum Flags {
   HasStrictReserved = 1 << 9,
   StrictEvalArguments = 1 << 10,
   HasConstructor = 1 << 11,
-  HasAwait  = 1 << 12,
-  HasYield   = 1 << 13,
-  ContainsSeparator = 1 << 14,
-
+  SeenAwait  = 1 << 12,
+  SeenYield   = 1 << 13,
+  ContainsSeparator = 1 << 14
 }
 // prettier-ignore
 /**
@@ -199,6 +198,8 @@ export interface ParserState {
   line: number;
   startIndex: number;
   endIndex: number;
+  endColumn: number;
+  endLine: number;
   startLine: number;
   startColumn: number;
   column: number;
@@ -263,10 +264,24 @@ export function pushToken(context: Context, array: any[]): any {
   };
 }
 
-export function finishNode<T extends ESTree.Node>(state: ParserState, context: Context, start: number, node: T): T {
+export function finishNode<T extends ESTree.Node>(
+  state: ParserState,
+  context: Context,
+  start: number,
+  line: number,
+  column: number,
+  node: T
+): T {
   if (context & Context.OptionsRanges) {
     node.start = start;
     node.end = state.endIndex;
+  }
+
+  if (context & Context.OptionsLoc) {
+    node.loc = {
+      start: { line, column },
+      end: { line: state.endLine, column: state.endColumn }
+    };
   }
 
   return node;
@@ -309,7 +324,7 @@ export function consumeSemicolon(state: ParserState, context: Context): void | b
 }
 
 /**
- * Insert scope bindings
+ * Use the given 'tokenValue' and insert scope bindings
  *
  * @param state Parser instance
  * @param context Context masks
@@ -321,31 +336,31 @@ export function consumeSemicolon(state: ParserState, context: Context): void | b
  * @param isVarDecl True if origin is a variable declaration
  */
 
-export function addVariable(
+export function recordTokenValue(
   state: ParserState,
   context: Context,
   scope: any,
-  bindingType: Type,
+  type: Type,
   origin: Origin,
   checkDuplicates: boolean,
   isVarDecl: boolean,
   key: string
 ) {
   if (scope === -1) return;
-  if (bindingType & Type.Variable) {
+  if (type & Type.Variable) {
     let lex = scope.lex;
     while (lex) {
-      const type = lex.type;
+      const scopeType = lex.type;
       if (lex['@' + key] !== undefined) {
-        if (type === ScopeType.CatchClause) {
+        if (scopeType === ScopeType.CatchClause) {
           if (isVarDecl && context & Context.OptionsWebCompat) {
           } else {
             report(state, Errors.InvalidCatchVarBinding, key);
           }
-        } else if (type === ScopeType.ForStatement) {
+        } else if (scopeType === ScopeType.ForStatement) {
           report(state, Errors.AlreadyBoundAsLexical);
-        } else if (type !== ScopeType.ArgumentList) {
-          if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
+        } else if (scopeType !== ScopeType.ArgumentList) {
+          if (checkIfAlreadyBound(scope, '@' + key, context, origin) === true) {
             report(state, Errors.AlreadyBoundAsLexical, key);
           }
         }
@@ -370,9 +385,9 @@ export function addVariable(
   } else {
     const lex = scope.lex;
     if (checkDuplicates) {
-      checkIfExistInLexicalParentScope(state, context, scope, origin, '@' + key);
+      checkIfExistInParentScope(state, context, scope, origin, '@' + key);
       if (lex['@' + key] !== undefined) {
-        if (checkForDuplicateLexicals(scope, '@' + key, context, origin) === true) {
+        if (checkIfAlreadyBound(scope, '@' + key, context, origin) === true) {
           report(state, Errors.AlreadyDeclared, key);
         }
       }
@@ -397,7 +412,7 @@ export function addVariable(
  * @param context
  */
 
-export function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context, origin: Origin): boolean {
+export function checkIfAlreadyBound(scope: ScopeState, key: string, context: Context, origin: Origin): boolean {
   return context & Context.Strict
     ? true
     : (context & Context.OptionsWebCompat) === 0
@@ -416,7 +431,7 @@ export function checkForDuplicateLexicals(scope: ScopeState, key: string, contex
  * @param scope
  * @param skipParent
  */
-export function checkIfExistInLexicalBindings(
+export function checkIfLexicalAlreadyBound(
   state: ParserState,
   context: Context,
   scope: ScopeState,
@@ -427,7 +442,7 @@ export function checkIfExistInLexicalBindings(
   for (const key in lex) {
     if (key[0] === '@' && key.length > 1) {
       if (lex[key] > 1) return true;
-      if (!skipParent) checkIfExistInLexicalParentScope(state, context, scope, origin, key);
+      if (!skipParent) checkIfExistInParentScope(state, context, scope, origin, key);
     }
   }
   return false;
@@ -440,7 +455,7 @@ export function checkIfExistInLexicalBindings(
  * @param scope
  * @param key
  */
-export function checkIfExistInLexicalParentScope(
+export function checkIfExistInParentScope(
   state: ParserState,
   context: Context,
   scope: ScopeState,
@@ -459,7 +474,7 @@ export function checkIfExistInLexicalParentScope(
   }
 
   if (scope.lexVars[key] !== undefined) {
-    if (checkForDuplicateLexicals(scope, key, context, origin) === true) {
+    if (checkIfAlreadyBound(scope, key, context, origin) === true) {
       report(state, Errors.AlreadyDeclared, key.slice(1));
     }
   }
@@ -469,11 +484,11 @@ export function addFunctionName(
   state: any,
   context: Context,
   scope: any,
-  bindingType: Type,
+  type: Type,
   origin: Origin,
   isVarDecl: boolean
 ) {
-  addVariable(state, context, scope, bindingType, origin, true, isVarDecl, state.tokenValue);
+  recordTokenValue(state, context, scope, type, origin, true, isVarDecl, state.tokenValue);
   if (context & Context.OptionsWebCompat && !scope.lex.funcs['@' + state.tokenValue]) {
     scope.lex.funcs['@' + state.tokenValue] = true;
   }
@@ -629,12 +644,14 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
   // (fkleuver): Investigate why this doesn't trigger an error
   if (token === Token.EnumKeyword) report(state, Errors.FutureReservedWordInStrictModeNotId);
 
-  if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
-    report(state, Errors.AwaitOutsideAsync);
+  if (token & Token.IsAwait) {
+    if (context & (Context.AwaitContext | Context.Module)) report(state, Errors.AwaitOutsideAsync);
+    state.flags = state.flags | Flags.SeenAwait;
   }
 
-  if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
-    report(state, Errors.DisallowedInContext, 'yield');
+  if (token & Token.IsYield) {
+    if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.DisallowedInContext, 'yield');
+    state.flags = state.flags | Flags.SeenYield;
   }
 
   if (token === Token.LetKeyword) {
@@ -789,7 +806,7 @@ export function getLabel(
  * @param type Binding type
  * @param isVarDecl True if variable decl
  */
-export function addVariableAndDeduplicate(
+export function recordTokenValueAndDeduplicate(
   state: ParserState,
   context: Context,
   scope: ScopeState,
@@ -798,7 +815,7 @@ export function addVariableAndDeduplicate(
   isVarDecl: boolean,
   name: string
 ): void {
-  addVariable(state, context, scope, type, origin, true, isVarDecl, name);
+  recordTokenValue(state, context, scope, type, origin, true, isVarDecl, name);
   if (context & Context.OptionsWebCompat) {
     scope.lex.funcs['#' + state.tokenValue] = false;
   }
@@ -872,6 +889,32 @@ export function secludeGrammar<T>(
   state.pendingCoverInitializeError = null;
 
   const result = callback(state, context, minprec);
+  if (state.pendingCoverInitializeError !== null) {
+    report(state, state.pendingCoverInitializeError);
+  }
+
+  state.bindable = bindable;
+  state.assignable = assignable;
+  state.pendingCoverInitializeError = pendingCoverInitializeError;
+
+  return result;
+}
+
+export function secludeGrammarWithLocation<T>(
+  state: ParserState,
+  context: Context,
+  start: number,
+  line: number,
+  column: number,
+  callback: (state: ParserState, context: Context, start: number, line: number, column: number) => T
+): T {
+  const { assignable, bindable, pendingCoverInitializeError } = state;
+
+  state.bindable = true;
+  state.assignable = true;
+  state.pendingCoverInitializeError = null;
+
+  const result = callback(state, context, start, line, column);
   if (state.pendingCoverInitializeError !== null) {
     report(state, state.pendingCoverInitializeError);
   }

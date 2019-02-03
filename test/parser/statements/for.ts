@@ -12,13 +12,15 @@ describe('Statements - For', () => {
     ['for (let x in y) { var x; }', Context.Empty],
     ['for (const x in y) { var x; }', Context.Empty],
     ['for (let x of y) { var x; }', Context.Empty],
+    ['for ([...[(x, y)]] in [[[]]]) ;', Context.Empty],
     ['for (const a;;);', Context.Empty],
     ['for (const a,b,c;;);', Context.Empty],
-    // ['for (const [x, x] in {}) {}', Context.Empty],
+    ['for (const [x, x] in {}) {}', Context.Empty],
     ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.Empty],
 
     // General
 
+    ['for (var x = 1 of y);', Context.Empty],
     ['for (const let = 1; let < 1; let++) {}', Context.Empty],
     ['for (const let in {}) {}', Context.Empty],
     ['for (const let of []) {}', Context.Empty],
@@ -631,7 +633,7 @@ describe('Statements - For', () => {
     'do { const foo = j } while (j)',
     'do { const [foo] = [j] } while (j)',
     'do { function foo() {return j} } while (j)',
-
+    'for (a(b in c)[1] in d);',
     'for (const [[...x] = [2, 1, 3]] = []; iterCount < 1; ) {}',
     'for (const [cover = (function () {}), xCover = (0, function() {})] = []; iterCount < 1; ) {}',
     'for (const [x = 23] = [undefined]; iterCount < 1; ) {}',
@@ -760,6 +762,62 @@ describe('Statements - For', () => {
       }
     ],
     [
+      'for ([...[(x, y)]] in [[[]]]) ;',
+      Context.OptionsWebCompat,
+      {
+        body: [
+          {
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              elements: [
+                {
+                  argument: {
+                    elements: [
+                      {
+                        expressions: [
+                          {
+                            name: 'x',
+                            type: 'Identifier'
+                          },
+                          {
+                            name: 'y',
+                            type: 'Identifier'
+                          }
+                        ],
+                        type: 'SequenceExpression'
+                      }
+                    ],
+                    type: 'ArrayPattern'
+                  },
+                  type: 'RestElement'
+                }
+              ],
+              type: 'ArrayPattern'
+            },
+            right: {
+              elements: [
+                {
+                  elements: [
+                    {
+                      elements: [],
+                      type: 'ArrayExpression'
+                    }
+                  ],
+                  type: 'ArrayExpression'
+                }
+              ],
+              type: 'ArrayExpression'
+            },
+            type: 'ForInStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'for (let foo = bar;;);',
       Context.Empty,
       {
@@ -855,6 +913,124 @@ describe('Statements - For', () => {
             test: null,
             type: 'ForStatement',
             update: null
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'for ([...{ get x() {} }] in [[[]]]) ;',
+      Context.OptionsWebCompat,
+      {
+        body: [
+          {
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              elements: [
+                {
+                  argument: {
+                    properties: [
+                      {
+                        computed: false,
+                        key: {
+                          name: 'x',
+                          type: 'Identifier'
+                        },
+                        kind: 'get',
+                        method: false,
+                        shorthand: false,
+                        type: 'Property',
+                        value: {
+                          async: false,
+                          body: {
+                            body: [],
+                            type: 'BlockStatement'
+                          },
+                          generator: false,
+                          id: null,
+                          params: [],
+                          type: 'FunctionExpression'
+                        }
+                      }
+                    ],
+                    type: 'ObjectPattern'
+                  },
+                  type: 'RestElement'
+                }
+              ],
+              type: 'ArrayPattern'
+            },
+            right: {
+              elements: [
+                {
+                  elements: [
+                    {
+                      elements: [],
+                      type: 'ArrayExpression'
+                    }
+                  ],
+                  type: 'ArrayExpression'
+                }
+              ],
+              type: 'ArrayExpression'
+            },
+            type: 'ForInStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'for ([[(x, y)]] in [[[]]]) ;',
+      Context.OptionsWebCompat,
+      {
+        body: [
+          {
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              elements: [
+                {
+                  elements: [
+                    {
+                      expressions: [
+                        {
+                          name: 'x',
+                          type: 'Identifier'
+                        },
+                        {
+                          name: 'y',
+                          type: 'Identifier'
+                        }
+                      ],
+                      type: 'SequenceExpression'
+                    }
+                  ],
+                  type: 'ArrayPattern'
+                }
+              ],
+              type: 'ArrayPattern'
+            },
+            right: {
+              elements: [
+                {
+                  elements: [
+                    {
+                      elements: [],
+                      type: 'ArrayExpression'
+                    }
+                  ],
+                  type: 'ArrayExpression'
+                }
+              ],
+              type: 'ArrayExpression'
+            },
+            type: 'ForInStatement'
           }
         ],
         sourceType: 'script',

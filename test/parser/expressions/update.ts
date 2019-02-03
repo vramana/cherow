@@ -38,6 +38,41 @@ describe('Expressions - Update', () => {
 
   pass('Expressions - Update (pass)', [
     [
+      '+a++ / 1',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                argument: {
+                  argument: {
+                    name: 'a',
+                    type: 'Identifier'
+                  },
+                  operator: '++',
+                  prefix: false,
+                  type: 'UpdateExpression'
+                },
+                operator: '+',
+                prefix: true,
+                type: 'UnaryExpression'
+              },
+              operator: '/',
+              right: {
+                type: 'Literal',
+                value: 1
+              },
+              type: 'BinaryExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       '{b\n++c};',
       Context.Empty,
       {

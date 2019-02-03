@@ -344,6 +344,178 @@ describe('Expressions - Yield', () => {
 
   pass('Expressions - Yield (pass)', [
     [
+      'function *a() { (b) => b * yield; }',
+      Context.LocationTracking,
+      {
+        type: 'Program',
+        start: 0,
+        end: 35,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 35
+          }
+        },
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            start: 0,
+            end: 35,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 35
+              }
+            },
+            id: {
+              type: 'Identifier',
+              start: 10,
+              end: 11,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 10
+                },
+                end: {
+                  line: 1,
+                  column: 11
+                }
+              },
+              name: 'a'
+            },
+            generator: true,
+            async: false,
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              start: 14,
+              end: 35,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 14
+                },
+                end: {
+                  line: 1,
+                  column: 35
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 16,
+                  end: 33,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 16
+                    },
+                    end: {
+                      line: 1,
+                      column: 33
+                    }
+                  },
+                  expression: {
+                    type: 'ArrowFunctionExpression',
+                    start: 16,
+                    end: 32,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 16
+                      },
+                      end: {
+                        line: 1,
+                        column: 32
+                      }
+                    },
+                    id: null,
+                    expression: true,
+                    async: false,
+                    params: [
+                      {
+                        type: 'Identifier',
+                        start: 17,
+                        end: 18,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 17
+                          },
+                          end: {
+                            line: 1,
+                            column: 18
+                          }
+                        },
+                        name: 'b'
+                      }
+                    ],
+                    body: {
+                      type: 'BinaryExpression',
+                      start: 23,
+                      end: 32,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 23
+                        },
+                        end: {
+                          line: 1,
+                          column: 32
+                        }
+                      },
+                      left: {
+                        type: 'Identifier',
+                        start: 23,
+                        end: 24,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 23
+                          },
+                          end: {
+                            line: 1,
+                            column: 24
+                          }
+                        },
+                        name: 'b'
+                      },
+                      operator: '*',
+                      right: {
+                        type: 'Identifier',
+                        start: 27,
+                        end: 32,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 27
+                          },
+                          end: {
+                            line: 1,
+                            column: 32
+                          }
+                        },
+                        name: 'yield'
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
       'function* f(){ yield\n/foo/ }',
       Context.Empty,
       {

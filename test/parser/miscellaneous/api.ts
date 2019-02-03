@@ -8,7 +8,7 @@ describe('Expressions - API', () => {
     t.deepEqual(
       parse('foo', {
         experimental: true,
-        loc: false,
+        loc: true,
         globalAwait: true,
         globalReturn: true,
         ranges: true,
@@ -21,22 +21,52 @@ describe('Expressions - API', () => {
       }),
       {
         type: 'Program',
-        sourceType: 'module',
+        start: 0,
+        end: 3,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 3
+          }
+        },
         body: [
           {
             type: 'ExpressionStatement',
+            start: 0,
+            end: 3,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 3
+              }
+            },
             expression: {
               type: 'Identifier',
-              name: 'foo',
               start: 0,
-              end: 3
-            },
-            start: 0,
-            end: 3
+              end: 3,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 3
+                }
+              },
+              name: 'foo'
+            }
           }
         ],
-        start: 0,
-        end: 3
+        sourceType: 'module'
       }
     );
   });

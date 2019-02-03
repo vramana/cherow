@@ -28,7 +28,7 @@ export function scanStringLiteral(state: ParserState, context: Context, quote: n
         const code = table[ch](state, context, ch);
 
         if (code >= 0) ret += fromCodePoint(code);
-        else reportInvalidEscapeError(state, code as Escape);
+        else reportInvalidEscapeError(state, code as Escape, /* isTemplate */ false);
         ch = state.lastChar;
       }
     } else if (((ch - 0xe) & 0x2000 && ch === Chars.CarriageReturn) || ch === Chars.LineFeed) {
@@ -199,19 +199,19 @@ table[Chars.LowerU] = state => {
  * @param state state object
  * @param context Context masks
  */
-export function reportInvalidEscapeError(state: ParserState, code: Escape): void {
+export function reportInvalidEscapeError(state: ParserState, code: Escape, isTemplate: boolean): void {
   switch (code) {
     case Escape.StrictOctal:
-      return report(state, Errors.StrictOctalEscape);
+      report(state, isTemplate ? Errors.TemplateOctalLiteral : Errors.StrictOctalEscape);
 
     case Escape.EightOrNine:
-      return report(state, Errors.InvalidEightAndNine);
+      report(state, Errors.InvalidEightAndNine);
 
     case Escape.InvalidHex:
-      return report(state, Errors.InvalidHexEscapeSequence);
+      report(state, Errors.InvalidHexEscapeSequence);
 
     case Escape.OutOfRange:
-      return report(state, Errors.UnicodeOverflow);
+      report(state, Errors.UnicodeOverflow);
 
     default:
       return;

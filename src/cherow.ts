@@ -165,13 +165,12 @@ export function parseSource(source: string, options: Options | void, context: Co
     node.end = source.length;
   }
 
-  /* TODO
   if (context & Context.OptionsLoc) {
     node.loc = {
       start: { line: 1, column: 0 },
       end: { line: state.line, column: state.column }
     };
-  } */
+  }
 
   return node;
 }

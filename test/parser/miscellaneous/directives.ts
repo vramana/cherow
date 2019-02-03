@@ -191,6 +191,50 @@ describe('Miscellaneous - Directives', () => {
       }
     ],
     [
+      '"use\\x20strict"; with (a) b = c;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            directive: 'use\\x20strict',
+            expression: {
+              raw: '"use\\x20strict"',
+              type: 'Literal',
+              value: 'use strict'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            body: {
+              expression: {
+                left: {
+                  name: 'b',
+                  raw: 'b',
+                  type: 'Identifier'
+                },
+                operator: '=',
+                right: {
+                  name: 'c',
+                  raw: 'c',
+                  type: 'Identifier'
+                },
+                type: 'AssignmentExpression'
+              },
+              type: 'ExpressionStatement'
+            },
+            object: {
+              name: 'a',
+              raw: 'a',
+              type: 'Identifier'
+            },
+            type: 'WithStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       '"foo"\nx',
       Context.OptionsDirectives | Context.OptionsRaw,
 

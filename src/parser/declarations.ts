@@ -8,18 +8,19 @@ import {
   validateBindingIdentifier,
   addToExportedNamesAndCheckForDuplicates,
   addToExportedBindings,
-  addVariableAndDeduplicate,
+  recordTokenValueAndDeduplicate,
   ScopeState,
   ScopeType,
   createSubScope,
   createScope,
   Modifiers,
   secludeGrammar,
+  secludeGrammarWithLocation,
   finishNode
 } from '../common';
 import { Token, KeywordDescTable } from '../token';
 import { scanSingleToken } from '../scanner';
-import { optional, checkIfExistInLexicalBindings, addFunctionName } from '../common';
+import { optional, checkIfLexicalAlreadyBound, addFunctionName } from '../common';
 import { report, Errors } from '../errors';
 import {
   parseAssignmentExpression,
@@ -43,7 +44,7 @@ export function parseClassDeclaration(
   context: Context,
   scope: ScopeState
 ): ESTree.ClassDeclaration {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   // class bodies are implicitly strict
   context = (context | Context.Strict | Context.InConstructor) ^ Context.InConstructor;
@@ -52,12 +53,12 @@ export function parseClassDeclaration(
   let superClass: ESTree.Expression | null = null;
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
     validateBindingIdentifier(state, context | Context.Strict, Type.ClassExprDecl);
-    addVariableAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, state.tokenValue);
+    recordTokenValueAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, state.tokenValue);
     id = parseIdentifier(state, context);
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Class');
 
   if (optional(state, context, Token.ExtendsKeyword)) {
-    superClass = secludeGrammar(state, context, 0, parseLeftHandSideExpression);
+    superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
@@ -65,7 +66,7 @@ export function parseClassDeclaration(
 
   const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.Declaration);
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'ClassDeclaration',
     id,
     superClass,
@@ -89,7 +90,7 @@ export function parseFunctionDeclaration(
   origin: Origin,
   isAsync: boolean
 ) {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
 
   const isGenerator: boolean = (origin & Origin.Statement) < 1 && optional(state, context, Token.Multiply);
@@ -163,7 +164,7 @@ export function parseFunctionDeclaration(
     origin
   );
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'FunctionDeclaration',
     params,
     body,
@@ -179,7 +180,7 @@ export function parseHostedClassDeclaration(
   scope: ScopeState,
   isNotDefault: boolean
 ): ESTree.ClassDeclaration {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
 
@@ -189,15 +190,15 @@ export function parseHostedClassDeclaration(
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
     name = state.tokenValue;
     validateBindingIdentifier(state, context, Type.ClassExprDecl);
-    addVariableAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, name);
+    recordTokenValueAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, name);
     id = parseIdentifier(state, context);
-  }
+  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Class');
 
   if (isNotDefault) addToExportedNamesAndCheckForDuplicates(state, name);
   addToExportedBindings(state, name);
 
   if (optional(state, context, Token.ExtendsKeyword)) {
-    superClass = parseLeftHandSideExpression(state, context, start);
+    superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
@@ -205,7 +206,7 @@ export function parseHostedClassDeclaration(
 
   const body = parseClassBodyAndElementList(state, context, Origin.Declaration);
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'ClassDeclaration',
     id,
     superClass,
@@ -220,7 +221,7 @@ export function parseHoistableFunctionDeclaration(
   origin: Origin,
   isAsync: boolean
 ) {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
 
   const isGenerator: boolean = optional(state, context, Token.Multiply);
@@ -237,7 +238,7 @@ export function parseHoistableFunctionDeclaration(
     addFunctionName(state, context, scope, Type.Let, Origin.None, true);
     funcScope = createSubScope(funcScope, ScopeType.BlockStatement);
     id = parseIdentifier(state, context);
-  }
+  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Function');
 
   if ((origin & Origin.ExportDefault) === 0) addToExportedNamesAndCheckForDuplicates(state, name);
   addToExportedBindings(state, name);
@@ -267,7 +268,7 @@ export function parseHoistableFunctionDeclaration(
     Origin.None
   );
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'FunctionDeclaration',
     params,
     body,
@@ -295,15 +296,14 @@ export function parseLexicalDeclaration(
   origin: Origin,
   scope: ScopeState
 ): ESTree.VariableDeclaration {
-  const { token } = state;
-  const { startIndex: start } = state;
+  const { token, startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
-  if (checkIfExistInLexicalBindings(state, context, scope, origin, false)) {
+  if (checkIfLexicalAlreadyBound(state, context, scope, origin, false)) {
     report(state, Errors.DuplicateBinding, KeywordDescTable[token & Token.Type]);
   }
   consumeSemicolon(state, context);
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'VariableDeclaration',
     kind: KeywordDescTable[token & Token.Type],
     declarations
@@ -370,7 +370,7 @@ function parseVariableDeclaration(
   checkForDuplicates: boolean,
   scope: ScopeState
 ): any {
-  const { startIndex: start } = state;
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   const isBinding = state.token === Token.LeftBrace || state.token === Token.LeftBracket;
   const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
 
@@ -378,21 +378,22 @@ function parseVariableDeclaration(
 
   if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
     init = secludeGrammar(state, context, 0, parseAssignmentExpression);
-    if (isInOrOf(state) && (origin & Origin.ForStatement || isBinding)) {
+    if (origin & Origin.ForStatement || isBinding) {
       // https://github.com/tc39/test262/blob/master/test/annexB/language/statements/for-in/strict-initializer.js
-      if (
-        (type & Type.Variable) < 1 ||
-        ((context & Context.OptionsWebCompat) === 0 || context & Context.Strict) ||
-        isBinding
-      ) {
-        report(state, Errors.ForInOfLoopInitializer);
-      }
+      if (state.token === Token.InKeyword) {
+        if (
+          isBinding ||
+          ((type & Type.Variable) < 1 || ((context & Context.OptionsWebCompat) === 0 || context & Context.Strict))
+        ) {
+          report(state, Errors.ForInOfLoopInitializer);
+        }
+      } else if (state.token === Token.OfKeyword) report(state, Errors.ForInOfLoopInitializer);
     }
   } else if ((type & Type.Const || isBinding) && !isInOrOf(state)) {
     report(state, Errors.DeclarationMissingInitializer, type & Type.Const ? 'const' : 'destructuring');
   }
 
-  return finishNode(state, context, start, {
+  return finishNode(state, context, start, line, column, {
     type: 'VariableDeclarator',
     init,
     id

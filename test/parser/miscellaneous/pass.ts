@@ -4,6 +4,7 @@ import { parseSource } from '../../../src/cherow';
 
 describe('Miscellaneous - Passing tests', () => {
   const programs = [
+    '(function () { "use\\x20strict"; with (a); }())',
     `(function foo(y, z) {{ function x() {} } })(1);`,
     // Complex parameter shouldn't be shadowed
     `(function foo(x = 0) { var x; { function x() {} } })(1);`,

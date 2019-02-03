@@ -7,7 +7,6 @@ describe('Declarations - Var', () => {
   fail('Declarations - Var (fail)', [
     ['var a = b; const a = c', Context.Empty],
     ['const a = b; var a = c', Context.Empty],
-    ['{ var f; function f() {} }', Context.Empty],
     ['{ var f; function f() {} }', Context.OptionsWebCompat],
     ['var foo = {}; foo.{;', Context.Empty],
     ['var foo = {}; foo.};', Context.Empty],

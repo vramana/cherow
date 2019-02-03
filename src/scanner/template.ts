@@ -33,7 +33,7 @@ export function scanTemplate(state: ParserState, context: Context): Token {
         ret += fromCodePoint(ch);
       } else {
         state.lastChar = ch;
-        const code = table[ch](state, context, ch);
+        const code = table[ch](state, context | Context.Strict, ch);
 
         if (code >= 0) {
           ret += fromCodePoint(code);
@@ -46,7 +46,7 @@ export function scanTemplate(state: ParserState, context: Context): Token {
           }
           break;
         } else {
-          reportInvalidEscapeError(state, code as Escape);
+          reportInvalidEscapeError(state, code as Escape, /* isTemplate */ true);
         }
         ch = state.lastChar;
       }
