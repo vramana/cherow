@@ -6,7 +6,7 @@ import {
   Type,
   Origin,
   validateBindingIdentifier,
-  addToExportedNamesAndCheckForDuplicates,
+  addToExportedNamesAndCheckDuplicates,
   addToExportedBindings,
   ScopeState,
   secludeGrammar,
@@ -83,7 +83,7 @@ export function parseBindingIdentifier(
   );
 
   if (origin === Origin.Export) {
-    addToExportedNamesAndCheckForDuplicates(state, state.tokenValue);
+    addToExportedNamesAndCheckDuplicates(state, state.tokenValue);
     addToExportedBindings(state, state.tokenValue);
   }
 
@@ -109,7 +109,7 @@ export function parseAssignmentRestElement(
   type: Type,
   origin: Origin,
   verifyDuplicates: boolean
-): any {
+): ESTree.RestElement {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context, Token.Ellipsis);
   const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
@@ -135,7 +135,7 @@ function AssignmentRestProperty(
   type: Type,
   origin: Origin,
   verifyDuplicates: boolean
-): any {
+): ESTree.RestElement {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context, Token.Ellipsis);
   const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
@@ -260,7 +260,7 @@ export function parseAssignmentPattern(
   start: number,
   line: number,
   column: number
-): any {
+): ESTree.AssignmentPattern {
   return finishNode(state, context, start, line, column, {
     type: 'AssignmentPattern',
     left,
@@ -286,14 +286,14 @@ export function parseBindingInitializer(
   verifyDuplicates: boolean
 ): ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.MemberExpression | ESTree.AssignmentPattern {
   const { startIndex: start, startLine: line, startColumn: column } = state;
-  const left: any = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
+  const left: ESTree.Pattern = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
   return !optional(state, context, Token.Assign)
     ? left
     : finishNode(state, context, start, line, column, {
         type: 'AssignmentPattern',
         left,
         right: secludeGrammar(state, context, 0, parseAssignmentExpression)
-      });
+      } as any);
 }
 
 /**
@@ -326,7 +326,7 @@ function parseAssignmentProperty(
     if (shorthand) {
       validateBindingIdentifier(state, context, type, token);
       if (origin === Origin.Export) {
-        addToExportedNamesAndCheckForDuplicates(state, state.tokenValue);
+        addToExportedNamesAndCheckDuplicates(state, state.tokenValue);
         addToExportedBindings(state, state.tokenValue);
       }
       recordTokenValue(state, context, scope, type, origin, false, false, tokenValue);
@@ -352,5 +352,5 @@ function parseAssignmentProperty(
     value,
     method: false,
     shorthand
-  });
+  } as any);
 }

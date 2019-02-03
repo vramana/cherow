@@ -672,7 +672,7 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
   return true;
 }
 
-export function addToExportedNamesAndCheckForDuplicates(state: ParserState, exportedName: any) {
+export function addToExportedNamesAndCheckDuplicates(state: ParserState, exportedName: any) {
   if (state.exportedNames !== undefined && exportedName !== '') {
     const hashed: any = '@' + exportedName;
     if (state.exportedNames[hashed]) report(state, Errors.InvalidDuplicateExportedBinding, exportedName);
