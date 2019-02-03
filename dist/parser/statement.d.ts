@@ -16,7 +16,7 @@ export declare function parseDebuggerStatement(state: ParserState, context: Cont
 export declare function parseTryStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.TryStatement;
 export declare function parseCatchBlock(state: ParserState, context: Context, scope: ScopeState): ESTree.CatchClause;
 export declare function parseDoWhileStatement(state: ParserState, context: Context, scope: ScopeState): any;
-export declare function parseCaseOrDefaultClauses(state: ParserState, context: Context, test: ESTree.Expression | null, scope: ScopeState, start: number): ESTree.SwitchCase;
+export declare function parseCaseOrDefaultClauses(state: ParserState, context: Context, test: ESTree.Expression | null, scope: ScopeState, start: number, line: number, column: number): ESTree.SwitchCase;
 export declare function parseExpressionOrLabelledStatement(state: ParserState, context: Context, scope: ScopeState, allowFunctionDeclarationAsStatement: boolean): any;
 export declare function parseDirective(state: ParserState, context: Context, scope: ScopeState): any;
 export declare function parseVariableStatement(state: ParserState, context: Context, type: Type, origin: Origin, scope: ScopeState): ESTree.VariableDeclaration;
