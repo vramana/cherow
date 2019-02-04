@@ -31,13 +31,7 @@ import {
   parseLexicalDeclaration,
   parseVariableDeclarationList
 } from './declarations';
-import {
-  parseMemberExpression,
-  parseExpression,
-  parseSequenceExpression,
-  parseAssignmentExpression,
-  parseIdentifier
-} from './expression';
+import { parseExpressions, parseSequenceExpression, parseAssignmentExpression, parseIdentifier } from './expression';
 
 /**
  * Parses statement list item
@@ -212,7 +206,7 @@ function parseStatement(
  */
 export function parseExpressionStatement(state: ParserState, context: Context): ESTree.ExpressionStatement {
   const { startIndex, startColumn, startLine } = state;
-  const expr: ESTree.Expression = parseExpression(
+  const expr: ESTree.Expression = parseExpressions(
     state,
     (context | Context.DisallowInContext) ^ Context.DisallowInContext
   );
@@ -276,7 +270,7 @@ export function parseThrowStatement(state: ParserState, context: Context): ESTre
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   if (state.flags & Flags.NewLine) report(state, Errors.NewlineAfterThrow);
-  const argument: ESTree.Expression = parseExpression(
+  const argument: ESTree.Expression = parseExpressions(
     state,
     (context | Context.DisallowInContext) ^ Context.DisallowInContext
   );
@@ -300,7 +294,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
-  const test = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
+  const test = parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
   expect(state, context | Context.AllowPossibleRegEx, Token.RightParen);
   const consequent = parseConsequentOrAlternate(state, context, scope);
   const alternate = optional(state, context, Token.ElseKeyword)
@@ -341,7 +335,7 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
-  const discriminant = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
+  const discriminant = parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
   expect(state, context, Token.RightParen);
   expect(state, context, Token.LeftBrace);
   const cases: ESTree.SwitchCase[] = [];
@@ -353,7 +347,7 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
     let test: ESTree.Expression | null = null;
     const { startIndex: subStart, startLine: subLine, startColumn: subColumn } = state;
     if (optional(state, context, Token.CaseKeyword)) {
-      test = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
+      test = parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
     } else {
       expect(state, context, Token.DefaultKeyword);
       if (seenDefault) report(state, Errors.DupDefault);
@@ -384,7 +378,7 @@ export function parseReturnStatement(state: ParserState, context: Context): ESTr
   scanSingleToken(state, context | Context.AllowPossibleRegEx);
   const argument =
     (state.token & Token.ASI) < 1 && (state.flags & Flags.NewLine) < 1
-      ? parseExpression(
+      ? parseExpressions(
           state,
           (context | Context.DisallowInContext) ^ (Context.DisallowInContext | Context.AllowReturn)
         )
@@ -409,7 +403,7 @@ export function parseWhileStatement(state: ParserState, context: Context, scope:
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
-  const test = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
+  const test = parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
   expect(state, context | Context.AllowPossibleRegEx, Token.RightParen);
   const previousIterationStatement = state.iterationStatement;
   state.iterationStatement = LabelState.Iteration;
@@ -489,7 +483,7 @@ export function parseWithStatement(state: ParserState, context: Context, scope: 
   if (context & Context.Strict) report(state, Errors.StrictModeWith);
   scanSingleToken(state, context);
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
-  const object = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
+  const object = parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
   expect(state, context, Token.RightParen);
   const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, false);
   return finishNode(state, context, start, line, column, {
@@ -606,7 +600,7 @@ export function parseDoWhileStatement(state: ParserState, context: Context, scop
   state.iterationStatement = previousIterationStatement;
   expect(state, context, Token.WhileKeyword);
   expect(state, context, Token.LeftParen);
-  const test = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
+  const test = parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
   expect(state, context, Token.RightParen);
   optional(state, context, Token.Semicolon);
   return finishNode(state, context, start, line, column, {
@@ -764,7 +758,7 @@ function parseForStatement(
       }
       reinterpret(state, init);
     }
-    right = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
+    right = parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
     expect(state, context, Token.RightParen);
     const previousIterationStatement = state.iterationStatement;
     state.iterationStatement = LabelState.Iteration;
@@ -798,12 +792,12 @@ function parseForStatement(
 
   expect(state, context, Token.Semicolon);
 
-  if (state.token !== Token.Semicolon) test = parseExpression(state, context);
+  if (state.token !== Token.Semicolon) test = parseExpressions(state, context);
 
   expect(state, context, Token.Semicolon);
 
   if (state.token !== Token.RightParen)
-    update = parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
+    update = parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
 
   expect(state, context, Token.RightParen);
 
@@ -836,7 +830,7 @@ export function parseExpressionOrLabelledStatement(
   allowFunctionDeclarationAsStatement: boolean
 ): any {
   const { token, tokenValue, startIndex: start, startLine: line, startColumn: column } = state;
-  const expr: ESTree.Expression = parseExpression(
+  const expr: ESTree.Expression = parseExpressions(
     state,
     (context | Context.DisallowInContext) ^ Context.DisallowInContext
   );
@@ -887,7 +881,7 @@ export function parseExpressionOrLabelledStatement(
 export function parseDirective(state: ParserState, context: Context, scope: ScopeState): any {
   if ((context & Context.OptionsDirectives) < 1) return parseStatementListItem(state, context, scope);
   const { startIndex, tokenRaw, startLine, startColumn } = state;
-  const expression = parseExpression(state, context);
+  const expression = parseExpressions(state, context);
   consumeSemicolon(state, context);
   return finishNode(state, context, startIndex, startLine, startColumn, {
     type: 'ExpressionStatement',

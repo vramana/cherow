@@ -231,7 +231,7 @@ export function parseFunctionBody(
   });
 }
 
-export function parseExpression(state: ParserState, context: Context): any {
+export function parseExpressions(state: ParserState, context: Context): any {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   const expr = secludeGrammar(state, context, 0, parseAssignmentExpression);
   if (state.token !== Token.Comma) return expr;
@@ -926,7 +926,7 @@ export function parseMemberExpression(
           type: 'MemberExpression',
           object: expr,
           computed: true,
-          property: parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext)
+          property: parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext)
         });
         expect(state, context, Token.RightBracket);
         break;
@@ -1052,13 +1052,13 @@ function parseTemplate(
   const quasis = [parseTemplateSpans(state, context, start, line, column, /* tail */ false)];
   expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
   state.bindable = state.assignable = false;
-  const expressions = [parseExpression(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext)];
+  const expressions = [parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext)];
   while ((state.token = scanTemplateTail(state, context)) !== Token.TemplateTail) {
     quasis.push(
       parseTemplateSpans(state, context, state.startIndex, state.startLine, state.startColumn, /* tail */ false)
     );
     expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
-    expressions.push(parseExpression(state, context));
+    expressions.push(parseExpressions(state, context));
   }
   quasis.push(
     parseTemplateSpans(state, context, state.startIndex, state.startLine, state.startColumn, /* tail */ true)
