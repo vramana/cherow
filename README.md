@@ -141,6 +141,7 @@ The second argument allows you to specify various options:
 | `next`            | Enable stage 3 support (*ESNext*)  |
 | `experimental`    | Enable experimental features    |
 | `parenthesizedExpr` | Enable non-standard parenthesized expression node |
+| `skipRoot` | Returns the AST node directly without the `program` node (*expression parsing*) |
 | `raw`             | Attach raw property to each literal node and identifier node |
 | `directives`      | Enable [directive prologue](https://github.com/danez/estree/blob/directive/es5.md#directive) to each literal node |
 | `onComment`       | Accept either callback or array to collect comment |
