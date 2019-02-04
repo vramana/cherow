@@ -273,6 +273,73 @@ describe('Expressions - Template', () => {
       }
     ],
     [
+      '`42`;',
+      Context.OptionsLoc,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    raw: '42',
+                    cooked: '42'
+                  },
+                  tail: true,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 4
+                    }
+                  }
+                }
+              ],
+              expressions: [],
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 4
+                }
+              }
+            },
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 5
+              }
+            }
+          }
+        ],
+        sourceType: 'script',
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 5
+          }
+        }
+      }
+    ],
+    [
       '`foo ${a} and ${b} and ${c} baz`',
       Context.Empty,
       {

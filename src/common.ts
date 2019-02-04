@@ -43,6 +43,7 @@ export const enum Context {
   AllowReturn = 1 << 27,
   Expression  = 1 << 28,
   OptionsGlobalAwait = 1 << 29,
+  OptionsParenthesized = 1 << 30,
   LocationTracking = OptionsLoc | OptionsRanges
 }
 
@@ -247,6 +248,32 @@ export function pushComment(context: Context, array: any[]): any {
     }
     array.push(comment);
   };
+}
+
+export function convertTokenType(t: Token): string {
+  switch (t) {
+    case Token.NumericLiteral:
+      return 'NumericLiteral';
+    case Token.StringLiteral:
+      return 'StringLiteral';
+    case Token.RegularExpression:
+      return 'RegularExpressionLiteral';
+    case Token.FalseKeyword:
+    case Token.TrueKeyword:
+      return 'BooleanLiteral';
+    case Token.NullKeyword:
+      return 'NullLiteral';
+    case Token.RegularExpression:
+      return 'RegularExpression';
+    case Token.TemplateCont:
+    case Token.TemplateTail:
+      return 'TemplateLiteral';
+    default:
+      if ((t & Token.IsIdentifier) === Token.IsIdentifier) return 'Identifier';
+      if ((t & Token.Keyword) === Token.Keyword) return 'Keyword';
+
+      return 'Punctuator';
+  }
 }
 
 export function pushToken(context: Context, array: any[]): any {
@@ -671,7 +698,7 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
   return true;
 }
 
-export function addToExportedNamesAndCheckForDuplicates(state: ParserState, exportedName: any) {
+export function addToExportedNamesAndCheckDuplicates(state: ParserState, exportedName: any) {
   if (state.exportedNames !== undefined && exportedName !== '') {
     const hashed: any = '@' + exportedName;
     if (state.exportedNames[hashed]) report(state, Errors.InvalidDuplicateExportedBinding, exportedName);

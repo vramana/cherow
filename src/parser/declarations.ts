@@ -6,7 +6,7 @@ import {
   Type,
   Origin,
   validateBindingIdentifier,
-  addToExportedNamesAndCheckForDuplicates,
+  addToExportedNamesAndCheckDuplicates,
   addToExportedBindings,
   recordTokenValueAndDeduplicate,
   ScopeState,
@@ -49,7 +49,7 @@ export function parseClassDeclaration(
   // class bodies are implicitly strict
   context = (context | Context.Strict | Context.InConstructor) ^ Context.InConstructor;
 
-  let id: ESTree.Expression | null = null;
+  let id: ESTree.Identifier | null = null;
   let superClass: ESTree.Expression | null = null;
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
     validateBindingIdentifier(state, context | Context.Strict, Type.ClassExprDecl);
@@ -89,7 +89,7 @@ export function parseFunctionDeclaration(
   scope: ScopeState,
   origin: Origin,
   isAsync: boolean
-) {
+): ESTree.FunctionDeclaration {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
 
@@ -184,7 +184,7 @@ export function parseHostedClassDeclaration(
   scanSingleToken(state, context);
   context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
 
-  let id: ESTree.Expression | null = null;
+  let id: ESTree.Identifier | null = null;
   let superClass: ESTree.Expression | null = null;
   let name = '';
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
@@ -194,7 +194,7 @@ export function parseHostedClassDeclaration(
     id = parseIdentifier(state, context);
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Class');
 
-  if (isNotDefault) addToExportedNamesAndCheckForDuplicates(state, name);
+  if (isNotDefault) addToExportedNamesAndCheckDuplicates(state, name);
   addToExportedBindings(state, name);
 
   if (optional(state, context, Token.ExtendsKeyword)) {
@@ -220,7 +220,7 @@ export function parseHoistableFunctionDeclaration(
   scope: ScopeState,
   origin: Origin,
   isAsync: boolean
-) {
+): ESTree.FunctionDeclaration {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
 
@@ -240,7 +240,7 @@ export function parseHoistableFunctionDeclaration(
     id = parseIdentifier(state, context);
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Function');
 
-  if ((origin & Origin.ExportDefault) === 0) addToExportedNamesAndCheckForDuplicates(state, name);
+  if ((origin & Origin.ExportDefault) === 0) addToExportedNamesAndCheckDuplicates(state, name);
   addToExportedBindings(state, name);
 
   context =
@@ -305,9 +305,9 @@ export function parseLexicalDeclaration(
   consumeSemicolon(state, context);
   return finishNode(state, context, start, line, column, {
     type: 'VariableDeclaration',
-    kind: KeywordDescTable[token & Token.Type],
+    kind: KeywordDescTable[token & Token.Type] as 'var' | 'let' | 'const',
     declarations
-  } as any);
+  });
 }
 
 /*
@@ -319,7 +319,7 @@ export function parseLexicalDeclaration(
  * @param context Context masks
  * @param type Binding type
  * @param origin Binding origin
- * @param checkForDuplicates True if need to check for duplicates in scope
+ * @param checkDuplicates True if need to check for duplicates in scope
  * @param scope Scope instance
  */
 export function parseVariableDeclarationList(
@@ -327,13 +327,15 @@ export function parseVariableDeclarationList(
   context: Context,
   type: Type,
   origin: Origin,
-  checkForDuplicates: boolean,
+  checkDuplicates: boolean,
   scope: ScopeState
-): any {
+): ESTree.VariableDeclarator[] {
   let bindingCount = 1;
-  const list: any[] = [parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope)];
+  const list: ESTree.VariableDeclarator[] = [
+    parseVariableDeclaration(state, context, type, origin, checkDuplicates, scope)
+  ];
   while (optional(state, context, Token.Comma)) {
-    list.push(parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope));
+    list.push(parseVariableDeclaration(state, context, type, origin, checkDuplicates, scope));
     ++bindingCount;
   }
 
@@ -367,12 +369,12 @@ function parseVariableDeclaration(
   context: Context,
   type: Type,
   origin: Origin,
-  checkForDuplicates: boolean,
+  checkDuplicates: boolean,
   scope: ScopeState
-): any {
+): ESTree.VariableDeclarator {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   const isBinding = state.token === Token.LeftBrace || state.token === Token.LeftBracket;
-  const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
+  const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkDuplicates);
 
   let init: any = null;
 

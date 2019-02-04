@@ -3,12 +3,6 @@ export interface _Node<T extends string> {
   loc?: SourceLocation | null;
   start?: number;
   end?: number;
-  errors?: any;
-  comments?: any;
-  tokens?: any;
-  leadingComments?: Comment[];
-  trailingComments?: Comment[];
-  innerComments?: Comment[];
 }
 
 export type Specifiers = ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;

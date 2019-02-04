@@ -12,6 +12,77 @@ describe('Miscellaneous - Comments', () => {
 
   pass('Miscellaneous - Comments (pass)', [
     [
+      `/* foo */
+      if (/* bar */  a) {}`,
+      Context.OptionsWebCompat | Context.LocationTracking,
+      {
+        body: [
+          {
+            alternate: null,
+            consequent: {
+              body: [],
+              end: 36,
+              loc: {
+                end: {
+                  column: 26,
+                  line: 2
+                },
+                start: {
+                  column: 24,
+                  line: 2
+                }
+              },
+              start: 34,
+              type: 'BlockStatement'
+            },
+            end: 36,
+            loc: {
+              end: {
+                column: 26,
+                line: 2
+              },
+              start: {
+                column: 6,
+                line: 2
+              }
+            },
+            start: 16,
+            test: {
+              end: 32,
+              loc: {
+                end: {
+                  column: 22,
+                  line: 2
+                },
+                start: {
+                  column: 21,
+                  line: 2
+                }
+              },
+              name: 'a',
+              start: 31,
+              type: 'Identifier'
+            },
+            type: 'IfStatement'
+          }
+        ],
+        end: 36,
+        loc: {
+          end: {
+            column: 26,
+            line: 2
+          },
+          start: {
+            column: 0,
+            line: 1
+          }
+        },
+        sourceType: 'script',
+        start: 0,
+        type: 'Program'
+      }
+    ],
+    [
       'var x = 42;/*\n*/-->is eol-comment\nvar y = 37;\n',
       Context.OptionsWebCompat,
       {

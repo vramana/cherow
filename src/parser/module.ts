@@ -7,7 +7,7 @@ import {
   Type,
   Origin,
   validateBindingIdentifier,
-  addToExportedNamesAndCheckForDuplicates,
+  addToExportedNamesAndCheckDuplicates,
   addToExportedBindings,
   recordTokenValueAndDeduplicate,
   ScopeState,
@@ -116,7 +116,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
     }
 
     // See: https://www.ecma-international.org/ecma-262/9.0/index.html#sec-exports-static-semantics-exportednames
-    addToExportedNamesAndCheckForDuplicates(state, 'default');
+    addToExportedNamesAndCheckDuplicates(state, 'default');
 
     // See: https://www.ecma-international.org/ecma-262/9.0/index.html#sec-exports-static-semantics-exportedbindings
     addToExportedBindings(state, '*default*');
@@ -198,7 +198,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
         let i = 0;
         let iMax = exportedNames.length;
         for (; i < iMax; i++) {
-          addToExportedNamesAndCheckForDuplicates(state, exportedNames[i]);
+          addToExportedNamesAndCheckDuplicates(state, exportedNames[i]);
         }
         i = 0;
         iMax = exportedBindings.length;

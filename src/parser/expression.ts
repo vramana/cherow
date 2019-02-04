@@ -1764,7 +1764,12 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
 
   if (!isValidSimpleAssignmentTarget(expr)) state.assignable = false;
 
-  return expr;
+  return context & Context.OptionsParenthesized
+    ? finishNode(state, context, start, line, column, {
+        type: 'ParenthesizedExpression',
+        expression: expr
+      } as any)
+    : expr;
 }
 
 /**
