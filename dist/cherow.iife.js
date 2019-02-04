@@ -5157,7 +5157,7 @@ var cherow = (function (exports) {
           const first = state.source.charCodeAt(state.index);
           if (((state.token = table$1[first](state, context, first)) & 1073741824) !== 1073741824) {
               if (state.onToken)
-                  state.onToken(state.token, state.startIndex, state.index);
+                  state.onToken(convertTokenType(state.token), state.startIndex, state.index);
               return state.token;
           }
       }
@@ -5176,6 +5176,32 @@ var cherow = (function (exports) {
           }
           array.push(comment);
       };
+  }
+  function convertTokenType(t) {
+      switch (t) {
+          case 131074:
+              return 'NumericLiteral';
+          case 131075:
+              return 'StringLiteral';
+          case 131076:
+              return 'RegularExpressionLiteral';
+          case 151557:
+          case 151558:
+              return 'BooleanLiteral';
+          case 151559:
+              return 'NullLiteral';
+          case 131076:
+              return 'RegularExpression';
+          case 131080:
+          case 131081:
+              return 'TemplateLiteral';
+          default:
+              if ((t & 274432) === 274432)
+                  return 'Identifier';
+              if ((t & 4096) === 4096)
+                  return 'Keyword';
+              return 'Punctuator';
+      }
   }
   function pushToken(context, array) {
       return function (token, value, start, end) {
@@ -5454,7 +5480,7 @@ var cherow = (function (exports) {
       }
       return true;
   }
-  function addToExportedNamesAndCheckForDuplicates(state, exportedName) {
+  function addToExportedNamesAndCheckDuplicates(state, exportedName) {
       if (state.exportedNames !== undefined && exportedName !== '') {
           const hashed = '@' + exportedName;
           if (state.exportedNames[hashed])
@@ -6619,7 +6645,12 @@ var cherow = (function (exports) {
               (8192 | 4096 | 64);
       if (!isValidSimpleAssignmentTarget(expr))
           state.assignable = false;
-      return expr;
+      return context & 1073741824
+          ? finishNode(state, context, start, line, column, {
+              type: 'ParenthesizedExpression',
+              expression: expr
+          })
+          : expr;
   }
   function parseClassExpression(state, context) {
       const { startIndex: start, startLine: line, startColumn: column } = state;
@@ -7228,7 +7259,7 @@ var cherow = (function (exports) {
           ? true
           : false, name);
       if (origin === 4) {
-          addToExportedNamesAndCheckForDuplicates(state, state.tokenValue);
+          addToExportedNamesAndCheckDuplicates(state, state.tokenValue);
           addToExportedBindings(state, state.tokenValue);
       }
       scanSingleToken(state, context | 32768);
@@ -7331,7 +7362,7 @@ var cherow = (function (exports) {
           if (shorthand) {
               validateBindingIdentifier(state, context, type, token);
               if (origin === 4) {
-                  addToExportedNamesAndCheckForDuplicates(state, state.tokenValue);
+                  addToExportedNamesAndCheckDuplicates(state, state.tokenValue);
                   addToExportedBindings(state, state.tokenValue);
               }
               recordTokenValue(state, context, scope, type, origin, false, false, tokenValue);
@@ -7460,7 +7491,7 @@ var cherow = (function (exports) {
       else if (!(context & 512))
           report(state, 122, 'Class');
       if (isNotDefault)
-          addToExportedNamesAndCheckForDuplicates(state, name);
+          addToExportedNamesAndCheckDuplicates(state, name);
       addToExportedBindings(state, name);
       if (optional(state, context, 20564)) {
           superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
@@ -7494,7 +7525,7 @@ var cherow = (function (exports) {
       else if (!(context & 512))
           report(state, 122, 'Function');
       if ((origin & 8) === 0)
-          addToExportedNamesAndCheckForDuplicates(state, name);
+          addToExportedNamesAndCheckDuplicates(state, name);
       addToExportedBindings(state, name);
       context =
           (context | 4194304 | 2097152 | 8388608 | 262144) ^
@@ -7529,11 +7560,13 @@ var cherow = (function (exports) {
           declarations
       });
   }
-  function parseVariableDeclarationList(state, context, type, origin, checkForDuplicates, scope) {
+  function parseVariableDeclarationList(state, context, type, origin, checkDuplicates, scope) {
       let bindingCount = 1;
-      const list = [parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope)];
+      const list = [
+          parseVariableDeclaration(state, context, type, origin, checkDuplicates, scope)
+      ];
       while (optional(state, context, 18)) {
-          list.push(parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope));
+          list.push(parseVariableDeclaration(state, context, type, origin, checkDuplicates, scope));
           ++bindingCount;
       }
       if (origin & 2 && isInOrOf(state) && bindingCount > 1) {
@@ -7544,10 +7577,10 @@ var cherow = (function (exports) {
   function isInOrOf(state) {
       return state.token === 33707825 || state.token === 12402;
   }
-  function parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope) {
+  function parseVariableDeclaration(state, context, type, origin, checkDuplicates, scope) {
       const { startIndex: start, startLine: line, startColumn: column } = state;
       const isBinding = state.token === 131084 || state.token === 131091;
-      const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
+      const id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkDuplicates);
       let init = null;
       if (optional(state, context | 32768, 8388637)) {
           init = secludeGrammar(state, context, 0, parseAssignmentExpression);
@@ -8170,7 +8203,7 @@ var cherow = (function (exports) {
                   declaration = parseAssignmentExpression(state, context);
                   consumeSemicolon(state, context);
           }
-          addToExportedNamesAndCheckForDuplicates(state, 'default');
+          addToExportedNamesAndCheckDuplicates(state, 'default');
           addToExportedBindings(state, '*default*');
           recordTokenValue(state, context, scope, 0, 0, true, false, '*default*');
           return finishNode(state, context, start, line, column, {
@@ -8243,7 +8276,7 @@ var cherow = (function (exports) {
                   let i = 0;
                   let iMax = exportedNames.length;
                   for (; i < iMax; i++) {
-                      addToExportedNamesAndCheckForDuplicates(state, exportedNames[i]);
+                      addToExportedNamesAndCheckDuplicates(state, exportedNames[i]);
                   }
                   i = 0;
                   iMax = exportedBindings.length;

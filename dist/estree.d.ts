@@ -3,12 +3,6 @@ export interface _Node<T extends string> {
     loc?: SourceLocation | null;
     start?: number;
     end?: number;
-    errors?: any;
-    comments?: any;
-    tokens?: any;
-    leadingComments?: Comment[];
-    trailingComments?: Comment[];
-    innerComments?: Comment[];
 }
 export declare type Specifiers = ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
 export interface T_Node extends T_Statement, T_Expression, T_Pattern, T_ModuleDeclaration, T_ModuleSpecifier {

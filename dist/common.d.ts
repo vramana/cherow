@@ -33,6 +33,7 @@ export declare const enum Context {
     AllowReturn = 134217728,
     Expression = 268435456,
     OptionsGlobalAwait = 536870912,
+    OptionsParenthesized = 1073741824,
     LocationTracking = 34
 }
 export declare const enum Flags {
@@ -186,6 +187,7 @@ export interface ParserState {
 }
 export declare function unreachable(...values: never[]): never;
 export declare function pushComment(context: Context, array: any[]): any;
+export declare function convertTokenType(t: Token): string;
 export declare function pushToken(context: Context, array: any[]): any;
 export declare function finishNode<T extends ESTree.Node>(state: ParserState, context: Context, start: number, line: number, column: number, node: T): T;
 export declare function optional(state: ParserState, context: Context, t: Token): boolean;
@@ -203,7 +205,7 @@ export declare function reinterpret(state: ParserState, ast: any): void;
 export declare function nameIsArgumentsOrEval(value: string): boolean;
 export declare function isValidIdentifier(context: Context, t: Token): boolean;
 export declare function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token?: Token): boolean;
-export declare function addToExportedNamesAndCheckForDuplicates(state: ParserState, exportedName: any): void;
+export declare function addToExportedNamesAndCheckDuplicates(state: ParserState, exportedName: any): void;
 export declare function addToExportedBindings(state: ParserState, exportedName: any): void;
 export declare function nextTokenIsFuncKeywordOnSameLine(state: ParserState, context: Context): boolean;
 export declare function addLabel(state: ParserState, label: string): void;
