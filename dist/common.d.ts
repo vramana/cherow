@@ -17,7 +17,6 @@ export declare const enum Context {
     Module = 2048,
     TopLevel = 4096,
     DisallowInContext = 8192,
-    InClass = 16384,
     AllowPossibleRegEx = 32768,
     TaggedTemplate = 65536,
     OptionsDirectives = 131072,

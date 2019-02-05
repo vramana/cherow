@@ -17,15 +17,16 @@ export interface Options {
     experimental?: boolean;
     native?: boolean;
     tokenize?: boolean;
+    directives?: boolean;
+    parenthesizedExpr?: boolean;
     webCompat?: boolean;
     onComment?: OnComment;
     onToken?: OnToken;
-    directives?: boolean;
 }
 export declare const version = "2.0";
 export declare function parseSource(source: string, options: Options | void, context: Context): ESTree.Program;
 export declare function parse(source: string, options?: Options): ESTree.Program;
 export declare function parseScript(source: string, options?: Options): ESTree.Program;
 export declare function parseModule(source: string, options?: Options): ESTree.Program;
-export declare function parseExpressions(source: string, options?: Options): ESTree.Program;
+export declare function parseExpression(source: string, options?: Options): ESTree.Program;
 //# sourceMappingURL=cherow.d.ts.map

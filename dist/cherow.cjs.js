@@ -5743,7 +5743,7 @@ function parseFunctionBody(state, context, scope, firstRestricted, origin) {
         body
     });
 }
-function parseExpression(state, context) {
+function parseExpressions(state, context) {
     const { startIndex: start, startLine: line, startColumn: column } = state;
     const expr = secludeGrammar(state, context, 0, parseAssignmentExpression);
     if (state.token !== 18)
@@ -6147,7 +6147,7 @@ function parseMemberExpression(state, context, start, line, column, expr) {
                     type: 'MemberExpression',
                     object: expr,
                     computed: true,
-                    property: parseExpression(state, (context | 8192) ^ 8192)
+                    property: parseExpressions(state, (context | 8192) ^ 8192)
                 });
                 expect(state, context, 20);
                 break;
@@ -6195,11 +6195,11 @@ function parseTemplate(state, context, start, line, column) {
     const quasis = [parseTemplateSpans(state, context, start, line, column, false)];
     expect(state, context | 32768, 131080);
     state.bindable = state.assignable = false;
-    const expressions = [parseExpression(state, (context | 8192) ^ 8192)];
+    const expressions = [parseExpressions(state, (context | 8192) ^ 8192)];
     while ((state.token = scanTemplateTail(state, context)) !== 131081) {
         quasis.push(parseTemplateSpans(state, context, state.startIndex, state.startLine, state.startColumn, false));
         expect(state, context | 32768, 131080);
-        expressions.push(parseExpression(state, context));
+        expressions.push(parseExpressions(state, context));
     }
     quasis.push(parseTemplateSpans(state, context, state.startIndex, state.startLine, state.startColumn, true));
     state.assignable = state.bindable = false;
@@ -7714,7 +7714,7 @@ function parseStatement(state, context, scope, allowFunctionDeclarationAsStateme
 }
 function parseExpressionStatement(state, context) {
     const { startIndex, startColumn, startLine } = state;
-    const expr = parseExpression(state, (context | 8192) ^ 8192);
+    const expr = parseExpressions(state, (context | 8192) ^ 8192);
     consumeSemicolon(state, context);
     return finishNode(state, context, startIndex, startLine, startColumn, {
         type: 'ExpressionStatement',
@@ -7746,7 +7746,7 @@ function parseThrowStatement(state, context) {
     scanSingleToken(state, context);
     if (state.flags & 1)
         report(state, 54);
-    const argument = parseExpression(state, (context | 8192) ^ 8192);
+    const argument = parseExpressions(state, (context | 8192) ^ 8192);
     consumeSemicolon(state, context);
     return finishNode(state, context, start, line, column, {
         type: 'ThrowStatement',
@@ -7757,7 +7757,7 @@ function parseIfStatement(state, context, scope) {
     const { startIndex: start, startLine: line, startColumn: column } = state;
     scanSingleToken(state, context);
     expect(state, context | 32768, 131083);
-    const test = parseExpression(state, (context | 8192) ^ 8192);
+    const test = parseExpressions(state, (context | 8192) ^ 8192);
     expect(state, context | 32768, 16);
     const consequent = parseConsequentOrAlternate(state, context, scope);
     const alternate = optional(state, context, 20562)
@@ -7779,7 +7779,7 @@ function parseSwitchStatement(state, context, scope) {
     const { startIndex: start, startLine: line, startColumn: column } = state;
     scanSingleToken(state, context);
     expect(state, context | 32768, 131083);
-    const discriminant = parseExpression(state, (context | 8192) ^ 8192);
+    const discriminant = parseExpressions(state, (context | 8192) ^ 8192);
     expect(state, context, 16);
     expect(state, context, 131084);
     const cases = [];
@@ -7791,7 +7791,7 @@ function parseSwitchStatement(state, context, scope) {
         let test = null;
         const { startIndex: subStart, startLine: subLine, startColumn: subColumn } = state;
         if (optional(state, context, 20555)) {
-            test = parseExpression(state, (context | 8192) ^ 8192);
+            test = parseExpressions(state, (context | 8192) ^ 8192);
         }
         else {
             expect(state, context, 20560);
@@ -7815,7 +7815,7 @@ function parseReturnStatement(state, context) {
     const { startIndex: start, startLine: line, startColumn: column } = state;
     scanSingleToken(state, context | 32768);
     const argument = (state.token & 536870912) < 1 && (state.flags & 1) < 1
-        ? parseExpression(state, (context | 8192) ^ (8192 | 134217728))
+        ? parseExpressions(state, (context | 8192) ^ (8192 | 134217728))
         : null;
     consumeSemicolon(state, context);
     return finishNode(state, context, start, line, column, {
@@ -7827,7 +7827,7 @@ function parseWhileStatement(state, context, scope) {
     const { startIndex: start, startLine: line, startColumn: column } = state;
     scanSingleToken(state, context);
     expect(state, context | 32768, 131083);
-    const test = parseExpression(state, (context | 8192) ^ 8192);
+    const test = parseExpressions(state, (context | 8192) ^ 8192);
     expect(state, context | 32768, 16);
     const previousIterationStatement = state.iterationStatement;
     state.iterationStatement = 1;
@@ -7881,7 +7881,7 @@ function parseWithStatement(state, context, scope) {
         report(state, 52);
     scanSingleToken(state, context);
     expect(state, context | 32768, 131083);
-    const object = parseExpression(state, (context | 8192) ^ 8192);
+    const object = parseExpressions(state, (context | 8192) ^ 8192);
     expect(state, context, 16);
     const body = parseStatement(state, (context | 4096) ^ 4096, scope, false);
     return finishNode(state, context, start, line, column, {
@@ -7943,7 +7943,7 @@ function parseDoWhileStatement(state, context, scope) {
     state.iterationStatement = previousIterationStatement;
     expect(state, context, 20577);
     expect(state, context, 131083);
-    const test = parseExpression(state, (context | 8192) ^ 8192);
+    const test = parseExpressions(state, (context | 8192) ^ 8192);
     expect(state, context, 16);
     optional(state, context, 536870929);
     return finishNode(state, context, start, line, column, {
@@ -8059,7 +8059,7 @@ function parseForStatement(state, context, scope) {
             }
             reinterpret(state, init);
         }
-        right = parseExpression(state, (context | 8192) ^ 8192);
+        right = parseExpressions(state, (context | 8192) ^ 8192);
         expect(state, context, 16);
         const previousIterationStatement = state.iterationStatement;
         state.iterationStatement = 1;
@@ -8083,10 +8083,10 @@ function parseForStatement(state, context, scope) {
     }
     expect(state, context, 536870929);
     if (state.token !== 536870929)
-        test = parseExpression(state, context);
+        test = parseExpressions(state, context);
     expect(state, context, 536870929);
     if (state.token !== 16)
-        update = parseExpression(state, (context | 8192) ^ 8192);
+        update = parseExpressions(state, (context | 8192) ^ 8192);
     expect(state, context, 16);
     const previousIterationStatement = state.iterationStatement;
     state.iterationStatement = 1;
@@ -8102,7 +8102,7 @@ function parseForStatement(state, context, scope) {
 }
 function parseExpressionOrLabelledStatement(state, context, scope, allowFunctionDeclarationAsStatement) {
     const { token, tokenValue, startIndex: start, startLine: line, startColumn: column } = state;
-    const expr = parseExpression(state, (context | 8192) ^ 8192);
+    const expr = parseExpressions(state, (context | 8192) ^ 8192);
     if ((token & 4096 || 126) && state.token === 21) {
         scanSingleToken(state, context | 32768);
         validateBindingIdentifier(state, context, 0, token);
@@ -8136,7 +8136,7 @@ function parseDirective(state, context, scope) {
     if ((context & 131072) < 1)
         return parseStatementListItem(state, context, scope);
     const { startIndex, tokenRaw, startLine, startColumn } = state;
-    const expression = parseExpression(state, context);
+    const expression = parseExpressions(state, context);
     consumeSemicolon(state, context);
     return finishNode(state, context, startIndex, startLine, startColumn, {
         type: 'ExpressionStatement',
@@ -8424,8 +8424,14 @@ function parseSource(source, options, context) {
     let onComment;
     let onToken;
     if (options != null) {
+        if (options.ecmaVersion) {
+            let ecmaVersion = options.ecmaVersion || 10;
+            options.ecmaVersion = (ecmaVersion > 2009 ? ecmaVersion - 2009 : ecmaVersion);
+        }
         if (options.module)
             context |= 2048;
+        if (options.parenthesizedExpr)
+            context |= 1073741824;
         if (options.next)
             context |= 1;
         if (options.jsx)
@@ -8469,7 +8475,7 @@ function parseSource(source, options, context) {
     let body;
     scanSingleToken(state, context | 32768);
     if (context & 268435456) {
-        body = parseExpression(state, context);
+        return parseExpressions(state, context);
     }
     else if (context & 2048) {
         body = parseModuleItem(state, context | 4096, scope);
@@ -8508,7 +8514,7 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return parseSource(source, options, 1024 | 2048);
 }
-function parseExpressions(source, options) {
+function parseExpression(source, options) {
     return parseSource(source, options, options && options.module ? 268435456 | 1024 | 2048 : 268435456);
 }
 
@@ -8517,4 +8523,4 @@ exports.parseSource = parseSource;
 exports.parse = parse;
 exports.parseScript = parseScript;
 exports.parseModule = parseModule;
-exports.parseExpressions = parseExpressions;
+exports.parseExpression = parseExpression;
