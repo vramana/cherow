@@ -293,6 +293,78 @@ describe('Declarations - Var', () => {
 
   pass('Declarations - Var (pass)', [
     [
+      "var o = { get [/./.exec('')](){} }",
+      Context.Empty,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'o',
+                  type: 'Identifier'
+                },
+                init: {
+                  properties: [
+                    ,
+                    {
+                      computed: true,
+                      key: {
+                        arguments: [
+                          {
+                            type: 'Literal',
+                            value: ''
+                          }
+                        ],
+                        callee: {
+                          computed: false,
+                          object: {
+                            regex: {
+                              flags: '',
+                              pattern: '.'
+                            },
+                            type: 'Literal',
+                            value: /./
+                          },
+                          property: {
+                            name: 'exec',
+                            type: 'Identifier'
+                          },
+                          type: 'MemberExpression'
+                        },
+                        type: 'CallExpression'
+                      },
+                      kind: 'get',
+                      method: false,
+                      shorthand: false,
+                      type: 'Property',
+                      value: {
+                        async: false,
+                        body: {
+                          body: [],
+                          type: 'BlockStatement'
+                        },
+                        generator: false,
+                        id: null,
+                        params: [],
+                        type: 'FunctionExpression'
+                      }
+                    }
+                  ],
+                  type: 'ObjectExpression'
+                },
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'var f; function f() {}',
       Context.OptionsWebCompat | Context.OptionsRanges,
       {

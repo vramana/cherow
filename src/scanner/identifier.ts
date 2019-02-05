@@ -89,9 +89,9 @@ export function scanMaybeIdentifier(state: ParserState, _: Context, first: numbe
     const lo = state.source.charCodeAt(state.index);
     if (lo >= 0xdc00 && lo <= 0xdfff) {
       first = ((first & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
-      state.index++;
+      ++state.index;
     }
-    state.column++;
+    ++state.column;
     state.tokenValue = state.source.slice(state.startIndex, state.index);
     return Token.Identifier;
   }
