@@ -306,7 +306,6 @@ describe('Declarations - Var', () => {
                 },
                 init: {
                   properties: [
-                    ,
                     {
                       computed: true,
                       key: {
