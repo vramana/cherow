@@ -105,24 +105,18 @@ The API also allows you to use Cherow as a stand-alone  [expression parser](http
 
 ```js
 
-cherow.parseExpressions('foo', { ranges: true });
+cherow.parseExpression('foo', { ranges: true });
 
 ```
 
 This will return when serialized in json:
 
 ```js
-{
-      body: {
-        end: 3,
-        name: 'foo',
-        start: 0,
-        type: 'Identifier'
-      },
+ {
       end: 3,
-      sourceType: 'script',
+      name: 'foo',
       start: 0,
-      type: 'Program'
+      type: 'Identifier'
     }
 ```
 

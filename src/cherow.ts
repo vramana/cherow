@@ -1,7 +1,7 @@
 import { create } from './state';
 import { parseModuleItem } from './parser/module';
 import { parseStatementList } from './parser/statement';
-import { parseExpression } from './parser/expression';
+import { parseExpressions } from './parser/expression';
 import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context, createScope, ScopeType } from './common';
 import { skipHashBang, scanSingleToken } from './scanner';
@@ -62,15 +62,18 @@ export interface Options {
   // Enabled tokenizing
   tokenize?: boolean;
 
+  // Enabled directives
+  directives?: boolean;
+
+  // Enable non-standard parenthesized expression node
+  parenthesizedExpr?: boolean;
+
   // Enable web compability (AnnexB)
   webCompat?: boolean;
 
   onComment?: OnComment;
 
   onToken?: OnToken;
-
-  // Enabled directives
-  directives?: boolean;
 }
 
 export const version = '2.0'; // TODO: (fkleuver) Add back Rollup replace plugin for bundle
@@ -86,10 +89,18 @@ export const version = '2.0'; // TODO: (fkleuver) Add back Rollup replace plugin
 export function parseSource(source: string, options: Options | void, context: Context): ESTree.Program {
   let onComment: OnComment;
   let onToken: OnToken;
+  let sourceFile: string = '';
 
   if (options != null) {
+    // The option to specify ecamVersion
+    if (options.ecmaVersion) {
+      let ecmaVersion = options.ecmaVersion || 10;
+      options.ecmaVersion = <EcmaVersion>(ecmaVersion > 2009 ? ecmaVersion - 2009 : ecmaVersion);
+    }
     // The flag to enable module syntax support
     if (options.module) context |= Context.Module;
+    // The flag to enable non-standard parenthesized expression node
+    if (options.parenthesizedExpr) context |= Context.OptionsParenthesized;
     // The flag to enable stage 3 support (ESNext)
     if (options.next) context |= Context.OptionsNext;
     // The flag to enable React JSX parsing
@@ -142,7 +153,7 @@ export function parseSource(source: string, options: Options | void, context: Co
   scanSingleToken(state, context | Context.AllowPossibleRegEx);
 
   if (context & Context.Expression) {
-    body = parseExpression(state, context);
+    return parseExpressions(state, context);
   } else if (context & Context.Module) {
     body = parseModuleItem(state, context | Context.TopLevel, scope);
     for (const key in state.exportedBindings) {
@@ -221,7 +232,7 @@ export function parseModule(source: string, options?: Options): ESTree.Program {
  * @param source source code to parse
  * @param options parser options
  */
-export function parseExpressions(source: string, options?: Options): ESTree.Program {
+export function parseExpression(source: string, options?: Options): ESTree.Program {
   return parseSource(
     source,
     options,
