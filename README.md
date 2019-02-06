@@ -12,18 +12,16 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
-**Work in progress**
-
 ## Features
 
 * Conforms to the standard ECMAScript® 2019 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification (*draft*)
-* Support for all stage 3 proposals via option.
+* Support stage 3 proposals via option.
 * Support for parsing with and without web compability (*AnnexB*)
 * Support to only parse [expressions](https://tc39.github.io/ecma262/#sec-ecmascript-language-expressions)
 * Experimental feature support via option.
 * Optionally track syntactic node locations
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
-* Very well tested (~24 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
+* Very well tested (~25 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * Supports all module loaders
 * Lightweight - ~72 KB minified
 

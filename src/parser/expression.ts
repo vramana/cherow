@@ -2457,7 +2457,7 @@ export function parseBigIntLiteral(state: ParserState, context: Context): ESTree
  */
 
 export function parseComputedPropertyName(state: ParserState, context: Context): ESTree.Expression {
-  expect(state, context, Token.LeftBracket);
+  expect(state, context | Context.AllowPossibleRegEx, Token.LeftBracket);
   const key: ESTree.Expression = secludeGrammar(
     state,
     (context | Context.DisallowInContext) ^ Context.DisallowInContext,
