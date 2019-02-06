@@ -4130,7 +4130,16 @@
               ++state.line;
               return 1073741824;
       }
-      first = nextIdentifierChar(state);
+      if (state.index < state.length && first >= 0xd800 && 0xdbff <= 0xdbff) {
+          const lo = state.source.charCodeAt(state.index);
+          if (lo >= 0xdc00 && lo <= 0xdfff) {
+              first = ((first & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
+              ++state.index;
+          }
+          ++state.column;
+          state.tokenValue = state.source.slice(state.startIndex, state.index);
+          return 405505;
+      }
       report(state, 29, String.fromCharCode(first));
   }
   function scanPrivateName(state, _) {
@@ -7230,7 +7239,7 @@
       });
   }
   function parseComputedPropertyName(state, context) {
-      expect(state, context, 131091);
+      expect(state, context | 32768, 131091);
       const key = secludeGrammar(state, (context | 8192) ^ 8192, 0, parseAssignmentExpression);
       expect(state, context, 20);
       return key;
