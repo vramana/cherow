@@ -172,9 +172,7 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
         ? hasEscape
           ? Token.EscapedStrictReserved
           : keyword
-        : context & Context.Strict && keyword === Token.StaticKeyword
-        ? Token.EscapedStrictReserved
-        : keyword === Token.LetKeyword
+        : context & Context.Strict && (keyword === Token.StaticKeyword || keyword === Token.LetKeyword)
         ? Token.EscapedStrictReserved
         : Token.EscapedKeyword;
     }
