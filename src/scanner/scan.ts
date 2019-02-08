@@ -412,17 +412,28 @@ table[Chars.CarriageReturn] = state => {
  * @param state Parser object
  * @param context Context masks
  */
-export function scanSingleToken(state: ParserState, context: Context): Token {
+export function tableLookUp(state: ParserState, context: Context, first: number) {
+  return table[first](state, context, first);
+}
+
+export type ScanSingleTokenAlternativeCallback = (state: ParserState, context: Context, first: number) => Token;
+
+export function scanSingleToken(
+  state: ParserState,
+  context: Context,
+  scanSingleTokenAlternative: ScanSingleTokenAlternativeCallback | undefined
+): Token {
   state.flags &= ~Flags.NewLine;
   state.endIndex = state.index;
   state.endLine = state.line;
   state.endColumn = state.column;
+  const callBack = scanSingleTokenAlternative ? scanSingleTokenAlternative : tableLookUp;
   while (state.index < state.length) {
     state.startIndex = state.index;
     state.startColumn = state.column;
     state.startLine = state.line;
     const first = state.source.charCodeAt(state.index);
-    if (((state.token = table[first](state, context, first)) & Token.WhiteSpace) !== Token.WhiteSpace) {
+    if (((state.token = callBack(state, context, first)) & Token.WhiteSpace) !== Token.WhiteSpace) {
       if (state.onToken) state.onToken(convertTokenType(state.token), state.startIndex, state.index);
       return state.token;
     }
