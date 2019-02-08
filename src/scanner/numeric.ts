@@ -48,7 +48,7 @@ export function scanNumeric(state: ParserState, context: Context, first: number)
     }
   }
 
-  if (first === Chars.LowerE || first === Chars.UpperE) {
+  if ((first | 32) === Chars.LowerE) {
     advanceOne(state);
     state.flags = Flags.Float;
     first = state.source.charCodeAt(state.index);
