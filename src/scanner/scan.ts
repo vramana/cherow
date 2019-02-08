@@ -421,7 +421,7 @@ export type ScanSingleTokenAlternativeCallback = (state: ParserState, context: C
 export function scanSingleToken(
   state: ParserState,
   context: Context,
-  scanSingleTokenAlternative: ScanSingleTokenAlternativeCallback | undefined
+  scanSingleTokenAlternative?: ScanSingleTokenAlternativeCallback | undefined
 ): Token {
   state.flags &= ~Flags.NewLine;
   state.endIndex = state.index;
