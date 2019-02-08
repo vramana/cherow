@@ -4200,11 +4200,9 @@ var cherow = (function (exports) {
                           ? hasEscape
                               ? 126
                               : keyword
-                          : context & 1024 && keyword === 36969
+                          : context & 1024 && (keyword === 36969 || keyword === 402821192)
                               ? 126
-                              : keyword === 402821192
-                                  ? 126
-                                  : 121;
+                              : 121;
           }
       }
       return 405505;
