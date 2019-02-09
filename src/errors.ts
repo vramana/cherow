@@ -265,20 +265,37 @@ export const errorMessages: {
   [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences'
 };
 
-export function report(state: ParserState, type: Errors, ...params: string[]): never {
-  const { index, line, column } = state;
-  let message = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
-  message += ' (' + line + ':' + column + ')';
-  let lines = state.source.split('\n');
-  message = message + '\n' + lines[line - 1] + '\n';
-  for (var i = 0; i < column; i++) {
-    message += ' ';
+export class ParseError extends SyntaxError {
+  index: number;
+  line: number;
+  column: number;
+  description: string;
+  constructor(index: number, line: number, column: number, source: string, type: Errors, ...params: string[]) {
+    let message =
+      errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]) + ' (' + line + ':' + column + ')';
+    let lines = source.split('\n');
+    message = message + '\n' + lines[line - 1] + '\n';
+    for (let i = 0; i < column; i++) {
+      message += ' ';
+    }
+    message += '^\n';
+
+    super(`${message}`);
+
+    this.index = index;
+    this.line = line;
+    this.column = column;
+    this.description = message;
   }
-  message += '^\n';
-  const error: any = new SyntaxError(message);
-  error.index = index;
-  error.line = line;
-  error.column = column;
-  error.description = message;
-  throw error;
+}
+
+export function report(
+  index: number,
+  line: number,
+  column: number,
+  source: string,
+  type: Errors,
+  ...params: string[]
+): never {
+  throw new ParseError(index, line, column, source, type, ...params);
 }
