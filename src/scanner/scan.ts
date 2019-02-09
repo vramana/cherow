@@ -362,16 +362,17 @@ table[Chars.Zero] = (state, context, first) => {
     // either 0, 0exxx, 0Exxx, 0.xxx, a hex number, a binary number or
     // an octal number.
     const next = state.source.charCodeAt(index);
-    if (next === Chars.UpperX || next === Chars.LowerX) {
+    let lowerCasedLetters = next | 32;
+    if (lowerCasedLetters === Chars.LowerX) {
       // x or X
       state.index = index + 1;
       state.column += 2;
       return scanHexIntegerLiteral(state);
-    } else if (next === Chars.UpperB || next === Chars.LowerB) {
+    } else if (lowerCasedLetters === Chars.LowerB) {
       state.index = index + 1;
       state.column += 2;
       return scanBinaryOrOctalDigits(state, /* base */ 2);
-    } else if (next === Chars.UpperO || next === Chars.LowerO) {
+    } else if (lowerCasedLetters === Chars.LowerO) {
       state.index = index + 1;
       state.column += 2;
       return scanBinaryOrOctalDigits(state, /* base */ 8);
@@ -411,17 +412,28 @@ table[Chars.CarriageReturn] = state => {
  * @param state Parser object
  * @param context Context masks
  */
-export function scanSingleToken(state: ParserState, context: Context): Token {
+export function tableLookUp(state: ParserState, context: Context, first: number) {
+  return table[first](state, context, first);
+}
+
+export type ScanSingleTokenAlternativeCallback = (state: ParserState, context: Context, first: number) => Token;
+
+export function scanSingleToken(
+  state: ParserState,
+  context: Context,
+  scanSingleTokenAlternative?: ScanSingleTokenAlternativeCallback | undefined
+): Token {
   state.flags &= ~Flags.NewLine;
   state.endIndex = state.index;
   state.endLine = state.line;
   state.endColumn = state.column;
+  const callBack = scanSingleTokenAlternative ? scanSingleTokenAlternative : tableLookUp;
   while (state.index < state.length) {
     state.startIndex = state.index;
     state.startColumn = state.column;
     state.startLine = state.line;
     const first = state.source.charCodeAt(state.index);
-    if (((state.token = table[first](state, context, first)) & Token.WhiteSpace) !== Token.WhiteSpace) {
+    if (((state.token = callBack(state, context, first)) & Token.WhiteSpace) !== Token.WhiteSpace) {
       if (state.onToken) state.onToken(convertTokenType(state.token), state.startIndex, state.index);
       return state.token;
     }
