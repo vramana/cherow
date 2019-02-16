@@ -6,8 +6,8 @@ const ts = require('typescript');
 const project = require('./project');
 
 async function createBundle() {
-  for (const type of ['normal', 'minified']) {
-    console.log(`creating ${type} bundle`);
+  if (process.argv.slice(2)[0] === 'bench') {
+    console.log(`creating cjs bundle`);
 
     const bundle = await rollup.rollup({
       input: project.entry.path,
@@ -15,40 +15,65 @@ async function createBundle() {
         typescript2({
           tsconfig: project['tsconfig.json'].path,
           typescript: ts
-        }),
-        ...(type === 'minified' ? [terser()] : [])
+        })
       ]
     });
 
-    const suffix = type === 'minified' ? '.min' : '';
+    const fileName = join(project.dist.path, `cherow.cjs.js`);
 
-    //'amd' | 'cjs' | 'system' | 'es' | 'esm' | 'iife' | 'umd'
+    console.log(`writing ${fileName}`);
 
-    for (const format of ['esm', 'system', 'cjs']) {
-      const fileName = join(project.dist.path, `cherow.${format}${suffix}.js`);
+    await bundle.write({
+      file: fileName,
+      name: 'cherow',
+      format: 'cjs'
+    });
+  } else {
+    for (const type of ['normal', 'minified']) {
+      console.log(`creating ${type} bundle`);
 
-      console.log(`writing ${fileName}`);
-
-      await bundle.write({
-        file: fileName,
-        name: 'cherow',
-        format
+      const bundle = await rollup.rollup({
+        input: project.entry.path,
+        plugins: [
+          typescript2({
+            tsconfig: project['tsconfig.json'].path,
+            typescript: ts
+          }),
+          ...(type === 'minified' ? [terser()] : [])
+        ]
       });
-    }
 
-    for (const format of ['umd', 'amd', 'iife']) {
-      const fileName = join(project.dist.path, `cherow.${format}${suffix}.js`);
+      const suffix = type === 'minified' ? '.min' : '';
 
-      console.log(`writing ${fileName}`);
+      //'amd' | 'cjs' | 'system' | 'es' | 'esm' | 'iife' | 'umd'
 
-      await bundle.write({
-        file: fileName,
-        exports: 'named',
-        name: 'cherow',
-        format
-      });
+      for (const format of ['esm', 'system', 'cjs']) {
+        const fileName = join(project.dist.path, `cherow.${format}${suffix}.js`);
+
+        console.log(`writing ${fileName}`);
+
+        await bundle.write({
+          file: fileName,
+          name: 'cherow',
+          format
+        });
+      }
+
+      for (const format of ['umd', 'amd', 'iife']) {
+        const fileName = join(project.dist.path, `cherow.${format}${suffix}.js`);
+
+        console.log(`writing ${fileName}`);
+
+        await bundle.write({
+          file: fileName,
+          exports: 'named',
+          name: 'cherow',
+          format
+        });
+      }
     }
   }
+
 
   console.log(`done`);
 }
