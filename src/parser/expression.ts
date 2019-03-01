@@ -1,4 +1,18 @@
 import * as ESTree from '../estree';
+import { report, Errors } from '../errors';
+import { parseBindingIdentifierOrPattern, parseAssignmentPattern } from './pattern';
+import { parseStatementListItem, parseBlockStatement, parseDirective } from './statement';
+import { Token, KeywordDescTable } from '../token';
+import { scanSingleToken } from '../scanner';
+import { scanTemplateTail } from '../scanner/template';
+import {
+  optional,
+  expect,
+  recordTokenValue,
+  checkIfLexicalAlreadyBound,
+  validateFunctionArgs,
+  lookAheadOrScan
+} from '../common';
 import {
   Context,
   Flags,
@@ -26,20 +40,6 @@ import {
   finishNode,
   ParenthesizedState
 } from '../common';
-import { Token, KeywordDescTable } from '../token';
-import { scanSingleToken } from '../scanner';
-import { scanTemplateTail } from '../scanner/template';
-import {
-  optional,
-  expect,
-  recordTokenValue,
-  checkIfLexicalAlreadyBound,
-  validateFunctionArgs,
-  lookAheadOrScan
-} from '../common';
-import { report, Errors } from '../errors';
-import { parseBindingIdentifierOrPattern, parseAssignmentPattern } from './pattern';
-import { parseStatementListItem, parseBlockStatement, parseDirective } from './statement';
 
 /**
  * Parse formal parameters
@@ -80,17 +80,17 @@ export function parseFormalParameters(
    *
    */
   expect(state, context, Token.LeftParen);
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   const params: any[] = [];
-  state.flags &= ~Flags.SimpleParameterList;
+  state.flags = (state.flags | Flags.SimpleParameterList) ^ Flags.SimpleParameterList;
   context = context | Context.InArgList;
   let hasComplexArgs = false;
-  const { startIndex: start, startLine: line, startColumn: column } = state;
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
       hasComplexArgs = true;
       if (objState & Modifiers.Setter) report(state, Errors.BadSetterRestParameter);
       params.push(parseRestElement(state, context, scope, Type.ArgList, Origin.None));
-      break; //rest parameter must be the last
+      break; // rest parameter must be the last
     }
 
     if ((state.token & Token.Identifier) !== Token.Identifier) hasComplexArgs = true;
@@ -142,7 +142,7 @@ export function parseRestElement(
   scope: ScopeState,
   type: Type,
   origin: Origin
-): any {
+): ESTree.RestElement {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context, Token.Ellipsis);
   if (context & Context.ParentheziedContext && state.token & Token.IsAwait) state.flags |= Flags.SeenAwait;
@@ -170,9 +170,10 @@ export function parseFunctionBody(
 ): ESTree.BlockStatement {
   const body: any[] = [];
   const { startIndex: start, startLine: line, startColumn: column } = state;
+
   expect(state, context, Token.LeftBrace);
 
-  const isStrict = (context & Context.Strict) === Context.Strict;
+  const prevContext = context;
 
   context = context | (Context.TopLevel | Context.AllowReturn);
 
@@ -197,7 +198,8 @@ export function parseFunctionBody(
     (state.flags | (Flags.StrictEvalArguments | Flags.HasStrictReserved)) ^
     (Flags.StrictEvalArguments | Flags.HasStrictReserved);
 
-  if (!isStrict && (context & Context.Strict) > 0) validateFunctionArgs(state, scope.lex['@'], false);
+  if ((prevContext & Context.Strict) < 1 && (context & Context.Strict) > 0)
+    validateFunctionArgs(state, scope.lex['@'], false);
 
   if (state.token !== Token.RightBrace) {
     const previousSwitchStatement = state.switchStatement;
@@ -231,7 +233,7 @@ export function parseFunctionBody(
   });
 }
 
-export function parseExpressions(state: ParserState, context: Context): any {
+export function parseExpressions(state: ParserState, context: Context): ESTree.Expression {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   const expr = secludeGrammar(state, context, 0, parseAssignmentExpression);
   if (state.token !== Token.Comma) return expr;
@@ -409,9 +411,9 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
     return finishNode(state, context, start, line, column, {
       type: 'AssignmentExpression',
       left: expr,
-      operator: KeywordDescTable[operator & Token.Type],
+      operator: KeywordDescTable[operator & Token.Type] as ESTree.AssignmentOperator,
       right
-    } as any);
+    });
   }
 
   return parseConditionalExpression(state, context, expr, start, line, column);
@@ -480,7 +482,7 @@ function parseBinaryExpression(
   start: number = state.startIndex,
   line: number = state.startLine,
   column: number = state.startColumn,
-  left: any = parseUnaryExpression(state, context)
+  left: ESTree.Expression = parseUnaryExpression(state, context)
 ): ESTree.Expression {
   const bit = -((context & Context.DisallowInContext) > 0) & Token.InKeyword;
   let t: Token;
@@ -495,7 +497,7 @@ function parseBinaryExpression(
       type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
       left,
       right: secludeGrammar(state, context, prec, parseBinaryExpression),
-      operator: KeywordDescTable[t & Token.Type]
+      operator: KeywordDescTable[t & Token.Type] as ESTree.LogicalOperator
     } as any);
     state.assignable = state.bindable = false;
   }
