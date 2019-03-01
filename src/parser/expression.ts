@@ -1497,37 +1497,31 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   }
 
   context =
-    (context |
+    ((context |
       Context.AwaitContext |
       Context.YieldContext |
       Context.InArgList |
       Context.SuperProperty |
       Context.SuperCall |
       Context.InConstructor) ^
-    (Context.AwaitContext |
-      Context.YieldContext |
-      Context.InArgList |
-      Context.SuperProperty |
-      Context.SuperCall |
-      Context.InConstructor);
-
-  if (isAsync) context |= Context.AwaitContext;
-  if (isGenerator) context |= Context.YieldContext;
+      (Context.AwaitContext |
+        Context.YieldContext |
+        Context.InArgList |
+        Context.SuperProperty |
+        Context.SuperCall |
+        Context.InConstructor)) |
+    (isAsync ? Context.AwaitContext : 0) |
+    (isGenerator ? Context.YieldContext : 0) |
+    Context.AllowNewTarget;
 
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 
-  const params = parseFormalParameters(
-    state,
-    context | Context.AllowNewTarget,
-    paramScoop,
-    Origin.ArgList,
-    Modifiers.None
-  );
+  const params = parseFormalParameters(state, context, paramScoop, Origin.ArgList, Modifiers.None);
 
   const body: any = parseFunctionBody(
     state,
-    context | Context.AllowNewTarget,
+    context,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     Origin.None
@@ -2275,55 +2269,31 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
   let id: ESTree.Identifier | null = null;
   let firstRestricted: string | undefined;
   const { startIndex: start, startLine: line, startColumn: column } = state;
-  if (state.token & Token.IsIdentifier) {
-    validateBindingIdentifier(
-      state,
-      context & Context.Strict
-        ? Context.YieldContext
-        : (objState & Modifiers.Generator) > 0
-        ? Context.YieldContext
-        : 0 | (context & Context.Module) || (objState & Modifiers.Generator) > 0
-        ? Context.AwaitContext
-        : 0,
-      Type.Variable
-    );
-
-    recordTokenValueAndDeduplicate(state, context, functionScope, Type.Variable, Origin.None, true, state.tokenValue);
-    functionScope = createSubScope(functionScope, ScopeType.BlockStatement);
-    firstRestricted = state.tokenValue;
-    id = parseIdentifier(state, context);
-  }
 
   context =
-    (context |
+    ((context |
       Context.SuperProperty |
       Context.AwaitContext |
       Context.YieldContext |
       Context.InArgList |
       ((objState & Modifiers.Constructor) === 0 ? Context.InConstructor | Context.SuperCall : 0)) ^
-    (Context.AwaitContext |
-      Context.YieldContext |
-      Context.InArgList |
-      ((objState & Modifiers.Constructor) < 1 ? Context.InConstructor | Context.SuperCall : 0));
-
-  if (objState & Modifiers.Async) context |= Context.AwaitContext;
-  if (objState & Modifiers.Generator) context |= Context.YieldContext;
-  if (objState & Modifiers.Constructor) context |= Context.InConstructor;
-
+      (Context.AwaitContext |
+        Context.YieldContext |
+        Context.InArgList |
+        ((objState & Modifiers.Constructor) < 1 ? Context.InConstructor | Context.SuperCall : 0))) |
+    (objState & Modifiers.Async ? Context.AwaitContext : 0) |
+    (objState & Modifiers.Generator ? Context.YieldContext : 0) |
+    (objState & Modifiers.Constructor ? Context.InConstructor : 0) |
+    Context.AllowNewTarget |
+    Context.InMethod;
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 
-  const params = parseFormalParameters(
-    state,
-    context | Context.AllowNewTarget | Context.InMethod,
-    paramScoop,
-    Origin.ArgList,
-    objState
-  );
+  const params = parseFormalParameters(state, context, paramScoop, Origin.ArgList, objState);
 
   const body: any = parseFunctionBody(
     state,
-    context | Context.AllowNewTarget | Context.InMethod,
+    context,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     Origin.None
