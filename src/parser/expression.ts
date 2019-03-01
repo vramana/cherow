@@ -817,7 +817,7 @@ function parseImportExpression(state: ParserState, context: Context): ESTree.Imp
  * @param pos Location
  */
 
-export function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): any {
+export function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): ESTree.MetaProperty {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   return finishNode(state, context, start, line, column, {
     meta: id,
@@ -1798,7 +1798,7 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
 
   context |= Context.SuperProperty;
 
-  const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.None);
+  const body = parseClassBodyAndElementList(state, context, Origin.None);
 
   return finishNode(state, context, start, line, column, {
     type: 'ClassExpression',
@@ -1811,16 +1811,17 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
 export function parseClassBodyAndElementList(state: ParserState, context: Context, origin: Origin): ESTree.ClassBody {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftBrace);
-  const body: any[] = [];
+  const body: ESTree.MethodDefinition[] = [];
 
   while (state.token !== Token.RightBrace) {
-    if (optional(state, context, Token.Semicolon)) continue;
-    body.push(parseClassElementList(state, context, Modifiers.None));
+    if (!optional(state, context, Token.Semicolon)) {
+      body.push(parseClassElementList(state, context, Modifiers.None));
+    }
   }
 
   expect(state, origin & Origin.Declaration ? context | Context.AllowPossibleRegEx : context, Token.RightBrace);
 
-  state.flags &= ~Flags.HasConstructor;
+  state.flags = (state.flags | Flags.HasConstructor) ^ Flags.HasConstructor;
 
   return finishNode(state, context, start, line, column, {
     type: 'ClassBody',
@@ -1828,7 +1829,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
   });
 }
 
-function parseClassElementList(state: ParserState, context: Context, modifier: Modifiers): any {
+function parseClassElementList(state: ParserState, context: Context, modifier: Modifiers): ESTree.MethodDefinition {
   let key: ESTree.Identifier | ESTree.Literal | ESTree.Expression | void;
   let { token, tokenValue, startIndex: start, startLine: line, startColumn: column } = state;
 
@@ -2236,7 +2237,7 @@ function parseObjectLiteral(
   }
 
   expect(state, context, Token.RightBrace);
-  state.flags &= ~Flags.SeenPrototype;
+  state.flags = (state.flags | Flags.SeenPrototype) ^ Flags.SeenPrototype;
   state.bindable = state.bindable && bindable;
   state.assignable = state.assignable && assignable;
   state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
@@ -2265,7 +2266,7 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
   return result;
 }
 
-function parsePropertyMethod(state: ParserState, context: Context, objState: Modifiers): any {
+function parsePropertyMethod(state: ParserState, context: Context, objState: Modifiers): ESTree.FunctionExpression {
   // Create a new function scope
   let functionScope = createScope(ScopeType.BlockStatement);
 
@@ -2318,7 +2319,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
     objState
   );
 
-  const body = parseFunctionBody(
+  const body: any = parseFunctionBody(
     state,
     context | Context.AllowNewTarget | Context.InMethod,
     createSubScope(paramScoop, ScopeType.BlockStatement),
@@ -2332,7 +2333,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
     async: (objState & Modifiers.Async) > 0,
     generator: (objState & Modifiers.Generator) > 0,
     id
-  } as any);
+  });
 }
 
 /**
