@@ -1782,16 +1782,16 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
 function parseClassExpression(state: ParserState, context: Context): ESTree.ClassExpression {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
-  context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
+  context = (context | Context.Strict | Context.InConstructor) ^ Context.InConstructor;
   let id: ESTree.Expression | null = null;
   let superClass: ESTree.Expression | null = null;
   if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
-    validateBindingIdentifier(state, context | Context.Strict, Type.ClassExprDecl);
+    validateBindingIdentifier(state, context, Type.ClassExprDecl);
     recordTokenValue(state, context, -1, Type.Let, Origin.None, false, false, state.tokenValue);
     id = parseIdentifier(state, context);
   }
 
-  if (optional(state, context, Token.ExtendsKeyword)) {
+  if (optional(state, context | Context.AllowPossibleRegEx, Token.ExtendsKeyword)) {
     superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
