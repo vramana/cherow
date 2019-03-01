@@ -6656,15 +6656,15 @@ var cherow = (function (exports) {
   function parseClassExpression(state, context) {
       const { startIndex: start, startLine: line, startColumn: column } = state;
       scanSingleToken(state, context);
-      context = (context | 1024 | 16777216) ^ (1024 | 16777216);
+      context = (context | 1024 | 16777216) ^ 16777216;
       let id = null;
       let superClass = null;
       if (state.token & 274432 && state.token !== 20564) {
-          validateBindingIdentifier(state, context | 1024, 16);
+          validateBindingIdentifier(state, context, 16);
           recordTokenValue(state, context, -1, 4, 0, false, false, state.tokenValue);
           id = parseIdentifier(state, context);
       }
-      if (optional(state, context, 20564)) {
+      if (optional(state, context | 32768, 20564)) {
           superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
           context |= 524288;
       }
