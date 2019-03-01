@@ -233,7 +233,7 @@ export function parseFunctionBody(
   });
 }
 
-export function parseExpressions(state: ParserState, context: Context): ESTree.Expression {
+export function parseExpressions(state: ParserState, context: Context): any {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   const expr = secludeGrammar(state, context, 0, parseAssignmentExpression);
   if (state.token !== Token.Comma) return expr;
@@ -411,9 +411,9 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
     return finishNode(state, context, start, line, column, {
       type: 'AssignmentExpression',
       left: expr,
-      operator: KeywordDescTable[operator & Token.Type] as ESTree.AssignmentOperator,
+      operator: KeywordDescTable[operator & Token.Type],
       right
-    });
+    } as any);
   }
 
   return parseConditionalExpression(state, context, expr, start, line, column);
@@ -482,7 +482,7 @@ function parseBinaryExpression(
   start: number = state.startIndex,
   line: number = state.startLine,
   column: number = state.startColumn,
-  left: ESTree.Expression = parseUnaryExpression(state, context)
+  left: any = parseUnaryExpression(state, context)
 ): ESTree.Expression {
   const bit = -((context & Context.DisallowInContext) > 0) & Token.InKeyword;
   let t: Token;
@@ -497,7 +497,7 @@ function parseBinaryExpression(
       type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
       left,
       right: secludeGrammar(state, context, prec, parseBinaryExpression),
-      operator: KeywordDescTable[t & Token.Type] as ESTree.LogicalOperator
+      operator: KeywordDescTable[t & Token.Type]
     } as any);
     state.assignable = state.bindable = false;
   }
