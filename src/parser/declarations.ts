@@ -129,36 +129,30 @@ export function parseFunctionDeclaration(
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Function');
 
   context =
-    (context |
+    ((context |
       Context.AwaitContext |
       Context.YieldContext |
       Context.InArgList |
       Context.SuperProperty |
       Context.SuperCall |
       Context.InConstructor) ^
-    (Context.AwaitContext |
-      Context.YieldContext |
-      Context.InArgList |
-      Context.SuperProperty |
-      Context.SuperCall |
-      Context.InConstructor);
-
-  if (isAsync) context |= Context.AwaitContext;
-  if (isGenerator) context |= Context.YieldContext;
+      (Context.AwaitContext |
+        Context.YieldContext |
+        Context.InArgList |
+        Context.SuperProperty |
+        Context.SuperCall |
+        Context.InConstructor)) |
+    (isAsync ? Context.AwaitContext : 0) |
+    (isGenerator ? Context.YieldContext : 0) |
+    Context.AllowNewTarget;
 
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
-  const params = parseFormalParameters(
-    state,
-    context | Context.AllowNewTarget,
-    paramScoop,
-    Origin.ArgList,
-    Modifiers.None
-  );
+  const params = parseFormalParameters(state, context, paramScoop, Origin.ArgList, Modifiers.None);
 
   const body = parseFunctionBody(
     state,
-    context | Context.AllowNewTarget,
+    context,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     origin
@@ -244,25 +238,19 @@ export function parseHoistableFunctionDeclaration(
   addToExportedBindings(state, name);
 
   context =
-    (context | Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.SuperProperty) ^
-    (Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.SuperProperty);
-
-  if (isAsync) context |= Context.AwaitContext;
-  if (isGenerator) context |= Context.YieldContext;
+    ((context | Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.SuperProperty) ^
+      (Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.SuperProperty)) |
+    (isAsync ? Context.AwaitContext : 0) |
+    (isGenerator ? Context.YieldContext : 0) |
+    Context.AllowNewTarget;
 
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
-  const params = parseFormalParameters(
-    state,
-    context | Context.AllowNewTarget,
-    paramScoop,
-    Origin.ArgList,
-    Modifiers.None
-  );
+  const params = parseFormalParameters(state, context, paramScoop, Origin.ArgList, Modifiers.None);
 
   const body = parseFunctionBody(
     state,
-    context | Context.AllowNewTarget,
+    context,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     undefined,
     Origin.None

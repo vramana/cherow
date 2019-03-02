@@ -1,4 +1,18 @@
 import * as ESTree from '../estree';
+import { report, Errors } from '../errors';
+import { parseBindingIdentifierOrPattern, parseAssignmentPattern } from './pattern';
+import { parseStatementListItem, parseBlockStatement, parseDirective } from './statement';
+import { Token, KeywordDescTable } from '../token';
+import { scanSingleToken } from '../scanner';
+import { scanTemplateTail } from '../scanner/template';
+import {
+  optional,
+  expect,
+  recordTokenValue,
+  checkIfLexicalAlreadyBound,
+  validateFunctionArgs,
+  lookAheadOrScan
+} from '../common';
 import {
   Context,
   Flags,
@@ -26,20 +40,6 @@ import {
   finishNode,
   ParenthesizedState
 } from '../common';
-import { Token, KeywordDescTable } from '../token';
-import { scanSingleToken } from '../scanner';
-import { scanTemplateTail } from '../scanner/template';
-import {
-  optional,
-  expect,
-  recordTokenValue,
-  checkIfLexicalAlreadyBound,
-  validateFunctionArgs,
-  lookAheadOrScan
-} from '../common';
-import { report, Errors } from '../errors';
-import { parseBindingIdentifierOrPattern, parseAssignmentPattern } from './pattern';
-import { parseStatementListItem, parseBlockStatement, parseDirective } from './statement';
 
 /**
  * Parse formal parameters
@@ -80,17 +80,17 @@ export function parseFormalParameters(
    *
    */
   expect(state, context, Token.LeftParen);
+  const { startIndex: start, startLine: line, startColumn: column } = state;
   const params: any[] = [];
-  state.flags &= ~Flags.SimpleParameterList;
+  state.flags = (state.flags | Flags.SimpleParameterList) ^ Flags.SimpleParameterList;
   context = context | Context.InArgList;
   let hasComplexArgs = false;
-  const { startIndex: start, startLine: line, startColumn: column } = state;
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
       hasComplexArgs = true;
       if (objState & Modifiers.Setter) report(state, Errors.BadSetterRestParameter);
       params.push(parseRestElement(state, context, scope, Type.ArgList, Origin.None));
-      break; //rest parameter must be the last
+      break; // rest parameter must be the last
     }
 
     if ((state.token & Token.Identifier) !== Token.Identifier) hasComplexArgs = true;
@@ -142,7 +142,7 @@ export function parseRestElement(
   scope: ScopeState,
   type: Type,
   origin: Origin
-): any {
+): ESTree.RestElement {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context, Token.Ellipsis);
   if (context & Context.ParentheziedContext && state.token & Token.IsAwait) state.flags |= Flags.SeenAwait;
@@ -170,9 +170,10 @@ export function parseFunctionBody(
 ): ESTree.BlockStatement {
   const body: any[] = [];
   const { startIndex: start, startLine: line, startColumn: column } = state;
+
   expect(state, context, Token.LeftBrace);
 
-  const isStrict = (context & Context.Strict) === Context.Strict;
+  const prevContext = context;
 
   context = context | (Context.TopLevel | Context.AllowReturn);
 
@@ -197,7 +198,8 @@ export function parseFunctionBody(
     (state.flags | (Flags.StrictEvalArguments | Flags.HasStrictReserved)) ^
     (Flags.StrictEvalArguments | Flags.HasStrictReserved);
 
-  if (!isStrict && (context & Context.Strict) > 0) validateFunctionArgs(state, scope.lex['@'], false);
+  if ((prevContext & Context.Strict) < 1 && (context & Context.Strict) > 0)
+    validateFunctionArgs(state, scope.lex['@'], false);
 
   if (state.token !== Token.RightBrace) {
     const previousSwitchStatement = state.switchStatement;
@@ -817,7 +819,7 @@ function parseImportExpression(state: ParserState, context: Context): ESTree.Imp
  * @param pos Location
  */
 
-export function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): any {
+export function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): ESTree.MetaProperty {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   return finishNode(state, context, start, line, column, {
     meta: id,
@@ -1495,37 +1497,31 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   }
 
   context =
-    (context |
+    ((context |
       Context.AwaitContext |
       Context.YieldContext |
       Context.InArgList |
       Context.SuperProperty |
       Context.SuperCall |
       Context.InConstructor) ^
-    (Context.AwaitContext |
-      Context.YieldContext |
-      Context.InArgList |
-      Context.SuperProperty |
-      Context.SuperCall |
-      Context.InConstructor);
-
-  if (isAsync) context |= Context.AwaitContext;
-  if (isGenerator) context |= Context.YieldContext;
+      (Context.AwaitContext |
+        Context.YieldContext |
+        Context.InArgList |
+        Context.SuperProperty |
+        Context.SuperCall |
+        Context.InConstructor)) |
+    (isAsync ? Context.AwaitContext : 0) |
+    (isGenerator ? Context.YieldContext : 0) |
+    Context.AllowNewTarget;
 
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 
-  const params = parseFormalParameters(
-    state,
-    context | Context.AllowNewTarget,
-    paramScoop,
-    Origin.ArgList,
-    Modifiers.None
-  );
+  const params = parseFormalParameters(state, context, paramScoop, Origin.ArgList, Modifiers.None);
 
   const body: any = parseFunctionBody(
     state,
-    context | Context.AllowNewTarget,
+    context,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     Origin.None
@@ -1798,7 +1794,7 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
 
   context |= Context.SuperProperty;
 
-  const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.None);
+  const body = parseClassBodyAndElementList(state, context, Origin.None);
 
   return finishNode(state, context, start, line, column, {
     type: 'ClassExpression',
@@ -1811,16 +1807,17 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
 export function parseClassBodyAndElementList(state: ParserState, context: Context, origin: Origin): ESTree.ClassBody {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftBrace);
-  const body: any[] = [];
+  const body: ESTree.MethodDefinition[] = [];
 
   while (state.token !== Token.RightBrace) {
-    if (optional(state, context, Token.Semicolon)) continue;
-    body.push(parseClassElementList(state, context, Modifiers.None));
+    if (!optional(state, context, Token.Semicolon)) {
+      body.push(parseClassElementList(state, context, Modifiers.None));
+    }
   }
 
   expect(state, origin & Origin.Declaration ? context | Context.AllowPossibleRegEx : context, Token.RightBrace);
 
-  state.flags &= ~Flags.HasConstructor;
+  state.flags = (state.flags | Flags.HasConstructor) ^ Flags.HasConstructor;
 
   return finishNode(state, context, start, line, column, {
     type: 'ClassBody',
@@ -1828,7 +1825,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
   });
 }
 
-function parseClassElementList(state: ParserState, context: Context, modifier: Modifiers): any {
+function parseClassElementList(state: ParserState, context: Context, modifier: Modifiers): ESTree.MethodDefinition {
   let key: ESTree.Identifier | ESTree.Literal | ESTree.Expression | void;
   let { token, tokenValue, startIndex: start, startLine: line, startColumn: column } = state;
 
@@ -2236,7 +2233,7 @@ function parseObjectLiteral(
   }
 
   expect(state, context, Token.RightBrace);
-  state.flags &= ~Flags.SeenPrototype;
+  state.flags = (state.flags | Flags.SeenPrototype) ^ Flags.SeenPrototype;
   state.bindable = state.bindable && bindable;
   state.assignable = state.assignable && assignable;
   state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
@@ -2265,62 +2262,38 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
   return result;
 }
 
-function parsePropertyMethod(state: ParserState, context: Context, objState: Modifiers): any {
+function parsePropertyMethod(state: ParserState, context: Context, objState: Modifiers): ESTree.FunctionExpression {
   // Create a new function scope
   let functionScope = createScope(ScopeType.BlockStatement);
 
   let id: ESTree.Identifier | null = null;
   let firstRestricted: string | undefined;
   const { startIndex: start, startLine: line, startColumn: column } = state;
-  if (state.token & Token.IsIdentifier) {
-    validateBindingIdentifier(
-      state,
-      context & Context.Strict
-        ? Context.YieldContext
-        : (objState & Modifiers.Generator) > 0
-        ? Context.YieldContext
-        : 0 | (context & Context.Module) || (objState & Modifiers.Generator) > 0
-        ? Context.AwaitContext
-        : 0,
-      Type.Variable
-    );
-
-    recordTokenValueAndDeduplicate(state, context, functionScope, Type.Variable, Origin.None, true, state.tokenValue);
-    functionScope = createSubScope(functionScope, ScopeType.BlockStatement);
-    firstRestricted = state.tokenValue;
-    id = parseIdentifier(state, context);
-  }
 
   context =
-    (context |
+    ((context |
       Context.SuperProperty |
       Context.AwaitContext |
       Context.YieldContext |
       Context.InArgList |
       ((objState & Modifiers.Constructor) === 0 ? Context.InConstructor | Context.SuperCall : 0)) ^
-    (Context.AwaitContext |
-      Context.YieldContext |
-      Context.InArgList |
-      ((objState & Modifiers.Constructor) < 1 ? Context.InConstructor | Context.SuperCall : 0));
-
-  if (objState & Modifiers.Async) context |= Context.AwaitContext;
-  if (objState & Modifiers.Generator) context |= Context.YieldContext;
-  if (objState & Modifiers.Constructor) context |= Context.InConstructor;
-
+      (Context.AwaitContext |
+        Context.YieldContext |
+        Context.InArgList |
+        ((objState & Modifiers.Constructor) < 1 ? Context.InConstructor | Context.SuperCall : 0))) |
+    (objState & Modifiers.Async ? Context.AwaitContext : 0) |
+    (objState & Modifiers.Generator ? Context.YieldContext : 0) |
+    (objState & Modifiers.Constructor ? Context.InConstructor : 0) |
+    Context.AllowNewTarget |
+    Context.InMethod;
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 
-  const params = parseFormalParameters(
-    state,
-    context | Context.AllowNewTarget | Context.InMethod,
-    paramScoop,
-    Origin.ArgList,
-    objState
-  );
+  const params = parseFormalParameters(state, context, paramScoop, Origin.ArgList, objState);
 
-  const body = parseFunctionBody(
+  const body: any = parseFunctionBody(
     state,
-    context | Context.AllowNewTarget | Context.InMethod,
+    context,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     Origin.None
@@ -2332,7 +2305,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
     async: (objState & Modifiers.Async) > 0,
     generator: (objState & Modifiers.Generator) > 0,
     id
-  } as any);
+  });
 }
 
 /**
