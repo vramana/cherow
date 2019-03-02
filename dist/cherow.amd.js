@@ -5637,11 +5637,11 @@ define(['exports'], function (exports) { 'use strict';
 
   function parseFormalParameters(state, context, scope, origin, objState) {
       expect(state, context, 131083);
+      const { startIndex: start, startLine: line, startColumn: column } = state;
       const params = [];
-      state.flags &= ~64;
+      state.flags = (state.flags | 64) ^ 64;
       context = context | 8388608;
       let hasComplexArgs = false;
-      const { startIndex: start, startLine: line, startColumn: column } = state;
       while (state.token !== 16) {
           if (state.token === 14) {
               hasComplexArgs = true;
@@ -5696,7 +5696,7 @@ define(['exports'], function (exports) { 'use strict';
       const body = [];
       const { startIndex: start, startLine: line, startColumn: column } = state;
       expect(state, context, 131084);
-      const isStrict = (context & 1024) === 1024;
+      const prevContext = context;
       context = context | (4096 | 134217728);
       while (state.token === 131075) {
           if (state.index - state.startIndex < 13 && state.tokenValue === 'use strict') {
@@ -5718,7 +5718,7 @@ define(['exports'], function (exports) { 'use strict';
       state.flags =
           (state.flags | (1024 | 512)) ^
               (1024 | 512);
-      if (!isStrict && (context & 1024) > 0)
+      if ((prevContext & 1024) < 1 && (context & 1024) > 0)
           validateFunctionArgs(state, scope.lex['@'], false);
       if (state.token !== 536870927) {
           const previousSwitchStatement = state.switchStatement;
@@ -6445,7 +6445,7 @@ define(['exports'], function (exports) { 'use strict';
           id = parseIdentifier(state, context);
       }
       context =
-          (context |
+          ((context |
               4194304 |
               2097152 |
               8388608 |
@@ -6457,14 +6457,13 @@ define(['exports'], function (exports) { 'use strict';
                   8388608 |
                   262144 |
                   524288 |
-                  16777216);
-      if (isAsync)
-          context |= 4194304;
-      if (isGenerator)
-          context |= 2097152;
+                  16777216)) |
+              (isAsync ? 4194304 : 0) |
+              (isGenerator ? 2097152 : 0) |
+              67108864;
       const paramScoop = createSubScope(functionScope, 5);
-      const params = parseFormalParameters(state, context | 67108864, paramScoop, 64, 0);
-      const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), firstRestricted, 0);
+      const params = parseFormalParameters(state, context, paramScoop, 64, 0);
+      const body = parseFunctionBody(state, context, createSubScope(paramScoop, 1), firstRestricted, 0);
       return finishNode(state, context, start, line, column, {
           type: 'FunctionExpression',
           params,
@@ -6670,7 +6669,7 @@ define(['exports'], function (exports) { 'use strict';
       else
           context = (context | 524288) ^ 524288;
       context |= 262144;
-      const body = parseClassBodyAndElementList(state, context | 1024, 0);
+      const body = parseClassBodyAndElementList(state, context, 0);
       return finishNode(state, context, start, line, column, {
           type: 'ClassExpression',
           id,
@@ -6683,12 +6682,12 @@ define(['exports'], function (exports) { 'use strict';
       expect(state, context | 32768, 131084);
       const body = [];
       while (state.token !== 536870927) {
-          if (optional(state, context, 536870929))
-              continue;
-          body.push(parseClassElementList(state, context, 0));
+          if (!optional(state, context, 536870929)) {
+              body.push(parseClassElementList(state, context, 0));
+          }
       }
       expect(state, origin & 256 ? context | 32768 : context, 536870927);
-      state.flags &= ~2048;
+      state.flags = (state.flags | 2048) ^ 2048;
       return finishNode(state, context, start, line, column, {
           type: 'ClassBody',
           body
@@ -7084,7 +7083,7 @@ define(['exports'], function (exports) { 'use strict';
           optional(state, context, 18);
       }
       expect(state, context, 536870927);
-      state.flags &= ~32;
+      state.flags = (state.flags | 32) ^ 32;
       state.bindable = state.bindable && bindable;
       state.assignable = state.assignable && assignable;
       state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
@@ -7112,21 +7111,8 @@ define(['exports'], function (exports) { 'use strict';
       let id = null;
       let firstRestricted;
       const { startIndex: start, startLine: line, startColumn: column } = state;
-      if (state.token & 274432) {
-          validateBindingIdentifier(state, context & 1024
-              ? 2097152
-              : (objState & 8) > 0
-                  ? 2097152
-                  : 0 | (context & 2048) || (objState & 8) > 0
-                      ? 4194304
-                      : 0, 2);
-          recordTokenValueAndDeduplicate(state, context, functionScope, 2, 0, true, state.tokenValue);
-          functionScope = createSubScope(functionScope, 1);
-          firstRestricted = state.tokenValue;
-          id = parseIdentifier(state, context);
-      }
       context =
-          (context |
+          ((context |
               262144 |
               4194304 |
               2097152 |
@@ -7135,16 +7121,15 @@ define(['exports'], function (exports) { 'use strict';
               (4194304 |
                   2097152 |
                   8388608 |
-                  ((objState & 64) < 1 ? 16777216 | 524288 : 0));
-      if (objState & 16)
-          context |= 4194304;
-      if (objState & 8)
-          context |= 2097152;
-      if (objState & 64)
-          context |= 16777216;
+                  ((objState & 64) < 1 ? 16777216 | 524288 : 0))) |
+              (objState & 16 ? 4194304 : 0) |
+              (objState & 8 ? 2097152 : 0) |
+              (objState & 64 ? 16777216 : 0) |
+              67108864 |
+              33554432;
       const paramScoop = createSubScope(functionScope, 5);
-      const params = parseFormalParameters(state, context | 67108864 | 33554432, paramScoop, 64, objState);
-      const body = parseFunctionBody(state, context | 67108864 | 33554432, createSubScope(paramScoop, 1), firstRestricted, 0);
+      const params = parseFormalParameters(state, context, paramScoop, 64, objState);
+      const body = parseFunctionBody(state, context, createSubScope(paramScoop, 1), firstRestricted, 0);
       return finishNode(state, context, start, line, column, {
           type: 'FunctionExpression',
           params,
@@ -7446,7 +7431,7 @@ define(['exports'], function (exports) { 'use strict';
       else if (!(context & 512))
           report(state, 111, 'Function');
       context =
-          (context |
+          ((context |
               4194304 |
               2097152 |
               8388608 |
@@ -7458,14 +7443,13 @@ define(['exports'], function (exports) { 'use strict';
                   8388608 |
                   262144 |
                   524288 |
-                  16777216);
-      if (isAsync)
-          context |= 4194304;
-      if (isGenerator)
-          context |= 2097152;
+                  16777216)) |
+              (isAsync ? 4194304 : 0) |
+              (isGenerator ? 2097152 : 0) |
+              67108864;
       const paramScoop = createSubScope(funcScope, 5);
-      const params = parseFormalParameters(state, context | 67108864, paramScoop, 64, 0);
-      const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), firstRestricted, origin);
+      const params = parseFormalParameters(state, context, paramScoop, 64, 0);
+      const body = parseFunctionBody(state, context, createSubScope(paramScoop, 1), firstRestricted, origin);
       return finishNode(state, context, start, line, column, {
           type: 'FunctionDeclaration',
           params,
@@ -7528,15 +7512,14 @@ define(['exports'], function (exports) { 'use strict';
           addToExportedNamesAndCheckDuplicates(state, name);
       addToExportedBindings(state, name);
       context =
-          (context | 4194304 | 2097152 | 8388608 | 262144) ^
-              (4194304 | 2097152 | 8388608 | 262144);
-      if (isAsync)
-          context |= 4194304;
-      if (isGenerator)
-          context |= 2097152;
+          ((context | 4194304 | 2097152 | 8388608 | 262144) ^
+              (4194304 | 2097152 | 8388608 | 262144)) |
+              (isAsync ? 4194304 : 0) |
+              (isGenerator ? 2097152 : 0) |
+              67108864;
       const paramScoop = createSubScope(funcScope, 5);
-      const params = parseFormalParameters(state, context | 67108864, paramScoop, 64, 0);
-      const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), undefined, 0);
+      const params = parseFormalParameters(state, context, paramScoop, 64, 0);
+      const body = parseFunctionBody(state, context, createSubScope(paramScoop, 1), undefined, 0);
       return finishNode(state, context, start, line, column, {
           type: 'FunctionDeclaration',
           params,

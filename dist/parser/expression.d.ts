@@ -1,13 +1,13 @@
 import * as ESTree from '../estree';
 import { Context, ParserState, Type, Origin, ScopeState, Modifiers } from '../common';
 export declare function parseFormalParameters(state: ParserState, context: Context, scope: ScopeState, origin: Origin, objState: Modifiers): any;
-export declare function parseRestElement(state: ParserState, context: Context, scope: ScopeState, type: Type, origin: Origin): any;
+export declare function parseRestElement(state: ParserState, context: Context, scope: ScopeState, type: Type, origin: Origin): ESTree.RestElement;
 export declare function parseFunctionBody(state: ParserState, context: Context, scope: ScopeState, firstRestricted: string | undefined, origin: Origin): ESTree.BlockStatement;
 export declare function parseExpressions(state: ParserState, context: Context): any;
 export declare function parseSequenceExpression(state: ParserState, context: Context, left: ESTree.Expression, start: number, line: number, column: number): ESTree.SequenceExpression;
 export declare function parseAssignmentExpression(state: ParserState, context: Context): any;
 export declare function parseLeftHandSideExpression(state: ParserState, context: Context, start: number, line: number, column: number): any;
-export declare function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): any;
+export declare function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): ESTree.MetaProperty;
 export declare function parseMemberExpression(state: ParserState, context: Context, start: number, line: number, column: number, expr: ESTree.CallExpression | ESTree.Expression): ESTree.Expression;
 export declare function parseAndClassifyIdentifier(state: ParserState, context: Context): void;
 export declare function parsePrimaryExpression(state: ParserState, context: Context, start: number, line: number, column: number): any;
