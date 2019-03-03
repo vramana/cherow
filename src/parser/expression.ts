@@ -1792,8 +1792,6 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
-  context |= Context.SuperProperty;
-
   const body = parseClassBodyAndElementList(state, context, Origin.None);
 
   return finishNode(state, context, start, line, column, {
@@ -2285,7 +2283,8 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
     (objState & Modifiers.Generator ? Context.YieldContext : 0) |
     (objState & Modifiers.Constructor ? Context.InConstructor : 0) |
     Context.AllowNewTarget |
-    Context.InMethod;
+    Context.InMethod |
+    Context.SuperProperty;
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 

@@ -62,8 +62,6 @@ export function parseClassDeclaration(
     context |= Context.SuperCall;
   } else context = (context | Context.SuperCall) ^ Context.SuperCall;
 
-  context |= Context.SuperProperty;
-
   const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.Declaration);
 
   return finishNode(state, context, start, line, column, {
