@@ -6669,7 +6669,6 @@ var cherow = (function (exports) {
       }
       else
           context = (context | 524288) ^ 524288;
-      context |= 262144;
       const body = parseClassBodyAndElementList(state, context, 0);
       return finishNode(state, context, start, line, column, {
           type: 'ClassExpression',
@@ -7127,7 +7126,8 @@ var cherow = (function (exports) {
               (objState & 8 ? 2097152 : 0) |
               (objState & 64 ? 16777216 : 0) |
               67108864 |
-              33554432;
+              33554432 |
+              262144;
       const paramScoop = createSubScope(functionScope, 5);
       const params = parseFormalParameters(state, context, paramScoop, 64, objState);
       const body = parseFunctionBody(state, context, createSubScope(paramScoop, 1), firstRestricted, 0);
@@ -7401,7 +7401,6 @@ var cherow = (function (exports) {
       }
       else
           context = (context | 524288) ^ 524288;
-      context |= 262144;
       const body = parseClassBodyAndElementList(state, context | 1024, 256);
       return finishNode(state, context, start, line, column, {
           type: 'ClassDeclaration',
