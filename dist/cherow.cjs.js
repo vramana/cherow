@@ -7743,7 +7743,7 @@ function parseIfStatement(state, context, scope) {
     const test = parseExpressions(state, (context | 8192) ^ 8192);
     expect(state, context | 32768, 16);
     const consequent = parseConsequentOrAlternate(state, context, scope);
-    const alternate = optional(state, context, 20562)
+    const alternate = optional(state, context | 32768, 20562)
         ? parseConsequentOrAlternate(state, context, scope)
         : null;
     return finishNode(state, context, start, line, column, {
@@ -7763,8 +7763,8 @@ function parseSwitchStatement(state, context, scope) {
     scanSingleToken(state, context);
     expect(state, context | 32768, 131083);
     const discriminant = parseExpressions(state, (context | 8192) ^ 8192);
-    expect(state, context, 16);
-    expect(state, context, 131084);
+    expect(state, context | 32768, 16);
+    expect(state, context | 32768, 131084);
     const cases = [];
     let seenDefault = false;
     const switchScope = createSubScope(scope, 3);
@@ -7785,7 +7785,7 @@ function parseSwitchStatement(state, context, scope) {
         cases.push(parseCaseOrDefaultClauses(state, context, test, switchScope, subStart, subLine, subColumn));
     }
     state.switchStatement = previousSwitchStatement;
-    expect(state, context, 536870927);
+    expect(state, context | 32768, 536870927);
     return finishNode(state, context, start, line, column, {
         type: 'SwitchStatement',
         discriminant,
@@ -7800,7 +7800,7 @@ function parseReturnStatement(state, context) {
     const argument = (state.token & 536870912) < 1 && (state.flags & 1) < 1
         ? parseExpressions(state, (context | 8192) ^ (8192 | 134217728))
         : null;
-    consumeSemicolon(state, context);
+    consumeSemicolon(state, context | 32768);
     return finishNode(state, context, start, line, column, {
         type: 'ReturnStatement',
         argument
@@ -7824,14 +7824,14 @@ function parseWhileStatement(state, context, scope) {
 }
 function parseContinueStatement(state, context) {
     const { startIndex: start, startLine: line, startColumn: column } = state;
-    scanSingleToken(state, context);
+    scanSingleToken(state, context | 32768);
     let label = null;
     if (!(state.flags & 1) && state.token & 4096) {
         const tokenValue = state.tokenValue;
-        label = parseIdentifier(state, context);
+        label = parseIdentifier(state, context | 32768);
         validateContinueLabel(state, tokenValue);
     }
-    consumeSemicolon(state, context);
+    consumeSemicolon(state, context | 32768);
     if (label === null && state.iterationStatement === 0 && state.switchStatement === 0) {
         report(state, 39);
     }
@@ -7842,17 +7842,17 @@ function parseContinueStatement(state, context) {
 }
 function parseBreakStatement(state, context) {
     const { startIndex: start, startLine: line, startColumn: column } = state;
-    scanSingleToken(state, context);
+    scanSingleToken(state, context | 32768);
     let label = null;
     if (!(state.flags & 1) && state.token & 4096) {
         const tokenValue = state.tokenValue;
-        label = parseIdentifier(state, context);
+        label = parseIdentifier(state, context | 32768);
         validateBreakStatement(state, tokenValue);
     }
     else if (state.iterationStatement === 0 && state.switchStatement === 0) {
         report(state, 40);
     }
-    consumeSemicolon(state, context);
+    consumeSemicolon(state, context | 32768);
     return finishNode(state, context, start, line, column, {
         type: 'BreakStatement',
         label
@@ -7865,7 +7865,7 @@ function parseWithStatement(state, context, scope) {
     scanSingleToken(state, context);
     expect(state, context | 32768, 131083);
     const object = parseExpressions(state, (context | 8192) ^ 8192);
-    expect(state, context, 16);
+    expect(state, context | 32768, 16);
     const body = parseStatement(state, (context | 4096) ^ 4096, scope, false);
     return finishNode(state, context, start, line, column, {
         type: 'WithStatement',
@@ -7875,18 +7875,20 @@ function parseWithStatement(state, context, scope) {
 }
 function parseDebuggerStatement(state, context) {
     const { startIndex: start, startLine: line, startColumn: column } = state;
-    scanSingleToken(state, context);
-    consumeSemicolon(state, context);
+    scanSingleToken(state, context | 32768);
+    consumeSemicolon(state, context | 32768);
     return finishNode(state, context, start, line, column, {
         type: 'DebuggerStatement'
     });
 }
 function parseTryStatement(state, context, scope) {
     const { startIndex: start, startLine: line, startColumn: column } = state;
-    scanSingleToken(state, context);
-    const block = parseBlockStatement(state, context, createSubScope(scope, 1));
-    const handler = optional(state, context, 20556) ? parseCatchBlock(state, context, scope) : null;
-    const finalizer = optional(state, context, 20565)
+    scanSingleToken(state, context | 32768);
+    const block = parseBlockStatement(state, context | 32768, createSubScope(scope, 1));
+    const handler = optional(state, context | 32768, 20556)
+        ? parseCatchBlock(state, context, scope)
+        : null;
+    const finalizer = optional(state, context | 32768, 20565)
         ? parseBlockStatement(state, (context | 4096) ^ 4096, createSubScope(scope, 1))
         : null;
     if (!handler && !finalizer)
@@ -7902,7 +7904,7 @@ function parseCatchBlock(state, context, scope) {
     let param = null;
     let secondScope = scope;
     const { startIndex: start, startLine: line, startColumn: column } = state;
-    if (optional(state, context, 131083)) {
+    if (optional(state, context | 32768, 131083)) {
         const catchScope = createSubScope(scope, 4);
         param = parseBindingIdentifierOrPattern(state, context, catchScope, 1, 16, false);
         if (checkIfLexicalAlreadyBound(state, context, catchScope, 0, true))
@@ -7925,10 +7927,10 @@ function parseDoWhileStatement(state, context, scope) {
     const body = parseStatement(state, (context | 4096) ^ 4096, scope, false);
     state.iterationStatement = previousIterationStatement;
     expect(state, context, 20577);
-    expect(state, context, 131083);
+    expect(state, context | 32768, 131083);
     const test = parseExpressions(state, (context | 8192) ^ 8192);
-    expect(state, context, 16);
-    optional(state, context, 536870929);
+    expect(state, context | 32768, 16);
+    optional(state, context | 32768, 536870929);
     return finishNode(state, context, start, line, column, {
         type: 'DoWhileStatement',
         body,
@@ -7954,7 +7956,7 @@ function parseForStatement(state, context, scope) {
     scanSingleToken(state, context);
     const forAwait = context & 4194304 ? optional(state, context, 667757) : false;
     scope = createSubScope(scope, 2);
-    expect(state, context, 131083);
+    expect(state, context | 32768, 131083);
     let init = null;
     let declarations = null;
     let test = null;
@@ -8018,7 +8020,7 @@ function parseForStatement(state, context, scope) {
             reinterpret(state, init);
         }
         right = parseAssignmentExpression(state, (context | 8192) ^ 8192);
-        expect(state, context, 16);
+        expect(state, context | 32768, 16);
         const previousIterationStatement = state.iterationStatement;
         state.iterationStatement = 1;
         const body = parseStatement(state, (context | 4096) ^ 4096, scope, false);
@@ -8043,7 +8045,7 @@ function parseForStatement(state, context, scope) {
             reinterpret(state, init);
         }
         right = parseExpressions(state, (context | 8192) ^ 8192);
-        expect(state, context, 16);
+        expect(state, context | 32768, 16);
         const previousIterationStatement = state.iterationStatement;
         state.iterationStatement = 1;
         const body = parseStatement(state, (context | 4096) ^ 4096, scope, false);
@@ -8064,13 +8066,13 @@ function parseForStatement(state, context, scope) {
     if (state.token === 12402) {
         report(state, 0);
     }
-    expect(state, context, 536870929);
+    expect(state, context | 32768, 536870929);
     if (state.token !== 536870929)
         test = parseExpressions(state, context);
-    expect(state, context, 536870929);
+    expect(state, context | 32768, 536870929);
     if (state.token !== 16)
         update = parseExpressions(state, (context | 8192) ^ 8192);
-    expect(state, context, 16);
+    expect(state, context | 32768, 16);
     const previousIterationStatement = state.iterationStatement;
     state.iterationStatement = 1;
     const body = parseStatement(state, (context | 4096) ^ 4096, scope, false);
@@ -8109,7 +8111,7 @@ function parseExpressionOrLabelledStatement(state, context, scope, allowFunction
             body
         });
     }
-    consumeSemicolon(state, context);
+    consumeSemicolon(state, context | 32768);
     return finishNode(state, context, start, line, column, {
         type: 'ExpressionStatement',
         expression: expr
@@ -8120,7 +8122,7 @@ function parseDirective(state, context, scope) {
         return parseStatementListItem(state, context, scope);
     const { startIndex, tokenRaw, startLine, startColumn } = state;
     const expression = parseExpressions(state, context);
-    consumeSemicolon(state, context);
+    consumeSemicolon(state, context | 32768);
     return finishNode(state, context, startIndex, startLine, startColumn, {
         type: 'ExpressionStatement',
         expression,
@@ -8131,7 +8133,7 @@ function parseVariableStatement(state, context, type, origin, scope) {
     const { token, startIndex: start, startLine: line, startColumn: column } = state;
     scanSingleToken(state, context);
     const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
-    consumeSemicolon(state, context);
+    consumeSemicolon(state, context | 32768);
     return finishNode(state, context, start, line, column, {
         type: 'VariableDeclaration',
         kind: KeywordDescTable[token & 255],
