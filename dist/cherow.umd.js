@@ -5699,7 +5699,7 @@
   function parseFunctionBody(state, context, scope, firstRestricted, origin) {
       const body = [];
       const { startIndex: start, startLine: line, startColumn: column } = state;
-      expect(state, context, 131084);
+      expect(state, context | 32768, 131084);
       const prevContext = context;
       context = context | (4096 | 134217728);
       while (state.token === 131075) {
@@ -7709,7 +7709,7 @@
   function parseBlockStatement(state, context, scope) {
       const body = [];
       const { startIndex: start, startLine: line, startColumn: column } = state;
-      scanSingleToken(state, context);
+      expect(state, context | 32768, 131084);
       while (state.token !== 536870927) {
           body.push(parseStatementListItem(state, context, scope));
       }
