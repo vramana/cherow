@@ -230,7 +230,7 @@ export function parseExpressionStatement(state: ParserState, context: Context): 
 export function parseBlockStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.BlockStatement {
   const body: ESTree.Statement[] = [];
   const { startIndex: start, startLine: line, startColumn: column } = state;
-  scanSingleToken(state, context);
+  expect(state, context | Context.AllowPossibleRegEx, Token.LeftBrace);
   while (state.token !== Token.RightBrace) {
     body.push(parseStatementListItem(state, context, scope));
   }

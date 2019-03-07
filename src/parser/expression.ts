@@ -171,7 +171,7 @@ export function parseFunctionBody(
   const body: any[] = [];
   const { startIndex: start, startLine: line, startColumn: column } = state;
 
-  expect(state, context, Token.LeftBrace);
+  expect(state, context | Context.AllowPossibleRegEx, Token.LeftBrace);
 
   const prevContext = context;
 
