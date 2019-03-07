@@ -104,9 +104,8 @@ export function parseFormalParameters(
       left = parseAssignmentPattern(state, context, left, start, line, column);
     }
     params.push(left);
-
-    if (optional(state, context, Token.Comma)) {
-      if ((state.token as Token) === Token.Comma) break;
+    if ((state.token as Token) !== Token.RightParen) {
+      expect(state, context, Token.Comma);
     }
   }
   if (objState & Modifiers.Setter && params.length !== 1) {
