@@ -1842,8 +1842,8 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
           if (optional(state, context, Token.Multiply)) modifier |= Modifiers.Generator;
           tokenValue = state.tokenValue;
           if (state.token & Token.IsIdentifier) {
-            key = parseIdentifier(state, context);
             if (state.flags & Flags.NewLine) report(state, Errors.InvalidLineBreak, 'async');
+            key = parseIdentifier(state, context);
           } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
             key = parseLiteral(state, context);
           } else if (state.token === Token.LeftBracket) {
