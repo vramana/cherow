@@ -104,9 +104,8 @@ export function parseFormalParameters(
       left = parseAssignmentPattern(state, context, left, start, line, column);
     }
     params.push(left);
-
-    if (optional(state, context, Token.Comma)) {
-      if ((state.token as Token) === Token.Comma) break;
+    if ((state.token as Token) !== Token.RightParen) {
+      expect(state, context, Token.Comma);
     }
   }
   if (objState & Modifiers.Setter && params.length !== 1) {
@@ -1842,8 +1841,8 @@ function parseClassElementList(state: ParserState, context: Context, modifier: M
           if (optional(state, context, Token.Multiply)) modifier |= Modifiers.Generator;
           tokenValue = state.tokenValue;
           if (state.token & Token.IsIdentifier) {
-            key = parseIdentifier(state, context);
             if (state.flags & Flags.NewLine) report(state, Errors.InvalidLineBreak, 'async');
+            key = parseIdentifier(state, context);
           } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
             key = parseLiteral(state, context);
           } else if (state.token === Token.LeftBracket) {
