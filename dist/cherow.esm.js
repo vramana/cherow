@@ -5660,9 +5660,8 @@ function parseFormalParameters(state, context, scope, origin, objState) {
             left = parseAssignmentPattern(state, context, left, start, line, column);
         }
         params.push(left);
-        if (optional(state, context, 18)) {
-            if (state.token === 18)
-                break;
+        if (state.token !== 16) {
+            expect(state, context, 18);
         }
     }
     if (objState & 512 && params.length !== 1) {
@@ -6707,9 +6706,9 @@ function parseClassElementList(state, context, modifier) {
                         modifier |= 8;
                     tokenValue = state.tokenValue;
                     if (state.token & 274432) {
-                        key = parseIdentifier(state, context);
                         if (state.flags & 1)
                             report(state, 103, 'async');
+                        key = parseIdentifier(state, context);
                     }
                     else if (state.token === 131074 || state.token === 131075) {
                         key = parseLiteral(state, context);
