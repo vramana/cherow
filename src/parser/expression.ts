@@ -287,6 +287,7 @@ function parseYieldExpression(
     report(state, Errors.YieldInParameter);
   }
   expect(state, context | Context.AllowPossibleRegEx, Token.YieldKeyword);
+  state.flags = state.flags | Flags.SeenYield;
   let argument: ESTree.Expression | null = null;
   let delegate = false; // yield*
   if ((state.flags & Flags.NewLine) < 1) {
