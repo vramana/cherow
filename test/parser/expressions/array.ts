@@ -1,5 +1,5 @@
 import { Context } from '../../../src/common';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
@@ -90,6 +90,54 @@ for (const arg of [
   `[,,a,]`,
   `[,,,a]`,
   `[,,a,a]`,
+  `([...{x}]) => x`,
+  `[...{x}/y]`,
+  `[...{x}.foo] = x`,
+  `([...[x]]) => x`,
+  `[...[x]] = y`,
+  `[...[x]]`,
+  '[...[...a]]',
+  '[a, ...b]',
+  '[function* f() {}]',
+  '[[1,2], [3], []]',
+  '[1,2,,4,5]',
+  '[0, ...a];',
+  '[...iter];',
+  'a = [,] = b = [] = c[9]',
+  'a = [(b), (c), (d)]',
+  'a = [(b) => {}, (c) => {}, (d) => { [b]}]',
+  'a = [(b) => {}, [(b) => {}, (c) => {}, (d) => { [b]}]]',
+  'a = [,]',
+  'a = [,]',
+  'a = [a = [,],a = [a = [,],a = [,]]]',
+  'async = [,]',
+  `async ([[[]]]) => [[,,a,a=> {}]]`,
+  `[[,,a,a=> {}]]`,
+  `[[,,a=> {},a]]`,
+  `[[a=> {},,a,]]`,
+  `[[] = [9], {} = [], c = d, [,,a,a=> {}]]`,
+  `[[,,a,a=> {}]]`,
+  '([].x);',
+  '[...this, y];',
+  '[...x, y];',
+  '[...x];',
+  '[...x] = y;',
+  '[...this];',
+  '[...new x];',
+  '[...x = x];',
+  '([...x=y])',
+  'async([].x);',
+  '[...[a]=1]',
+  '[...[1]]',
+  '[...[1], ..."foo" ]',
+  '[...[1], ...2 ]',
+  '[...[1], ..."foo", ]',
+  '({"foo": [x].foo}=y);',
+  '[...foo] = bar',
+  '[...a.b]=c',
+  '[...a.b] = c',
+  '([...a.b] = c)',
+  '([...[x]]) => x',
   '([].x);',
   'async([].x);',
   'async([].x) => x;'
@@ -118,8 +166,269 @@ for (const arg of [
     });
   });
 }
+fail('Expressions - Array (fail)', [
+  ['[...[1], ...1.a]', Context.Empty],
+  ['[...break]', Context.Empty],
+  ['[...break }', Context.Empty],
+  ['[...break :', Context.Empty],
+  ['[...break', Context.Empty],
+  [`[...this] = x;`, Context.Empty],
+  [`[...this] => x;`, Context.Empty],
+  //['async([].x) => x;', Context.Empty],
+  [`[x=await y]=z`, Context.Empty],
+  [`[x=await y]=z`, Context.Empty],
+  [`[.../x/ y]`, Context.Empty],
+  [`[...{a = b} = c] = x`, Context.Empty],
+  ['([...{a = b} = c]) => d;', Context.Empty],
+  ['[...{a = b} = c] = d;', Context.Empty],
+  ['result = [...{ x = yield }] = y;', Context.Strict],
+  ['[true = x] = x', Context.Empty],
+  ['(...)', Context.Empty],
+  ['[...this, y] = foo;', Context.Empty],
+  ['[{..}, x]', Context.Empty],
+  ['[{..}, x]', Context.Empty],
+  ['[{..}]', Context.Empty],
+  ['[{..}.x]', Context.Empty],
+  ['[...true] = x', Context.Empty],
+  ['[...true] => x', Context.Empty],
+  ['[...new] = x', Context.Empty],
+  ['[..."foo"=x] = x', Context.Empty],
+  ['[...[a](1)=2] = 3', Context.Empty],
+  ['[...[a](1)] = 3', Context.Empty],
+  ['[...[a].1] = 3', Context.Empty],
+  ['[...[1], "a"(b)] = x', Context.Empty],
+  ['[...[1], ["a"](b)] = x', Context.Empty],
+  ['[...]', Context.Empty],
+  ['[..."x"=b]', Context.Empty],
+  ['[...a=b] = x', Context.Empty],
+  ['[..."foo".foo=x] = x', Context.Empty],
+  ['[x, y, ...z = arr] = obj', Context.Empty],
+  ['[x, y, ...z = arr] = x = obj', Context.Empty],
+  ['[..."foo"+bar] = x', Context.Empty],
+  ['[...[a](1)] = 3', Context.Empty],
+  ['[...[x].map(y, z)] = a;', Context.Empty],
+  ['[ ...([a] = []) = a;', Context.Empty],
+  ['[ x += x ] = a;', Context.Empty],
+  ['[...++x] = a;', Context.Empty],
+  ['[...x--] = a;', Context.Empty],
+  ['[true = x]', Context.Empty],
+  ['[this] = x', Context.Empty],
+  ['[false] = x', Context.Empty],
+  ['[false] = x', Context.Empty],
+  ['[function(){}] = x', Context.Empty],
+  ['(...)', Context.Empty],
+  ['[...this, y] = foo;', Context.Empty],
+  ['[{..}, x]', Context.Empty],
+  ['[{..}, x]', Context.Empty],
+  ['[{..}]', Context.Empty],
+  ['[{..}.x]', Context.Empty],
+  ['[{..}=x]', Context.Empty],
+  ['[...!x] = a;', Context.Empty],
+  ['[...x + y] = a;', Context.Empty],
+  ['[...z = 1] = a;', Context.Empty],
+  ['[x, y, ...z = 1] = a;', Context.Empty],
+  ['[...x,] = a;', Context.Empty],
+  ['[x, ...y, z] = a;', Context.Empty],
+  ['[async(x,y) => z] = a;', Context.Empty],
+  ['[--x = 1] = a;', Context.Empty],
+  ['[x()] = a;', Context.Empty],
+  ['[this = 1] = a;', Context.Empty],
+  ['[x--] = a;', Context.Empty],
+  ['[--x = 1] = a;', Context.Empty],
+  //['[async x => z] = a;', Context.Empty],
+  ['[x, y, ...[z] = [1]] = a;', Context.Empty],
+  ['[...[z] = [1]] = a;', Context.Empty],
+  ['[...rest, x] = x', Context.Empty],
+  ['[a,b,...rest, x] = x', Context.Empty],
+  ['[...rest,] = x', Context.Empty],
+  ['[a,b,...rest,...rest1] = x', Context.Empty],
+  ['[a,,..rest,...rest1]  = x ', Context.Empty],
+  ['{...[ x = 5 ] }', Context.Empty],
+  ['{...[x] } = x', Context.Empty],
+  ['{...[ x = 5 ] }', Context.Empty],
+  ['{...[ x = 5 ] }', Context.Empty],
+  ['[x + y] = x', Context.Empty],
+  ['x, [foo + y, bar] = doo', Context.Empty],
+  ['[50] = a;', Context.Empty],
+  ['[0,{a=0}] = 0', Context.Empty],
+  ['[0] = 0', Context.Empty],
+  ['[x[yield]]] = value;', Context.Empty],
+  ['[[(x, y)]] = x;', Context.Empty],
+  ['[...[(x, y)]] = x;', Context.Empty],
+  ['[ ...[ ( [ a ] ) ] ] = a;', Context.Empty],
+  ['[(foo())] = a;', Context.Empty],
+  ['[ ([a]) ] = a;', Context.Empty],
+  ['[ (++y) ] = a;', Context.Empty],
+  ['([this]) => x;', Context.Empty]
+]);
 
 pass('Expressions - Array (pass)', [
+  [
+    '[x = true] = y',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  right: {
+                    type: 'Literal',
+                    value: true
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[[x] = true] = y',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'Literal',
+                    value: true
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[[x = true] = true] = y',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        right: {
+                          type: 'Literal',
+                          value: true
+                        }
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'Literal',
+                    value: true
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '["foo".foo] = x',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Literal',
+                    value: 'foo'
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ]
+    }
+  ],
   [
     '[a]',
     Context.Empty,

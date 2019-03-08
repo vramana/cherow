@@ -226,10 +226,7 @@ export function parseFunctionBody(
   });
 }
 
-export function parseExpressions(
-  state: ParserState,
-  context: Context
-): ESTree.AssignmentExpression | ESTree.SequenceExpression {
+export function parseExpressions(state: ParserState, context: Context): any {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   const expr = secludeGrammar(state, context, 0, parseAssignmentExpression);
   if (state.token !== Token.Comma) return expr;
