@@ -174,10 +174,9 @@ export function parseFunctionBody(
 
   const prevContext = context;
 
-  context = context | (Context.TopLevel | Context.AllowReturn);
-
   while (state.token === Token.StringLiteral) {
     if (state.index - state.startIndex < 13 && state.tokenValue === 'use strict') {
+      // TODO: (fkleuver) remove this from the hot loop
       if (state.flags & Flags.SimpleParameterList) report(state, Errors.IllegalUseStrict);
       context |= Context.Strict;
     }
@@ -193,9 +192,7 @@ export function parseFunctionBody(
       report(state, Errors.StrictFunctionName);
   }
 
-  state.flags =
-    (state.flags | (Flags.StrictEvalArguments | Flags.HasStrictReserved)) ^
-    (Flags.StrictEvalArguments | Flags.HasStrictReserved);
+  context = context | (Context.TopLevel | Context.AllowReturn);
 
   if ((prevContext & Context.Strict) < 1 && (context & Context.Strict) > 0)
     validateFunctionArgs(state, scope.lex['@'], false);
@@ -223,16 +220,16 @@ export function parseFunctionBody(
     Token.RightBrace
   );
 
-  // Either '=' or '=>' after blockstatement
-  if (state.token === Token.Assign || state.token === Token.Arrow) report(state, Errors.InvalidAssignmentTarget);
-
   return finishNode(state, context, start, line, column, {
     type: 'BlockStatement',
     body
   });
 }
 
-export function parseExpressions(state: ParserState, context: Context): any {
+export function parseExpressions(
+  state: ParserState,
+  context: Context
+): ESTree.AssignmentExpression | ESTree.SequenceExpression {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   const expr = secludeGrammar(state, context, 0, parseAssignmentExpression);
   if (state.token !== Token.Comma) return expr;
