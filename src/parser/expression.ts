@@ -174,10 +174,9 @@ export function parseFunctionBody(
 
   const prevContext = context;
 
-  context = context | (Context.TopLevel | Context.AllowReturn);
-
   while (state.token === Token.StringLiteral) {
     if (state.index - state.startIndex < 13 && state.tokenValue === 'use strict') {
+      // TODO: (fkleuver) remove this from the hot loop
       if (state.flags & Flags.SimpleParameterList) report(state, Errors.IllegalUseStrict);
       context |= Context.Strict;
     }
@@ -193,9 +192,7 @@ export function parseFunctionBody(
       report(state, Errors.StrictFunctionName);
   }
 
-  state.flags =
-    (state.flags | (Flags.StrictEvalArguments | Flags.HasStrictReserved)) ^
-    (Flags.StrictEvalArguments | Flags.HasStrictReserved);
+  context = context | (Context.TopLevel | Context.AllowReturn);
 
   if ((prevContext & Context.Strict) < 1 && (context & Context.Strict) > 0)
     validateFunctionArgs(state, scope.lex['@'], false);
@@ -222,9 +219,6 @@ export function parseFunctionBody(
     origin & (Origin.Arrow | Origin.Declaration) ? context | Context.AllowPossibleRegEx : context,
     Token.RightBrace
   );
-
-  // Either '=' or '=>' after blockstatement
-  if (state.token === Token.Assign || state.token === Token.Arrow) report(state, Errors.InvalidAssignmentTarget);
 
   return finishNode(state, context, start, line, column, {
     type: 'BlockStatement',
@@ -287,6 +281,7 @@ function parseYieldExpression(
     report(state, Errors.YieldInParameter);
   }
   expect(state, context | Context.AllowPossibleRegEx, Token.YieldKeyword);
+  state.flags = state.flags | Flags.SeenYield;
   let argument: ESTree.Expression | null = null;
   let delegate = false; // yield*
   if ((state.flags & Flags.NewLine) < 1) {

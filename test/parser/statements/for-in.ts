@@ -7,6 +7,12 @@ describe('Statements - For in', () => {
   fail('Statements - For in (fail)', [
     ['for (let in x) {}', Context.Strict],
     ['for (let x;;) { var x; }', Context.Empty],
+
+    ['for (var a = () => { return "a"} in {});', Context.Empty],
+    ['for (let x;;) { var x; }', Context.Empty],
+    ['for (let x;;) { var x; }', Context.Empty],
+    ['for (let x;;) { var x; }', Context.Empty],
+
     ['for (const x = y;;) { var x; }', Context.Empty],
     ['for (let x in y) { var x; }', Context.Empty],
     ['for (const x in y) { var x; }', Context.Empty],
