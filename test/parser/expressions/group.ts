@@ -13,7 +13,7 @@ describe('Expressions - Parenthesized', () => {
     'interface',
     'private',
     'public',
-    /* 'await', */ 'yield',
+    'yield',
     'static',
     'let'
   ]) {
