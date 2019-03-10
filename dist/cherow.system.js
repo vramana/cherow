@@ -2734,11 +2734,11 @@ System.register('cherow', [], function (exports, module) {
                   state.bindable = state.assignable = false;
                   return parseThisExpression(state, context);
               case 131091:
-                  return parseArrayLiteral(state, context & ~8192);
+                  return parseArrayLiteral(state, (context | 8192) ^ 8192);
               case 131083:
                   return parseParenthesizedExpression(state, context);
               case 131084:
-                  return parseObjectLiteral(state, context & ~8192, -1, 0);
+                  return parseObjectLiteral(state, (context | 8192) ^ 8192, -1, 0);
               case 151639:
                   state.bindable = state.assignable = false;
                   return parseFunctionExpression(state, context, false);
@@ -3270,8 +3270,7 @@ System.register('cherow', [], function (exports, module) {
           const properties = [];
           let objState = 0;
           const { assignable, bindable, pendingCoverInitializeError } = state;
-          state.bindable = true;
-          state.assignable = true;
+          state.bindable = state.assignable = true;
           state.pendingCoverInitializeError = null;
           while (state.token !== 536870927) {
               if (state.token === 14) {
@@ -3297,7 +3296,7 @@ System.register('cherow', [], function (exports, module) {
                           if (state.token === 8388637) {
                               state.pendingCoverInitializeError = 75;
                               expect(state, context, 8388637);
-                              value = parseAssignmentPattern(state, (context | 8192) ^ 8192, key, objStart, objLine, objColumn);
+                              value = parseAssignmentPattern(state, context, key, objStart, objLine, objColumn);
                           }
                           else {
                               value = key;
@@ -3311,19 +3310,15 @@ System.register('cherow', [], function (exports, module) {
                               else
                                   hasProto = true;
                           }
-                          if ((state.token & 524288) === 524288) {
-                              if (context & (1024 | 2048))
-                                  report(state, 0);
-                              if (context & 1048576) {
+                          if (context & 1048576) {
+                              if ((state.token & 524288) === 524288) {
                                   state.flags = state.flags | 4096;
                               }
-                          }
-                          else if ((state.token & 2097152) === 2097152) {
-                              if (context & 1048576) {
+                              else if ((state.token & 2097152) === 2097152) {
                                   state.flags = state.flags | 8192;
                               }
                           }
-                          value = acquireGrammar(state, (context | 8192) ^ 8192, 0, parseAssignmentExpression);
+                          value = acquireGrammar(state, context, 0, parseAssignmentExpression);
                       }
                       else if (state.token === 131091) {
                           key = parseComputedPropertyName(state, context);
@@ -3504,8 +3499,8 @@ System.register('cherow', [], function (exports, module) {
           });
       }
       function parseMethodDeclaration(state, context, objState) {
-          state.assignable = state.bindable = false;
           const { assignable, bindable, pendingCoverInitializeError } = state;
+          state.assignable = state.bindable = false;
           state.bindable = state.assignable = true;
           state.pendingCoverInitializeError = null;
           const result = parsePropertyMethod(state, context | 33554432, objState);
