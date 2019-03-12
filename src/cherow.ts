@@ -86,10 +86,14 @@ export const version = '2.0'; // TODO: (fkleuver) Add back Rollup replace plugin
  * @param context Context masks
  */
 
-export function parseSource(source: string, options: Options | void, context: Context): ESTree.Program {
+export function parseSource(
+  source: string,
+  options: Options | void,
+  context: Context,
+  isExprParsing?: boolean
+): ESTree.Program {
   let onComment: OnComment;
   let onToken: OnToken;
-  let sourceFile: string = '';
 
   if (options != null) {
     // The option to specify ecamVersion
@@ -152,17 +156,17 @@ export function parseSource(source: string, options: Options | void, context: Co
   // Prime the scanner
   scanSingleToken(state, context | Context.AllowPossibleRegEx);
 
-  if (context & Context.Expression) {
+  if (isExprParsing) {
     return parseExpressions(state, context);
   } else if (context & Context.Module) {
-    body = parseModuleItem(state, context | Context.TopLevel, scope);
+    body = parseModuleItem(state, context | Context.TopLevel | Context.InGlobal, scope);
     for (const key in state.exportedBindings) {
       if (key[0] === '@' && key !== '#default' && (scope.var[key] === undefined && scope.lex[key] === undefined)) {
         report(state, Errors.UndeclaredExportedBinding, key.slice(1));
       }
     }
   } else {
-    body = parseStatementList(state, context | Context.TopLevel, scope);
+    body = parseStatementList(state, context | Context.TopLevel | Context.InGlobal, scope);
   }
 
   const node: ESTree.Program = {
@@ -233,9 +237,5 @@ export function parseModule(source: string, options?: Options): ESTree.Program {
  * @param options parser options
  */
 export function parseExpression(source: string, options?: Options): ESTree.Program {
-  return parseSource(
-    source,
-    options,
-    options && options.module ? Context.Expression | Context.Strict | Context.Module : Context.Expression
-  );
+  return parseSource(source, options, options && options.module ? Context.Strict | Context.Module : 0, true);
 }

@@ -150,7 +150,7 @@ export function parseFunctionDeclaration(
 
   const body = parseFunctionBody(
     state,
-    context,
+    (context | Context.InGlobal) ^ Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     origin
@@ -248,7 +248,7 @@ export function parseHoistableFunctionDeclaration(
 
   const body = parseFunctionBody(
     state,
-    context,
+    (context | Context.InGlobal) ^ Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     undefined,
     Origin.None

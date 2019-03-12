@@ -192,7 +192,7 @@ export function parseFunctionBody(
       report(state, Errors.StrictFunctionName);
   }
 
-  context = context | (Context.TopLevel | Context.AllowReturn);
+  context = context | Context.TopLevel;
 
   if ((prevContext & Context.Strict) < 1 && (context & Context.Strict) > 0)
     validateFunctionArgs(state, scope.lex['@'], false);
@@ -569,8 +569,7 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
     });
   }
 
-  return (context & Context.AwaitContext ||
-    ((context & Context.AllowReturn) === 0 && context & Context.OptionsGlobalAwait)) &&
+  return (context & Context.AwaitContext || (context & Context.InGlobal && context & Context.OptionsGlobalAwait)) &&
     token & Token.IsAwait
     ? parseAwaitExpression(state, context, start, line, column)
     : parseUpdateExpression(state, context, start, line, column);
@@ -1520,7 +1519,7 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
 
   const body: any = parseFunctionBody(
     state,
-    context,
+    (context | Context.InGlobal) ^ Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     Origin.None
@@ -1578,7 +1577,7 @@ function parseArrowFunctionExpression(
     ? secludeGrammar(state, context, 0, parseAssignmentExpression)
     : parseFunctionBody(
         state,
-        (context | Context.TopLevel) ^ Context.TopLevel,
+        (context | Context.TopLevel | Context.InGlobal) ^ (Context.TopLevel | Context.InGlobal),
         createSubScope(scope, ScopeType.BlockStatement),
         state.tokenValue,
         Origin.Arrow
@@ -2273,7 +2272,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
 
   const body: any = parseFunctionBody(
     state,
-    context,
+    (context | Context.InGlobal) ^ Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     Origin.None
