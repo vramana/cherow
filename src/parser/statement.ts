@@ -372,16 +372,14 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
  * @param state Parser object
  * @param context Context masks
  */
+
 export function parseReturnStatement(state: ParserState, context: Context): ESTree.ReturnStatement {
-  if ((context & (Context.OptionsGlobalReturn | Context.AllowReturn)) < 1) report(state, Errors.IllegalReturn);
+  if ((context & Context.OptionsGlobalReturn) < 1 && context & Context.InGlobal) report(state, Errors.IllegalReturn);
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context | Context.AllowPossibleRegEx);
   const argument =
     (state.token & Token.ASI) < 1 && (state.flags & Flags.NewLine) < 1
-      ? parseExpressions(
-          state,
-          (context | Context.DisallowInContext) ^ (Context.DisallowInContext | Context.AllowReturn)
-        )
+      ? parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext)
       : null;
   consumeSemicolon(state, context | Context.AllowPossibleRegEx);
   return finishNode(state, context, start, line, column, {
