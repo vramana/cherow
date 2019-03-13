@@ -2119,7 +2119,7 @@ define(['exports'], function (exports) { 'use strict';
           if ((firstRestricted && firstRestricted === 'eval') || firstRestricted === 'arguments')
               report(state, 50);
       }
-      context = context | (4096 | 134217728);
+      context = context | 4096;
       if ((prevContext & 1024) < 1 && (context & 1024) > 0)
           validateFunctionArgs(state, scope.lex['@'], false);
       if (state.token !== 536870927) {
@@ -2329,8 +2329,7 @@ define(['exports'], function (exports) { 'use strict';
               prefix: true
           });
       }
-      return (context & 4194304 ||
-          ((context & 134217728) === 0 && context & 536870912)) &&
+      return (context & 4194304 || (context & 134217728 && context & 268435456)) &&
           token & 524288
           ? parseAwaitExpression(state, context, start, line, column)
           : parseUpdateExpression(state, context, start, line, column);
@@ -2864,7 +2863,7 @@ define(['exports'], function (exports) { 'use strict';
               67108864;
       const paramScoop = createSubScope(functionScope, 5);
       const params = parseFormalParameters(state, context, paramScoop, 64, 0);
-      const body = parseFunctionBody(state, context, createSubScope(paramScoop, 1), firstRestricted, 0);
+      const body = parseFunctionBody(state, (context | 134217728) ^ 134217728, createSubScope(paramScoop, 1), firstRestricted, 0);
       return finishNode(state, context, start, line, column, {
           type: 'FunctionExpression',
           params,
@@ -2895,7 +2894,7 @@ define(['exports'], function (exports) { 'use strict';
       const expression = state.token !== 131084;
       const body = expression
           ? secludeGrammar(state, context, 0, parseAssignmentExpression)
-          : parseFunctionBody(state, (context | 4096) ^ 4096, createSubScope(scope, 1), state.tokenValue, 1024);
+          : parseFunctionBody(state, (context | 4096 | 134217728) ^ (4096 | 134217728), createSubScope(scope, 1), state.tokenValue, 1024);
       return finishNode(state, context, start, line, column, {
           type: 'ArrowFunctionExpression',
           body,
@@ -3045,7 +3044,7 @@ define(['exports'], function (exports) { 'use strict';
               (8192 | 4096 | 64);
       if (!isValidSimpleAssignmentTarget(expr))
           state.assignable = false;
-      return context & 1073741824
+      return context & 536870912
           ? finishNode(state, context, start, line, column, {
               type: 'ParenthesizedExpression',
               expression: expr
@@ -3525,7 +3524,7 @@ define(['exports'], function (exports) { 'use strict';
               262144;
       const paramScoop = createSubScope(functionScope, 5);
       const params = parseFormalParameters(state, context, paramScoop, 64, objState);
-      const body = parseFunctionBody(state, context, createSubScope(paramScoop, 1), firstRestricted, 0);
+      const body = parseFunctionBody(state, (context | 134217728) ^ 134217728, createSubScope(paramScoop, 1), firstRestricted, 0);
       return finishNode(state, context, start, line, column, {
           type: 'FunctionExpression',
           params,
@@ -3844,7 +3843,7 @@ define(['exports'], function (exports) { 'use strict';
               67108864;
       const paramScoop = createSubScope(funcScope, 5);
       const params = parseFormalParameters(state, context, paramScoop, 64, 0);
-      const body = parseFunctionBody(state, context, createSubScope(paramScoop, 1), firstRestricted, origin);
+      const body = parseFunctionBody(state, (context | 134217728) ^ 134217728, createSubScope(paramScoop, 1), firstRestricted, origin);
       return finishNode(state, context, start, line, column, {
           type: 'FunctionDeclaration',
           params,
@@ -3914,7 +3913,7 @@ define(['exports'], function (exports) { 'use strict';
               67108864;
       const paramScoop = createSubScope(funcScope, 5);
       const params = parseFormalParameters(state, context, paramScoop, 64, 0);
-      const body = parseFunctionBody(state, context, createSubScope(paramScoop, 1), undefined, 0);
+      const body = parseFunctionBody(state, (context | 134217728) ^ 134217728, createSubScope(paramScoop, 1), undefined, 0);
       return finishNode(state, context, start, line, column, {
           type: 'FunctionDeclaration',
           params,
@@ -4187,12 +4186,12 @@ define(['exports'], function (exports) { 'use strict';
       });
   }
   function parseReturnStatement(state, context) {
-      if ((context & (64 | 134217728)) < 1)
+      if ((context & 64) < 1 && context & 134217728)
           report(state, 44);
       const { startIndex: start, startLine: line, startColumn: column } = state;
       scanSingleToken(state, context | 32768);
       const argument = (state.token & 536870912) < 1 && (state.flags & 1) < 1
-          ? parseExpressions(state, (context | 8192) ^ (8192 | 134217728))
+          ? parseExpressions(state, (context | 8192) ^ 8192)
           : null;
       consumeSemicolon(state, context | 32768);
       return finishNode(state, context, start, line, column, {
@@ -4799,7 +4798,7 @@ define(['exports'], function (exports) { 'use strict';
   }
 
   const version = '2.0';
-  function parseSource(source, options, context) {
+  function parseSource(source, options, context, isExprParsing) {
       let onComment;
       let onToken;
       if (options != null) {
@@ -4810,7 +4809,7 @@ define(['exports'], function (exports) { 'use strict';
           if (options.module)
               context |= 2048;
           if (options.parenthesizedExpr)
-              context |= 1073741824;
+              context |= 536870912;
           if (options.next)
               context |= 1;
           if (options.jsx)
@@ -4824,7 +4823,7 @@ define(['exports'], function (exports) { 'use strict';
           if (options.globalReturn)
               context |= 64;
           if (options.globalAwait)
-              context |= 536870912;
+              context |= 268435456;
           if (options.impliedStrict)
               context |= 1024;
           if (options.experimental)
@@ -4853,11 +4852,11 @@ define(['exports'], function (exports) { 'use strict';
       const scope = createScope(1);
       let body;
       scanSingleToken(state, context | 32768);
-      if (context & 268435456) {
+      if (isExprParsing) {
           return parseExpressions(state, context);
       }
       else if (context & 2048) {
-          body = parseModuleItem(state, context | 4096, scope);
+          body = parseModuleItem(state, context | 4096 | 134217728, scope);
           for (const key in state.exportedBindings) {
               if (key[0] === '@' && key !== '#default' && (scope.var[key] === undefined && scope.lex[key] === undefined)) {
                   report(state, 36, key.slice(1));
@@ -4865,7 +4864,7 @@ define(['exports'], function (exports) { 'use strict';
           }
       }
       else {
-          body = parseStatementList(state, context | 4096, scope);
+          body = parseStatementList(state, context | 4096 | 134217728, scope);
       }
       const node = {
           type: 'Program',
@@ -4894,7 +4893,7 @@ define(['exports'], function (exports) { 'use strict';
       return parseSource(source, options, 1024 | 2048);
   }
   function parseExpression(source, options) {
-      return parseSource(source, options, options && options.module ? 268435456 | 1024 | 2048 : 268435456);
+      return parseSource(source, options, options && options.module ? 1024 | 2048 : 0, true);
   }
 
   exports.version = version;
