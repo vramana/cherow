@@ -1495,7 +1495,7 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   }
 
   // @ts-ignore
-  context = (context & ~0x1EC0000) | Context.AllowNewTarget | generatorAndAsyncFlags;
+  context = ((context | 0x1EC0000) ^ 0x1EC0000) | Context.AllowNewTarget | generatorAndAsyncFlags;
 
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
@@ -1504,7 +1504,7 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
 
   const body: any = parseFunctionBody(
     state,
-    context & ~Context.InGlobal,
+    (context | Context.InGlobal) ^ Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     Origin.None
@@ -1555,14 +1555,14 @@ function parseArrowFunctionExpression(
   }
 
   // @ts-ignore
-  context = (context & ~0xF00000) | (isAsync * Context.AwaitContext);
+  context = ((context | 0xF00000) ^ 0xF00000) | (isAsync * Context.AwaitContext);
 
   const expression = state.token !== Token.LeftBrace;
   const body = expression
     ? secludeGrammar(state, context, 0, parseAssignmentExpression)
     : parseFunctionBody(
         state,
-        context & ~0x8001000,
+        (context | 0x8001000) ^ 0x8001000,
         createSubScope(scope, ScopeType.BlockStatement),
         state.tokenValue,
         Origin.Arrow
@@ -1584,7 +1584,7 @@ function parseArrowFunctionExpression(
  * @param context Context masks
  */
 export function parseParenthesizedExpression(state: ParserState, context: Context): any {
-  state.flags &= ~Flags.SimpleParameterList;
+  state.flags = (state.flags | Flags.SimpleParameterList) ^ Flags.SimpleParameterList;
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const scope = createScope(ScopeType.ArgumentList);
   context |= Context.ParentheziedContext;
@@ -1630,7 +1630,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
 
   let expr = acquireGrammar(
     state,
-    context & ~Context.DisallowInContext,
+    (context | Context.DisallowInContext) ^ Context.DisallowInContext,
     0,
     parseAssignmentExpression
   );
@@ -2238,7 +2238,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
 
   const body: any = parseFunctionBody(
     state,
-    context & ~Context.InGlobal,
+    (context | Context.InGlobal) ^ Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     void 0,
     Origin.None
@@ -2378,7 +2378,7 @@ export function parseComputedPropertyName(state: ParserState, context: Context):
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftBracket);
   const key: ESTree.Expression = secludeGrammar(
     state,
-    context & ~Context.DisallowInContext,
+    (context | Context.DisallowInContext) ^ Context.DisallowInContext,
     0,
     parseAssignmentExpression
   );

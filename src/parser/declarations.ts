@@ -47,7 +47,7 @@ export function parseClassDeclaration(
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   // class bodies are implicitly strict
-  context = (context & ~Context.InConstructor) | Context.Strict;
+  context = ((context | Context.InConstructor) ^ Context.InConstructor) | Context.Strict;
 
   let id: ESTree.Identifier | null = null;
   let superClass: ESTree.Expression | null = null;
@@ -64,7 +64,7 @@ export function parseClassDeclaration(
     superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
     context |= Context.SuperCall;
   } else {
-    context &= ~Context.SuperCall;
+    context = (context | Context.SuperCall) ^ Context.SuperCall;
   }
 
   const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.Declaration);
@@ -123,7 +123,7 @@ export function parseFunctionDeclaration(
   }
 
   // @ts-ignore
-  context = (context & ~0x1EC0000) | Context.AllowNewTarget | (isAsync * 2 + isGenerator) << 21;
+  context = ((context | 0x1EC0000) ^ 0x1EC0000) | Context.AllowNewTarget | (isAsync * 2 + isGenerator) << 21;
 
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
@@ -131,7 +131,7 @@ export function parseFunctionDeclaration(
 
   const body = parseFunctionBody(
     state,
-    context & ~Context.InGlobal,
+    context = (context | Context.InGlobal) ^ Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     origin
@@ -155,7 +155,7 @@ export function parseHostedClassDeclaration(
 ): ESTree.ClassDeclaration {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
-  context &= ~0x1000400;
+  context = (context | 0x1000400) ^ 0x1000400;
 
   let id: ESTree.Identifier | null = null;
   let superClass: ESTree.Expression | null = null;
@@ -178,7 +178,7 @@ export function parseHostedClassDeclaration(
     superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
     context |= Context.SuperCall;
   } else {
-    context &= ~Context.SuperCall;
+    context = (context | Context.SuperCall) ^ Context.SuperCall;
   }
 
   context |= Context.SuperProperty;
@@ -227,7 +227,7 @@ export function parseHoistableFunctionDeclaration(
   addToExportedBindings(state, name);
 
   // @ts-ignore
-  context = (context & ~0xE40000) | Context.AllowNewTarget | (isAsync * 2 + isGenerator) << 21;
+  context = ((context | 0xE40000) ^ 0xE40000) | Context.AllowNewTarget | (isAsync * 2 + isGenerator) << 21;
 
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
@@ -235,7 +235,7 @@ export function parseHoistableFunctionDeclaration(
 
   const body = parseFunctionBody(
     state,
-    context & ~Context.InGlobal,
+    (context | Context.InGlobal) ^ Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     undefined,
     Origin.None
