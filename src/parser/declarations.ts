@@ -211,23 +211,23 @@ export function parseHoistableFunctionDeclaration(
   let id: ESTree.Identifier | null = null;
   let name: string = '';
 
-  if (state.token & Token.IsIdentifier) {
+  if ((state.token & Token.IsIdentifier) === Token.IsIdentifier) {
     name = state.tokenValue;
     validateBindingIdentifier(state, context, Type.Let);
     addFunctionName(state, context, scope, Type.Let, Origin.None, true);
     funcScope = createSubScope(funcScope, ScopeType.BlockStatement);
     id = parseIdentifier(state, context);
-  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Function');
+  } else if ((context & Context.RequireIdentifier) === 0) {
+    report(state, Errors.DeclNoName, 'Function');
+  }
 
-  if ((origin & Origin.ExportDefault) === 0) addToExportedNamesAndCheckDuplicates(state, name);
+  if ((origin & Origin.ExportDefault) === 0) {
+    addToExportedNamesAndCheckDuplicates(state, name);
+  }
   addToExportedBindings(state, name);
 
-  context =
-    ((context | Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.SuperProperty) ^
-      (Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.SuperProperty)) |
-    (isAsync ? Context.AwaitContext : 0) |
-    (isGenerator ? Context.YieldContext : 0) |
-    Context.AllowNewTarget;
+  // @ts-ignore
+  context = (context & ~0xE40000) | Context.AllowNewTarget | (isAsync * 2 + isGenerator) << 21;
 
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
@@ -235,7 +235,7 @@ export function parseHoistableFunctionDeclaration(
 
   const body = parseFunctionBody(
     state,
-    (context | Context.InGlobal) ^ Context.InGlobal,
+    context & ~Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     undefined,
     Origin.None
@@ -245,7 +245,7 @@ export function parseHoistableFunctionDeclaration(
     type: 'FunctionDeclaration',
     params,
     body,
-    async: (context & Context.AwaitContext) > 0,
+    async: (context & Context.AwaitContext) === Context.AwaitContext,
     generator: isGenerator,
     id
   } as any);
@@ -312,15 +312,13 @@ export function parseVariableDeclarationList(
     ++bindingCount;
   }
 
-  if (origin & Origin.ForStatement && isInOrOf(state) && bindingCount > 1) {
+  if (bindingCount > 1 && (origin & Origin.ForStatement) === Origin.ForStatement
+    && (state.token & 0x1030) === 0x1030) {
     report(state, Errors.ForInOfLoopMultiBindings, KeywordDescTable[state.token & Token.Type]);
   }
   return list;
 }
 
-export function isInOrOf(state: ParserState): boolean {
-  return state.token === Token.InKeyword || state.token === Token.OfKeyword;
-}
 /**
  * VariableDeclaration :
  *   BindingIdentifier Initializeropt
@@ -353,19 +351,25 @@ function parseVariableDeclaration(
 
   if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
     init = secludeGrammar(state, context, 0, parseAssignmentExpression);
-    if (origin & Origin.ForStatement || isBinding) {
+    // @ts-ignore
+    if ((((origin & Origin.ForStatement) === Origin.ForStatement) + isBinding) > 0) {
       // https://github.com/tc39/test262/blob/master/test/annexB/language/statements/for-in/strict-initializer.js
       if (state.token === Token.InKeyword) {
         if (
           isBinding ||
-          ((type & Type.Variable) < 1 || ((context & Context.OptionsWebCompat) === 0 || context & Context.Strict))
+          (type & Type.Variable) === 0 ||
+          (context & Context.OptionsWebCompat) === 0 ||
+          (context & Context.Strict) === Context.Strict
         ) {
           report(state, Errors.ForInOfLoopInitializer);
         }
-      } else if (state.token === Token.OfKeyword) report(state, Errors.ForInOfLoopInitializer);
+      } else if (state.token === Token.OfKeyword) {
+        report(state, Errors.ForInOfLoopInitializer);
+      }
     }
-  } else if ((type & Type.Const || isBinding) && !isInOrOf(state)) {
-    report(state, Errors.DeclarationMissingInitializer, type & Type.Const ? 'const' : 'destructuring');
+    // @ts-ignore
+  } else if ((((type & Type.Const) === Type.Const) + isBinding) > 0 && (state.token & 0x1030) !== 0x1030) {
+    report(state, Errors.DeclarationMissingInitializer, (type & Type.Const) === Type.Const ? 'const' : 'destructuring');
   }
 
   return finishNode(state, context, start, line, column, {
