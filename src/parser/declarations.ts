@@ -155,25 +155,31 @@ export function parseHostedClassDeclaration(
 ): ESTree.ClassDeclaration {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
-  context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
+  context &= ~0x1000400;
 
   let id: ESTree.Identifier | null = null;
   let superClass: ESTree.Expression | null = null;
   let name = '';
-  if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
+  if ((state.token & 0x10FF ^ 0x54) > 0x1000) {
     name = state.tokenValue;
     validateBindingIdentifier(state, context, Type.ClassExprDecl);
     recordTokenValueAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, name);
     id = parseIdentifier(state, context);
-  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Class');
+  } else if ((context & Context.RequireIdentifier) === 0) {
+    report(state, Errors.DeclNoName, 'Class');
+  }
 
-  if (isNotDefault) addToExportedNamesAndCheckDuplicates(state, name);
+  if (isNotDefault) {
+    addToExportedNamesAndCheckDuplicates(state, name);
+  }
   addToExportedBindings(state, name);
 
   if (optional(state, context, Token.ExtendsKeyword)) {
     superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
     context |= Context.SuperCall;
-  } else context = (context | Context.SuperCall) ^ Context.SuperCall;
+  } else {
+    context &= ~Context.SuperCall;
+  }
 
   context |= Context.SuperProperty;
 
