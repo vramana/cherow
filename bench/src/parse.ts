@@ -62,10 +62,10 @@ const suite = new Benchmark.Suite(optionNames, { onCycle, onComplete });
 
 for (const name in files) {
   const source = files[name];
-  suite.add(`master ${name.padEnd(14, ' ')} ${optionNames}`, function () {
+  suite.add(`v1 ${name.padEnd(14, ' ')} ${optionNames}`, function () {
     v1.cherow.parse(source, options)
   });
-  suite.add(` local ${name.padEnd(14, ' ')} ${optionNames}`, function () {
+  suite.add(`v2 ${name.padEnd(14, ' ')} ${optionNames}`, function () {
     local.cherow.parse(source, options)
   });
 }
