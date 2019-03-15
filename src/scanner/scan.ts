@@ -16,7 +16,7 @@ import {
 } from './identifier';
 
 // Table of one-character tokens
-const oneCharTokens = new Array(128).fill(0) as Token[];
+const oneCharTokens = new Int32Array(128);
 
 // It's a table dispatch to avoid frequent branch prediction fails, and for
 // faster multi-character token lookup.
