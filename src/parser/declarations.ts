@@ -47,20 +47,25 @@ export function parseClassDeclaration(
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
   // class bodies are implicitly strict
-  context = (context | Context.Strict | Context.InConstructor) ^ Context.InConstructor;
+  context = (context & ~Context.InConstructor) | Context.Strict;
 
   let id: ESTree.Identifier | null = null;
   let superClass: ESTree.Expression | null = null;
-  if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
+  // Shortcut for `(state.token & Token.IsIdentifier) && state.token !== Token.ExtendsKeyword`
+  if ((state.token & 0x10FF ^ 0x54) > 0x1000) {
     validateBindingIdentifier(state, context | Context.Strict, Type.ClassExprDecl);
     recordTokenValueAndDeduplicate(state, context, scope, Type.Let, Origin.None, true, state.tokenValue);
     id = parseIdentifier(state, context);
-  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Class');
+  } else if ((context & Context.RequireIdentifier) === 0) {
+    report(state, Errors.DeclNoName, 'Class');
+  }
 
   if (optional(state, context, Token.ExtendsKeyword)) {
     superClass = secludeGrammarWithLocation(state, context, start, line, column, parseLeftHandSideExpression);
     context |= Context.SuperCall;
-  } else context = (context | Context.SuperCall) ^ Context.SuperCall;
+  } else {
+    context &= ~Context.SuperCall;
+  }
 
   const body = parseClassBodyAndElementList(state, context | Context.Strict, Origin.Declaration);
 
