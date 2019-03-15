@@ -1473,6 +1473,8 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   expect(state, context, Token.FunctionKeyword);
 
   const isGenerator = optional(state, context, Token.Multiply);
+  // @ts-ignore
+  const generatorAndAsyncFlags = (isAsync * 2 + isGenerator) << 21;
 
   // Create a new function scope
   let functionScope = createScope(ScopeType.BlockStatement);
@@ -1483,9 +1485,7 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   if (state.token & Token.IsIdentifier || state.token === Token.EscapedStrictReserved) {
     validateBindingIdentifier(
       state,
-      ((context | (Context.YieldContext | Context.AwaitContext)) ^ (Context.YieldContext | Context.AwaitContext)) |
-        (context & Context.Strict ? Context.YieldContext : isGenerator ? Context.YieldContext : 0) |
-        (context & Context.Module ? Context.AwaitContext : isAsync ? Context.AwaitContext : 0),
+      ((context & 0xC00) << 11) | generatorAndAsyncFlags,
       Type.Variable
     );
     recordTokenValueAndDeduplicate(state, context, functionScope, Type.Variable, Origin.None, true, state.tokenValue);
@@ -1494,23 +1494,8 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
     id = parseIdentifier(state, context);
   }
 
-  context =
-    ((context |
-      Context.AwaitContext |
-      Context.YieldContext |
-      Context.InArgList |
-      Context.SuperProperty |
-      Context.SuperCall |
-      Context.InConstructor) ^
-      (Context.AwaitContext |
-        Context.YieldContext |
-        Context.InArgList |
-        Context.SuperProperty |
-        Context.SuperCall |
-        Context.InConstructor)) |
-    (isAsync ? Context.AwaitContext : 0) |
-    (isGenerator ? Context.YieldContext : 0) |
-    Context.AllowNewTarget;
+  // @ts-ignore
+  context = (context & ~0x1EC0000) | Context.AllowNewTarget | generatorAndAsyncFlags;
 
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
@@ -1519,7 +1504,7 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
 
   const body: any = parseFunctionBody(
     state,
-    (context | Context.InGlobal) ^ Context.InGlobal,
+    context & ~Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     Origin.None
@@ -1561,23 +1546,23 @@ function parseArrowFunctionExpression(
     expect(state, context | Context.AllowPossibleRegEx, Token.Arrow);
   } else {
     expect(state, context, Token.Arrow);
-    for (let i = 0; i < params.length; ++i) reinterpret(state, params[i]);
+    for (let i = 0; i < params.length; ++i) {
+      reinterpret(state, params[i]);
+    }
     if (checkIfLexicalAlreadyBound(state, context, scope, Origin.None, true)) {
       report(state, Errors.AlreadyDeclared, 'function argument');
     }
   }
 
-  context =
-    ((context | Context.AwaitContext | Context.InArgList | Context.YieldContext | Context.ParentheziedContext) ^
-      (Context.AwaitContext | Context.YieldContext | Context.InArgList | Context.ParentheziedContext)) |
-    (isAsync ? Context.AwaitContext : 0);
+  // @ts-ignore
+  context = (context & ~0xF00000) | (isAsync * Context.AwaitContext);
 
   const expression = state.token !== Token.LeftBrace;
   const body = expression
     ? secludeGrammar(state, context, 0, parseAssignmentExpression)
     : parseFunctionBody(
         state,
-        (context | Context.TopLevel | Context.InGlobal) ^ (Context.TopLevel | Context.InGlobal),
+        context & ~0x8001000,
         createSubScope(scope, ScopeType.BlockStatement),
         state.tokenValue,
         Origin.Arrow
@@ -1599,10 +1584,10 @@ function parseArrowFunctionExpression(
  * @param context Context masks
  */
 export function parseParenthesizedExpression(state: ParserState, context: Context): any {
-  state.flags = (state.flags | Flags.SimpleParameterList) ^ Flags.SimpleParameterList;
+  state.flags &= ~Flags.SimpleParameterList;
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const scope = createScope(ScopeType.ArgumentList);
-  context = context | Context.ParentheziedContext;
+  context |= Context.ParentheziedContext;
   if (optional(state, context, Token.RightParen)) {
     if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
     state.assignable = state.bindable = false;
@@ -1612,7 +1597,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
       params: []
     };
   } else if (state.token === Token.Ellipsis) {
-    state.flags = state.flags | Flags.SimpleParameterList;
+    state.flags |= Flags.SimpleParameterList;
     const rest = parseRestElement(state, context, scope, Type.ArgList, Origin.None);
     expect(state, context, Token.RightParen);
     if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
@@ -1645,7 +1630,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
 
   let expr = acquireGrammar(
     state,
-    (context | Context.DisallowInContext) ^ Context.DisallowInContext,
+    context & ~Context.DisallowInContext,
     0,
     parseAssignmentExpression
   );
@@ -2242,29 +2227,10 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
 
 function parsePropertyMethod(state: ParserState, context: Context, objState: Modifiers): ESTree.FunctionExpression {
   // Create a new function scope
-  let functionScope = createScope(ScopeType.BlockStatement);
-
-  let id: ESTree.Identifier | null = null;
-  let firstRestricted: string | undefined;
+  const functionScope = createScope(ScopeType.BlockStatement);
   const { startIndex: start, startLine: line, startColumn: column } = state;
 
-  context =
-    ((context |
-      Context.SuperProperty |
-      Context.AwaitContext |
-      Context.YieldContext |
-      Context.InArgList |
-      ((objState & Modifiers.Constructor) === 0 ? Context.InConstructor | Context.SuperCall : 0)) ^
-      (Context.AwaitContext |
-        Context.YieldContext |
-        Context.InArgList |
-        ((objState & Modifiers.Constructor) < 1 ? Context.InConstructor | Context.SuperCall : 0))) |
-    (objState & Modifiers.Async ? Context.AwaitContext : 0) |
-    (objState & Modifiers.Generator ? Context.YieldContext : 0) |
-    (objState & Modifiers.Constructor ? Context.InConstructor : 0) |
-    Context.AllowNewTarget |
-    Context.InMethod |
-    Context.SuperProperty;
+  context = ((context & ~((objState & Modifiers.Constructor) === 0 ? 0x1E80000 : 0xE00000))) | ((objState & 0x58) << 18) | 0x6040000;
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 
@@ -2272,9 +2238,9 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
 
   const body: any = parseFunctionBody(
     state,
-    (context | Context.InGlobal) ^ Context.InGlobal,
+    context & ~Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
-    firstRestricted,
+    void 0,
     Origin.None
   );
   return finishNode(state, context, start, line, column, {
@@ -2283,7 +2249,7 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
     body,
     async: (objState & Modifiers.Async) > 0,
     generator: (objState & Modifiers.Generator) > 0,
-    id
+    id: null
   });
 }
 
@@ -2412,7 +2378,7 @@ export function parseComputedPropertyName(state: ParserState, context: Context):
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftBracket);
   const key: ESTree.Expression = secludeGrammar(
     state,
-    (context | Context.DisallowInContext) ^ Context.DisallowInContext,
+    context & ~Context.DisallowInContext,
     0,
     parseAssignmentExpression
   );
