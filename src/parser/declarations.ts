@@ -96,7 +96,8 @@ export function parseFunctionDeclaration(
   const { startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
 
-  const isGenerator: boolean = (origin & Origin.Statement) < 1 && optional(state, context, Token.Multiply);
+  const noStatement = (origin & Origin.Statement) === 0;
+  const isGenerator = noStatement && optional(state, context, Token.Multiply);
 
   // Create a new function scope
   let funcScope = createScope(ScopeType.BlockStatement);
@@ -104,50 +105,25 @@ export function parseFunctionDeclaration(
   let id: ESTree.Identifier | null = null;
   let firstRestricted: string | undefined;
 
-  if (state.token & Token.IsIdentifier || state.token === Token.EscapedStrictReserved) {
-    validateBindingIdentifier(
-      state,
-      ((context | (Context.YieldContext | Context.AwaitContext)) ^ (Context.YieldContext | Context.AwaitContext)) |
-        (context & Context.Strict ? Context.YieldContext : context & Context.YieldContext ? Context.YieldContext : 0) |
-        (context & Context.Module ? Context.AwaitContext : context & Context.AwaitContext ? Context.AwaitContext : 0),
-      context & Context.TopLevel && (context & Context.Module) < 1 ? Type.Variable : Type.Let
-    );
+  if ((state.token & 0x107E) > 0) {
+    // @ts-ignore
+    const type = 4 - ((context & 0x1800) === 0x1000) * 2;
+    validateBindingIdentifier(state, context | ((context & 0xC00) << 11), type);
 
-    if (origin & Origin.Statement) {
+    if (!noStatement) {
       scope = createSubScope(scope, ScopeType.BlockStatement);
     }
-
-    addFunctionName(
-      state,
-      context,
-      scope,
-      context & Context.TopLevel && (context & Context.Module) < 1 ? Type.Variable : Type.Let,
-      origin,
-      true
-    );
+    addFunctionName(state, context, scope, type, origin, true);
 
     funcScope = createSubScope(funcScope, ScopeType.BlockStatement);
     firstRestricted = state.tokenValue;
     id = parseIdentifier(state, context);
-  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.DeclNoName, 'Function');
+  } else if ((context & Context.RequireIdentifier) === 0) {
+    report(state, Errors.DeclNoName, 'Function');
+  }
 
-  context =
-    ((context |
-      Context.AwaitContext |
-      Context.YieldContext |
-      Context.InArgList |
-      Context.SuperProperty |
-      Context.SuperCall |
-      Context.InConstructor) ^
-      (Context.AwaitContext |
-        Context.YieldContext |
-        Context.InArgList |
-        Context.SuperProperty |
-        Context.SuperCall |
-        Context.InConstructor)) |
-    (isAsync ? Context.AwaitContext : 0) |
-    (isGenerator ? Context.YieldContext : 0) |
-    Context.AllowNewTarget;
+  // @ts-ignore
+  context = (context & ~0x1EC0000) | Context.AllowNewTarget | (isAsync * 2 + isGenerator) << 21;
 
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
@@ -155,7 +131,7 @@ export function parseFunctionDeclaration(
 
   const body = parseFunctionBody(
     state,
-    (context | Context.InGlobal) ^ Context.InGlobal,
+    context & ~Context.InGlobal,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
     origin
@@ -165,7 +141,7 @@ export function parseFunctionDeclaration(
     type: 'FunctionDeclaration',
     params,
     body,
-    async: (context & Context.AwaitContext) > 0,
+    async: (context & Context.AwaitContext) === Context.AwaitContext,
     generator: isGenerator,
     id
   } as any);
