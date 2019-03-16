@@ -62,7 +62,7 @@ export function parseStatementListItem(state: ParserState, context: Context, sco
         ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, true)
         : report(state, Errors.InvalidImportExportSloppy, KeywordDescTable[state.token & Token.Type]);
     case Token.FunctionKeyword:
-      return parseFunctionDeclaration(state, context, scope, Origin.Declaration, false);
+      return parseFunctionDeclaration(state, context, scope, Origin.Declaration, 0);
     case Token.ClassKeyword:
       return parseClassDeclaration(state, context, scope);
     case Token.ConstKeyword:
@@ -91,7 +91,7 @@ function parseAsyncFunctionOrExpressionStatement(
   scope: ScopeState
 ): ReturnType<typeof parseFunctionDeclaration | typeof parseExpressionOrLabelledStatement> {
   return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-    ? parseFunctionDeclaration(state, context, scope, Origin.AsyncFunction, true)
+    ? parseFunctionDeclaration(state, context, scope, Origin.AsyncFunction, 1)
     : parseExpressionOrLabelledStatement(state, context, scope, false);
 }
 
@@ -319,7 +319,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
 function parseConsequentOrAlternate(state: ParserState, context: Context, scope: ScopeState): any {
   return context & Context.Strict || (context & Context.OptionsWebCompat) === 0 || state.token !== Token.FunctionKeyword
     ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, false)
-    : parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
+    : parseFunctionDeclaration(state, context, scope, Origin.Statement, 0);
 }
 
 /**
@@ -573,7 +573,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
   const { startIndex: start, startLine: line, startColumn: column } = state;
   if (optional(state, context | Context.AllowPossibleRegEx, Token.LeftParen)) {
     const catchScope = createSubScope(scope, ScopeType.CatchClause);
-    param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.ArgList, Origin.CatchClause, false);
+    param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.ArgList, Origin.CatchClause, 0);
     if (checkIfLexicalAlreadyBound(state, context, catchScope, Origin.None, true))
       report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
     expect(state, context, Token.RightParen);
@@ -695,7 +695,7 @@ function parseForStatement(
             context | Context.DisallowInContext,
             Type.Variable,
             Origin.ForStatement,
-            false,
+            0,
             scope
           )
         } as any);
@@ -704,7 +704,7 @@ function parseForStatement(
           init = finishNode(state, context, varStart, varLine, varColumn, {
             type: 'VariableDeclaration',
             kind,
-            declarations: parseVariableDeclarationList(state, context, Type.Let, Origin.ForStatement, true, scope)
+            declarations: parseVariableDeclarationList(state, context, Type.Let, Origin.ForStatement, 1, scope)
           } as any);
         } else if (context & Context.Strict) {
           report(state, Errors.Unexpected);
@@ -713,7 +713,7 @@ function parseForStatement(
           init = acquireGrammar(state, context | Context.DisallowInContext, 0, parseAssignmentExpression);
         }
       } else if (optional(state, context, Token.ConstKeyword)) {
-        declarations = parseVariableDeclarationList(state, context, Type.Const, Origin.ForStatement, false, scope);
+        declarations = parseVariableDeclarationList(state, context, Type.Const, Origin.ForStatement, 0, scope);
         if (checkIfLexicalAlreadyBound(state, context, scope, Origin.None, true))
           report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
         init = finishNode(state, context, varStart, varLine, varColumn, {
@@ -852,7 +852,7 @@ export function parseExpressionOrLabelledStatement(
       allowFunctionDeclarationAsStatement &&
       (state.token as Token) === Token.FunctionKeyword
     ) {
-      body = parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
+      body = parseFunctionDeclaration(state, context, scope, Origin.Statement, 0);
     } else
       body = parseStatement(
         state,
@@ -914,7 +914,7 @@ export function parseVariableStatement(
 ): ESTree.VariableDeclaration {
   const { token, startIndex: start, startLine: line, startColumn: column } = state;
   scanSingleToken(state, context);
-  const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
+  const declarations = parseVariableDeclarationList(state, context, type, origin, 0, scope);
   consumeSemicolon(state, context | Context.AllowPossibleRegEx);
   return finishNode(state, context, start, line, column, {
     type: 'VariableDeclaration',

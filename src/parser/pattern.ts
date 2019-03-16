@@ -31,7 +31,7 @@ export function parseBindingIdentifierOrPattern(
   scope: ScopeState,
   type: Type,
   origin: Origin,
-  verifyDuplicates: boolean
+  verifyDuplicates: 0 | 1
 ): ESTree.Pattern {
   switch (state.token) {
     case Token.LeftBrace:
@@ -57,7 +57,7 @@ export function parseBindingIdentifier(
   scope: ScopeState,
   type: Type,
   origin: Origin,
-  checkForDuplicates: boolean
+  checkForDuplicates: 0 | 1
 ): ESTree.Identifier {
   const { tokenValue: name, token, startIndex, startLine, startColumn } = state;
   if ((token & Token.IsIdentifier) === 0 && token !== Token.EscapedStrictReserved) report(state, Errors.NoIdent);
@@ -108,7 +108,7 @@ export function parseAssignmentRestElement(
   scope: ScopeState,
   type: Type,
   origin: Origin,
-  verifyDuplicates: boolean
+  verifyDuplicates: 0 | 1
 ): ESTree.RestElement {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context, Token.Ellipsis);
@@ -134,7 +134,7 @@ function AssignmentRestProperty(
   scope: ScopeState,
   type: Type,
   origin: Origin,
-  verifyDuplicates: boolean
+  verifyDuplicates: 0 | 1
 ): ESTree.RestElement {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context, Token.Ellipsis);
@@ -178,7 +178,7 @@ export function parseArrayAssignmentPattern(
   scope: ScopeState,
   type: Type,
   origin: Origin,
-  verifyDuplicates: boolean
+  verifyDuplicates: 0 | 1
 ): ESTree.ArrayPattern {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   expect(state, context, Token.LeftBracket);
@@ -220,7 +220,7 @@ export function parserObjectAssignmentPattern(
   scope: ScopeState,
   type: Type,
   origin: Origin,
-  verifyDuplicates: boolean
+  verifyDuplicates: 0 | 1
 ): ESTree.ObjectPattern {
   const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
   const { startIndex: start, startLine: line, startColumn: column } = state;
@@ -283,7 +283,7 @@ export function parseBindingInitializer(
   scope: ScopeState,
   type: Type,
   origin: Origin,
-  verifyDuplicates: boolean
+  verifyDuplicates: 0 | 1
 ): ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.MemberExpression | ESTree.AssignmentPattern {
   const { startIndex: start, startLine: line, startColumn: column } = state;
   const left: ESTree.Pattern = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
@@ -310,7 +310,7 @@ function parseAssignmentProperty(
   scope: ScopeState,
   type: Type,
   origin: Origin,
-  verifyDuplicates: boolean
+  verifyDuplicates: 0 | 1
 ): ESTree.AssignmentProperty {
   const { token, startIndex: start, startLine: line, startColumn: column } = state;
   let key: ESTree.Literal | ESTree.Identifier | ESTree.Expression | null;
@@ -329,7 +329,7 @@ function parseAssignmentProperty(
         addToExportedNamesAndCheckDuplicates(state, state.tokenValue);
         addToExportedBindings(state, state.tokenValue);
       }
-      recordTokenValue(state, context, scope, type, origin, false, false, tokenValue);
+      recordTokenValue(state, context, scope, type, origin, 0, false, tokenValue);
       const hasInitializer = optional(state, context, Token.Assign);
       value = hasInitializer ? parseAssignmentPattern(state, context, key, start, line, column) : key;
     } else value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);

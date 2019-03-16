@@ -1,7 +1,7 @@
 import * as Benchmark from 'benchmark';
 import * as path from 'path';
 import * as fs from 'fs';
-import { v1, local } from './cherow/index';
+import { master, local } from './cherow/index';
 
 const optionNames = process.argv.slice(2)[0];
 const options = optionNames.split(',').reduce(
@@ -63,10 +63,13 @@ const suite = new Benchmark.Suite(optionNames, { onCycle, onComplete });
 for (const name in files) {
   const source = files[name];
   suite.add(`v1 ${name.padEnd(14, ' ')} ${optionNames}`, function () {
-    v1.cherow.parse(source, options)
+    master.cherow.parse(source, options);
   });
+}
+for (const name in files) {
+  const source = files[name];
   suite.add(`v2 ${name.padEnd(14, ' ')} ${optionNames}`, function () {
-    local.cherow.parse(source, options)
+    local.cherow.parse(source, options);
   });
 }
 

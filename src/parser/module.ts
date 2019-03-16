@@ -90,13 +90,13 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
           context | Context.RequireIdentifier,
           scope,
           Origin.ExportDefault,
-          false
+          0
         );
         break;
       }
       // export default ClassDeclaration[Default]
       case Token.ClassKeyword:
-        declaration = parseHostedClassDeclaration(state, context | Context.RequireIdentifier, scope, true);
+        declaration = parseHostedClassDeclaration(state, context | Context.RequireIdentifier, scope, 1);
         break;
 
       // export default HoistableDeclaration[Default]
@@ -120,7 +120,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
     // See: https://www.ecma-international.org/ecma-262/9.0/index.html#sec-exports-static-semantics-exportedbindings
     addToExportedBindings(state, '*default*');
-    recordTokenValue(state, context, scope, Type.None, Origin.None, true, false, '*default*');
+    recordTokenValue(state, context, scope, Type.None, Origin.None, 1, false, '*default*');
 
     return finishNode(state, context, start, line, column, {
       type: 'ExportDefaultDeclaration',
@@ -213,7 +213,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
     }
 
     case Token.ClassKeyword:
-      declaration = parseHostedClassDeclaration(state, context, scope, false);
+      declaration = parseHostedClassDeclaration(state, context, scope, 0);
       break;
     case Token.LetKeyword:
       declaration = parseLexicalDeclaration(state, context, Type.Let, Origin.Export, scope);
@@ -229,12 +229,12 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       declaration = parseVariableStatement(state, context, Type.Variable, Origin.Export, scope);
       break;
     case Token.FunctionKeyword:
-      declaration = parseHoistableFunctionDeclaration(state, context, scope, Origin.Export, false);
+      declaration = parseHoistableFunctionDeclaration(state, context, scope, Origin.Export, 0);
       break;
     case Token.AsyncKeyword:
       scanSingleToken(state, context);
       if ((state.flags & Flags.NewLine) === 0 && (state.token as Token) === Token.FunctionKeyword) {
-        declaration = parseHoistableFunctionDeclaration(state, context, scope, Origin.Export, true);
+        declaration = parseHoistableFunctionDeclaration(state, context, scope, Origin.Export, 1);
         break;
       }
     // falls through
@@ -399,7 +399,7 @@ function parseImportNamespace(
   expect(state, context, Token.AsKeyword);
   // 'import * as class from "foo":'
   validateBindingIdentifier(state, context, Type.Const);
-  recordTokenValue(state, context, scope, Type.Const, Origin.None, true, false, state.tokenValue);
+  recordTokenValue(state, context, scope, Type.Const, Origin.None, 1, false, state.tokenValue);
   const local = parseIdentifier(state, context);
   specifiers.push(
     finishNode(state, context, start, line, column, {
@@ -442,6 +442,6 @@ export function parseAsyncFunctionOrAssignmentExpression(
   origin: Origin
 ): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
   return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-    ? parseHoistableFunctionDeclaration(state, context, scope, origin, true)
+    ? parseHoistableFunctionDeclaration(state, context, scope, origin, 1)
     : parseAssignmentExpression(state, context);
 }
