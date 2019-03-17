@@ -219,7 +219,7 @@ export function parseHoistableFunctionDeclaration(
   let id: ESTree.Identifier | null = null;
   let name: string = '';
 
-  if ((state.token & Token.IsIdentifier) === Token.IsIdentifier) {
+  if ((state.token & Token.IsIdentifier) > 0b0000000000001000000_0000_00000000) {
     name = state.tokenValue;
     validateBindingIdentifier(state, context, Type.Let);
     addFunctionName(state, context, scope, Type.Let, Origin.None, true);
