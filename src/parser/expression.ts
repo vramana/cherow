@@ -2229,11 +2229,13 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
   const functionScope = createScope(ScopeType.BlockStatement);
   const { startIndex: start, startLine: line, startColumn: column } = state;
 
-  context = ((context & ~((objState & Modifiers.Constructor) === 0
+  const modifierFlags = (objState & Modifiers.Constructor) === 0
     ? 0b0000001111010000000_0000_00000000
-    : 0b0000000111000000000_0000_00000000))) | ((objState
-    & 0b0000000000000000000_0000_01011000) << 18)
-    | 0b0000110000001000000_0000_00000000;
+    : 0b0000000111000000000_0000_00000000;
+
+  context = ((context | modifierFlags) ^ modifierFlags)
+    | ((objState & 0b0000000000000000000_0000_01011000) << 18)
+    |              0b0000110000001000000_0000_00000000;
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 
