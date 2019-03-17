@@ -1,5 +1,5 @@
 import * as cherow from 'cherow';
 
-export const v1 = {
+export const master = {
   cherow
 };

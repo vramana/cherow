@@ -320,6 +320,14 @@ export function optional(state: ParserState, context: Context, t: Token): boolea
   return false;
 }
 
+export function optionalBit(state: ParserState, context: Context, t: Token): 0 | 1 {
+  if (state.token === t) {
+    scanSingleToken(state, context);
+    return 1;
+  }
+  return 0;
+}
+
 export function expect(state: ParserState, context: Context, t: Token): void {
   if (state.token === t) {
     scanSingleToken(state, context);
@@ -367,7 +375,7 @@ export function recordTokenValue(
   scope: any,
   type: Type,
   origin: Origin,
-  checkDuplicates: boolean,
+  checkDuplicates: 0 | 1,
   isVarDecl: boolean,
   key: string
 ) {
@@ -409,7 +417,7 @@ export function recordTokenValue(
     }
   } else {
     const lex = scope.lex;
-    if (checkDuplicates) {
+    if (checkDuplicates === 1) {
       checkIfExistInParentScope(state, context, scope, origin, '@' + key);
       if (lex['@' + key] !== undefined) {
         if (checkIfAlreadyBound(scope, '@' + key, context, origin) === true) {
@@ -513,7 +521,7 @@ export function addFunctionName(
   origin: Origin,
   isVarDecl: boolean
 ) {
-  recordTokenValue(state, context, scope, type, origin, true, isVarDecl, state.tokenValue);
+  recordTokenValue(state, context, scope, type, origin, 1, isVarDecl, state.tokenValue);
   if (context & Context.OptionsWebCompat && !scope.lex.funcs['@' + state.tokenValue]) {
     scope.lex.funcs['@' + state.tokenValue] = true;
   }
@@ -840,7 +848,7 @@ export function recordTokenValueAndDeduplicate(
   isVarDecl: boolean,
   name: string
 ): void {
-  recordTokenValue(state, context, scope, type, origin, true, isVarDecl, name);
+  recordTokenValue(state, context, scope, type, origin, 1, isVarDecl, name);
   if (context & Context.OptionsWebCompat) {
     scope.lex.funcs['#' + state.tokenValue] = false;
   }

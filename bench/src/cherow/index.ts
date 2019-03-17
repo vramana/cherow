@@ -1,2 +1,2 @@
-export { v1 } from './v1';
+export { master } from './master';
 export { local } from './local';
