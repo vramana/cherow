@@ -4147,11 +4147,11 @@
       while (state.token !== 536870927) {
           let test = null;
           const { startIndex: subStart, startLine: subLine, startColumn: subColumn } = state;
-          if (optional(state, context, 20555)) {
+          if (optional(state, context | 32768, 20555)) {
               test = parseExpressions(state, (context | 8192) ^ 8192);
           }
           else {
-              expect(state, context, 20560);
+              expect(state, context | 32768, 20560);
               if (seenDefault)
                   report(state, 114);
               seenDefault = true;
@@ -4312,7 +4312,7 @@
       });
   }
   function parseCaseOrDefaultClauses(state, context, test, scope, start, line, column) {
-      expect(state, context, 21);
+      expect(state, context | 32768, 21);
       const consequent = [];
       while (state.token !== 20555 &&
           state.token !== 536870927 &&
