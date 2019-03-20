@@ -346,10 +346,10 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
   while (state.token !== Token.RightBrace) {
     let test: ESTree.Expression | null = null;
     const { startIndex: subStart, startLine: subLine, startColumn: subColumn } = state;
-    if (optional(state, context, Token.CaseKeyword)) {
+    if (optional(state, context | Context.AllowPossibleRegEx, Token.CaseKeyword)) {
       test = parseExpressions(state, (context | Context.DisallowInContext) ^ Context.DisallowInContext);
     } else {
-      expect(state, context, Token.DefaultKeyword);
+      expect(state, context | Context.AllowPossibleRegEx, Token.DefaultKeyword);
       if (seenDefault) report(state, Errors.DupDefault);
       seenDefault = true;
     }
@@ -633,7 +633,7 @@ export function parseCaseOrDefaultClauses(
   line: number,
   column: number
 ): ESTree.SwitchCase {
-  expect(state, context, Token.Colon);
+  expect(state, context | Context.AllowPossibleRegEx, Token.Colon);
   const consequent: ESTree.Statement[] = [];
   while (
     state.token !== Token.CaseKeyword &&
