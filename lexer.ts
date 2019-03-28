@@ -1,5 +1,5 @@
 import { Chars } from '../chars';
-import { Token } from '../token';
+import { Token, KeywordDescTable, descKeywordTable } from '../token';
 import { Parser } from '../common';
 
 export const enum CharacterKind {
@@ -281,7 +281,12 @@ export const OneCharToken = [
 ];
 
 
-export function nextToken(parser: Parser): Token {
+export function nextToken(parser: Parser): void {
+  parser.token = scanSingleToken(parser);
+
+}
+
+export function scanSingleToken(parser: Parser): Token {
   while (parser.index < parser.source.length) {
     const next = parser.source.charCodeAt(parser.index);
     if (next <= 127) {
@@ -300,6 +305,7 @@ export function nextToken(parser: Parser): Token {
         case Token.Semicolon:
         case Token.Comma:
         case Token.Complement:
+          parser.index++;
         case Token.Invalid:
         // One character tokens.
         return token;
@@ -322,8 +328,7 @@ export function nextToken(parser: Parser): Token {
             parser.index++;
         return Token.NumericLiteral;
         case Token.Identifier:
-          parser.index++;
-        return Token.Identifier;
+          return parseIdentifier(parser);
         case Token.WhiteSpace:
           parser.index++
         break;
@@ -331,4 +336,41 @@ export function nextToken(parser: Parser): Token {
     }
   }
   return Token.EndOfSource;
+}
+
+function parseIdentifier(state: Parser): Token {
+  let isEscaped = false;
+  let maybeKeyword = true;
+  let start = state.index;
+  if (state.source.charCodeAt(state.index) <= 127) {
+      if ((CharLookup[state.source.charCodeAt(state.index)] & CharacterKind.MultiChar) === 0) {
+          let scan_flags = CharLookup[state.source.charCodeAt(state.index)];
+          while (CharLookup[state.source.charCodeAt(state.index)] & CharacterKind.IdentifierPart) {
+              scan_flags |= CharLookup[state.source.charCodeAt(state.index++)];
+          }
+
+          if ((scan_flags & CharacterKind.MultiChar) !== CharacterKind.MultiChar) {
+              state.tokenValue = state.source.slice(start, state.index);
+              if ((scan_flags & CharacterKind.NoKeywordCandidate) === CharacterKind.NoKeywordCandidate) return Token.Identifier;
+              // All keywords are of length 2 ≥ length ≥ 10, so we optimize for that
+              const len = state.tokenValue.length;
+              if (len >= 2 && len <= 11) {
+                  const keyword: Token | undefined = descKeywordTable[state.tokenValue];
+                  if (keyword !== undefined) return keyword;
+              }
+              return Token.Identifier;
+          }
+
+          maybeKeyword = (scan_flags & CharacterKind.NoKeywordCandidate) !== 0;
+      } else {
+        isEscaped = true;
+        return Token.Invalid;
+    }
+  }
+
+  return scanIdentifierOrKeywordInnerSlow(state, isEscaped, maybeKeyword);
+}
+
+export function scanIdentifierOrKeywordInnerSlow(___: Parser, __: boolean, _: boolean): Token {
+  return Token.Identifier;
 }
