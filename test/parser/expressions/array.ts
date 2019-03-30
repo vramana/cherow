@@ -230,7 +230,8 @@ for (const arg of [
   '[...a[0]] = 0',
   '[...{ a }] = b',
   '[a,b=0,[c,...a[0]]={}]=0;',
-  '[a] = 0;'
+  '[a] = 0;',
+  '[1, /regex/g]'
 ]) {
   it(`${arg}`, () => {
     t.doesNotThrow(() => {
@@ -4118,6 +4119,36 @@ pass('Expressions - Array (pass)', [
                 right: {
                   type: 'Literal',
                   value: 2
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[a, /regexp/gi]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'Identifier',
+                name: 'a'
+              },
+              {
+                type: 'Literal',
+                value: {},
+                regex: {
+                  pattern: 'regexp',
+                  flags: 'gi'
                 }
               }
             ]
