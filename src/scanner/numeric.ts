@@ -30,11 +30,12 @@ export function returnBigIntOrNumericToken(state: ParserState): Token {
 export function scanNumeric(state: ParserState, context: Context, first: number): Token {
   state.tokenValue = 0;
   let digit = 9;
-  do {
+  while (isDigit(first)) {
     state.tokenValue = 10 * state.tokenValue + (first - Chars.Zero);
     advanceOne(state);
+    first = state.source.charCodeAt(state.index);
     --digit;
-  } while (isDigit((first = state.source.charCodeAt(state.index))));
+  }
 
   if (digit >= 0 && state.index < state.length && first !== Chars.Period && !isIdentifierStart(first)) {
     if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
