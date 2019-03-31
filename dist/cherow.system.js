@@ -673,11 +673,12 @@ System.register('cherow', [], function (exports, module) {
       function scanNumeric(state, context, first) {
           state.tokenValue = 0;
           let digit = 9;
-          do {
+          while (isDigit(first)) {
               state.tokenValue = 10 * state.tokenValue + (first - 48);
               advanceOne(state);
+              first = state.source.charCodeAt(state.index);
               --digit;
-          } while (isDigit((first = state.source.charCodeAt(state.index))));
+          }
           if (digit >= 0 && state.index < state.length && first !== 46 && !isIdentifierStart(first)) {
               if (context & 8)
                   state.tokenRaw = state.source.slice(state.startIndex, state.index);
@@ -2237,7 +2238,7 @@ System.register('cherow', [], function (exports, module) {
                       type = 64;
                       recordTokenValueAndDeduplicate(state, context, arrowScope, 1, 0, true, tokenValue);
                   }
-                  return parseArrowFunctionExpression(state, context, arrowScope, params, (type & 4) >> 2, start, line, column, type);
+                  return parseArrowFunctionExpression(state, context, arrowScope, params, ((type & 4) >> 2), start, line, column, type);
               }
           }
           let operator = 536870912;
@@ -2830,7 +2831,7 @@ System.register('cherow', [], function (exports, module) {
               }
               else {
                   elements.push(acquireGrammar(state, context, 0, parseAssignmentExpression));
-                  if (optional(state, context, 18)) {
+                  if (optional(state, context | 32768, 18)) {
                       if (state.token === 20) {
                           break;
                       }
@@ -2861,8 +2862,10 @@ System.register('cherow', [], function (exports, module) {
               firstRestricted = state.tokenValue;
               id = parseIdentifier(state, context);
           }
-          context = ((context | 32243712)
-              ^ 32243712) | 67108864 | generatorAndAsyncFlags;
+          context =
+              ((context | 32243712) ^ 32243712) |
+                  67108864 |
+                  generatorAndAsyncFlags;
           const paramScoop = createSubScope(functionScope, 5);
           const params = parseFormalParameters(state, context, paramScoop, 64, 0);
           const body = parseFunctionBody(state, (context | 134217728) ^ 134217728, createSubScope(paramScoop, 1), firstRestricted, 0);
@@ -2890,13 +2893,11 @@ System.register('cherow', [], function (exports, module) {
                   report(state, 30, 'function argument');
               }
           }
-          context = ((context | 15728640)
-              ^ 15728640) | isAsync << 22;
+          context = ((context | 15728640) ^ 15728640) | (isAsync << 22);
           const expression = state.token !== 131084;
           const body = expression
               ? secludeGrammar(state, context, 0, parseAssignmentExpression)
-              : parseFunctionBody(state, (context | 134221824)
-                  ^ 134221824, createSubScope(scope, 1), state.tokenValue, 1024);
+              : parseFunctionBody(state, (context | 134221824) ^ 134221824, createSubScope(scope, 1), state.tokenValue, 1024);
           return finishNode(state, context, start, line, column, {
               type: 'ArrowFunctionExpression',
               body,
@@ -3508,9 +3509,10 @@ System.register('cherow', [], function (exports, module) {
           const modifierFlags = (objState & 64) === 0
               ? 31981568
               : 14680064;
-          context = ((context | modifierFlags) ^ modifierFlags)
-              | ((objState & 88) << 18)
-              | 100925440;
+          context =
+              ((context | modifierFlags) ^ modifierFlags) |
+                  ((objState & 88) << 18) |
+                  100925440;
           const paramScoop = createSubScope(functionScope, 5);
           const params = parseFormalParameters(state, context, paramScoop, 64, objState);
           const body = parseFunctionBody(state, (context | 134217728) ^ 134217728, createSubScope(paramScoop, 1), void 0, 0);
