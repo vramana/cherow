@@ -367,7 +367,7 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
         context,
         arrowScope,
         params,
-        (type & Arrows.Async) >> 2 as 0 | 1,
+        ((type & Arrows.Async) >> 2) as 0 | 1,
         start,
         line,
         column,
@@ -1442,7 +1442,7 @@ export function parseArrayLiteral(state: ParserState, context: Context): ESTree.
       }
     } else {
       elements.push(acquireGrammar(state, context, 0, parseAssignmentExpression));
-      if (optional(state, context, Token.Comma)) {
+      if (optional(state, context | Context.AllowPossibleRegEx, Token.Comma)) {
         if ((state.token as Token) === Token.RightBracket) {
           break;
         }
@@ -1492,8 +1492,10 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
     id = parseIdentifier(state, context);
   }
 
-  context = ((context | 0b0000001111011000000_0000_00000000)
-                      ^ 0b0000001111011000000_0000_00000000) | Context.AllowNewTarget | generatorAndAsyncFlags;
+  context =
+    ((context | 0b0000001111011000000_0000_00000000) ^ 0b0000001111011000000_0000_00000000) |
+    Context.AllowNewTarget |
+    generatorAndAsyncFlags;
 
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
@@ -1552,16 +1554,14 @@ function parseArrowFunctionExpression(
     }
   }
 
-  context = ((context | 0b0000000111100000000_0000_00000000)
-                      ^ 0b0000000111100000000_0000_00000000) | isAsync << 22;
+  context = ((context | 0b0000000111100000000_0000_00000000) ^ 0b0000000111100000000_0000_00000000) | (isAsync << 22);
 
   const expression = state.token !== Token.LeftBrace;
   const body = expression
     ? secludeGrammar(state, context, 0, parseAssignmentExpression)
     : parseFunctionBody(
         state,
-        (context | 0b0001000000000000001_0000_00000000)
-                 ^ 0b0001000000000000001_0000_00000000,
+        (context | 0b0001000000000000001_0000_00000000) ^ 0b0001000000000000001_0000_00000000,
         createSubScope(scope, ScopeType.BlockStatement),
         state.tokenValue,
         Origin.Arrow
@@ -2229,13 +2229,15 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Mod
   const functionScope = createScope(ScopeType.BlockStatement);
   const { startIndex: start, startLine: line, startColumn: column } = state;
 
-  const modifierFlags = (objState & Modifiers.Constructor) === 0
-    ? 0b0000001111010000000_0000_00000000
-    : 0b0000000111000000000_0000_00000000;
+  const modifierFlags =
+    (objState & Modifiers.Constructor) === 0
+      ? 0b0000001111010000000_0000_00000000
+      : 0b0000000111000000000_0000_00000000;
 
-  context = ((context | modifierFlags) ^ modifierFlags)
-    | ((objState & 0b0000000000000000000_0000_01011000) << 18)
-    |              0b0000110000001000000_0000_00000000;
+  context =
+    ((context | modifierFlags) ^ modifierFlags) |
+    ((objState & 0b0000000000000000000_0000_01011000) << 18) |
+    0b0000110000001000000_0000_00000000;
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 

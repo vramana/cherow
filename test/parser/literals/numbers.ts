@@ -141,5 +141,44 @@ pass('Literal - Numbers (pass)', [
       ],
       sourceType: 'script'
     }
+  ],
+  [
+    '.123',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'Literal',
+            value: 0.123
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '-0.5',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            argument: {
+              type: 'Literal',
+              value: 0.5
+            },
+            operator: '-',
+            prefix: true,
+            type: 'UnaryExpression'
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
   ]
 ]);
