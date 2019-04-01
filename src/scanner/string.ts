@@ -1,7 +1,7 @@
 import { ParserState } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { toHex, nextChar } from './common';
+import { toHex, nextChar, fromCodePoint } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
 import { scanUnicodeEscape } from './identifier';
 
@@ -14,18 +14,17 @@ const enum Escape {
   OutOfRange = -5
 }
 
-export function scanString(state: ParserState): Token {
-  const quote = state.currentChar;
+export function scanString(state: ParserState, quote: number): Token {
   nextChar(state);
   state.tokenValue = '';
   let marker = state.index;
   while (state.index < state.source.length) {
-    if (state.source.charCodeAt(state.index) === Chars.Backslash) {
+    if (CharTypes[state.currentChar] & CharFlags.NeedSlowPath) {
       state.tokenValue += state.source.slice(marker, state.index);
       nextChar(state);
       const cooked = scanEscape(state, state.currentChar);
       if (cooked === -1) return Token.Illegal;
-      state.tokenValue += String.fromCodePoint(cooked);
+      state.tokenValue += fromCodePoint(cooked);
       marker = state.index;
     }
     if (state.currentChar === quote) {

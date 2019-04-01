@@ -155,9 +155,10 @@ export function nextToken(state: ParserState, context: Context): void {
 
 export function scanSingleToken(state: ParserState, context: Context): Token {
   while (state.index < state.source.length) {
-    if (state.currentChar <= 0x7f) {
+    const next = state.currentChar;
+    if (next <= 0x7f) {
       state.startIndex = state.index;
-      const token = OneCharToken[state.currentChar];
+      const token = OneCharToken[next];
 
       switch (token) {
         case Token.LeftParen:
@@ -176,10 +177,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           // One character tokens.
           return token;
         case Token.WhiteSpace:
-          if (
-            state.currentChar === Chars.CarriageReturn &&
-            state.source.charCodeAt(state.index + 1) === Chars.LineFeed
-          ) {
+          if (next === Chars.CarriageReturn && state.source.charCodeAt(state.index + 1) === Chars.LineFeed) {
             nextChar(state);
           }
           nextChar(state);
@@ -458,7 +456,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           return scanNumber(state, context, false);
         case Token.DoubleQuote:
         case Token.SingleQuote:
-          return scanString(state);
+          return scanString(state, next);
         case Token.Identifier:
           return scanIdentifier(state, context);
 
@@ -467,7 +465,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
       }
     }
 
-    if (isIdentifierStart(state.currentChar) || consumeOptAstral(state, state.currentChar)) {
+    if (isIdentifierStart(next) || consumeOptAstral(state, next)) {
       return scanIdentifier(state, context);
     }
   }
