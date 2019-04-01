@@ -98,5 +98,8 @@
     "hooks": {
       "pre-commit": "node ./scripts/prettier.js check-changed"
     }
+  },
+  "dependencies": {
+    "readline": "^1.3.0"
   }
 }
