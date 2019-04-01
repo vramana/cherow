@@ -10,7 +10,7 @@ export function parseSingleComment(state: ParserState): Token {
     if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar & ~1) == 0x2028) {
       break;
     }
-    nextChar(state); // anything except those four newline chars
+    nextChar(state);
   }
   return Token.WhiteSpace;
 }
@@ -31,7 +31,6 @@ export function parseMultiComment(state: ParserState): Token {
     }
 
     if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar & ~1) == 0x2028) {
-      // if we implement line numbers, make sure to count crlf as one here
     }
   }
   return Token.Illegal;

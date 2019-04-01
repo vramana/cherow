@@ -7,6 +7,16 @@ import { scanIdentifier } from './identifier';
 import { scanNumber } from './numeric';
 import { parseSingleComment, parseMultiComment } from './comments';
 
+/**
+ * Note: This is an early draft of the rewrite of my private experimental code
+ * and I left out for now this things:
+ *
+ * - Error reporting (See line 172 too get a hint how it will work)
+ * - String and template literal scanning (needs a bunch more masks for that)
+ * - Loc tracking
+ * - and ... well... just wait for it!
+ */
+
 export const OneCharToken = [
   /*   0 - Null               */ Token.Illegal,
   /*   1 - Start of Heading   */ Token.Illegal,
