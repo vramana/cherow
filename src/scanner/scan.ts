@@ -456,7 +456,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           return scanNumber(state, context, false);
         case Token.DoubleQuote:
         case Token.SingleQuote:
-          return scanString(state, next);
+          return scanString(state, context, next);
         case Token.Identifier:
           return scanIdentifier(state, context);
 
