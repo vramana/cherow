@@ -1,160 +1,155 @@
-import { ParserState, Context, Flags } from '../common';
-import { toHex, isDigit, advanceOne, consumeOpt } from './common';
-import { Chars, isIdentifierStart } from '../chars';
+import { ParserState, Context } from '../common';
 import { Token } from '../token';
-import { Errors, report } from '../errors';
+import { nextChar, toHex } from './common';
+import { CharTypes, CharFlags, isIdentifierStart } from './charClassifier';
+import { Chars } from '../chars';
 
-/**
- * Returns eiter a BigInt or NumericLiteral token
- * @param state
- */
-export function returnBigIntOrNumericToken(state: ParserState): Token {
-  if (state.source.charCodeAt(state.index) === Chars.LowerN) {
-    if (state.flags & Flags.Float) report(state, Errors.InvalidBigInt);
-    advanceOne(state);
-    return Token.BigIntLiteral;
+export const enum NumberKind {
+  ImplicitOctal = 1 << 0,
+  Binary = 1 << 1,
+  Octal = 1 << 2,
+  Hex = 1 << 3,
+  Decimal = 1 << 4,
+  DecimalWithLeadingZero = 1 << 5
+}
+
+export function scanNumber(state: ParserState, context: Context, isFloat: boolean): Token {
+  let kind: NumberKind = NumberKind.Decimal;
+
+  if (isFloat) {
+    while (CharTypes[state.currentChar] & CharFlags.Decimal) {
+      nextChar(state);
+    }
   } else {
-    if ((state.flags & (Flags.Binary | Flags.Octal)) === 0) state.tokenValue = +state.tokenValue;
-    return Token.NumericLiteral;
-  }
-}
+    if (state.currentChar === Chars.Zero) {
+      nextChar(state);
 
-/**
- * Scans numeric literal
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-NumericLiteral)
- *
- * @param state Parser object
- * @param context Context masks
- */
-export function scanNumeric(state: ParserState, context: Context, first: number): Token {
-  state.tokenValue = 0;
-  let digit = 9;
-  while (isDigit(first)) {
-    state.tokenValue = 10 * state.tokenValue + (first - Chars.Zero);
-    advanceOne(state);
-    first = state.source.charCodeAt(state.index);
-    --digit;
-  }
+      // Hex
+      if ((state.currentChar | 32) === Chars.LowerX) {
+        nextChar(state);
+        kind = NumberKind.Hex;
 
-  if (digit >= 0 && state.index < state.length && first !== Chars.Period && !isIdentifierStart(first)) {
-    if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
-    return returnBigIntOrNumericToken(state);
-  }
-  if (first === Chars.Period) {
-    advanceOne(state);
-    state.flags = Flags.Float;
-    while (isDigit((first = state.source.charCodeAt(state.index)))) {
-      advanceOne(state);
-    }
-  }
+        let digit = toHex(state.currentChar);
 
-  if ((first | 32) === Chars.LowerE) {
-    advanceOne(state);
-    state.flags = Flags.Float;
-    first = state.source.charCodeAt(state.index);
-    if (first === Chars.Plus || first === Chars.Hyphen) {
-      first = state.source.charCodeAt(++state.index);
-      ++state.column;
-    }
-    if (first >= Chars.Zero && first <= Chars.Nine) {
-      first = state.source.charCodeAt(++state.index);
-      ++state.column;
-      while (isDigit((first = state.source.charCodeAt(state.index)))) {
-        advanceOne(state);
+        if (digit < 0) return Token.Illegal;
+        do {
+          state.tokenValue = state.tokenValue * 0x10 + digit;
+          nextChar(state);
+          digit = toHex(state.currentChar);
+        } while (digit >= 0);
+        // Octal
+      } else if ((state.currentChar | 32) === Chars.LowerO) {
+        nextChar(state);
+        kind = NumberKind.Octal;
+        let digits = 0;
+        while (CharTypes[state.currentChar] & CharFlags.Octal) {
+          state.tokenValue = state.tokenValue * 8 + (state.currentChar - Chars.Zero);
+          nextChar(state);
+          digits++;
+        }
+        if (digits < 1) return Token.Illegal;
+      } else if ((state.currentChar | 32) === Chars.LowerB) {
+        nextChar(state);
+        kind = NumberKind.Binary;
+        let digits = 0;
+        while (CharTypes[state.currentChar] & CharFlags.Binary) {
+          state.tokenValue = state.tokenValue * 2 + (state.currentChar - Chars.Zero);
+          nextChar(state);
+          digits++;
+        }
+        if (digits < 1) return Token.Illegal;
+      } else if (CharTypes[state.currentChar] & CharFlags.Octal) {
+        if (context & Context.Strict) {
+          return Token.Illegal;
+        }
+        kind = NumberKind.ImplicitOctal;
+        while (state.index < state.length) {
+          if ((CharTypes[state.currentChar] & CharFlags.Octal) === 0) {
+            nextChar(state);
+            kind = NumberKind.DecimalWithLeadingZero;
+            isFloat = false;
+            break;
+          }
+          state.tokenValue = state.tokenValue * 8 + (state.currentChar - Chars.Zero);
+          nextChar(state);
+        }
+      } else if (CharTypes[state.currentChar] & CharFlags.NonOctalDecimalDigit) {
+        kind = NumberKind.DecimalWithLeadingZero;
       }
-    } else report(state, Errors.MissingExponent); // must have at least one char after +-
-  }
+    }
 
-  if (first !== Chars.LowerN && ((first >= Chars.Zero && first <= Chars.Nine) || isIdentifierStart(first)))
-    report(state, Errors.IDStartAfterNumber);
-  state.tokenValue = state.source.slice(state.startIndex, state.index);
-  if (context & Context.OptionsRaw) state.tokenRaw = state.tokenValue;
-  return returnBigIntOrNumericToken(state);
-}
+    // Parse decimal digits and allow trailing fractional part.
+    if (kind & (NumberKind.Decimal | NumberKind.DecimalWithLeadingZero)) {
+      // This is an optimization for parsing Decimal numbers as SMI's.
+      if (isFloat) {
+        let value = 0;
+        // scan subsequent decimal digits
+        let digit = 9;
+        while (CharTypes[state.currentChar] & CharFlags.Decimal && digit >= 0) {
+          value = 0xa * (value as number) + (state.currentChar - Chars.Zero);
+          nextChar(state);
+          --digit;
+        }
 
-/**
- * Scans hex integer literal
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-HexIntegerLiteral)
- *
- * @param parser Parser object
- * @param context Context masks
- */
-export function scanHexIntegerLiteral(state: ParserState): number {
-  let ch = state.source.charCodeAt(state.index);
-  let value = 0;
-  let digit = toHex(ch);
-  if (digit < 0) report(state, Errors.Unexpected);
-  while (digit >= 0) {
-    value = value * 16 + digit;
-    advanceOne(state);
-    digit = toHex(state.source.charCodeAt(state.index));
-  }
-  state.tokenValue = value;
-  return returnBigIntOrNumericToken(state);
-}
+        if (digit >= 0 && state.currentChar !== Chars.Period && !isIdentifierStart(state.currentChar)) {
+          state.tokenValue = value;
+          return Token.NumericLiteral;
+        }
+      }
 
-/**
- * Scans binary and octal integer literal
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-OctalIntegerLiteral)
- * @see [Link](https://tc39.github.io/ecma262/#prod-BinaryIntegerLiteral)
- *
- * @param parser Parser object
- * @param base Context masks
- */
-export function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token {
-  let value = 0;
-  let numberOfDigits = 0;
-  while (state.index < state.length) {
-    const ch = state.source.charCodeAt(state.index);
-    const converted = ch - Chars.Zero;
-    if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= base) break;
-    value = value * base + converted;
-    advanceOne(state);
-    numberOfDigits++;
-  }
+      while (CharTypes[state.currentChar] & CharFlags.Decimal) {
+        nextChar(state);
+      }
 
-  if (numberOfDigits === 0) report(state, Errors.ExpectedNumberInRadix, '' + base);
-
-  // Set this flag here to avoid unnecessary 'cast' to numbers when
-  // checking for 'BigIntLiteral'
-  state.flags |= Flags.Binary;
-  state.tokenValue = value;
-  return returnBigIntOrNumericToken(state);
-}
-
-/**
- * Scans implicit octal digits
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-OctalDigits)
- *
- * @param parser Parser object
- * @param context Context masks
- */
-export function scanImplicitOctalDigits(state: ParserState, context: Context, first: number): number {
-  if ((context & Context.Strict) !== 0) report(state, Errors.LegacyOctalsInStrictMode);
-  let { index, column } = state;
-  let code = 0;
-  // Implicit octal, unless there is a non-octal digit.
-  // (Annex B.1.1 on Numeric Literals)
-  while (index < state.length) {
-    const next = state.source.charCodeAt(index);
-    if (next < Chars.Zero || next > Chars.Seven) {
-      // Note: Implicit octal digits should fail with BigInt so we add
-      // the 'Float' mask to make sure that happen. Hackish??
-      state.flags |= Flags.Float;
-      return scanNumeric(state, context, first);
-    } else {
-      code = code * 8 + (next - Chars.Zero);
-      index++;
-      column++;
+      if (state.currentChar === Chars.Period) {
+        isFloat = true;
+        nextChar(state);
+        while (CharTypes[state.currentChar] & CharFlags.Decimal) {
+          nextChar(state);
+        }
+      }
     }
   }
-  state.flags |= Flags.Octal;
-  state.index = index;
-  state.column = column;
-  state.tokenValue = code;
-  return Token.NumericLiteral;
+
+  let isBigInt = false;
+  if (state.currentChar === Chars.LowerN && !isFloat && kind & (NumberKind.Decimal | NumberKind.Binary)) {
+    isBigInt = true;
+    nextChar(state);
+  } else if ((state.currentChar | 32) === Chars.LowerE) {
+    if ((kind & (NumberKind.Decimal | NumberKind.DecimalWithLeadingZero)) === 0) {
+      return Token.Illegal;
+    }
+
+    // scan exponent
+    nextChar(state);
+
+    // '-', '+'
+    if (CharTypes[state.currentChar] & CharFlags.Exponent) {
+      nextChar(state);
+    }
+
+    // we must have at least one decimal digit after 'e'/'E'
+    if ((CharTypes[state.currentChar] & CharFlags.Decimal) < 1) {
+      return Token.Illegal;
+    }
+
+    while (CharTypes[state.currentChar] & CharFlags.Decimal) {
+      nextChar(state);
+    }
+  }
+  // The source character immediately following a numeric literal must
+  // not be an identifier start or a decimal digit
+  if (CharTypes[state.currentChar] & CharFlags.Decimal || isIdentifierStart(state.currentChar)) {
+    return Token.Illegal;
+  }
+  state.tokenValue =
+    kind & NumberKind.ImplicitOctal
+      ? state.tokenValue
+      : kind & NumberKind.DecimalWithLeadingZero
+      ? parseFloat(state.source.slice(state.startIndex, state.index))
+      : isBigInt
+      ? parseInt(state.source.slice(state.startIndex, state.index), 0xa)
+      : +state.source.slice(state.startIndex, state.index);
+
+  return isBigInt ? Token.Bigint : Token.NumericLiteral;
 }
