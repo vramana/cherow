@@ -51,15 +51,12 @@ export function fromCodePoint(code: number): string {
 }
 
 export function toHex(code: number): number {
-  if (code < Chars.Zero) return -1;
   if (code <= Chars.Nine) return code - Chars.Zero;
-  if (code < Chars.UpperA) return -1;
-  if (code <= Chars.UpperF) return code - Chars.UpperA + 10;
-  if (code < Chars.LowerA) return -1;
+  code = code | 32;
+  if (code < Chars.LowerA || code < Chars.Zero) return -1;
   if (code <= Chars.LowerF) return code - Chars.LowerA + 10;
   return -1;
 }
-
 export function isDigit(ch: number): boolean {
   return ch >= Chars.Zero && ch <= Chars.Nine;
 }
