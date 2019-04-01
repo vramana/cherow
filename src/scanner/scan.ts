@@ -4,6 +4,7 @@ import { Chars } from '../chars';
 import { Token } from '../token';
 import { ParserState, Context, unreachable } from '../common';
 import { scanIdentifier } from './identifier';
+import { scanString } from './string';
 import { scanNumber } from './numeric';
 import { parseSingleComment, parseMultiComment } from './comments';
 
@@ -457,7 +458,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           return scanNumber(state, context, false);
         case Token.DoubleQuote:
         case Token.SingleQuote:
-        // TODO
+          return scanString(state);
         case Token.Identifier:
           return scanIdentifier(state, context);
 
