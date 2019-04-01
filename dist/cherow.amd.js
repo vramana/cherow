@@ -433,15 +433,10 @@ define(['exports'], function (exports) { 'use strict';
       }
   }
   function toHex(code) {
-      if (code < 48)
-          return -1;
       if (code <= 57)
           return code - 48;
-      if (code < 65)
-          return -1;
-      if (code <= 70)
-          return code - 65 + 10;
-      if (code < 97)
+      code = code | 32;
+      if (code < 97 || code < 48)
           return -1;
       if (code <= 102)
           return code - 97 + 10;
