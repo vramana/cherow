@@ -1,7 +1,7 @@
 import { ParserState, Context } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { toHex, nextChar, fromCodePoint } from './common';
+import { convertToHex, nextChar, fromCodePoint } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
 import { scanUnicodeEscapeValue } from './identifier';
 
@@ -87,16 +87,16 @@ export function scanEscape(state: ParserState, context: Context, first: number, 
     case Chars.LowerX: {
       let codePoint = 0;
       for (let i = 0; i < 2; i++) {
-        let digit = toHex(state.currentChar);
-        if (digit < 0) {
+        if ((CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0) {
           return Escape.InvalidHex;
         }
-        codePoint = codePoint * 0x10 + digit;
+        codePoint = codePoint * 0x10 + convertToHex(state.currentChar);
         nextChar(state);
       }
       if (codePoint < 0) return Escape.InvalidHex;
       return codePoint;
     }
+
     // Null character, octals
     case Chars.Zero:
     case Chars.One:

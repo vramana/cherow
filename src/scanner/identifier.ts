@@ -1,7 +1,7 @@
 import { ParserState, Context } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars } from '../chars';
-import { nextChar, consumeOptAstral, fromCodePoint, toHex } from './common';
+import { nextChar, consumeOptAstral, fromCodePoint, convertToHex } from './common';
 import { CharTypes, CharFlags, isIdentifierPart } from './charClassifier';
 
 export function scanIdentifier(state: ParserState, context: Context): Token {
@@ -102,11 +102,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
       if ((CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0) {
         return -1;
       }
-      codePoint =
-        codePoint * 0x10 +
-        (state.currentChar < Chars.UpperA
-          ? state.currentChar - Chars.Zero
-          : (state.currentChar - Chars.UpperA + 10) & 0xf);
+      codePoint = codePoint * 0x10 + convertToHex(state.currentChar);
       if (codePoint > Chars.LastUnicodeChar) {
         return -1;
       }
@@ -120,21 +116,25 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
     return codePoint;
   }
 
-  for (let idx = 0; idx < 4; idx++) {
-    if ((CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0) {
-      return -1;
-    }
-    codePoint =
-      codePoint * 0x10 +
-      (state.currentChar < Chars.UpperA
-        ? state.currentChar - Chars.Zero
-        : (state.currentChar - Chars.UpperA + 10) & 0xf);
-    if (codePoint > Chars.LastUnicodeChar) {
-      return -1;
-    }
+  const char2 = state.source.charCodeAt(state.index + 1);
+  const char3 = state.source.charCodeAt(state.index + 2);
+  const char4 = state.source.charCodeAt(state.index + 3);
 
-    nextChar(state);
+  if (
+    (CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0 ||
+    (CharTypes[char2] & (CharFlags.Decimal | CharFlags.Hex)) === 0 ||
+    (CharTypes[char3] & (CharFlags.Decimal | CharFlags.Hex)) === 0 ||
+    (CharTypes[char4] & (CharFlags.Decimal | CharFlags.Hex)) === 0
+  ) {
+    return -1;
   }
+
+  codePoint =
+    (((convertToHex(state.currentChar) << 4) | convertToHex(char2)) << 8) |
+    (convertToHex(char3) << 4) |
+    convertToHex(char4);
+
+  state.currentChar = state.source.charCodeAt((state.index += 4));
 
   return codePoint;
 }

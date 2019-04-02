@@ -43,3 +43,7 @@ export function toHex(code: number): number {
   if (code <= Chars.LowerF) return code - Chars.LowerA + 10;
   return -1;
 }
+
+export function convertToHex(code: number): number {
+  return code < Chars.UpperA ? code - Chars.Zero : (code - Chars.UpperA + 10) & 0xf;
+}
