@@ -158,6 +158,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         case Token.LeftParen:
         case Token.RightParen:
         case Token.LeftBrace:
+        case Token.RightBrace:
         case Token.LeftBracket:
         case Token.RightBracket:
         case Token.QuestionMark:
@@ -166,10 +167,6 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         case Token.Comma:
         case Token.Complement:
         case Token.Illegal:
-          nextChar(state);
-          return token;
-        case Token.RightBrace:
-          if (context & Context.RewindTemplate) return scanTemplate(state, context, true);
           nextChar(state);
           return token;
         // General whitespace
@@ -445,7 +442,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           }
           return Token.Period;
         case Token.Template:
-          return scanTemplate(state, context, true);
+          return scanTemplate(state, context);
         case Token.NumericLiteral:
           return scanNumber(state, context, false);
         case Token.DoubleQuote:

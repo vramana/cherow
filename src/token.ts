@@ -165,10 +165,6 @@ export const enum Token {
 
     WhiteSpace = 121,
     LineTerminator = 122,
-
-    NoSubstitutionTemplateLiteral  = 123,
-    TemplateMiddle  = 124,
-    TemplateHead  = 125,
 }
 
 // Note: this *must* be kept in sync with the enum's order.

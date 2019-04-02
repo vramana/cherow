@@ -2,58 +2,63 @@ import { ParserState, Context } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
 import { CharTypes, CharFlags } from './charClassifier';
-import { nextChar, fromCodePoint } from './common';
+import { nextChar, fromCodePoint, Escape } from './common';
 import { scanEscape } from './string';
 
-export function scanTemplate(state: ParserState, context: Context, startedWithBacktick: boolean): Token {
-  let badEscape = false;
-  let marker = state.index;
+export function scanTemplate(state: ParserState, context: Context): Token {
+  const { index: start } = state;
+  let result: any = '';
+  let badEscape: boolean = false;
+  nextChar(state);
   while (state.index < state.source.length) {
-    // '${'
-    if (
-      (state.currentChar as number) === Chars.Dollar &&
-      state.index + 1 < state.length &&
-      state.source.charCodeAt(state.index + 1) === Chars.LeftBrace
-    ) {
-      state.tokenValue += state.source.substring(marker, state.index);
-      return (startedWithBacktick ? Token.TemplateHead : Token.TemplateMiddle) | (badEscape ? Token.BadEscape : 0);
-    }
-    // '`'
-    if ((state.currentChar as number) === Chars.Backtick) {
-      state.tokenValue += state.source.substring(marker, state.index);
-      nextChar(state);
-      return (
-        (startedWithBacktick ? Token.NoSubstitutionTemplateLiteral : Token.TemplateTail) |
-        (badEscape ? Token.BadEscape : 0)
-      );
-    }
-
-    // Escape character
-    if (CharTypes[state.currentChar] & CharFlags.BackSlash) {
-      state.tokenValue += state.source.slice(marker, state.index);
-      nextChar(state);
-      const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ true);
-      if (cooked === -1) badEscape = true;
-      state.tokenValue += fromCodePoint(cooked);
-      marker = state.index;
-      continue;
-    }
-
-    // The TRV of LineTerminatorSequence :: <CR> is the CV 0x000A.
-    // The TRV of LineTerminatorSequence :: <CR><LF> is the sequence
-    // consisting of the CV 0x000A.
-    if ((state.currentChar as number) === Chars.CarriageReturn) {
-      state.tokenValue += state.source.substring(marker, state.index);
-      nextChar(state); // Consume '\n'
-
-      if (state.index < state.length && (state.currentChar as number) === Chars.LineFeed) {
+    if (state.currentChar === Chars.Backtick) {
+      nextChar(state); // Consume '`'
+      state.tokenValue = result;
+      state.tokenRaw = state.source.slice(start + 1, state.index - 1);
+      return Token.TemplateTail | (badEscape ? Token.BadEscape : 0);
+    } else if (state.currentChar === Chars.Dollar) {
+      if (state.index + 1 < state.length && state.source.charCodeAt(state.index + 1) === Chars.LeftBrace) {
         nextChar(state);
+        state.tokenRaw = state.source.slice(start + 1, state.index - 2);
+        return Token.TemplateSpan | (badEscape ? Token.BadEscape : 0);
+      } else {
+        result += '$';
       }
-      state.tokenValue += '\n';
-      marker = state.index;
-      continue;
+    } else if (CharTypes[state.currentChar] & CharFlags.BackSlash) {
+      if (state.index >= state.length) return Token.Illegal;
+      nextChar(state);
+      if (state.currentChar > 0x7f) {
+        result += fromCodePoint(state.currentChar);
+      } else {
+        const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ false);
+        if (cooked === Escape.Empty) badEscape = true;
+        state.tokenValue += fromCodePoint(cooked);
+      }
+    } else {
+      // The TRV of LineTerminatorSequence :: <CR> is the CV 0x000A.
+      // The TRV of LineTerminatorSequence :: <CR><LF> is the sequence
+      // consisting of the CV 0x000A.
+      if ((state.currentChar as number) === Chars.CarriageReturn) {
+        if (state.index < state.source.length && state.source.charCodeAt(state.index + 1) === Chars.LineFeed) {
+          if (result != null) result += fromCodePoint(state.currentChar);
+          nextChar(state);
+        }
+      }
+
+      if (result != null) {
+        result += fromCodePoint(state.currentChar);
+      }
     }
+
+    if (state.index >= state.length) return Token.Illegal;
     nextChar(state);
   }
+
   return Token.Illegal;
+}
+
+export function scanTemplateTail(state: ParserState, context: Context): Token {
+  if (state.index >= state.length) return Token.Illegal;
+  state.index--;
+  return scanTemplate(state, context);
 }
