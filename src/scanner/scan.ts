@@ -2,11 +2,11 @@ import { nextChar, consumeOptAstral } from './common';
 import { CharTypes, CharFlags, isIdentifierStart } from './charClassifier';
 import { Chars } from '../chars';
 import { Token } from '../token';
-import { ParserState, Context, unreachable } from '../common';
+import { ParserState, Context, Flags, unreachable } from '../common';
 import { scanIdentifier } from './identifier';
 import { scanString } from './string';
 import { scanNumber } from './numeric';
-import { parseSingleComment, parseMultiComment } from './comments';
+import { skipSingleLineComment, parseMultiComment, scanHtmlComment } from './comments';
 
 /**
  * Note: This is an early draft of the rewrite of my private experimental code
@@ -252,16 +252,15 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
             if (state.currentChar === Chars.GreaterThan) {
               continue;
             }
-            /*if (
-                            context & Context.OptionsWebCompat &&
-                            (context & Context.Module) < 1 &&
-                            state.source.charCodeAt(state.index + 1) === Chars.GreaterThan &&
-                            type & (ScannerFlags.SeenDelimitedCommentEnd | ScannerFlags.NewLine)
-                          ) {
-                            nextChar(state);
-                            type = skipSingleLineComment(state, type);
-                            continue;
-                          }*/
+            if (
+              context & Context.OptionsWebCompat &&
+              state.source.charCodeAt(state.index + 1) === Chars.GreaterThan &&
+              state.flags & Flags.NewLine
+            ) {
+              nextChar(state);
+              scanHtmlComment(state, context);
+              continue;
+            }
 
             return Token.Decrement;
           }
@@ -280,8 +279,8 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
             const ch = state.currentChar;
             if (ch === Chars.Slash) {
               nextChar(state);
-              parseSingleComment(state);
-              break;
+              skipSingleLineComment(state);
+              continue;
             } else if (ch === Chars.Asterisk) {
               nextChar(state);
               parseMultiComment(state);
@@ -319,17 +318,14 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
               nextChar(state);
               return Token.LessThanOrEqual;
 
-            /*  case Chars.Exclamation:
-        if (
-          (context & Context.Module) < 1 &&
-          state.source.charCodeAt(state.index + 1) === Chars.Hyphen &&
-          state.source.charCodeAt(state.index + 2) === Chars.Hyphen
-        ) {
-          // <!-- marks the beginning of a line comment (for www usage)
-          type = skipSingleLineComment(state, type);
-          continue;
-        }
-*/
+            case Chars.Exclamation:
+              if (
+                state.source.charCodeAt(state.index + 1) === Chars.Hyphen &&
+                state.source.charCodeAt(state.index + 2) === Chars.Hyphen
+              ) {
+                // <!-- marks the beginning of a line comment (for www usage)
+                return scanHtmlComment(state, context);
+              }
             case Chars.Slash: {
               if ((context & Context.OptionsJSX) < 1) break;
               const index = state.index + 1;
@@ -464,7 +460,9 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           unreachable();
       }
     }
-
+    if ((state.currentChar & ~1) === 0x2028) {
+      nextChar(state);
+    }
     if (isIdentifierStart(next) || consumeOptAstral(state, next)) {
       return scanIdentifier(state, context);
     }

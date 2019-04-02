@@ -17,7 +17,8 @@ export const enum CharFlags {
   NonOctalDecimalDigit = 1 << 14,
   Exponent = 1 << 15,
   NeedSlowPath = 1 << 16,
-  BackSlash = 1 << 17
+  BackSlash = 1 << 17,
+  MultilineCommentCharacterNeedsSlowPath = 1 << 18
 }
 
 /**
@@ -34,10 +35,14 @@ export const CharTypes = [
   CharFlags.Unknown /* 0x07   */,
   CharFlags.Unknown /* 0x08   */,
   CharFlags.WhiteSpace | CharFlags.WhiteSpaceOrLineTerminator /* 0x09   */,
-  CharFlags.WhiteSpaceOrLineTerminator | CharFlags.LineTerminator /* 0x0A   */,
+  CharFlags.WhiteSpaceOrLineTerminator |
+    CharFlags.MultilineCommentCharacterNeedsSlowPath |
+    CharFlags.LineTerminator /* 0x0A   */,
   CharFlags.WhiteSpace | CharFlags.WhiteSpaceOrLineTerminator /* 0x0B   */,
   CharFlags.WhiteSpace | CharFlags.WhiteSpaceOrLineTerminator /* 0x0C   */,
-  CharFlags.WhiteSpaceOrLineTerminator | CharFlags.LineTerminator /* 0x0D   */,
+  CharFlags.WhiteSpaceOrLineTerminator |
+    CharFlags.MultilineCommentCharacterNeedsSlowPath |
+    CharFlags.LineTerminator /* 0x0D   */,
   CharFlags.Unknown /* 0x0E   */,
   CharFlags.Unknown /* 0x0F   */,
   CharFlags.Unknown /* 0x10   */,
@@ -66,7 +71,7 @@ export const CharTypes = [
   CharFlags.StringQuote /* 0x27   */,
   CharFlags.Unknown /* 0x28   */,
   CharFlags.Unknown /* 0x29   */,
-  CharFlags.Unknown /* 0x2A   */,
+  CharFlags.MultilineCommentCharacterNeedsSlowPath /* 0x2A   */,
   CharFlags.Exponent /* 0x2B   */,
   CharFlags.Unknown /* 0x2C   */,
   CharFlags.Exponent /* 0x2D   */,
@@ -174,7 +179,7 @@ export function isIdentifierStart(code: number): boolean {
     : ((unicodeLookup[(code >>> 5) + 34816] >>> code) & 31 & 1) !== 0;
 }
 
-export function isIdentifierPart(code: number) {
+export function isIdentifierPart(code: number): boolean {
   return code <= 0x7f
     ? (CharTypes[code] & CharFlags.IdentifierPart) !== 0 ||
       code === 0x200c /* Zero-width non-joiner */ ||

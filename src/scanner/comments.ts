@@ -4,10 +4,14 @@ import { Chars } from '../chars';
 import { Token } from '../token';
 import { ParserState, Context } from '../common';
 
-export function parseSingleComment(state: ParserState): Token {
+export function scanHtmlComment(state: ParserState, context: Context) {
+  if (context & Context.Module) return Token.Illegal;
+  return skipSingleLineComment(state);
+}
+
+export function skipSingleLineComment(state: ParserState): Token {
   while (state.index < state.source.length) {
-    nextChar(state);
-    if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar & ~1) == 0x2028) {
+    if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar & ~1) === 0x2028) {
       break;
     }
     nextChar(state);
@@ -16,13 +20,20 @@ export function parseSingleComment(state: ParserState): Token {
 }
 
 export function parseMultiComment(state: ParserState): Token {
-  while (state.index < state.length) {
-    nextChar(state);
-
+  do {
     while (state.currentChar === Chars.Asterisk) {
-      if (state.index >= state.source.length) {
-        return Token.Illegal;
+      nextChar(state);
+      if ((state.currentChar as number) === Chars.Slash) {
+        nextChar(state);
+        return Token.WhiteSpace;
       }
+    }
+    nextChar(state);
+  } while (CharTypes[state.currentChar] & CharFlags.MultilineCommentCharacterNeedsSlowPath);
+
+  // Slow path
+  while (state.index < state.length) {
+    while (state.currentChar === Chars.Asterisk) {
       nextChar(state);
       if ((state.currentChar as number) === Chars.Slash) {
         nextChar(state);
@@ -30,7 +41,13 @@ export function parseMultiComment(state: ParserState): Token {
       }
     }
 
-    if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar & ~1) == 0x2028) {
+    if (state.index >= state.source.length) {
+      return Token.Illegal;
+    }
+
+    if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar & ~1) === 0x2028) {
+    } else {
+      nextChar(state);
     }
   }
   return Token.Illegal;
