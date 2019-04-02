@@ -1,18 +1,9 @@
 import { ParserState, Context } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { convertToHex, nextChar, fromCodePoint } from './common';
+import { convertToHex, nextChar, fromCodePoint, Escape } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
 import { scanUnicodeEscapeValue } from './identifier';
-
-// Intentionally negative
-const enum Escape {
-  Empty = -1,
-  StrictOctal = -2,
-  EightOrNine = -3,
-  InvalidHex = -4,
-  OutOfRange = -5
-}
 
 export function scanString(state: ParserState, context: Context, quote: number): Token {
   nextChar(state); // consume quote

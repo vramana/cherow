@@ -2,6 +2,15 @@ import { Chars } from '../chars';
 import { ParserState } from '../common';
 import { unicodeLookup } from '../unicode';
 
+export const enum Escape {
+  Empty = 0,
+  Invalid = -1,
+  StrictOctal = -2,
+  EightOrNine = -3,
+  InvalidHex = -4,
+  OutOfRange = -5
+}
+
 export function nextChar(state: ParserState): number {
   return (state.currentChar = state.source.charCodeAt(++state.index));
 }
@@ -24,13 +33,12 @@ export function consumeOptAstral(state: ParserState, hi: number): boolean {
  * @param {number} code
  * @returns {string}
  */
-export function fromCodePoint(code: number): string {
-  if (code > 0xffff) {
-    return String.fromCharCode(code >>> 10) + String.fromCharCode(code & 0x3ff);
-  } else {
-    return String.fromCharCode(code);
-  }
+export function fromCodePoint(codePoint: number): string {
+  return codePoint <= 65535
+    ? String.fromCharCode(codePoint)
+    : String.fromCharCode(codePoint >>> 10) + String.fromCharCode(codePoint & 0x3ff);
 }
+
 /**
  * Converts a value to a hex value
  *

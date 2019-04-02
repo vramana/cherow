@@ -1,7 +1,7 @@
 import { ParserState, Context } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars } from '../chars';
-import { nextChar, consumeOptAstral, fromCodePoint, convertToHex } from './common';
+import { nextChar, consumeOptAstral, fromCodePoint, convertToHex, Escape } from './common';
 import { CharTypes, CharFlags, isIdentifierPart } from './charClassifier';
 
 export function scanIdentifier(state: ParserState, context: Context): Token {
@@ -82,15 +82,13 @@ export function scanIdentifierSlowCase(
 }
 
 export function scanIdentifierUnicodeEscape(state: ParserState): number {
-  nextChar(state);
-  if (state.currentChar !== Chars.LowerU) return -1;
-  nextChar(state);
-  return scanUnicodeEscapeValue(state);
-}
-
-const enum SpecialValueType {
-  Incomplete = -2,
-  Invalid = -1
+  // Check for Unicode escape of the form '\uXXXX'
+  // and return code point value if valid Unicode escape is found. Otherwise return -1.
+  if (state.index + 5 < state.length && state.source.charCodeAt(state.index + 1) === Chars.LowerU) {
+    state.currentChar = state.source.charCodeAt((state.index += 2));
+    return scanUnicodeEscapeValue(state);
+  }
+  return Escape.Invalid;
 }
 
 export function scanUnicodeEscapeValue(state: ParserState): number {
@@ -100,17 +98,17 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
 
     do {
       if ((CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0) {
-        return -1;
+        return Escape.Invalid;
       }
       codePoint = codePoint * 0x10 + convertToHex(state.currentChar);
       if (codePoint > Chars.LastUnicodeChar) {
-        return -1;
+        return Escape.Invalid;
       }
       nextChar(state);
     } while ((state.currentChar as number) !== Chars.RightBrace);
 
     if (codePoint < 0 || (state.currentChar as number) !== Chars.RightBrace) {
-      return -1;
+      return Escape.Invalid;
     }
     nextChar(state);
     return codePoint;
@@ -126,7 +124,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
     (CharTypes[char3] & (CharFlags.Decimal | CharFlags.Hex)) === 0 ||
     (CharTypes[char4] & (CharFlags.Decimal | CharFlags.Hex)) === 0
   ) {
-    return -1;
+    return Escape.Invalid;
   }
 
   codePoint =
