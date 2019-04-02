@@ -27,6 +27,20 @@ export function consumeOptAstral(state: ParserState, hi: number): boolean {
   return true;
 }
 
+// ECMA-262 11.2 White Space
+export function isExoticECMAScriptWhitespace(code: number): boolean {
+  return (
+    code === Chars.NonBreakingSpace ||
+    code === Chars.NextLine ||
+    code === Chars.Ogham ||
+    (code >= Chars.EnQuad && code <= Chars.ZeroWidthSpace) ||
+    code === Chars.NarrowNoBreakSpace ||
+    code === Chars.MathematicalSpace ||
+    code === Chars.IdeographicSpace ||
+    code === Chars.ByteOrderMark
+  );
+}
+
 /**
  * Optimized version of 'fromCodePoint'
  *

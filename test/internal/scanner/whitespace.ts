@@ -95,4 +95,14 @@ describe('Lexer - Whitespace', () => {
     line: 1,
     index: 1
   });
+
+  pass('skips exotic whitespace', {
+    source:
+      '\x20\x09\x0B\x0C\xA0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000',
+    hasNext: false,
+    newLine: false,
+    value: '',
+    line: 1,
+    index: 20
+  });
 });

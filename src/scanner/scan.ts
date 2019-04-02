@@ -1,4 +1,5 @@
-import { nextChar, consumeOptAstral } from './common';
+import { nextChar, consumeOptAstral, isExoticECMAScriptWhitespace } from './common';
+import { skipSingleLineComment, parseMultiComment, scanHtmlComment } from './comments';
 import { CharTypes, CharFlags, isIdentifierStart } from './charClassifier';
 import { Chars } from '../chars';
 import { Token } from '../token';
@@ -6,8 +7,7 @@ import { ParserState, Context, Flags, unreachable } from '../common';
 import { scanIdentifier } from './identifier';
 import { scanString } from './string';
 import { scanNumber } from './numeric';
-import { skipSingleLineComment, parseMultiComment, scanHtmlComment } from './comments';
-
+import { scanRegularExpression } from './regexp';
 /**
  * Note: This is an early draft of the rewrite of my private experimental code
  * and I left out for now this things:
@@ -17,7 +17,6 @@ import { skipSingleLineComment, parseMultiComment, scanHtmlComment } from './com
  * - Loc tracking
  * - and ... well... just wait for it!
  */
-
 export const OneCharToken = [
   /*   0 - Null               */ Token.Illegal,
   /*   1 - Start of Heading   */ Token.Illegal,
@@ -29,10 +28,10 @@ export const OneCharToken = [
   /*   7 - Bell               */ Token.Illegal,
   /*   8 - Back Space         */ Token.WhiteSpace,
   /*   9 - Horizontal Tab     */ Token.WhiteSpace,
-  /*  10 - Line Feed          */ Token.WhiteSpace,
+  /*  10 - Line Feed          */ Token.LineTerminator,
   /*  11 - Vertical Tab       */ Token.WhiteSpace,
   /*  12 - Form Feed          */ Token.WhiteSpace,
-  /*  13 - Carriage Return    */ Token.WhiteSpace,
+  /*  13 - Carriage Return    */ Token.LineTerminator,
   /*  14 - Shift Out          */ Token.Illegal,
   /*  15 - Shift In           */ Token.Illegal,
   /*  16 - Data Line Escape   */ Token.Illegal,
@@ -154,7 +153,7 @@ export function nextToken(state: ParserState, context: Context): void {
 }
 
 export function scanSingleToken(state: ParserState, context: Context): Token {
-  let atLineStart = true;
+  let isStartOfLine = true; // needed to confirm requirement to parse --> closing html comment
   while (state.index < state.source.length) {
     const next = state.currentChar;
     if (next <= 0x7f) {
@@ -162,6 +161,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
       const token = OneCharToken[next];
 
       switch (token) {
+        // One character tokens
         case Token.LeftParen:
         case Token.RightParen:
         case Token.LeftBrace:
@@ -175,19 +175,21 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         case Token.Complement:
         case Token.Illegal:
           nextChar(state);
-          // One character tokens.
           return token;
-        case Token.WhiteSpace: {
-          if (CharTypes[next] & CharFlags.LineTerminator) {
-            atLineStart = true;
-            state.flags |= Flags.NewLine;
-          }
+        // General whitespace
+        case Token.WhiteSpace:
+          nextChar(state);
+          break;
+        // Line terminators
+        case Token.LineTerminator:
+          isStartOfLine = true;
+          state.flags |= Flags.NewLine;
           if (next === Chars.CarriageReturn && state.source.charCodeAt(state.index + 1) === Chars.LineFeed) {
             nextChar(state);
           }
           nextChar(state);
           break;
-        }
+
         // `!`, `!=`, `!==`
         case Token.Negate:
           if (nextChar(state) !== Chars.EqualSign) {
@@ -255,7 +257,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
 
           if (next === Chars.Hyphen) {
             nextChar(state);
-            if ((atLineStart || state.flags & Flags.NewLine) && state.currentChar === Chars.GreaterThan) {
+            if ((isStartOfLine || state.flags & Flags.NewLine) && state.currentChar === Chars.GreaterThan) {
               scanHtmlComment(state, context);
               continue;
             }
@@ -284,7 +286,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
               parseMultiComment(state);
               break;
             } else if (context & Context.AllowRegExp) {
-              // return scanRegularExpression(state, context);
+              return scanRegularExpression(state, context);
             } else if (ch === Chars.EqualSign) {
               nextChar(state);
               return Token.DivideAssign;
@@ -446,6 +448,8 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
             }
           }
           return Token.Period;
+        case Token.Template:
+        // TODO
         case Token.NumericLiteral:
           return scanNumber(state, context, false);
         case Token.DoubleQuote:
@@ -457,18 +461,21 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         default:
           unreachable();
       }
-
-      atLineStart = false;
     } else {
-      if ((state.currentChar & ~1) === 0x2028) {
+      if ((state.currentChar & ~1) === Chars.LineSeparator) {
         state.flags |= Flags.NewLine;
         nextChar(state);
+        continue;
       }
-
       if (isIdentifierStart(next) || consumeOptAstral(state, next)) {
         return scanIdentifier(state, context);
       }
+      if (isExoticECMAScriptWhitespace(next)) {
+        nextChar(state);
+      }
     }
+
+    isStartOfLine = false;
   }
   return Token.EndOfSource;
 }
