@@ -2,7 +2,7 @@ import { Chars } from '../chars';
 import { Context, ParserState } from '../common';
 import { Token } from '../token';
 import { nextChar } from './common';
-import { isIdentifierPart } from './charClassifier';
+import { CharTypes, CharFlags, isIdentifierPart } from './charClassifier';
 
 /**
  * Scans regular expression

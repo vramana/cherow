@@ -34,7 +34,7 @@ export function scanString(state: ParserState, context: Context, quote: number):
   return Token.Illegal;
 }
 
-export function scanEscape(state: ParserState, context: Context, first: number, isTemplate: false): number {
+export function scanEscape(state: ParserState, context: Context, first: number, isTemplate: boolean): number {
   nextChar(state);
 
   switch (first) {

@@ -7,16 +7,9 @@ import { ParserState, Context, Flags, unreachable } from '../common';
 import { scanIdentifier } from './identifier';
 import { scanString } from './string';
 import { scanNumber } from './numeric';
+import { scanTemplate } from './template';
 import { scanRegularExpression } from './regexp';
-/**
- * Note: This is an early draft of the rewrite of my private experimental code
- * and I left out for now this things:
- *
- * - Error reporting (See line 172 too get a hint how it will work)
- * - String and template literal scanning (needs a bunch more masks for that)
- * - Loc tracking
- * - and ... well... just wait for it!
- */
+
 export const OneCharToken = [
   /*   0 - Null               */ Token.Illegal,
   /*   1 - Start of Heading   */ Token.Illegal,
@@ -165,7 +158,6 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         case Token.LeftParen:
         case Token.RightParen:
         case Token.LeftBrace:
-        case Token.RightBrace:
         case Token.LeftBracket:
         case Token.RightBracket:
         case Token.QuestionMark:
@@ -174,6 +166,10 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         case Token.Comma:
         case Token.Complement:
         case Token.Illegal:
+          nextChar(state);
+          return token;
+        case Token.RightBrace:
+          if (context & Context.RewindTemplate) return scanTemplate(state, context, true);
           nextChar(state);
           return token;
         // General whitespace
@@ -449,7 +445,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           }
           return Token.Period;
         case Token.Template:
-        // TODO
+          return scanTemplate(state, context, true);
         case Token.NumericLiteral:
           return scanNumber(state, context, false);
         case Token.DoubleQuote:

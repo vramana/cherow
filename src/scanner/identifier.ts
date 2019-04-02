@@ -8,10 +8,9 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
   let hasEscape = false;
   let canBeKeyword = false;
   if (state.currentChar <= 0x7f) {
-    const index = state.index;
-    let allChars = 0;
-
     if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
+      const index = state.index;
+      let allChars = 0;
       while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0) {
         allChars |= state.currentChar;
       }
@@ -107,6 +106,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
       nextChar(state);
     } while ((state.currentChar as number) !== Chars.RightBrace);
 
+    // At least 4 characters have to be read
     if (codePoint < 0 || (state.currentChar as number) !== Chars.RightBrace) {
       return Escape.Invalid;
     }

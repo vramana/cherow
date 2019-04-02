@@ -15,6 +15,7 @@ export const enum Token {
     Template = 1 << 17,
     Illegal = 1 << 16,
     IsIdentifier = 1 << 18,
+    BadEscape = 1 << 19,
 
     /* Node types */
     EndOfSource = 0, // Pseudo
@@ -164,9 +165,10 @@ export const enum Token {
 
     WhiteSpace = 121,
     LineTerminator = 122,
-    CarriageReturn = 123,
 
-
+    NoSubstitutionTemplateLiteral  = 123,
+    TemplateMiddle  = 124,
+    TemplateHead  = 125,
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -215,7 +217,7 @@ export const KeywordDescTable = [
 
     /* Others */
 
-    "@", "#", 'escaped strict reserved', 'escaped keyword', 'Bigint'
+    "@", "#", 'escaped strict reserved', 'escaped keyword', 'Bigint', 'Whitespace,', 'LineTerminator'
 ];
 
 // Normal object is much faster than Object.create(null), even with typeof check to avoid Object.prototype interference

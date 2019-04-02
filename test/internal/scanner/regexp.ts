@@ -26,6 +26,16 @@ describe('lexer - identifiers', () => {
     });
   }
 
+  pass('scan idescan regexp with multiple flags', {
+    source: '/i/usimy',
+    ctx: Context.AllowRegExp,
+    token: Token.RegularExpression,
+    value: /i/imsuy,
+    regExp: { flags: 'usimy', pattern: 'i' },
+    raw: '\\u044D',
+    newline: false,
+    index: 8
+  });
   pass('scan regexp with IgnoreCase flag', {
     source: '/i/i',
     ctx: Context.AllowRegExp,
@@ -46,16 +56,5 @@ describe('lexer - identifiers', () => {
     raw: '\\u044D',
     newline: false,
     index: 10
-  });
-
-  pass('scan idescan regexp with multiple flags', {
-    source: '/i/usimy',
-    ctx: Context.AllowRegExp,
-    token: Token.RegularExpression,
-    value: /i/imsuy,
-    regExp: { flags: 'usimy', pattern: 'i' },
-    raw: '\\u044D',
-    newline: false,
-    index: 8
   });
 });

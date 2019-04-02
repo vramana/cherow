@@ -79,15 +79,6 @@ describe('lexer - Keywords', () => {
   });
 
   describe('lexer - Escaped keywords', () => {
-    pass('scan escaped break keyword', {
-      source: 't\\u0061rget',
-      ctx: Context.OptionsNext,
-      token: Token.Identifier,
-      value: 'target',
-      raw: 'target',
-      index: 11
-    });
-
     pass('scan escaped async keyword', {
       source: '\\u0061sync',
       ctx: Context.Strict,
@@ -95,6 +86,15 @@ describe('lexer - Keywords', () => {
       value: 'async',
       raw: 'async',
       index: 10
+    });
+
+    pass('scan escaped break keyword', {
+      source: 't\\u0061rget',
+      ctx: Context.OptionsNext,
+      token: Token.Identifier,
+      value: 'target',
+      raw: 'target',
+      index: 11
     });
 
     pass('scan escaped break keyword', {
