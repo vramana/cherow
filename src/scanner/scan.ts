@@ -154,6 +154,7 @@ export function nextToken(state: ParserState, context: Context): void {
 }
 
 export function scanSingleToken(state: ParserState, context: Context): Token {
+  let atLineStart = true;
   while (state.index < state.source.length) {
     const next = state.currentChar;
     if (next <= 0x7f) {
@@ -176,12 +177,17 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           nextChar(state);
           // One character tokens.
           return token;
-        case Token.WhiteSpace:
+        case Token.WhiteSpace: {
+          if (CharTypes[next] & CharFlags.LineTerminator) {
+            atLineStart = true;
+            state.flags |= Flags.NewLine;
+          }
           if (next === Chars.CarriageReturn && state.source.charCodeAt(state.index + 1) === Chars.LineFeed) {
             nextChar(state);
           }
           nextChar(state);
           break;
+        }
         // `!`, `!=`, `!==`
         case Token.Negate:
           if (nextChar(state) !== Chars.EqualSign) {
@@ -249,15 +255,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
 
           if (next === Chars.Hyphen) {
             nextChar(state);
-            if (state.currentChar === Chars.GreaterThan) {
-              continue;
-            }
-            if (
-              context & Context.OptionsWebCompat &&
-              state.source.charCodeAt(state.index + 1) === Chars.GreaterThan &&
-              state.flags & Flags.NewLine
-            ) {
-              nextChar(state);
+            if ((atLineStart || state.flags & Flags.NewLine) && state.currentChar === Chars.GreaterThan) {
               scanHtmlComment(state, context);
               continue;
             }
@@ -459,12 +457,17 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         default:
           unreachable();
       }
-    }
-    if ((state.currentChar & ~1) === 0x2028) {
-      nextChar(state);
-    }
-    if (isIdentifierStart(next) || consumeOptAstral(state, next)) {
-      return scanIdentifier(state, context);
+
+      atLineStart = false;
+    } else {
+      if ((state.currentChar & ~1) === 0x2028) {
+        state.flags |= Flags.NewLine;
+        nextChar(state);
+      }
+
+      if (isIdentifierStart(next) || consumeOptAstral(state, next)) {
+        return scanIdentifier(state, context);
+      }
     }
   }
   return Token.EndOfSource;

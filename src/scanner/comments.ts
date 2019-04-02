@@ -2,7 +2,7 @@ import { nextChar } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
 import { Chars } from '../chars';
 import { Token } from '../token';
-import { ParserState, Context } from '../common';
+import { ParserState, Context, Flags } from '../common';
 
 export function scanHtmlComment(state: ParserState, context: Context) {
   if (context & Context.Module) return Token.Illegal;
@@ -28,6 +28,9 @@ export function parseMultiComment(state: ParserState): Token {
         return Token.WhiteSpace;
       }
     }
+    if (CharTypes[state.currentChar] & CharFlags.LineTerminator) {
+      state.flags |= Flags.NewLine;
+    }
     nextChar(state);
   } while (CharTypes[state.currentChar] & CharFlags.MultilineCommentCharacterNeedsSlowPath);
 
@@ -45,10 +48,11 @@ export function parseMultiComment(state: ParserState): Token {
       return Token.Illegal;
     }
 
+    // ES 2020 11.3 Line Terminators
     if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar & ~1) === 0x2028) {
-    } else {
-      nextChar(state);
+      state.flags |= Flags.NewLine;
     }
+    nextChar(state);
   }
   return Token.Illegal;
 }

@@ -98,4 +98,83 @@ describe('lexer - Comments', () => {
     value: '',
     index: 27
   });
+
+  pass('skips single line comment with identifier and newline', {
+    source: '// foo\n',
+    hasNext: false,
+    value: '',
+    index: 7
+  });
+
+  pass('skips text after HTML close', {
+    source: '\n-->',
+    hasNext: false,
+    value: '',
+    index: 4
+  });
+
+  pass('skips multi line comment with escaped newline', {
+    source: '/* \\n \\r \\x0a \\u000a */',
+    hasNext: false,
+    value: '',
+    index: 23
+  });
+
+  pass('skips single line comment with identifier and newline', {
+    source: '// foo\n',
+    hasNext: false,
+    value: '',
+    index: 7
+  });
+
+  // should fail in the parser
+  pass('skips nested multi line comment', {
+    source: '/* /* */ */',
+    hasNext: true,
+    value: '',
+    index: 10
+  });
+
+  pass('skips single line comment with slash', {
+    source: '// /',
+    hasNext: false,
+    value: '',
+    index: 4
+  });
+
+  pass('skips single line comment with malformed escape', {
+    source: '//\\unope \\u{nope} \\xno ',
+    hasNext: false,
+    value: '',
+    index: 23
+  });
+
+  pass('skips multiline comments with nothing', {
+    source: '  \t /* foo * /* bar */  ',
+    hasNext: false,
+    value: '',
+    index: 24
+  });
+  pass('skips before first real token', {
+    source: '--> is eol-comment',
+    hasNext: false,
+    value: '',
+    index: 18
+  });
+
+  pass('skips single line comment with form feed', {
+    source: '\n-->\nvar y = 37;\n',
+    hasNext: true,
+    value: 'var',
+    line: 3,
+    index: 8
+  });
+
+  pass('skips multiple comments preceding HTMLEndComment', {
+    source: '/* MLC \n */ /* SLDC */ --> is eol-comment\nvar y = 37;\n',
+    hasNext: true,
+    value: 'var',
+    line: 3,
+    index: 45
+  });
 });
