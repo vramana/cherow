@@ -13,7 +13,7 @@ export function consumeOptAstral(state: ParserState, hi: number): boolean {
   if ((lo & 0xfc00) !== 0xdc00) return false;
   nextChar(state);
   hi = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
-  if (((unicodeLookup[(hi >>> 5) + 0] >>> hi) & 31 & 1) === 0) throw 'This is an ERROR!!';
+  if (((unicodeLookup[(hi >>> 5) + 0] >>> hi) & 31 & 1) === 0) throw 'This is an error!!!';
   state.currentChar = hi;
   return true;
 }
@@ -42,36 +42,4 @@ export function toHex(code: number): number {
   if (code < Chars.LowerA || code < Chars.Zero) return -1;
   if (code <= Chars.LowerF) return code - Chars.LowerA + 10;
   return -1;
-}
-
-export function scanHexNumber(state: ParserState, expected_length: number) {
-  let x = 0;
-  for (let i = 0; i < expected_length; i++) {
-    let d = toHex(state.currentChar);
-    if (d < 0) {
-      return -1;
-    }
-    x = x * 16 + d;
-
-    nextChar(state);
-  }
-
-  return x;
-}
-
-export function scanUnlimitedLengthHexNumber(state: ParserState, max_value: any, _: any) {
-  let x = 0;
-  let d = toHex(state.currentChar);
-  if (d < 0) return -1;
-
-  while (d >= 0) {
-    x = x * 16 + d;
-    if (x > max_value) {
-      return -1;
-    }
-    nextChar(state);
-    d = toHex(state.currentChar);
-  }
-
-  return x;
 }

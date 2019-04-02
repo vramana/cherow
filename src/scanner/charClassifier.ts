@@ -16,7 +16,8 @@ export const enum CharFlags {
   Binary = 1 << 13,
   NonOctalDecimalDigit = 1 << 14,
   Exponent = 1 << 15,
-  NeedSlowPath = 1 << 16
+  NeedSlowPath = 1 << 16,
+  BackSlash = 1 << 17
 }
 
 /**
@@ -129,7 +130,7 @@ export const CharTypes = [
   CharFlags.IdentifierStart | CharFlags.IdentifierPart | CharFlags.NoKeywordCandidate /* 0x59 Y */,
   CharFlags.IdentifierStart | CharFlags.IdentifierPart | CharFlags.NoKeywordCandidate /* 0x5A Z */,
   CharFlags.Unknown /* 0x5B   */,
-  CharFlags.NeedSlowPath | CharFlags.IdentifierStart /* 0x5C   */,
+  CharFlags.NeedSlowPath | CharFlags.BackSlash | CharFlags.IdentifierStart /* 0x5C   */,
   CharFlags.Unknown /* 0x5D   */,
   CharFlags.Unknown /* 0x5E   */,
   CharFlags.IdentifierStart | CharFlags.IdentifierPart | CharFlags.NoKeywordCandidate /* 0x5F _ */,

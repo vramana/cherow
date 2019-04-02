@@ -3,7 +3,7 @@ import { Token } from '../token';
 import { Chars } from '../chars';
 import { toHex, nextChar, fromCodePoint } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
-import { scanUnicodeEscape } from './identifier';
+import { scanUnicodeEscapeValue } from './identifier';
 
 // Intentionally negative
 const enum Escape {
@@ -19,7 +19,7 @@ export function scanString(state: ParserState, context: Context, quote: number):
   state.tokenValue = '';
   let marker = state.index;
   while (state.index < state.source.length) {
-    if (CharTypes[state.currentChar] & CharFlags.NeedSlowPath) {
+    if (CharTypes[state.currentChar] & CharFlags.BackSlash) {
       state.tokenValue += state.source.slice(marker, state.index);
       nextChar(state);
       const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ false);
@@ -80,7 +80,7 @@ export function scanEscape(state: ParserState, context: Context, first: number, 
       return Escape.Empty;
     // UCS-2/Unicode escapes
     case Chars.LowerU: {
-      first = scanUnicodeEscape(state);
+      first = scanUnicodeEscapeValue(state);
       if (first < 0) return Escape.Empty;
       return first;
     }

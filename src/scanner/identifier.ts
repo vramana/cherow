@@ -1,17 +1,17 @@
 import { ParserState, Context } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars } from '../chars';
-import { nextChar, scanHexNumber, scanUnlimitedLengthHexNumber, consumeOptAstral, fromCodePoint } from './common';
+import { nextChar, consumeOptAstral, fromCodePoint, toHex } from './common';
 import { CharTypes, CharFlags, isIdentifierPart } from './charClassifier';
 
 export function scanIdentifier(state: ParserState, context: Context): Token {
   let hasEscape = false;
   let canBeKeyword = false;
   if (state.currentChar <= 0x7f) {
-    const { index } = state;
+    const index = state.index;
     let allChars = 0;
 
-    if ((CharTypes[state.currentChar] & CharFlags.NeedSlowPath) === 0) {
+    if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
       while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0) {
         allChars |= state.currentChar;
       }
@@ -81,24 +81,60 @@ export function scanIdentifierSlowCase(
   return Token.Identifier;
 }
 
-export function scanIdentifierUnicodeEscape(state: ParserState): Token {
+export function scanIdentifierUnicodeEscape(state: ParserState): number {
   nextChar(state);
   if (state.currentChar !== Chars.LowerU) return -1;
   nextChar(state);
-  return scanUnicodeEscape(state);
+  return scanUnicodeEscapeValue(state);
 }
 
-export function scanUnicodeEscape(state: ParserState): Token {
+const enum SpecialValueType {
+  Incomplete = -2,
+  Invalid = -1
+}
+
+export function scanUnicodeEscapeValue(state: ParserState): number {
+  let codePoint = 0;
   if (state.currentChar === Chars.LeftBrace) {
-    let begin = state.index - 2;
     nextChar(state);
-    let cp = scanUnlimitedLengthHexNumber(state, 0x10ffff, begin);
-    if (cp < 0 || (state.currentChar as number) !== Chars.RightBrace) {
+
+    do {
+      if ((CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0) {
+        return -1;
+      }
+      codePoint =
+        codePoint * 0x10 +
+        (state.currentChar < Chars.UpperA
+          ? state.currentChar - Chars.Zero
+          : (state.currentChar - Chars.UpperA + 10) & 0xf);
+      if (codePoint > Chars.LastUnicodeChar) {
+        return -1;
+      }
+      nextChar(state);
+    } while ((state.currentChar as number) !== Chars.RightBrace);
+
+    if (codePoint < 0 || (state.currentChar as number) !== Chars.RightBrace) {
       return -1;
     }
     nextChar(state);
-    return cp;
+    return codePoint;
   }
 
-  return scanHexNumber(state, 4);
+  for (let idx = 0; idx < 4; idx++) {
+    if ((CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0) {
+      return -1;
+    }
+    codePoint =
+      codePoint * 0x10 +
+      (state.currentChar < Chars.UpperA
+        ? state.currentChar - Chars.Zero
+        : (state.currentChar - Chars.UpperA + 10) & 0xf);
+    if (codePoint > Chars.LastUnicodeChar) {
+      return -1;
+    }
+
+    nextChar(state);
+  }
+
+  return codePoint;
 }
