@@ -30,7 +30,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
         kind = NumberKind.Hex;
         let digits = 0;
         do {
-          value = (value as number) * 0x10 + toHex(state.currentChar);
+          value = value * 0x10 + toHex(state.currentChar);
           digits++;
         } while (CharTypes[nextChar(state)] & (CharFlags.Decimal | CharFlags.Hex));
         if (digits < 1) return Token.Illegal;
@@ -62,7 +62,6 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
         kind = NumberKind.ImplicitOctal;
         do {
           if (state.currentChar >= Chars.Eight) {
-            nextChar(state);
             kind = NumberKind.DecimalWithLeadingZero;
             isFloat = false;
             break;

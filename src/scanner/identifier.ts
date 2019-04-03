@@ -6,7 +6,7 @@ import { CharTypes, CharFlags, isIdentifierStart, isIdentifierPart } from './cha
 
 export function scanIdentifier(state: ParserState, context: Context): Token {
   let hasEscape = false;
-  let canBeKeyword = true;
+  let canBeKeyword = (CharTypes[state.currentChar] & CharFlags.KeywordCandidate) !== 0;
   if (state.currentChar <= 0x7f) {
     if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
       let allChars = 0;
@@ -123,20 +123,20 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
     return codePoint;
   }
 
-  const char2 = state.source.charCodeAt(state.index + 1);
-  const char3 = state.source.charCodeAt(state.index + 2);
-  const char4 = state.source.charCodeAt(state.index + 3);
+  const c2 = state.source.charCodeAt(state.index + 1);
+  const c3 = state.source.charCodeAt(state.index + 2);
+  const c4 = state.source.charCodeAt(state.index + 3);
 
   if (
     (CharTypes[state.currentChar] & CharFlags.Hex) === 0 ||
-    (CharTypes[char2] & CharFlags.Hex) === 0 ||
-    (CharTypes[char3] & CharFlags.Hex) === 0 ||
-    (CharTypes[char4] & CharFlags.Hex) === 0
+    (CharTypes[c2] & CharFlags.Hex) === 0 ||
+    (CharTypes[c3] & CharFlags.Hex) === 0 ||
+    (CharTypes[c4] & CharFlags.Hex) === 0
   ) {
     return Escape.Invalid;
   }
 
-  codePoint = (((toHex(state.currentChar) << 4) | toHex(char2)) << 8) | (toHex(char3) << 4) | toHex(char4);
+  codePoint = (((toHex(state.currentChar) << 4) | toHex(c2)) << 8) | (toHex(c3) << 4) | toHex(c4);
 
   state.currentChar = state.source.charCodeAt((state.index += 4));
 

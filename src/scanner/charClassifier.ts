@@ -149,12 +149,30 @@ export const CharTypes = [
 ];
 
 export function isIdentifierStart(code: number): boolean {
+  /*
+   * ES2020 11.6 IdentifierStart
+   *  $ (dollar sign)
+   *  _ (underscore)
+   *  or any character with the Unicode property «ID_Start».
+   *
+   * We use a lookup table for small and thus common characters for speed.
+   */
   return code <= 0x7f
     ? (CharTypes[code] & CharFlags.IdentifierStart) !== 0
     : ((unicodeLookup[(code >>> 5) + 34816] >>> code) & 31 & 1) !== 0;
 }
 
 export function isIdentifierPart(code: number): boolean {
+  /*
+   * ES2020 11.6 IdentifierPart
+   *  $ (dollar sign)
+   *  _ (underscore)
+   *  <ZWNJ>
+   *  <ZWJ>
+   *  or any character with the Unicode property «ID_Continue».
+   *
+   * We use a lookup table for small and thus common characters for speed.
+   */
   return code <= 0x7f
     ? (CharTypes[code] & CharFlags.IdentifierPart) !== 0 ||
       code === 0x200c /* Zero-width non-joiner */ ||
