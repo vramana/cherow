@@ -13,6 +13,16 @@ export const enum NumberKind {
   DecimalWithLeadingZero = 1 << 5
 }
 
+/**
+ * Note: For fast number checkup, there are two possible options, but
+ * not 100% which ones are fastest.
+ *
+ * - (state.currentChar - Chars.Zero) > 7
+ * - CharTypes[state.currentChar] & CharFlags.Octal
+ *
+ * TODO: Find out which ones are fastest
+ */
+
 export function scanNumber(state: ParserState, context: Context, isFloat: boolean): Token {
   let kind: NumberKind = NumberKind.Decimal;
   let value: number | string = 0;
@@ -68,7 +78,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
           }
           value = value * 8 + (state.currentChar - Chars.Zero);
         } while (CharTypes[nextChar(state)] & CharFlags.Octal);
-      } else if (CharTypes[state.currentChar] & CharFlags.NonOctalDecimalDigit) {
+      } else if (state.currentChar - Chars.Zero > 7) {
         kind = NumberKind.DecimalWithLeadingZero;
       }
     }

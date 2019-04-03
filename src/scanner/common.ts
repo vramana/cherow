@@ -15,9 +15,9 @@ export function nextChar(state: ParserState): number {
   return (state.currentChar = state.source.charCodeAt(++state.index));
 }
 
-export function consumeOptAstral(state: ParserState, hi: number): boolean {
+export function consumeMultiUnitCodePoint(state: ParserState, hi: number): boolean {
+  // See: https://tc39.github.io/ecma262/#sec-ecmascript-language-types-string-type
   if ((hi & 0xfc00) !== 0xd800) return false;
-  if (state.index === state.source.length) return false;
   const lo = state.source.charCodeAt(state.index + 1);
   if ((lo & 0xfc00) !== 0xdc00) return false;
   nextChar(state);

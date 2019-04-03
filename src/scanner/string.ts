@@ -25,7 +25,7 @@ export function scanString(state: ParserState, context: Context, quote: number):
     }
   } while ((CharTypes[nextChar(state)] & CharFlags.LineTerminator) === 0);
 
-  // Unterminated string literal
+  // New-line or end of input is not allowed
   return Token.Illegal;
 }
 
@@ -73,7 +73,7 @@ export function scanEscape(state: ParserState, context: Context, first: number, 
     case Chars.LowerX: {
       let codePoint = 0;
       for (let i = 0; i < 2; i++) {
-        if ((CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0) {
+        if ((CharTypes[state.currentChar] & CharFlags.Hex) === 0) {
           return Escape.InvalidHex;
         }
         codePoint = codePoint * 0x10 + toHex(state.currentChar);

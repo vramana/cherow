@@ -1,7 +1,7 @@
 import { ParserState, Context } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars } from '../chars';
-import { nextChar, consumeOptAstral, fromCodePoint, toHex, Escape } from './common';
+import { nextChar, consumeMultiUnitCodePoint, fromCodePoint, toHex, Escape } from './common';
 import { CharTypes, CharFlags, isIdentifierStart, isIdentifierPart } from './charClassifier';
 
 export function scanIdentifier(state: ParserState, context: Context): Token {
@@ -47,7 +47,7 @@ export function scanIdentifierSlowCase(
       nextChar(state);
       state.tokenValue += fromCodePoint(cookedChar);
       start = state.index - 1;
-    } else if (isIdentifierPart(state.currentChar) || consumeOptAstral(state, state.currentChar)) {
+    } else if (isIdentifierPart(state.currentChar) || consumeMultiUnitCodePoint(state, state.currentChar)) {
       nextChar(state);
     } else {
       break;
@@ -105,7 +105,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
     nextChar(state);
 
     do {
-      if ((CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0) {
+      if ((CharTypes[state.currentChar] & CharFlags.Hex) === 0) {
         return Escape.Invalid;
       }
       codePoint = codePoint * 0x10 + toHex(state.currentChar);
@@ -128,10 +128,10 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
   const char4 = state.source.charCodeAt(state.index + 3);
 
   if (
-    (CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0 ||
-    (CharTypes[char2] & (CharFlags.Decimal | CharFlags.Hex)) === 0 ||
-    (CharTypes[char3] & (CharFlags.Decimal | CharFlags.Hex)) === 0 ||
-    (CharTypes[char4] & (CharFlags.Decimal | CharFlags.Hex)) === 0
+    (CharTypes[state.currentChar] & CharFlags.Hex) === 0 ||
+    (CharTypes[char2] & CharFlags.Hex) === 0 ||
+    (CharTypes[char3] & CharFlags.Hex) === 0 ||
+    (CharTypes[char4] & CharFlags.Hex) === 0
   ) {
     return Escape.Invalid;
   }

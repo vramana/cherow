@@ -1,4 +1,4 @@
-import { nextChar, consumeOptAstral, isExoticECMAScriptWhitespace } from './common';
+import { nextChar, consumeMultiUnitCodePoint, isExoticECMAScriptWhitespace } from './common';
 import { skipSingleLineComment, parseMultiComment, scanHtmlComment } from './comments';
 import { CharTypes, CharFlags, isIdentifierStart } from './charClassifier';
 import { Chars } from '../chars';
@@ -451,6 +451,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           return scanString(state, context, next);
         case Token.Identifier:
           return scanIdentifier(state, context);
+        case Token.Decorator:
         case Token.PrivateField:
           return scanPrivateName(state);
         default:
@@ -462,13 +463,14 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         nextChar(state);
         continue;
       }
-      if (isIdentifierStart(next) || consumeOptAstral(state, next)) {
+      if (isIdentifierStart(next) || consumeMultiUnitCodePoint(state, next)) {
         return scanIdentifier(state, context);
       }
       if (isExoticECMAScriptWhitespace(next)) {
         nextChar(state);
         continue;
       }
+
       // Unknown char
       return Token.Illegal;
     }
