@@ -2,20 +2,19 @@ import { ParserState, Context } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars } from '../chars';
 import { nextChar, consumeOptAstral, fromCodePoint, convertToHex, Escape } from './common';
-import { CharTypes, CharFlags, isIdentifierPart } from './charClassifier';
+import { CharTypes, CharFlags, isIdentifierStart, isIdentifierPart } from './charClassifier';
 
 export function scanIdentifier(state: ParserState, context: Context): Token {
   let hasEscape = false;
   let canBeKeyword = false;
   if (state.currentChar <= 0x7f) {
     if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
-      const index = state.index;
       let allChars = 0;
       while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0) {
         allChars |= state.currentChar;
       }
 
-      state.tokenValue = state.source.slice(index, state.index);
+      state.tokenValue = state.source.slice(state.startIndex, state.index);
       if (allChars & ~0xff) {
         return descKeywordTable[state.tokenValue] || Token.Identifier;
       }
@@ -78,6 +77,17 @@ export function scanIdentifierSlowCase(
       : Token.EscapedKeyword;
   }
   return Token.Identifier;
+}
+
+export function scanPrivateName(state: ParserState): Token {
+  if (!isIdentifierStart(state.source.charCodeAt(state.index + 1))) {
+    return Token.Illegal;
+  }
+  nextChar(state);
+  const { index } = state;
+  while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0) {}
+  state.tokenValue = state.source.slice(index, state.index);
+  return Token.PrivateField;
 }
 
 export function scanIdentifierUnicodeEscape(state: ParserState): number {

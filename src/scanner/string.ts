@@ -9,12 +9,12 @@ export function scanString(state: ParserState, context: Context, quote: number):
   nextChar(state); // consume quote
   state.tokenValue = '';
   let marker = state.index;
-  while (state.index < state.source.length) {
-    if (CharTypes[state.currentChar] & CharFlags.BackSlash) {
+  do {
+    if (state.currentChar === Chars.Backslash) {
       state.tokenValue += state.source.slice(marker, state.index);
       nextChar(state);
       const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ false);
-      if (cooked === -1) return Token.Illegal; // Note: This will throw in the parser
+      if (cooked === Escape.Invalid) return Token.Illegal;
       state.tokenValue += fromCodePoint(cooked);
       marker = state.index;
     }
@@ -23,14 +23,9 @@ export function scanString(state: ParserState, context: Context, quote: number):
       nextChar(state);
       return Token.StringLiteral;
     }
+  } while ((CharTypes[nextChar(state)] & CharFlags.LineTerminator) === 0);
 
-    if (CharTypes[state.currentChar] & CharFlags.LineTerminator) {
-      return Token.Illegal;
-    }
-
-    nextChar(state);
-  }
-
+  // Unterminated string literal
   return Token.Illegal;
 }
 

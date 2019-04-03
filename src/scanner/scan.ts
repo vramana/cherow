@@ -4,7 +4,7 @@ import { CharTypes, CharFlags, isIdentifierStart } from './charClassifier';
 import { Chars } from '../chars';
 import { Token } from '../token';
 import { ParserState, Context, Flags, unreachable } from '../common';
-import { scanIdentifier } from './identifier';
+import { scanIdentifier, scanPrivateName } from './identifier';
 import { scanString } from './string';
 import { scanNumber } from './numeric';
 import { scanTemplate } from './template';
@@ -169,6 +169,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         case Token.Illegal:
           nextChar(state);
           return token;
+
         // General whitespace
         case Token.WhiteSpace:
           nextChar(state);
@@ -450,7 +451,9 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           return scanString(state, context, next);
         case Token.Identifier:
           return scanIdentifier(state, context);
-
+        case Token.Decorator:
+        case Token.PrivateField:
+          return scanPrivateName(state);
         default:
           unreachable();
       }

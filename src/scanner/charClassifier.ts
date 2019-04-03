@@ -8,7 +8,6 @@ export const enum CharFlags {
   WhiteSpaceOrLineTerminator = 1 << 3,
   NoKeywordCandidate = 1 << 5,
   NoKeywordCandidateStart = 1 << 6,
-  StringQuote = 1 << 8,
   LineTerminator = 1 << 9,
   Decimal = 1 << 10,
   Octal = 1 << 11,
@@ -18,7 +17,7 @@ export const enum CharFlags {
   Exponent = 1 << 15,
   NeedSlowPath = 1 << 16,
   BackSlash = 1 << 17,
-  MultilineCommentCharacterNeedsSlowPath = 1 << 18
+  MultilineCommentTerminator = 1 << 18
 }
 
 /**
@@ -35,14 +34,10 @@ export const CharTypes = [
   CharFlags.Unknown /* 0x07   */,
   CharFlags.Unknown /* 0x08   */,
   CharFlags.WhiteSpace | CharFlags.WhiteSpaceOrLineTerminator /* 0x09   */,
-  CharFlags.WhiteSpaceOrLineTerminator |
-    CharFlags.MultilineCommentCharacterNeedsSlowPath |
-    CharFlags.LineTerminator /* 0x0A   */,
+  CharFlags.WhiteSpaceOrLineTerminator | CharFlags.MultilineCommentTerminator | CharFlags.LineTerminator /* 0x0A   */,
   CharFlags.WhiteSpace | CharFlags.WhiteSpaceOrLineTerminator /* 0x0B   */,
   CharFlags.WhiteSpace | CharFlags.WhiteSpaceOrLineTerminator /* 0x0C   */,
-  CharFlags.WhiteSpaceOrLineTerminator |
-    CharFlags.MultilineCommentCharacterNeedsSlowPath |
-    CharFlags.LineTerminator /* 0x0D   */,
+  CharFlags.WhiteSpaceOrLineTerminator | CharFlags.MultilineCommentTerminator | CharFlags.LineTerminator /* 0x0D   */,
   CharFlags.Unknown /* 0x0E   */,
   CharFlags.Unknown /* 0x0F   */,
   CharFlags.Unknown /* 0x10   */,
@@ -62,16 +57,16 @@ export const CharTypes = [
   CharFlags.Unknown /* 0x1E   */,
   CharFlags.Unknown /* 0x1F   */,
   CharFlags.WhiteSpace | CharFlags.WhiteSpaceOrLineTerminator /* 0x20   */,
-  CharFlags.StringQuote /* 0x21 ! */,
+  CharFlags.Unknown /* 0x21 ! */,
   CharFlags.Unknown /* 0x22   */,
   CharFlags.Unknown /* 0x23 # */,
   CharFlags.IdentifierStart | CharFlags.IdentifierPart | CharFlags.NoKeywordCandidate /* 0x24 $ */,
   CharFlags.Unknown /* 0x25 % */,
   CharFlags.Unknown /* 0x26 & */,
-  CharFlags.StringQuote /* 0x27   */,
+  CharFlags.Unknown /* 0x27   */,
   CharFlags.Unknown /* 0x28   */,
   CharFlags.Unknown /* 0x29   */,
-  CharFlags.MultilineCommentCharacterNeedsSlowPath /* 0x2A   */,
+  CharFlags.MultilineCommentTerminator /* 0x2A   */,
   CharFlags.Exponent /* 0x2B   */,
   CharFlags.Unknown /* 0x2C   */,
   CharFlags.Exponent /* 0x2D   */,

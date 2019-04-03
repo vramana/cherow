@@ -32,7 +32,7 @@ export function parseMultiComment(state: ParserState): Token {
       state.flags |= Flags.NewLine;
     }
     nextChar(state);
-  } while (CharTypes[state.currentChar] & CharFlags.MultilineCommentCharacterNeedsSlowPath);
+  } while (CharTypes[state.currentChar] & CharFlags.MultilineCommentTerminator);
 
   // Slow path
   while (state.index < state.length) {
