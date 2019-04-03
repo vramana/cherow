@@ -7,7 +7,7 @@ import { scanEscape } from './string';
 
 export function scanTemplate(state: ParserState, context: Context): Token {
   const { index: start } = state;
-  let result: any = '';
+  let result: string | void = '';
   let badEscape: boolean = false;
   nextChar(state);
   while (state.index < state.source.length) {
@@ -24,14 +24,14 @@ export function scanTemplate(state: ParserState, context: Context): Token {
       } else {
         result += '$';
       }
-    } else if (CharTypes[state.currentChar] & CharFlags.BackSlash) {
+    } else if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
       if (state.index >= state.length) return Token.Illegal;
       nextChar(state);
       if (state.currentChar > 0x7f) {
         result += fromCodePoint(state.currentChar);
       } else {
         const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ false);
-        if (cooked === Escape.Empty) badEscape = true;
+        if (cooked === Escape.Invalid) badEscape = true;
         state.tokenValue += fromCodePoint(cooked);
       }
     } else {

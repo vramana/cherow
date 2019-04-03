@@ -13,16 +13,6 @@ export const enum NumberKind {
   DecimalWithLeadingZero = 1 << 5
 }
 
-/**
- * Note: For fast number lookup, there exist two possible options, but
- * I'm not 100% which ones are fastest.
- *
- * - (state.currentChar - Chars.Zero) > 7
- * - CharTypes[state.currentChar] & CharFlags.Octal
- *
- * TODO: Find out which ones are fastest
- */
-
 export function scanNumber(state: ParserState, context: Context, isFloat: boolean): Token {
   let kind: NumberKind = NumberKind.Decimal;
   let value: number | string = 0;
@@ -52,7 +42,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
         do {
           value = value * 8 + (state.currentChar - Chars.Zero);
           digits++;
-        } while (CharTypes[nextChar(state)] & CharFlags.Octal);
+        } while (nextChar(state) - Chars.Zero <= 7);
         if (digits < 1) return Token.Illegal;
       } else if ((state.currentChar | 32) === Chars.LowerB) {
         nextChar(state);
@@ -61,23 +51,24 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
         do {
           value = value * 2 + (state.currentChar - Chars.Zero);
           digits++;
-        } while (CharTypes[nextChar(state)] & CharFlags.Binary);
+        } while (nextChar(state) - Chars.Zero <= 1);
 
         if (digits < 1) return Token.Illegal;
-      } else if (CharTypes[state.currentChar] & CharFlags.Octal) {
+      } else if (state.currentChar >= Chars.Zero && state.currentChar <= Chars.Seven) {
+        // Octal integer literals are not permitted in strict mode code
         if (context & Context.Strict) {
           return Token.Illegal;
         }
         kind = NumberKind.ImplicitOctal;
         do {
-          if ((CharTypes[state.currentChar] & CharFlags.Octal) === 0) {
+          if (state.currentChar >= Chars.Eight) {
             nextChar(state);
             kind = NumberKind.DecimalWithLeadingZero;
             isFloat = false;
             break;
           }
           value = value * 8 + (state.currentChar - Chars.Zero);
-        } while (CharTypes[nextChar(state)] & CharFlags.Octal);
+        } while (nextChar(state) - Chars.Zero <= 7);
       } else if (state.currentChar - Chars.Zero > 7) {
         kind = NumberKind.DecimalWithLeadingZero;
       }
@@ -103,7 +94,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       while (CharTypes[state.currentChar] & CharFlags.Decimal) {
         nextChar(state);
       }
-
+      // Scan any decimal dot and fractional component
       if (state.currentChar === Chars.Period) {
         isFloat = true;
         nextChar(state); // consumes '.'
@@ -115,15 +106,18 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
   }
 
   let isBigInt = false;
-  if (state.currentChar === Chars.LowerN && !isFloat && (kind & (NumberKind.Decimal | NumberKind.Binary)) !== 0) {
+  if (
+    state.currentChar === Chars.LowerN /*&& !isFloat */ &&
+    (kind & (NumberKind.Decimal | NumberKind.Binary | NumberKind.Octal | NumberKind.Hex)) !== 0
+  ) {
     isBigInt = true;
     nextChar(state);
+    // Scan any exponential notation
   } else if ((state.currentChar | 32) === Chars.LowerE) {
     if ((kind & (NumberKind.Decimal | NumberKind.DecimalWithLeadingZero)) === 0) {
       return Token.Illegal;
     }
 
-    // Scan exponent
     nextChar(state);
 
     // '-', '+'
@@ -131,11 +125,11 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       nextChar(state);
     }
 
-    // We must have at least one decimal digit after 'e'/'E'
+    // Exponential notation must contain at least one digit
     if ((CharTypes[state.currentChar] & CharFlags.Decimal) < 1) {
       return Token.Illegal;
     }
-
+    // Consume exponential digits
     while (CharTypes[state.currentChar] & CharFlags.Decimal) {
       nextChar(state);
     }

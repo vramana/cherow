@@ -1,5 +1,5 @@
 import { nextChar, consumeMultiUnitCodePoint, isExoticECMAScriptWhitespace } from './common';
-import { skipSingleLineComment, parseMultiComment, scanHtmlComment } from './comments';
+import { skipSingleLineComment, parseMultiComment } from './comments';
 import { CharTypes, CharFlags, isIdentifierStart } from './charClassifier';
 import { Chars } from '../chars';
 import { Token } from '../token';
@@ -183,6 +183,22 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           }
           nextChar(state);
           break;
+        // `a`...`z`, `A`...`Z`, `_var`, `\\u{N}var`, `$var`
+        case Token.Identifier:
+          return scanIdentifier(state, context);
+        // `0`...`9`
+        case Token.NumericLiteral:
+          return scanNumber(state, context, false);
+        // `'string'`, `"string"`
+        case Token.DoubleQuote:
+        case Token.SingleQuote:
+          return scanString(state, context, next);
+        // ``string``
+        case Token.Template:
+          return scanTemplate(state, context);
+        // `#`
+        case Token.PrivateField:
+          return scanPrivateName(state);
 
         // `!`, `!=`, `!==`
         case Token.Negate:
@@ -251,8 +267,12 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
 
           if (next === Chars.Hyphen) {
             nextChar(state);
-            if ((isStartOfLine || state.flags & Flags.NewLine) && state.currentChar === Chars.GreaterThan) {
-              scanHtmlComment(state, context);
+            if (
+              (context & Context.Module) === 0 &&
+              (isStartOfLine || state.flags & Flags.NewLine) &&
+              state.currentChar === Chars.GreaterThan
+            ) {
+              skipSingleLineComment(state);
               continue;
             }
 
@@ -313,12 +333,14 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
               return Token.LessThanOrEqual;
 
             case Chars.Exclamation:
+              // Treat HTML begin-comment as comment-till-end-of-line.
               if (
+                (context & Context.Module) === 0 &&
                 state.source.charCodeAt(state.index + 1) === Chars.Hyphen &&
                 state.source.charCodeAt(state.index + 2) === Chars.Hyphen
               ) {
-                // <!-- marks the beginning of a line comment (for www usage)
-                return scanHtmlComment(state, context);
+                skipSingleLineComment(state);
+                continue;
               }
             case Chars.Slash: {
               if ((context & Context.OptionsJSX) < 1) break;
@@ -442,18 +464,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
             }
           }
           return Token.Period;
-        case Token.Template:
-          return scanTemplate(state, context);
-        case Token.NumericLiteral:
-          return scanNumber(state, context, false);
-        case Token.DoubleQuote:
-        case Token.SingleQuote:
-          return scanString(state, context, next);
-        case Token.Identifier:
-          return scanIdentifier(state, context);
-        case Token.Decorator:
-        case Token.PrivateField:
-          return scanPrivateName(state);
+
         default:
           unreachable();
       }

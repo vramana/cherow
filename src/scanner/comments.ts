@@ -4,11 +4,6 @@ import { Chars } from '../chars';
 import { Token } from '../token';
 import { ParserState, Context, Flags } from '../common';
 
-export function scanHtmlComment(state: ParserState, context: Context) {
-  if (context & Context.Module) return Token.Illegal;
-  return skipSingleLineComment(state);
-}
-
 export function skipSingleLineComment(state: ParserState): Token {
   while (state.index < state.source.length) {
     if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar & ~1) === 0x2028) {
@@ -48,7 +43,10 @@ export function parseMultiComment(state: ParserState): Token {
     }
 
     // ES 2020 11.3 Line Terminators
-    if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar & ~1) === 0x2028) {
+    if (
+      ((state.currentChar & 83) < 3 && CharTypes[state.currentChar] & CharFlags.LineTerminator) ||
+      (state.currentChar & ~1) === 0x2028
+    ) {
       state.flags |= Flags.NewLine;
     }
     nextChar(state);

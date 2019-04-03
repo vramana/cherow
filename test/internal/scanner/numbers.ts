@@ -464,22 +464,31 @@ describe('lexer - numbers', () => {
     index: 3
   });
 
-  pass('scan 0o12345670', {
-    source: '0o12345670',
+  pass('scan 933n', {
+    source: '933n',
     ctx: Context.Empty,
-    token: Token.NumericLiteral,
-    value: 2739128,
+    token: Token.Bigint,
+    value: 933,
     raw: '0o12345670',
-    index: 10
+    index: 4
   });
 
-  pass('scan 0x9a', {
-    source: '0x9a',
+  pass('scan 0B011n', {
+    source: '0B011n',
     ctx: Context.Empty,
-    token: Token.NumericLiteral,
-    value: 154,
-    raw: '0x9a',
-    index: 4
+    token: Token.Bigint,
+    value: 3,
+    raw: '0o12345670',
+    index: 6
+  });
+
+  pass('scan 0x555AAFFABn', {
+    source: '0x555AAFFABn',
+    ctx: Context.Empty,
+    token: Token.Bigint,
+    value: 22912106411,
+    raw: '22912106411',
+    index: 12
   });
 
   pass('scan 0x95454EFH5654a', {
@@ -498,6 +507,15 @@ describe('lexer - numbers', () => {
     value: 3,
     raw: '0B011',
     index: 5
+  });
+
+  pass('scan 0x9a', {
+    source: '0x9a',
+    ctx: Context.Empty,
+    token: Token.NumericLiteral,
+    value: 154,
+    raw: '0x9a',
+    index: 4
   });
 
   pass('scan 0x12', {
