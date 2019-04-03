@@ -6,24 +6,24 @@ import { CharTypes, CharFlags, isIdentifierStart, isIdentifierPart } from './cha
 
 export function scanIdentifier(state: ParserState, context: Context): Token {
   let hasEscape = false;
-  let canBeKeyword = false;
+  let canBeKeyword = true;
   if (state.currentChar <= 0x7f) {
     if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
       let allChars = 0;
-      while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0) {
+      do {
         allChars |= state.currentChar;
-      }
+      } while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0);
 
       state.tokenValue = state.source.slice(state.startIndex, state.index);
+
       if (allChars & ~0xff) {
         return descKeywordTable[state.tokenValue] || Token.Identifier;
       }
-      canBeKeyword = true;
     } else {
       hasEscape = true;
       const cookedChar = scanIdentifierUnicodeEscape(state);
       if (!isIdentifierPart(cookedChar)) return Token.Illegal;
-      canBeKeyword = (CharTypes[cookedChar] & CharFlags.NoKeywordCandidate) !== CharFlags.NoKeywordCandidate;
+      canBeKeyword = (CharTypes[cookedChar] & CharFlags.KeywordCandidate) !== 0;
       state.tokenValue += fromCodePoint(cookedChar);
     }
   }
@@ -43,8 +43,7 @@ export function scanIdentifierSlowCase(
       hasEscape = true;
       let cookedChar = scanIdentifierUnicodeEscape(state);
       if (!isIdentifierPart(cookedChar)) return Token.Illegal;
-      canBeKeyword =
-        canBeKeyword && (CharTypes[cookedChar] & CharFlags.NoKeywordCandidate) !== CharFlags.NoKeywordCandidate;
+      canBeKeyword = canBeKeyword && (CharTypes[cookedChar] & CharFlags.KeywordCandidate) !== 0;
       nextChar(state);
       state.tokenValue += fromCodePoint(cookedChar);
       start = state.index - 1;
