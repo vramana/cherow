@@ -14,8 +14,8 @@ export const enum NumberKind {
 }
 
 /**
- * Note: For fast number checkup, there are two possible options, but
- * not 100% which ones are fastest.
+ * Note: For fast number lookup, there exist two possible options, but
+ * I'm not 100% which ones are fastest.
  *
  * - (state.currentChar - Chars.Zero) > 7
  * - CharTypes[state.currentChar] & CharFlags.Octal
