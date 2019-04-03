@@ -10,7 +10,7 @@ export function scanString(state: ParserState, context: Context, quote: number):
   let res: string | void = '';
   let marker = state.index;
   do {
-    if (state.currentChar === Chars.Backslash) {
+    if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
       res += state.source.slice(marker, state.index);
       nextChar(state);
       const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ false);

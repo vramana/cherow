@@ -75,7 +75,7 @@ export const OneCharToken = [
   /*  61 - =                  */ Token.Assign,
   /*  62 - >                  */ Token.GreaterThan,
   /*  63 - ?                  */ Token.QuestionMark,
-  /*  64 - @                  */ Token.Decorator,
+  /*  64 - @                  */ Token.Illegal,
   /*  65 - A                  */ Token.Identifier,
   /*  66 - B                  */ Token.Identifier,
   /*  67 - C                  */ Token.Identifier,
@@ -451,7 +451,6 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           return scanString(state, context, next);
         case Token.Identifier:
           return scanIdentifier(state, context);
-        case Token.Decorator:
         case Token.PrivateField:
           return scanPrivateName(state);
         default:
@@ -468,7 +467,10 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
       }
       if (isExoticECMAScriptWhitespace(next)) {
         nextChar(state);
+        continue;
       }
+      // Unknown char
+      return Token.Illegal;
     }
 
     isStartOfLine = false;
