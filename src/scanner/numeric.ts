@@ -15,7 +15,7 @@ export const enum NumberKind {
 
 export function scanNumber(state: ParserState, context: Context, isFloat: boolean): Token {
   let kind: NumberKind = NumberKind.Decimal;
-
+  let value: number | string = 0;
   if (isFloat) {
     while (CharTypes[state.currentChar] & CharFlags.Decimal) {
       nextChar(state);
@@ -28,65 +28,58 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       if ((state.currentChar | 32) === Chars.LowerX) {
         nextChar(state);
         kind = NumberKind.Hex;
-
-        let digit = toHex(state.currentChar);
-
-        if (digit < 0) return Token.Illegal;
+        let digits = 0;
         do {
-          state.tokenValue = state.tokenValue * 0x10 + digit;
-          nextChar(state);
-          digit = toHex(state.currentChar);
-        } while (digit >= 0);
+          value = (value as number) * 0x10 + toHex(state.currentChar);
+          digits++;
+        } while (CharTypes[nextChar(state)] & (CharFlags.Decimal | CharFlags.Hex));
+        if (digits < 1) return Token.Illegal;
         // Octal
       } else if ((state.currentChar | 32) === Chars.LowerO) {
         nextChar(state);
         kind = NumberKind.Octal;
         let digits = 0;
-        while (CharTypes[state.currentChar] & CharFlags.Octal) {
-          state.tokenValue = state.tokenValue * 8 + (state.currentChar - Chars.Zero);
-          nextChar(state);
+        do {
+          value = value * 8 + (state.currentChar - Chars.Zero);
           digits++;
-        }
+        } while (CharTypes[nextChar(state)] & CharFlags.Octal);
         if (digits < 1) return Token.Illegal;
       } else if ((state.currentChar | 32) === Chars.LowerB) {
         nextChar(state);
         kind = NumberKind.Binary;
         let digits = 0;
-        while (CharTypes[state.currentChar] & CharFlags.Binary) {
-          state.tokenValue = state.tokenValue * 2 + (state.currentChar - Chars.Zero);
-          nextChar(state);
+        do {
+          value = value * 2 + (state.currentChar - Chars.Zero);
           digits++;
-        }
+        } while (CharTypes[nextChar(state)] & CharFlags.Binary);
+
         if (digits < 1) return Token.Illegal;
       } else if (CharTypes[state.currentChar] & CharFlags.Octal) {
         if (context & Context.Strict) {
           return Token.Illegal;
         }
         kind = NumberKind.ImplicitOctal;
-        while (state.index < state.length) {
+        do {
           if ((CharTypes[state.currentChar] & CharFlags.Octal) === 0) {
             nextChar(state);
             kind = NumberKind.DecimalWithLeadingZero;
             isFloat = false;
             break;
           }
-          state.tokenValue = state.tokenValue * 8 + (state.currentChar - Chars.Zero);
-          nextChar(state);
-        }
+          value = value * 8 + (state.currentChar - Chars.Zero);
+        } while (CharTypes[nextChar(state)] & CharFlags.Octal);
       } else if (CharTypes[state.currentChar] & CharFlags.NonOctalDecimalDigit) {
         kind = NumberKind.DecimalWithLeadingZero;
       }
     }
 
-    // Parse decimal digits and allow trailing fractional part.
+    // Parse decimal digits and allow trailing fractional part
     if (kind & (NumberKind.Decimal | NumberKind.DecimalWithLeadingZero)) {
-      // This is an optimization for parsing Decimal numbers as SMI's.
       if (isFloat) {
-        let value = 0;
         // scan subsequent decimal digits
         let digit = 9;
-        while (CharTypes[state.currentChar] & CharFlags.Decimal && digit >= 0) {
-          value = 0xa * (value as number) + (state.currentChar - Chars.Zero);
+        while (digit >= 0 && CharTypes[state.currentChar] & CharFlags.Decimal) {
+          value = 0xa * value + (state.currentChar - Chars.Zero);
           nextChar(state);
           --digit;
         }
@@ -103,7 +96,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
 
       if (state.currentChar === Chars.Period) {
         isFloat = true;
-        nextChar(state);
+        nextChar(state); // consumes '.'
         while (CharTypes[state.currentChar] & CharFlags.Decimal) {
           nextChar(state);
         }
@@ -112,7 +105,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
   }
 
   let isBigInt = false;
-  if (state.currentChar === Chars.LowerN && !isFloat && kind & (NumberKind.Decimal | NumberKind.Binary)) {
+  if (state.currentChar === Chars.LowerN && !isFloat && (kind & (NumberKind.Decimal | NumberKind.Binary)) !== 0) {
     isBigInt = true;
     nextChar(state);
   } else if ((state.currentChar | 32) === Chars.LowerE) {
@@ -120,7 +113,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       return Token.Illegal;
     }
 
-    // scan exponent
+    // Scan exponent
     nextChar(state);
 
     // '-', '+'
@@ -128,7 +121,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       nextChar(state);
     }
 
-    // we must have at least one decimal digit after 'e'/'E'
+    // We must have at least one decimal digit after 'e'/'E'
     if ((CharTypes[state.currentChar] & CharFlags.Decimal) < 1) {
       return Token.Illegal;
     }
@@ -143,8 +136,8 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
     return Token.Illegal;
   }
   state.tokenValue =
-    kind & NumberKind.ImplicitOctal
-      ? state.tokenValue
+    kind & (NumberKind.ImplicitOctal | NumberKind.Binary | NumberKind.Hex | NumberKind.Octal)
+      ? value
       : kind & NumberKind.DecimalWithLeadingZero
       ? parseFloat(state.source.slice(state.startIndex, state.index))
       : isBigInt

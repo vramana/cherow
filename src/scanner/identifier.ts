@@ -1,7 +1,7 @@
 import { ParserState, Context } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars } from '../chars';
-import { nextChar, consumeOptAstral, fromCodePoint, convertToHex, Escape } from './common';
+import { nextChar, consumeOptAstral, fromCodePoint, toHex, Escape } from './common';
 import { CharTypes, CharFlags, isIdentifierStart, isIdentifierPart } from './charClassifier';
 
 export function scanIdentifier(state: ParserState, context: Context): Token {
@@ -108,7 +108,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
       if ((CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0) {
         return Escape.Invalid;
       }
-      codePoint = codePoint * 0x10 + convertToHex(state.currentChar);
+      codePoint = codePoint * 0x10 + toHex(state.currentChar);
       if (codePoint > Chars.LastUnicodeChar) {
         return Escape.Invalid;
       }
@@ -136,10 +136,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
     return Escape.Invalid;
   }
 
-  codePoint =
-    (((convertToHex(state.currentChar) << 4) | convertToHex(char2)) << 8) |
-    (convertToHex(char3) << 4) |
-    convertToHex(char4);
+  codePoint = (((toHex(state.currentChar) << 4) | toHex(char2)) << 8) | (toHex(char3) << 4) | toHex(char4);
 
   state.currentChar = state.source.charCodeAt((state.index += 4));
 

@@ -1,25 +1,25 @@
 import { ParserState, Context } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { convertToHex, nextChar, fromCodePoint, Escape } from './common';
+import { toHex, nextChar, fromCodePoint, Escape } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
 import { scanUnicodeEscapeValue } from './identifier';
 
 export function scanString(state: ParserState, context: Context, quote: number): Token {
   nextChar(state); // consume quote
-  state.tokenValue = '';
+  let res: string | void = '';
   let marker = state.index;
   do {
     if (state.currentChar === Chars.Backslash) {
-      state.tokenValue += state.source.slice(marker, state.index);
+      res += state.source.slice(marker, state.index);
       nextChar(state);
       const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ false);
       if (cooked === Escape.Invalid) return Token.Illegal;
-      state.tokenValue += fromCodePoint(cooked);
+      res += fromCodePoint(cooked);
       marker = state.index;
     }
     if (state.currentChar === quote) {
-      state.tokenValue += state.source.slice(marker, state.index);
+      state.tokenValue = res += state.source.slice(marker, state.index);
       nextChar(state);
       return Token.StringLiteral;
     }
@@ -76,7 +76,7 @@ export function scanEscape(state: ParserState, context: Context, first: number, 
         if ((CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) === 0) {
           return Escape.InvalidHex;
         }
-        codePoint = codePoint * 0x10 + convertToHex(state.currentChar);
+        codePoint = codePoint * 0x10 + toHex(state.currentChar);
         nextChar(state);
       }
       if (codePoint < 0) return Escape.InvalidHex;

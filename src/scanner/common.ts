@@ -56,16 +56,8 @@ export function fromCodePoint(codePoint: number): string {
 /**
  * Converts a value to a hex value
  *
- * @param cp CodePoint
+ * @param code CodePoint
  */
 export function toHex(code: number): number {
-  if (code <= Chars.Nine) return code - Chars.Zero;
-  code = code | 32;
-  if (code < Chars.LowerA || code < Chars.Zero) return -1;
-  if (code <= Chars.LowerF) return code - Chars.LowerA + 10;
-  return -1;
-}
-
-export function convertToHex(code: number): number {
   return code < Chars.UpperA ? code - Chars.Zero : (code - Chars.UpperA + 10) & 0xf;
 }
