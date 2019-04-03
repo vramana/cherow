@@ -39,7 +39,7 @@ export function scanIdentifierSlowCase(
 ): Token {
   let start = state.index;
   while (state.index < state.source.length) {
-    if ((CharTypes[state.currentChar] & CharFlags.NeedSlowPath) !== 0) {
+    if (state.currentChar === Chars.Backslash) {
       hasEscape = true;
       let cookedChar = scanIdentifierUnicodeEscape(state);
       if (!isIdentifierPart(cookedChar)) return Token.Illegal;

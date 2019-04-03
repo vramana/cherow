@@ -4,11 +4,10 @@ import { CharFlags, CharTypes } from '../../../src/scanner/charClassifier';
 
 describe('src/scanner/scan', () => {
   const tokens: Array<[Context, number]> = [
-    [CharFlags.WhiteSpace | CharFlags.WhiteSpaceOrLineTerminator, 9],
-    [CharFlags.WhiteSpaceOrLineTerminator | CharFlags.LineTerminator, 10],
+    [CharFlags.WhiteSpace, 9],
     [CharFlags.LineTerminator, 10],
-    [CharFlags.WhiteSpaceOrLineTerminator, 10],
-    [CharFlags.WhiteSpace | CharFlags.WhiteSpaceOrLineTerminator, 32],
+    [CharFlags.LineTerminator, 10],
+    [CharFlags.WhiteSpace, 32],
     [CharFlags.IdentifierStart | CharFlags.IdentifierPart, 36],
     [CharFlags.Binary, 48],
     [CharFlags.Octal, 48],
@@ -23,7 +22,7 @@ describe('src/scanner/scan', () => {
     [CharFlags.IdentifierStart | CharFlags.IdentifierPart, 77],
     [CharFlags.IdentifierStart | CharFlags.IdentifierPart, 78],
     [CharFlags.IdentifierStart | CharFlags.IdentifierPart, 103],
-    [CharFlags.NeedSlowPath, 92],
+    [CharFlags.BackSlash | CharFlags.IdentifierStart, 92],
     [CharFlags.IdentifierStart | CharFlags.IdentifierPart, 122]
   ];
 
