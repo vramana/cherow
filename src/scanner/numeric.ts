@@ -11,8 +11,7 @@ export const enum NumberKind {
   Octal = 1 << 2,
   Hex = 1 << 3,
   Decimal = 1 << 4,
-  DecimalWithLeadingZero = 1 << 5,
-  MissingHexDigits
+  DecimalWithLeadingZero = 1 << 5
 }
 
 export function scanNumber(state: ParserState, context: Context, isFloat: boolean): Token {

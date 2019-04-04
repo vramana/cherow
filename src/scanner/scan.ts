@@ -192,7 +192,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         // `'string'`, `"string"`
         case Token.DoubleQuote:
         case Token.SingleQuote:
-          return scanString(state, context, next);
+          return scanString(state, context, next) as Token;
         // ``string``
         case Token.Template:
           return scanTemplate(state, context);
