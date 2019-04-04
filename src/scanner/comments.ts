@@ -6,7 +6,7 @@ import { ParserState, Context, Flags } from '../common';
 
 export function skipSingleLineComment(state: ParserState): Token {
   while (state.index < state.source.length) {
-    if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar & ~1) === 0x2028) {
+    if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar ^ Chars.LineSeparator) <= 1) {
       break;
     }
     nextChar(state);
@@ -45,7 +45,7 @@ export function parseMultiComment(state: ParserState): Token {
     // ES 2020 11.3 Line Terminators
     if (
       ((state.currentChar & 83) < 3 && CharTypes[state.currentChar] & CharFlags.LineTerminator) ||
-      (state.currentChar & ~1) === 0x2028
+      (state.currentChar ^ Chars.LineSeparator) <= 1
     ) {
       state.flags |= Flags.NewLine;
     }

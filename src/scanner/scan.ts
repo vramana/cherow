@@ -469,7 +469,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           unreachable();
       }
     } else {
-      if ((state.currentChar & ~1) === Chars.LineSeparator) {
+      if ((next ^ Chars.LineSeparator) <= 1) {
         state.flags |= Flags.NewLine;
         nextChar(state);
         continue;
@@ -482,7 +482,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
         continue;
       }
 
-      // Unknown char
+      // Invalid ASCII code point/unit
       return Token.Illegal;
     }
 

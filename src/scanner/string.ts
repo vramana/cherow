@@ -10,12 +10,18 @@ export function scanString(state: ParserState, context: Context, quote: number):
   let res: string | void = '';
   let marker = state.index;
   do {
+    // Backslash have it's 4th bit set
     if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
       res += state.source.slice(marker, state.index);
       nextChar(state);
-      const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ false);
-      if (cooked === Escape.Invalid) return Token.Illegal;
-      res += fromCodePoint(cooked);
+      if (state.currentChar > 0x7f) {
+        res += fromCodePoint(state.currentChar);
+        nextChar(state);
+      } else {
+        const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ false);
+        if (cooked === Escape.Invalid) return Token.Illegal;
+        res += fromCodePoint(cooked);
+      }
       marker = state.index;
     }
     if (state.currentChar === quote) {
