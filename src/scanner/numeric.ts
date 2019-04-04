@@ -17,6 +17,7 @@ export const enum NumberKind {
 export function scanNumber(state: ParserState, context: Context, isFloat: boolean): Token {
   let kind: NumberKind = NumberKind.Decimal;
   let value: number | string = 0;
+  let atStart = !isFloat;
   if (isFloat) {
     while (CharTypes[state.currentChar] & CharFlags.Decimal) {
       nextChar(state);
@@ -66,7 +67,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
         do {
           if (CharTypes[state.currentChar] & CharFlags.ImplicitOctalDigits) {
             kind = NumberKind.DecimalWithLeadingZero;
-            isFloat = false;
+            atStart = false;
             break;
           }
           value = value * 8 + (state.currentChar - Chars.Zero);
@@ -78,7 +79,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
 
     // Parse decimal digits and allow trailing fractional part
     if (kind & (NumberKind.Decimal | NumberKind.DecimalWithLeadingZero)) {
-      if (isFloat) {
+      if (atStart) {
         // scan subsequent decimal digits
         let digit = 9;
         while (digit >= 0 && CharTypes[state.currentChar] & CharFlags.Decimal) {

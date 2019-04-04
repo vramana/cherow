@@ -16,31 +16,13 @@ export function skipSingleLineComment(state: ParserState): Token {
 }
 
 export function parseMultiComment(state: ParserState): any {
-  do {
-    while (state.currentChar === Chars.Asterisk) {
-      nextChar(state);
-      if ((state.currentChar as number) === Chars.Slash) {
-        nextChar(state);
-        return Token.WhiteSpace;
-      }
-    }
-    if (CharTypes[state.currentChar] & CharFlags.LineTerminator) {
-      state.flags |= Flags.NewLine;
-    }
-  } while (CharTypes[nextChar(state)] & CharFlags.MultilineCommentTerminator);
-
-  // Slow path
   while (state.index < state.length) {
-    while (state.currentChar === Chars.Asterisk) {
+    if (state.currentChar === Chars.Asterisk) {
       nextChar(state);
       if ((state.currentChar as number) === Chars.Slash) {
         nextChar(state);
         return Token.WhiteSpace;
       }
-    }
-
-    if (state.index >= state.source.length) {
-      report(state, Errors.UnterminatedComment);
     }
 
     // ES 2020 11.3 Line Terminators

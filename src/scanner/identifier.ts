@@ -61,7 +61,6 @@ export function scanIdentifierSlowCase(
   if (canBeKeyword && (length >= 2 && length <= 11)) {
     const keyword: Token | undefined = descKeywordTable[state.tokenValue];
     if (keyword === undefined) return Token.Identifier;
-    if (!hasEscape) return keyword;
 
     if (keyword === Token.YieldKeyword) return keyword;
 
@@ -114,7 +113,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
     } while ((state.currentChar as number) !== Chars.RightBrace);
 
     // At least 4 characters have to be read
-    if (codePoint < 0 || (state.currentChar as number) !== Chars.RightBrace) {
+    if (codePoint < 1 || (state.currentChar as number) !== Chars.RightBrace) {
       report(state, Errors.InvalidDynamicUnicode);
     }
     nextChar(state);

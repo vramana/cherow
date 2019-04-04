@@ -126,6 +126,7 @@ describe('Lexer - Identifiers', () => {
   fail('fails on ᧚', '᧚', Context.Empty); // Invalid as IdentifierStart
   fail('fails on \\u007', '\\u007', Context.Strict);
   fail('fails on \\u00', '\\u00', Context.Empty);
+  fail('fails on \\u044', '\\u044', Context.Empty);
   fail('fails on \\u0', '\\u0', Context.Empty);
   fail('fails on \\u', '\\u', Context.Empty);
   fail('fails on \\', '\\', Context.Empty);
@@ -161,7 +162,12 @@ describe('Lexer - Identifiers', () => {
   fail('fails on \\u104', '\\u104', Context.Empty);
   fail('fails on \\u{!', '\\u{!', Context.Empty);
   fail('fails on \\u', '\\u', Context.Empty);
+  fail('fails on \\u{4fff', '\\u{4fff', Context.Empty);
+  fail('fails on \\u{4ff', '\\u{4ff', Context.Empty);
+  fail('fails on a\\u{4fff', 'a\\u{4fff', Context.Empty);
+  fail('fails on a\\u{4ff', 'a\\u{4ff', Context.Empty);
   fail('fails on \\u{!', '\\u{!', Context.Empty);
+  fail('fails on \\u{}', '\\u{}', Context.Empty);
   fail('fails on \\u', '\\u', Context.Empty);
   fail('fails on \\8', '\\8', Context.Empty);
   fail('fails on \\9', '\\9', Context.Empty);
