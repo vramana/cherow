@@ -6,12 +6,15 @@ export const enum CharFlags {
   IdentifierPart = 1 << 1,
   WhiteSpace = 1 << 2, // ECMA-262 11.2 White Space
   KeywordCandidate = 1 << 6,
+  MultilineCommentTerminator = 1 << 7,
   LineTerminator = 1 << 9, // ECMA-262 11.3 Line Terminators
   Decimal = 1 << 10,
+  Octal = 1 << 11,
   Hex = 1 << 12,
+  Binary = 1 << 13,
   Exponent = 1 << 15,
   BackSlash = 1 << 17,
-  MultilineCommentTerminator = 1 << 18
+  ImplicitOctalDigits = 1 << 18
 }
 
 /**
@@ -66,16 +69,16 @@ export const CharTypes = [
   CharFlags.Exponent /* 0x2D   */,
   CharFlags.Unknown /* 0x2E   */,
   CharFlags.Unknown /* 0x2F   */,
-  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Hex /* 0x30 0 */,
-  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Hex /* 0x31 1 */,
-  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Hex /* 0x32 2 */,
-  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Hex /* 0x33 3 */,
-  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Hex /* 0x34 4 */,
-  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Hex /* 0x35 5 */,
-  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Hex /* 0x36 6 */,
-  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Hex /* 0x37 7 */,
-  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Hex /* 0x38 8 */,
-  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Hex /* 0x39 9 */,
+  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Binary | CharFlags.Octal | CharFlags.Hex /* 0x30 0 */,
+  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Binary | CharFlags.Octal | CharFlags.Hex /* 0x31 1 */,
+  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Octal | CharFlags.Hex /* 0x32 2 */,
+  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Octal | CharFlags.Hex /* 0x33 3 */,
+  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Octal | CharFlags.Hex /* 0x34 4 */,
+  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Octal | CharFlags.Hex /* 0x35 5 */,
+  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Octal | CharFlags.Hex /* 0x36 6 */,
+  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.Octal | CharFlags.Hex /* 0x37 7 */,
+  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.ImplicitOctalDigits | CharFlags.Hex /* 0x38 8 */,
+  CharFlags.IdentifierPart | CharFlags.Decimal | CharFlags.ImplicitOctalDigits | CharFlags.Hex /* 0x39 9 */,
   CharFlags.Unknown /* 0x3A   */,
   CharFlags.Unknown /* 0x3B   */,
   CharFlags.Unknown /* 0x3C < */,

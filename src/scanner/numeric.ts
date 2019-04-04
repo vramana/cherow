@@ -3,6 +3,7 @@ import { Token } from '../token';
 import { nextChar, toHex } from './common';
 import { CharTypes, CharFlags, isIdentifierStart } from './charClassifier';
 import { Chars } from '../chars';
+import { report, Errors } from '../errors';
 
 export const enum NumberKind {
   ImplicitOctal = 1 << 0,
@@ -10,7 +11,8 @@ export const enum NumberKind {
   Octal = 1 << 2,
   Hex = 1 << 3,
   Decimal = 1 << 4,
-  DecimalWithLeadingZero = 1 << 5
+  DecimalWithLeadingZero = 1 << 5,
+  MissingHexDigits
 }
 
 export function scanNumber(state: ParserState, context: Context, isFloat: boolean): Token {
@@ -29,45 +31,47 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
         nextChar(state);
         kind = NumberKind.Hex;
         let digits = 0;
-        do {
+        while (CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) {
           value = value * 0x10 + toHex(state.currentChar);
           digits++;
-        } while (CharTypes[nextChar(state)] & (CharFlags.Decimal | CharFlags.Hex));
-        if (digits < 1) return Token.Illegal;
+          nextChar(state);
+        }
+        if (digits < 1) report(state, Errors.MissingHexDigits);
         // Octal
       } else if ((state.currentChar | 32) === Chars.LowerO) {
         nextChar(state);
         kind = NumberKind.Octal;
         let digits = 0;
-        do {
+        while (CharTypes[state.currentChar] & CharFlags.Octal) {
           value = value * 8 + (state.currentChar - Chars.Zero);
           digits++;
-        } while (nextChar(state) - Chars.Zero <= 7);
-        if (digits < 1) return Token.Illegal;
+          nextChar(state);
+        }
+        if (digits < 1) report(state, Errors.ExpectedNumberInRadix, `${8}`);
       } else if ((state.currentChar | 32) === Chars.LowerB) {
         nextChar(state);
         kind = NumberKind.Binary;
         let digits = 0;
-        do {
+        while (CharTypes[state.currentChar] & CharFlags.Binary) {
           value = value * 2 + (state.currentChar - Chars.Zero);
           digits++;
-        } while (nextChar(state) - Chars.Zero <= 1);
-
-        if (digits < 1) return Token.Illegal;
-      } else if (state.currentChar >= Chars.Zero && state.currentChar <= Chars.Seven) {
+          nextChar(state);
+        }
+        if (digits < 1) report(state, Errors.ExpectedNumberInRadix, `${2}`);
+      } else if (CharTypes[state.currentChar] & CharFlags.Octal) {
         // Octal integer literals are not permitted in strict mode code
         if (context & Context.Strict) {
-          return Token.Illegal;
+          report(state, Errors.LegacyOctalsInStrictMode);
         }
         kind = NumberKind.ImplicitOctal;
         do {
-          if (state.currentChar >= Chars.Eight) {
+          if (CharTypes[state.currentChar] & CharFlags.ImplicitOctalDigits) {
             kind = NumberKind.DecimalWithLeadingZero;
             isFloat = false;
             break;
           }
           value = value * 8 + (state.currentChar - Chars.Zero);
-        } while (nextChar(state) - Chars.Zero <= 7);
+        } while (CharTypes[nextChar(state)] & CharFlags.Decimal);
       } else if (state.currentChar - Chars.Zero > 7) {
         kind = NumberKind.DecimalWithLeadingZero;
       }
@@ -114,7 +118,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
     // Scan any exponential notation
   } else if ((state.currentChar | 32) === Chars.LowerE) {
     if ((kind & (NumberKind.Decimal | NumberKind.DecimalWithLeadingZero)) === 0) {
-      return Token.Illegal;
+      report(state, Errors.InvalidNumber);
     }
 
     nextChar(state);
@@ -126,7 +130,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
 
     // Exponential notation must contain at least one digit
     if ((CharTypes[state.currentChar] & CharFlags.Decimal) < 1) {
-      return Token.Illegal;
+      report(state, Errors.MissingExponent);
     }
     // Consume exponential digits
     while (CharTypes[state.currentChar] & CharFlags.Decimal) {
@@ -136,7 +140,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
   // The source character immediately following a numeric literal must
   // not be an identifier start or a decimal digit
   if (CharTypes[state.currentChar] & CharFlags.Decimal || isIdentifierStart(state.currentChar)) {
-    return Token.Illegal;
+    report(state, Errors.IDStartAfterNumber);
   }
   state.tokenValue =
     kind & (NumberKind.ImplicitOctal | NumberKind.Binary | NumberKind.Hex | NumberKind.Octal)

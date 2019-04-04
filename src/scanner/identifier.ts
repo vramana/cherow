@@ -3,6 +3,7 @@ import { Token, descKeywordTable } from '../token';
 import { Chars } from '../chars';
 import { nextChar, consumeMultiUnitCodePoint, fromCodePoint, toHex, Escape } from './common';
 import { CharTypes, CharFlags, isIdentifierStart, isIdentifierPart } from './charClassifier';
+import { report, Errors } from '../errors';
 
 export function scanIdentifier(state: ParserState, context: Context): Token {
   let hasEscape = false;
@@ -22,7 +23,7 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
     } else {
       hasEscape = true;
       const cookedChar = scanIdentifierUnicodeEscape(state);
-      if (!isIdentifierPart(cookedChar)) return Token.Illegal;
+      if (!isIdentifierPart(cookedChar)) report(state, Errors.InvalidExtendedUnicodeEscape);
       canBeKeyword = (CharTypes[cookedChar] & CharFlags.KeywordCandidate) !== 0;
       state.tokenValue += fromCodePoint(cookedChar);
     }
@@ -42,7 +43,7 @@ export function scanIdentifierSlowCase(
     if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
       hasEscape = true;
       let cookedChar = scanIdentifierUnicodeEscape(state);
-      if (!isIdentifierPart(cookedChar)) return Token.Illegal;
+      if (!isIdentifierPart(cookedChar)) report(state, Errors.InvalidExtendedUnicodeEscape);
       canBeKeyword = canBeKeyword && (CharTypes[cookedChar] & CharFlags.KeywordCandidate) !== 0;
       nextChar(state);
       state.tokenValue += fromCodePoint(cookedChar);
@@ -89,14 +90,14 @@ export function scanPrivateName(state: ParserState): Token {
   return Token.PrivateField;
 }
 
-export function scanIdentifierUnicodeEscape(state: ParserState): number {
+export function scanIdentifierUnicodeEscape(state: ParserState): any {
   // Check for Unicode escape of the form '\uXXXX'
   // and return code point value if valid Unicode escape is found. Otherwise return -1.
   if (state.index + 5 < state.length && state.source.charCodeAt(state.index + 1) === Chars.LowerU) {
     state.currentChar = state.source.charCodeAt((state.index += 2));
     return scanUnicodeEscapeValue(state);
   }
-  return Escape.Invalid;
+  report(state, Errors.InvalidUnicodeIdentName);
 }
 
 export function scanUnicodeEscapeValue(state: ParserState): number {
@@ -106,18 +107,18 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
 
     do {
       if ((CharTypes[state.currentChar] & CharFlags.Hex) === 0) {
-        return Escape.Invalid;
+        report(state, Errors.InvalidExtendedUnicodeEscape);
       }
       codePoint = codePoint * 0x10 + toHex(state.currentChar);
       if (codePoint > Chars.LastUnicodeChar) {
-        return Escape.Invalid;
+        report(state, Errors.UnicodeOutOfRange);
       }
       nextChar(state);
     } while ((state.currentChar as number) !== Chars.RightBrace);
 
     // At least 4 characters have to be read
     if (codePoint < 0 || (state.currentChar as number) !== Chars.RightBrace) {
-      return Escape.Invalid;
+      report(state, Errors.InvalidDynamicUnicode);
     }
     nextChar(state);
     return codePoint;
@@ -133,7 +134,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
     (CharTypes[c3] & CharFlags.Hex) === 0 ||
     (CharTypes[c4] & CharFlags.Hex) === 0
   ) {
-    return Escape.Invalid;
+    report(state, Errors.InvalidIdentCharIdentEscape);
   }
 
   codePoint = (((toHex(state.currentChar) << 4) | toHex(c2)) << 8) | (toHex(c3) << 4) | toHex(c4);

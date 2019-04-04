@@ -4,35 +4,38 @@ import { Chars } from '../chars';
 import { toHex, nextChar, fromCodePoint, Escape } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
 import { scanUnicodeEscapeValue } from './identifier';
+import { report, Errors } from '../errors';
 
-export function scanString(state: ParserState, context: Context, quote: number): Token {
+export function scanString(state: ParserState, context: Context, quote: number): Token | void {
   nextChar(state); // consume quote
   let res: string | void = '';
   let marker = state.index;
   do {
     // Backslash have it's 4th bit set
     if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
+      // check for valid sequences
       res += state.source.slice(marker, state.index);
       nextChar(state);
       if (state.currentChar > 0x7f) {
         res += fromCodePoint(state.currentChar);
-        nextChar(state);
+        nextChar(state); // skip the slash
       } else {
         const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ false);
-        if (cooked === Escape.Invalid) return Token.Illegal;
+        if (cooked === Escape.Invalid) report(state, Errors.InvalidExtendedUnicodeEscape);
         res += fromCodePoint(cooked);
       }
       marker = state.index;
     }
     if (state.currentChar === quote) {
       state.tokenValue = res += state.source.slice(marker, state.index);
-      nextChar(state);
+      nextChar(state); // skip closing quote
       return Token.StringLiteral;
     }
+    if (state.index >= state.length) report(state, Errors.UnterminatedString);
   } while ((CharTypes[nextChar(state)] & CharFlags.LineTerminator) === 0);
 
   // New-line or end of input is not allowed
-  return Token.Illegal;
+  report(state, Errors.UnterminatedString);
 }
 
 export function scanEscape(state: ParserState, context: Context, first: number, isTemplate: boolean): number {

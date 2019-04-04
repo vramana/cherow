@@ -2,7 +2,8 @@ import { Chars } from '../chars';
 import { Context, ParserState } from '../common';
 import { Token } from '../token';
 import { nextChar } from './common';
-import { CharTypes, CharFlags, isIdentifierPart } from './charClassifier';
+import { isIdentifierPart } from './charClassifier';
+import { report, Errors } from '../errors';
 
 /**
  * Scans regular expression
@@ -13,7 +14,7 @@ import { CharTypes, CharFlags, isIdentifierPart } from './charClassifier';
 
 export function scanRegularExpression(state: ParserState, context: Context): Token {
   if (state.index >= state.source.length) {
-    return Token.Illegal;
+    return report(state, Errors.UnterminatedRegExp);
   }
 
   const enum RegexState {
@@ -49,13 +50,13 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
         case Chars.LineFeed:
         case Chars.LineSeparator:
         case Chars.ParagraphSeparator:
-          return Token.Illegal;
+          report(state, Errors.InvalidRegExp);
         default: // ignore
       }
     }
 
     if (state.index >= state.source.length) {
-      return Token.Illegal;
+      return report(state, Errors.UnterminatedRegExp);
     }
   }
 
@@ -78,37 +79,37 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
   while (isIdentifierPart(nextChar(state))) {
     switch (state.currentChar) {
       case Chars.LowerG:
-        if (mask & RegexFlags.Global) return Token.Illegal;
+        if (mask & RegexFlags.Global) report(state, Errors.DuplicateRegExpFlag, 'g');
         mask |= RegexFlags.Global;
         break;
 
       case Chars.LowerI:
-        if (mask & RegexFlags.IgnoreCase) return Token.Illegal;
+        if (mask & RegexFlags.IgnoreCase) report(state, Errors.DuplicateRegExpFlag, 'i');
         mask |= RegexFlags.IgnoreCase;
         break;
 
       case Chars.LowerM:
-        if (mask & RegexFlags.Multiline) return Token.Illegal;
+        if (mask & RegexFlags.Multiline) report(state, Errors.DuplicateRegExpFlag, 'm');
         mask |= RegexFlags.Multiline;
         break;
 
       case Chars.LowerU:
-        if (mask & RegexFlags.Unicode) return Token.Illegal;
+        if (mask & RegexFlags.Unicode) report(state, Errors.DuplicateRegExpFlag, 'g');
         mask |= RegexFlags.Unicode;
         break;
 
       case Chars.LowerY:
-        if (mask & RegexFlags.Sticky) return Token.Illegal;
+        if (mask & RegexFlags.Sticky) report(state, Errors.DuplicateRegExpFlag, 'y');
         mask |= RegexFlags.Sticky;
         break;
 
       case Chars.LowerS:
-        if (mask & RegexFlags.DotAll) return Token.Illegal;
+        if (mask & RegexFlags.DotAll) report(state, Errors.DuplicateRegExpFlag, 's');
         mask |= RegexFlags.DotAll;
         break;
 
       default:
-        return Token.Illegal;
+        report(state, Errors.UnexpectedTokenRegExpFlag);
     }
   }
   const flags = state.source.slice(flagStart, state.index);
@@ -119,7 +120,7 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
 
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
 
-  state.tokenValue = validate(pattern, flags);
+  state.tokenValue = validate(state, pattern, flags);
 
   return Token.RegularExpression;
 }
@@ -133,11 +134,11 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
  * @param pattern Regexp body
  * @param flags Regexp flags
  */
-function validate(pattern: string, flags: string): RegExp | null | Token {
+function validate(state: ParserState, pattern: string, flags: string): RegExp | null | Token {
   try {
     RegExp(pattern);
   } catch (e) {
-    return Token.Illegal;
+    report(state, Errors.InvalidRegExp);
   }
 
   try {

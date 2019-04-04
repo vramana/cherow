@@ -2,7 +2,8 @@ import { nextChar } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
 import { Chars } from '../chars';
 import { Token } from '../token';
-import { ParserState, Context, Flags } from '../common';
+import { ParserState, Flags } from '../common';
+import { report, Errors } from '../errors';
 
 export function skipSingleLineComment(state: ParserState): Token {
   while (state.index < state.source.length) {
@@ -14,7 +15,7 @@ export function skipSingleLineComment(state: ParserState): Token {
   return Token.WhiteSpace;
 }
 
-export function parseMultiComment(state: ParserState): Token {
+export function parseMultiComment(state: ParserState): any {
   do {
     while (state.currentChar === Chars.Asterisk) {
       nextChar(state);
@@ -39,7 +40,7 @@ export function parseMultiComment(state: ParserState): Token {
     }
 
     if (state.index >= state.source.length) {
-      return Token.Illegal;
+      report(state, Errors.UnterminatedComment);
     }
 
     // ES 2020 11.3 Line Terminators
@@ -51,5 +52,6 @@ export function parseMultiComment(state: ParserState): Token {
     }
     nextChar(state);
   }
-  return Token.Illegal;
+
+  report(state, Errors.UnterminatedComment);
 }

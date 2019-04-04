@@ -1,11 +1,11 @@
 import { ParserState, Context } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { CharTypes, CharFlags } from './charClassifier';
 import { nextChar, fromCodePoint, Escape } from './common';
 import { scanEscape } from './string';
+import { report, Errors } from '../errors';
 
-export function scanTemplate(state: ParserState, context: Context): Token {
+export function scanTemplate(state: ParserState, context: Context): any {
   const { index: start } = state;
   let result: string | void = '';
   let badEscape: boolean = false;
@@ -25,7 +25,6 @@ export function scanTemplate(state: ParserState, context: Context): Token {
         result += '$';
       }
     } else if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
-      if (state.index >= state.length) return Token.Illegal;
       nextChar(state);
       if (state.currentChar > 0x7f) {
         result += fromCodePoint(state.currentChar);
@@ -50,11 +49,11 @@ export function scanTemplate(state: ParserState, context: Context): Token {
       }
     }
 
-    if (state.index >= state.length) return Token.Illegal;
+    if (state.index >= state.length) report(state, Errors.UnterminatedTemplate);
     nextChar(state);
   }
 
-  return Token.Illegal;
+  report(state, Errors.UnterminatedTemplate);
 }
 
 export function scanTemplateTail(state: ParserState, context: Context): Token {

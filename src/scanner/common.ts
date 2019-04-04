@@ -1,6 +1,7 @@
 import { Chars } from '../chars';
 import { ParserState } from '../common';
 import { unicodeLookup } from '../unicode';
+import { report, Errors } from '../errors';
 
 export const enum Escape {
   Empty = 0,
@@ -22,7 +23,8 @@ export function consumeMultiUnitCodePoint(state: ParserState, hi: number): boole
   if ((lo & 0xfc00) !== 0xdc00) return false;
   nextChar(state);
   hi = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
-  if (((unicodeLookup[(hi >>> 5) + 0] >>> hi) & 31 & 1) === 0) throw 'This is an error!!!';
+  if (((unicodeLookup[(hi >>> 5) + 0] >>> hi) & 31 & 1) === 0)
+    report(state, Errors.InvalidIdentCharIdentEscape, fromCodePoint(hi));
   state.currentChar = hi;
   return true;
 }

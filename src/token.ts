@@ -24,11 +24,11 @@ export const enum Token {
     IsBinaryOp           = 1 << 24 | IsExpressionStart,
     IsUnaryOp            = 1 << 25 | IsExpressionStart,
     IsUpdateOp           = 1 << 26 | IsExpressionStart,
-    ASI                  = 1 << 27,
+    IsAutoSemicolon      = 1 << 27,
     VarDecl              = 1 << 28,
 
     /* Node types */
-    EndOfSource = 0 | ASI, // Pseudo
+    EndOfSource = 0 | IsAutoSemicolon, // Pseudo
 
     /* Constants/Bindings */
     Identifier        = 1 | IsIdentifier,
@@ -49,9 +49,9 @@ export const enum Token {
     LeftBrace    = 12 | IsExpressionStart | IsPatternStart, // {
     Period       = 13, // .
     Ellipsis     = 14, // ...
-    RightBrace   = 15 | ASI, // }
+    RightBrace   = 15 | IsAutoSemicolon, // }
     RightParen   = 16, // )
-    Semicolon    = 17 | ASI, // ;
+    Semicolon    = 17 | IsAutoSemicolon, // ;
     Comma        = 18, // ,
     LeftBracket  = 19 | IsPatternStart | IsExpressionStart, // [
     RightBracket = 20, // ]
@@ -168,10 +168,10 @@ export const enum Token {
     Decorator          = 116 | Reserved,
     PrivateField       = 117 | Reserved,
 
-    EscapedStrictReserved = 118 | IsIdentifier,
+    EscapedStrictReserved = 118 | IsIdentifier | FutureReserved,
     EscapedKeyword       = 119 | IsIdentifier,
 
-    Bigint  = 120 | IsExpressionStart,
+    Bigint  = 120 | IsExpressionStart | IsStringOrNumber,
 
     WhiteSpace = 121,
     LineTerminator = 122,
