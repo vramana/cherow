@@ -1,14 +1,15 @@
-import { nextChar, consumeMultiUnitCodePoint, isExoticECMAScriptWhitespace } from './common';
+import { nextChar, consumeMultiUnitCodePoint, isExoticECMAScriptWhitespace, fromCodePoint } from './common';
 import { skipSingleLineComment, parseMultiComment } from './comments';
 import { CharTypes, CharFlags, isIdentifierStart } from './charClassifier';
 import { Chars } from '../chars';
 import { Token } from '../token';
-import { ParserState, Context, Flags, unreachable } from '../common';
+import { ParserState, Context, Flags } from '../common';
 import { scanIdentifier, scanPrivateName } from './identifier';
 import { scanString } from './string';
 import { scanNumber } from './numeric';
 import { scanTemplate } from './template';
 import { scanRegularExpression } from './regexp';
+import { report, Errors } from '../errors';
 
 export const OneCharToken = [
   /*   0 - Null               */ Token.Illegal,
@@ -466,7 +467,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
           return Token.Period;
 
         default:
-          unreachable();
+        // unreachable
       }
     } else {
       if ((next ^ Chars.LineSeparator) <= 1) {
@@ -483,7 +484,7 @@ export function scanSingleToken(state: ParserState, context: Context): Token {
       }
 
       // Invalid ASCII code point/unit
-      return Token.Illegal;
+      report(state, Errors.UnexpectedChar, fromCodePoint(next));
     }
 
     isStartOfLine = false;
