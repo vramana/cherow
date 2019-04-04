@@ -11,9 +11,9 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
   if (state.currentChar <= 0x7f) {
     if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
       let allChars = 0;
-      do {
+      while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0) {
         allChars |= state.currentChar;
-      } while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0);
+      }
 
       state.tokenValue = state.source.slice(state.startIndex, state.index);
 
@@ -41,13 +41,13 @@ export function scanIdentifierSlowCase(
   let start = state.index;
   while (state.index < state.source.length) {
     if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
+      state.tokenValue += state.source.slice(start, state.index);
       hasEscape = true;
       let cookedChar = scanIdentifierUnicodeEscape(state);
       if (!isIdentifierPart(cookedChar)) report(state, Errors.InvalidExtendedUnicodeEscape);
       canBeKeyword = canBeKeyword && (CharTypes[cookedChar] & CharFlags.KeywordCandidate) !== 0;
-      nextChar(state);
       state.tokenValue += fromCodePoint(cookedChar);
-      start = state.index - 1;
+      start = state.index;
     } else if (isIdentifierPart(state.currentChar) || consumeMultiUnitCodePoint(state, state.currentChar)) {
       nextChar(state);
     } else {
