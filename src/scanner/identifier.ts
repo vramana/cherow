@@ -10,14 +10,11 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
   let canBeKeyword = (CharTypes[state.currentChar] & CharFlags.KeywordCandidate) !== 0;
   if (state.currentChar <= 0x7f) {
     if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
-      let allChars = 0;
-      while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0) {
-        allChars |= state.currentChar;
-      }
-
+      while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0) {}
       state.tokenValue = state.source.slice(state.startIndex, state.index);
+      if (state.currentChar > 0x7f) return scanIdentifierSlowCase(state, context, hasEscape, canBeKeyword);
 
-      if (allChars & ~0xff) {
+      if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
         return descKeywordTable[state.tokenValue] || Token.Identifier;
       }
     } else {
