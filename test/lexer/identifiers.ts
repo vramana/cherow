@@ -17,6 +17,9 @@ describe('Lexer - Identifiers', () => {
     [Context.Empty, Token.Identifier, '$i', '$i'],
     [Context.Empty, Token.Identifier, '_O', '_O'],
     [Context.Empty, Token.Identifier, '_r', '_r'],
+    [Context.Empty, Token.Identifier, 'x_y', 'x_y'],
+    [Context.Empty, Token.Identifier, 'xyz123', 'xyz123'],
+    [Context.Empty, Token.Identifier, 'x1y1z1', 'x1y1z1'],
     [Context.Empty, Token.Identifier, 'a____123___b$', 'a____123___b$'],
     [Context.Empty, Token.Identifier, '_$$$$', '_$$$$'],
     [Context.Empty, Token.Identifier, '$$$$', '$$$$'],
@@ -40,6 +43,8 @@ describe('Lexer - Identifiers', () => {
     [Context.Empty, Token.Identifier, '\\u2118', '℘'],
     [Context.Empty, Token.Identifier, '\\u309C', '゜'],
     [Context.Empty, Token.Identifier, '\\u1886', 'ᢆ'],
+    [Context.Empty, Token.Identifier, 'foo\\u00d8bar', 'fooØbar'], // Identifier With Unicode Escape Sequence (`\\uXXXX`)
+    [Context.Empty, Token.Identifier, 'f\u00d8\u00d8bar', 'fØØbar'], // Identifier With Embedded Unicode Character
 
     // Long unicode escape
 

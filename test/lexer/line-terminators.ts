@@ -9,6 +9,7 @@ describe('Lexer - Line terminators', () => {
     [Context.Empty, Token.EndOfSource, '\n', ''],
     [Context.Empty, Token.EndOfSource, '\r\n', ''],
     [Context.Empty, Token.EndOfSource, '\r', ''],
+    [Context.Empty, Token.EndOfSource, '\r\n\n\u2028\u2029\r', ''],
     [Context.Empty, Token.EndOfSource, '\u2028', ''],
     [Context.Empty, Token.EndOfSource, '\u2029', ''],
     [Context.Empty, Token.EndOfSource, '/*\u2029 multi line \u2029 comment \u2029 x = 1;*/', ''],

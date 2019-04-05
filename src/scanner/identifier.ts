@@ -1,7 +1,7 @@
 import { ParserState, Context } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars } from '../chars';
-import { nextChar, consumeMultiUnitCodePoint, fromCodePoint, toHex, Escape } from './common';
+import { nextChar, consumeMultiUnitCodePoint, fromCodePoint, toHex, Escape, handleEscapeError } from './common';
 import { CharTypes, CharFlags, isIdentifierStart, isIdentifierPart } from './charClassifier';
 import { report, Errors } from '../errors';
 
@@ -19,10 +19,12 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
       }
     } else {
       hasEscape = true;
-      const cookedChar = scanIdentifierUnicodeEscape(state);
-      if (!isIdentifierPart(cookedChar)) report(state, Errors.InvalidExtendedUnicodeEscape);
-      canBeKeyword = (CharTypes[cookedChar] & CharFlags.KeywordCandidate) !== 0;
-      state.tokenValue += fromCodePoint(cookedChar);
+      const code = scanIdentifierUnicodeEscape(state);
+      if (code >= 0) {
+        if (!isIdentifierPart(code)) report(state, Errors.InvalidExtendedUnicodeEscape);
+        canBeKeyword = (CharTypes[code] & CharFlags.KeywordCandidate) !== 0;
+        state.tokenValue += fromCodePoint(code);
+      } else handleEscapeError(state, code, /* isTemplate */ false);
     }
   }
 
@@ -40,11 +42,13 @@ export function scanIdentifierSlowCase(
     if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
       state.tokenValue += state.source.slice(start, state.index);
       hasEscape = true;
-      let cookedChar = scanIdentifierUnicodeEscape(state);
-      if (!isIdentifierPart(cookedChar)) report(state, Errors.InvalidExtendedUnicodeEscape);
-      canBeKeyword = canBeKeyword && (CharTypes[cookedChar] & CharFlags.KeywordCandidate) !== 0;
-      state.tokenValue += fromCodePoint(cookedChar);
-      start = state.index;
+      let code = scanIdentifierUnicodeEscape(state);
+      if (code >= 0) {
+        if (!isIdentifierPart(code)) report(state, Errors.InvalidExtendedUnicodeEscape);
+        canBeKeyword = canBeKeyword && (CharTypes[code] & CharFlags.KeywordCandidate) !== 0;
+        state.tokenValue += fromCodePoint(code);
+        start = state.index;
+      } else handleEscapeError(state, code, /* isTemplate */ false);
     } else if (isIdentifierPart(state.currentChar) || consumeMultiUnitCodePoint(state, state.currentChar)) {
       nextChar(state);
     } else {
@@ -103,18 +107,18 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
 
     do {
       if ((CharTypes[state.currentChar] & CharFlags.Hex) === 0) {
-        report(state, Errors.InvalidExtendedUnicodeEscape);
+        return Escape.InvalidHex;
       }
       codePoint = codePoint * 0x10 + toHex(state.currentChar);
       if (codePoint > Chars.LastUnicodeChar) {
-        report(state, Errors.UnicodeOutOfRange);
+        return Escape.OutOfRange;
       }
       nextChar(state);
     } while ((state.currentChar as number) !== Chars.RightBrace);
 
     // At least 4 characters have to be read
     if (codePoint < 1 || (state.currentChar as number) !== Chars.RightBrace) {
-      report(state, Errors.InvalidDynamicUnicode);
+      return Escape.MissingBrace;
     }
     nextChar(state);
     return codePoint;
@@ -130,7 +134,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
     (CharTypes[c3] & CharFlags.Hex) === 0 ||
     (CharTypes[c4] & CharFlags.Hex) === 0
   ) {
-    report(state, Errors.InvalidIdentCharIdentEscape);
+    return Escape.InvalidIdentChar;
   }
 
   codePoint = (((toHex(state.currentChar) << 4) | toHex(c2)) << 8) | (toHex(c3) << 4) | toHex(c4);

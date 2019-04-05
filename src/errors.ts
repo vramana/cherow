@@ -25,7 +25,8 @@ export const enum Errors {
   InvalidRegExp,
   ExpectedNumberInRadix,
   MissingHexDigits,
-  InvalidOrUnexpectedToken
+  InvalidOrUnexpectedToken,
+  TemplateOctalLiteral
 }
 
 /*@internal*/
@@ -55,7 +56,8 @@ export const errorMessages: {
   [Errors.LegacyOctalsInStrictMode]: 'Legacy octal literals are not allowed in strict mode',
   [Errors.ExpectedNumberInRadix]: 'Expected number in radix %0',
   [Errors.MissingHexDigits]: 'Missing hex digits',
-  [Errors.InvalidOrUnexpectedToken]: 'Invalid or unexpected token'
+  [Errors.InvalidOrUnexpectedToken]: 'Invalid or unexpected token',
+  [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences'
 };
 
 /**

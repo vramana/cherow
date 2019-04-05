@@ -19,6 +19,7 @@ export const enum Context {
   DisallowInContext = 1 << 12,
   Statement = 1 << 13,
   AllowRegExp = 1 << 14,
+  TaggedTemplate = 1 << 15,
   AllowFunctionDeclaration = 1 << 16,
   SuperProperty = 1 << 17,
   SuperCall = 1 << 18,
@@ -35,12 +36,14 @@ export const enum Context {
   InIteration = 1 << 29, // (fkleuver) Happy now?
   InSwitchOrIteration = InSwitch | InIteration
 }
+
 /**
  * The mutable parser flags, in case any flags need passed by reference.
  */
 export const enum Flags {
   Empty = 0,
-  NewLine = 1 << 0
+  NewLine = 1 << 0,
+  HasOctal = 1 << 1
 }
 
 /**
@@ -67,7 +70,3 @@ export interface ParserState {
   // For the scanner to work around lack of multiple return.
   lastChar: number;
 }
-
-// Note: this is intentionally ambient, since it should never be called. (It should be a guaranteed
-// runtime error.)
-export declare function unreachable(...values: never[]): never;

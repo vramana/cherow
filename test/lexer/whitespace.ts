@@ -259,6 +259,15 @@ describe('Lexer - Whitespace', () => {
     index: 8
   });
 
+  pass('skips mixed whitespace', {
+    source: '\t\u000b\u000c\u00a0',
+    hasNext: true,
+    newLine: false,
+    value: '',
+    line: 3,
+    index: 4
+  });
+
   pass('skips simple exotic whitespace', {
     source: '\x85',
     hasNext: true,
@@ -266,6 +275,15 @@ describe('Lexer - Whitespace', () => {
     value: '',
     line: 3,
     index: 1
+  });
+
+  pass('skips complex exotic whitespace', {
+    source: '\t\x0B\x0C\xA0\u1680\u2000\u200A\u202F\u205F\u3000',
+    hasNext: true,
+    newLine: false,
+    value: '',
+    line: 3,
+    index: 10
   });
 
   pass('skips multiple comments preceding HTMLEndComment', {

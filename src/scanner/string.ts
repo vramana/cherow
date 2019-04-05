@@ -1,7 +1,7 @@
-import { ParserState, Context } from '../common';
+import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { toHex, nextChar, fromCodePoint, Escape } from './common';
+import { toHex, nextChar, fromCodePoint, Escape, handleEscapeError } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
 import { scanUnicodeEscapeValue } from './identifier';
 import { report, Errors } from '../errors';
@@ -20,9 +20,9 @@ export function scanString(state: ParserState, context: Context, quote: number):
         res += fromCodePoint(state.currentChar);
         nextChar(state); // skip the slash
       } else {
-        const cooked = scanEscape(state, context, state.currentChar, /* isTemplate */ false);
-        if (cooked === Escape.Invalid) report(state, Errors.InvalidExtendedUnicodeEscape);
-        res += fromCodePoint(cooked);
+        const code = scanEscape(state, context, state.currentChar);
+        if (code >= 0) res += fromCodePoint(code);
+        else handleEscapeError(state, code, /* isTemplate */ false);
       }
       marker = state.index;
     }
@@ -38,7 +38,7 @@ export function scanString(state: ParserState, context: Context, quote: number):
   report(state, Errors.UnterminatedString);
 }
 
-export function scanEscape(state: ParserState, context: Context, first: number, isTemplate: boolean): number {
+export function scanEscape(state: ParserState, context: Context, first: number): number {
   nextChar(state);
 
   switch (first) {
@@ -58,11 +58,8 @@ export function scanEscape(state: ParserState, context: Context, first: number, 
     // Line continuations
     case Chars.CarriageReturn: {
       const { index } = state;
-
       if (index < state.source.length) {
-        const ch = state.source.charCodeAt(index);
-
-        if (ch === Chars.LineFeed) {
+        if (state.currentChar === Chars.LineFeed) {
           state.index = index + 1;
         }
       }
@@ -76,20 +73,17 @@ export function scanEscape(state: ParserState, context: Context, first: number, 
     // UCS-2/Unicode escapes
     case Chars.LowerU: {
       first = scanUnicodeEscapeValue(state);
-      if (first < 0) return Escape.Empty;
+      // if (first < 0) return Escape.Empty;
       return first;
     }
+    // ASCII escapes
     case Chars.LowerX: {
-      let codePoint = 0;
-      for (let i = 0; i < 2; i++) {
-        if ((CharTypes[state.currentChar] & CharFlags.Hex) === 0) {
-          return Escape.InvalidHex;
-        }
-        codePoint = codePoint * 0x10 + toHex(state.currentChar);
-        nextChar(state);
-      }
-      if (codePoint < 0) return Escape.InvalidHex;
-      return codePoint;
+      if ((CharTypes[state.currentChar] & CharFlags.Hex) === 0) return Escape.InvalidHex;
+      const hi = toHex(state.currentChar);
+      if ((CharTypes[nextChar(state)] & CharFlags.Hex) === 0) return Escape.InvalidHex;
+      const lo = toHex(state.currentChar);
+      nextChar(state);
+      return (hi << 4) | lo;
     }
 
     // Null character, octals
@@ -113,8 +107,10 @@ export function scanEscape(state: ParserState, context: Context, first: number, 
       }
       if (first !== Chars.Zero || idx > 0 || CharTypes[state.currentChar] & CharFlags.Decimal) {
         // Octal escape sequences are not allowed inside string template literals
-        if (context & Context.Strict || isTemplate) {
+        if (context & Context.Strict) {
+          return Escape.StrictOctal;
         }
+        state.flags |= Flags.HasOctal;
       }
       return codePoint;
     }

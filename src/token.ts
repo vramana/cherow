@@ -26,6 +26,7 @@ export const enum Token {
     IsUpdateOp           = 1 << 26 | IsExpressionStart,
     IsAutoSemicolon      = 1 << 27,
     VarDecl              = 1 << 28,
+    IsEvalOrArguments    = 1 << 29 | IsIdentifier | IsExpressionStart,
 
     /* Node types */
     EndOfSource = 0 | IsAutoSemicolon, // Pseudo
@@ -176,8 +177,8 @@ export const enum Token {
     WhiteSpace = 121,
     LineTerminator = 122,
 
-    Eval = 123 | IsIdentifier | IsExpressionStart,
-    Arguments = 124 | IsIdentifier | IsExpressionStart,
+    Eval = 123 | IsEvalOrArguments,
+    Arguments = 124 | IsEvalOrArguments,
 
     Illegal = 125
 }

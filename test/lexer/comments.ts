@@ -32,9 +32,10 @@ describe('Lexer - Identifiers', () => {
     [Context.Empty, Token.EndOfSource, '/*/ try and confuse the lexer\n */\n', ''],
     [Context.Empty, Token.EndOfSource, '/* comments can have embedded "strings" */', ''],
     [Context.Empty, Token.EndOfSource, '/* " /* */', ''],
-    [Context.Empty, Token.EndOfSource, '/* /* */', ''],
-    [Context.Empty, Token.EndOfSource, '/* /* */', ''],
-    [Context.Empty, Token.EndOfSource, '/* /* */', ''],
+    [Context.Empty, Token.Identifier, '//foo!@#^&$1234\nbar', ''],
+    [Context.Empty, Token.EndOfSource, '/* abcd!@#@$* { } && null*/', ''],
+    [Context.Empty, Token.EndOfSource, '/*x*x*/', ''],
+    [Context.Empty, Token.EndOfSource, '/**/', ''],
 
     [Context.Empty, Token.EndOfSource, '\n--' + '>', '']
   ];

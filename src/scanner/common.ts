@@ -9,7 +9,9 @@ export const enum Escape {
   StrictOctal = -2,
   EightOrNine = -3,
   InvalidHex = -4,
-  OutOfRange = -5
+  OutOfRange = -5,
+  InvalidIdentChar = -6,
+  MissingBrace = -7
 }
 
 export function nextChar(state: ParserState): number {
@@ -88,4 +90,32 @@ export function fromCodePoint(codePoint: number): string {
  */
 export function toHex(code: number): number {
   return code < Chars.UpperA ? code - Chars.Zero : (code - Chars.UpperA + 10) & 0xf;
+}
+
+export function handleEscapeError(state: ParserState, code: Escape, isTemplate: boolean): void {
+  switch (code) {
+    case Escape.Empty:
+      return;
+
+    case Escape.StrictOctal:
+      report(state, isTemplate ? Errors.TemplateOctalLiteral : Errors.StrictOctalEscape);
+
+    case Escape.EightOrNine:
+      report(state, Errors.InvalidEightAndNine);
+
+    case Escape.InvalidHex:
+      report(state, Errors.InvalidEightAndNine);
+
+    case Escape.OutOfRange:
+      report(state, Errors.UnicodeOutOfRange);
+
+    case Escape.InvalidIdentChar:
+      report(state, Errors.InvalidIdentCharIdentEscape);
+
+    case Escape.MissingBrace:
+      report(state, Errors.InvalidDynamicUnicode);
+
+    default:
+    // unreachable
+  }
 }
