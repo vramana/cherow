@@ -80,7 +80,7 @@ export function scanIdentifierSlowCase(
 }
 
 export function scanPrivateName(state: ParserState): Token {
-  nextChar(state);
+  nextChar(state); // consumes '#'
   const { index } = state;
   if (!isIdentifierStart(state.currentChar)) {
     report(state, Errors.InvalidOrUnexpectedToken);
@@ -100,7 +100,7 @@ export function scanIdentifierUnicodeEscape(state: ParserState): any {
   report(state, Errors.InvalidUnicodeIdentName);
 }
 
-export function scanUnicodeEscapeValue(state: ParserState): number {
+export function scanUnicodeEscapeValue(state: ParserState): number | Escape {
   let codePoint = 0;
   if (state.currentChar === Chars.LeftBrace) {
     while (CharTypes[nextChar(state)] & CharFlags.Hex) {

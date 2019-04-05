@@ -28,34 +28,28 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
 
       // Hex
       if ((state.currentChar | 32) === Chars.LowerX) {
-        nextChar(state);
         kind = NumberKind.Hex;
         let digits = 0;
-        while (CharTypes[state.currentChar] & (CharFlags.Decimal | CharFlags.Hex)) {
+        while (CharTypes[nextChar(state)] & (CharFlags.Decimal | CharFlags.Hex)) {
           value = value * 0x10 + toHex(state.currentChar);
           digits++;
-          nextChar(state);
         }
         if (digits < 1) report(state, Errors.MissingHexDigits);
         // Octal
       } else if ((state.currentChar | 32) === Chars.LowerO) {
-        nextChar(state);
         kind = NumberKind.Octal;
         let digits = 0;
-        while (CharTypes[state.currentChar] & CharFlags.Octal) {
+        while (CharTypes[nextChar(state)] & CharFlags.Octal) {
           value = value * 8 + (state.currentChar - Chars.Zero);
           digits++;
-          nextChar(state);
         }
         if (digits < 1) report(state, Errors.ExpectedNumberInRadix, `${8}`);
       } else if ((state.currentChar | 32) === Chars.LowerB) {
-        nextChar(state);
         kind = NumberKind.Binary;
         let digits = 0;
-        while (CharTypes[state.currentChar] & CharFlags.Binary) {
+        while (CharTypes[nextChar(state)] & CharFlags.Binary) {
           value = value * 2 + (state.currentChar - Chars.Zero);
           digits++;
-          nextChar(state);
         }
         if (digits < 1) report(state, Errors.ExpectedNumberInRadix, `${2}`);
       } else if (CharTypes[state.currentChar] & CharFlags.Octal) {
