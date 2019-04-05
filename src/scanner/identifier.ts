@@ -103,22 +103,18 @@ export function scanIdentifierUnicodeEscape(state: ParserState): any {
 export function scanUnicodeEscapeValue(state: ParserState): number {
   let codePoint = 0;
   if (state.currentChar === Chars.LeftBrace) {
-    nextChar(state);
-
-    do {
-      if ((CharTypes[state.currentChar] & CharFlags.Hex) === 0) {
-        return Escape.InvalidHex;
-      }
+    while (CharTypes[nextChar(state)] & CharFlags.Hex) {
       codePoint = codePoint * 0x10 + toHex(state.currentChar);
+      // Check this early to avoid `code` wrapping to a negative on overflow (which is
+      // reserved for abnormal conditions).
       if (codePoint > Chars.LastUnicodeChar) {
         return Escape.OutOfRange;
       }
-      nextChar(state);
-    } while ((state.currentChar as number) !== Chars.RightBrace);
+    }
 
     // At least 4 characters have to be read
     if (codePoint < 1 || (state.currentChar as number) !== Chars.RightBrace) {
-      return Escape.MissingBrace;
+      return Escape.InvalidHex;
     }
     nextChar(state);
     return codePoint;

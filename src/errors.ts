@@ -26,7 +26,8 @@ export const enum Errors {
   ExpectedNumberInRadix,
   MissingHexDigits,
   InvalidOrUnexpectedToken,
-  TemplateOctalLiteral
+  TemplateOctalLiteral,
+  InvalidHexEscapeSequence
 }
 
 /*@internal*/
@@ -46,18 +47,18 @@ export const errorMessages: {
   [Errors.DuplicateRegExpFlag]: "Duplicate regular expression flag '%0'",
   [Errors.UnexpectedTokenRegExpFlag]: "Unexpected regular expression flag '%0'",
   [Errors.InvalidExtendedUnicodeEscape]: 'Invalid extended unicode escape',
-  [Errors.InvalidDynamicUnicode]: 'The identifier contained dynamic unicode escape that was not closed',
   [Errors.InvalidUnicodeIdentName]: 'Only unicode escapes are supported',
   [Errors.InvalidIdentCharIdentEscape]: 'Identifier escape did not yield a valid identifier character',
   [Errors.IDStartAfterNumber]: 'Identifier starts immediately after numeric literal',
   [Errors.MissingExponent]: 'Missing exponent',
   [Errors.InvalidNumber]: 'Invalid number',
-  [Errors.InvalidBigInt]: 'Invalid BigIntLiteral',
+  [Errors.InvalidBigInt]: 'Invalid BigInt Literal',
   [Errors.LegacyOctalsInStrictMode]: 'Legacy octal literals are not allowed in strict mode',
   [Errors.ExpectedNumberInRadix]: 'Expected number in radix %0',
   [Errors.MissingHexDigits]: 'Missing hex digits',
   [Errors.InvalidOrUnexpectedToken]: 'Invalid or unexpected token',
-  [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences'
+  [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences',
+  [Errors.InvalidHexEscapeSequence]: 'Invalid hexadecimal escape sequence'
 };
 
 /**

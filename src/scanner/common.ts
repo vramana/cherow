@@ -104,16 +104,13 @@ export function handleEscapeError(state: ParserState, code: Escape, isTemplate: 
       report(state, Errors.InvalidEightAndNine);
 
     case Escape.InvalidHex:
-      report(state, Errors.InvalidEightAndNine);
+      report(state, Errors.InvalidHexEscapeSequence);
 
     case Escape.OutOfRange:
       report(state, Errors.UnicodeOutOfRange);
 
     case Escape.InvalidIdentChar:
       report(state, Errors.InvalidIdentCharIdentEscape);
-
-    case Escape.MissingBrace:
-      report(state, Errors.InvalidDynamicUnicode);
 
     default:
     // unreachable
