@@ -1,4 +1,4 @@
-import { ParserState, Context } from '../common';
+import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { nextChar, toHex } from './common';
 import { CharTypes, CharFlags, isIdentifierStart } from './charClassifier';
@@ -30,7 +30,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       if ((state.currentChar | 32) === Chars.LowerX) {
         kind = NumberKind.Hex;
         let digits = 0;
-        while (CharTypes[nextChar(state)] & (CharFlags.Decimal | CharFlags.Hex)) {
+        while (CharTypes[nextChar(state)] & CharFlags.Hex) {
           value = value * 0x10 + toHex(state.currentChar);
           digits++;
         }
@@ -54,9 +54,8 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
         if (digits < 1) report(state, Errors.ExpectedNumberInRadix, `${2}`);
       } else if (CharTypes[state.currentChar] & CharFlags.Octal) {
         // Octal integer literals are not permitted in strict mode code
-        if (context & Context.Strict) {
-          report(state, Errors.LegacyOctalsInStrictMode);
-        }
+        if (context & Context.Strict) report(state, Errors.LegacyOctalsInStrictMode);
+        else state.flags = Flags.HasOctal;
         kind = NumberKind.ImplicitOctal;
         do {
           if (CharTypes[state.currentChar] & CharFlags.ImplicitOctalDigits) {
@@ -66,7 +65,9 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
           }
           value = value * 8 + (state.currentChar - Chars.Zero);
         } while (CharTypes[nextChar(state)] & CharFlags.Decimal);
-      } else if (state.currentChar - Chars.Zero > 7) {
+      } else if (CharTypes[state.currentChar] & CharFlags.ImplicitOctalDigits) {
+        if (context & Context.Strict) report(state, Errors.LegacyOctalsInStrictMode);
+        else state.flags = Flags.HasOctal;
         kind = NumberKind.DecimalWithLeadingZero;
       }
     }
@@ -104,9 +105,10 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
 
   let isBigInt = false;
   if (
-    state.currentChar === Chars.LowerN /*&& !isFloat */ &&
+    state.currentChar === Chars.LowerN &&
     (kind & (NumberKind.Decimal | NumberKind.Binary | NumberKind.Octal | NumberKind.Hex)) !== 0
   ) {
+    if (isFloat) report(state, Errors.InvalidBigInt);
     isBigInt = true;
     nextChar(state);
     // Scan any exponential notation
@@ -122,13 +124,15 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       nextChar(state);
     }
 
-    // Exponential notation must contain at least one digit
-    if ((CharTypes[state.currentChar] & CharFlags.Decimal) < 1) {
-      report(state, Errors.MissingExponent);
-    }
+    let exponentDigits = 0;
     // Consume exponential digits
     while (CharTypes[state.currentChar] & CharFlags.Decimal) {
       nextChar(state);
+      exponentDigits++;
+    }
+    // Exponential notation must contain at least one digit
+    if (exponentDigits < 1) {
+      report(state, Errors.MissingExponent);
     }
   }
   // The source character immediately following a numeric literal must
