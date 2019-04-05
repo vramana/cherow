@@ -53,6 +53,24 @@ describe('Lexer - Identifiers', () => {
     [Context.Empty, Token.Identifier, '\\u{1EE00}', '{Ȁ'],
     [Context.Empty, Token.Identifier, 'a\\u{0000000000000000000071}c', 'aqc'],
 
+    // Keywords
+    [Context.Empty, Token.BreakKeyword, 'break', 'break'],
+    [Context.Empty, Token.Identifier, 'Yield', 'Yield'],
+    [Context.Empty, Token.YieldKeyword, 'yield', 'yield'],
+    [Context.Empty, Token.LetKeyword, 'let', 'let'],
+    [Context.Empty, Token.PublicKeyword, 'public', 'public'],
+    [Context.Empty, Token.EnumKeyword, 'enum', 'enum'],
+
+    // Escaped Keywords
+    [Context.Empty, Token.EscapedKeyword, '\\u0061sync', 'async'],
+    [Context.Strict, Token.EscapedKeyword, '\\u0061sync', 'async'],
+    [Context.Empty, Token.EscapedKeyword, 'br\\u0065ak', 'break'],
+    [Context.Empty, Token.Identifier, 'Br\\u0065ak', 'Break'],
+    [Context.Strict, Token.EscapedStrictReserved, 'int\\u0065rface', 'interface'],
+    [Context.Empty, Token.InterfaceKeyword, 'int\\u0065rface', 'interface'],
+    [Context.Empty, Token.YieldKeyword, 'yi\\u0065ld', 'yield'],
+    [Context.Strict, Token.YieldKeyword, 'yi\\u0065ld', 'yield'],
+
     // Others
 
     [Context.Empty, Token.Identifier, 'a𐊧123', 'a𐊧123'],

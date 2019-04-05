@@ -1,6 +1,6 @@
 import * as t from 'assert';
-import { Context } from '../../../src/common';
-import { CharFlags, CharTypes } from '../../../src/scanner/charClassifier';
+import { Context } from '../../src/common';
+import { CharFlags, CharTypes } from '../../src/scanner/charClassifier';
 
 describe('src/scanner/scan', () => {
   const tokens: Array<[Context, number]> = [

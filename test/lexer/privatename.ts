@@ -1,8 +1,8 @@
 import * as t from 'assert';
-import { Context } from '../../../src/common';
-import { Token } from '../../../src/token';
-import { create } from '../../../src/parser';
-import { scanSingleToken } from '../../../src/scanner/scan';
+import { Context } from '../../src/common';
+import { Token } from '../../src/token';
+import { create } from '../../src/parser';
+import { scanSingleToken } from '../../src/scanner/scan';
 
 describe('lexer - privatename', () => {
   function pass(name: string, opts: any) {
@@ -29,8 +29,17 @@ describe('lexer - privatename', () => {
     ctx: Context.OptionsNext,
     token: Token.PrivateField,
     value: 'hello',
-    raw: 't\\u0061rget',
     newline: false,
     index: 6
   });
+
+  function fail(name: string, source: string, context: Context) {
+    it(name, () => {
+      const state = create(source);
+      t.throws(() => scanSingleToken(state, context));
+    });
+  }
+
+  fail('fails on # aa', '#123', Context.AllowRegExp);
+  fail('fails on # aa', '# aa', Context.AllowRegExp);
 });

@@ -26,6 +26,8 @@ describe('src/scanner/scan', () => {
       t.deepEqual(token, Token.Multiply);
       token = scanSingleToken(state, Context.Empty);
       t.deepEqual(token, Token.Divide);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.EndOfSource);
     });
     it('should recognise multi character operators', () => {
       const state = create('>= <=');
@@ -33,7 +35,50 @@ describe('src/scanner/scan', () => {
       t.deepEqual(token, Token.GreaterThanOrEqual);
       token = scanSingleToken(state, Context.Empty);
       t.deepEqual(token, Token.LessThanOrEqual);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.EndOfSource);
     });
+    it('should evaluate to "0"', () => {
+      const state = create('0..toString()');
+      let token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.NumericLiteral);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.Period);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.Identifier);
+      t.deepEqual(state.tokenValue, 'toString');
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.LeftParen);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.RightParen);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.EndOfSource);
+    });
+    it('should recognise a simple statement', () => {
+      const state = create('while (foo) { 1; } ');
+      let token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(state.tokenValue, 'while');
+      t.deepEqual(token, Token.WhileKeyword);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.LeftParen);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.Identifier);
+      t.deepEqual(state.tokenValue, 'foo');
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.RightParen);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.LeftBrace);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(state.tokenValue, 1);
+      t.deepEqual(token, Token.NumericLiteral);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.Semicolon);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.RightBrace);
+      token = scanSingleToken(state, Context.Empty);
+      t.deepEqual(token, Token.EndOfSource);
+    });
+
     it('should skip any whitespace', () => {
       const state = create('    \n\t\r  \r \n \t  +');
       let token = scanSingleToken(state, Context.Empty);

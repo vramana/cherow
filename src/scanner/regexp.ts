@@ -13,10 +13,6 @@ import { report, Errors } from '../errors';
  */
 
 export function scanRegularExpression(state: ParserState, context: Context): Token {
-  if (state.index >= state.source.length) {
-    return report(state, Errors.UnterminatedRegExp);
-  }
-
   const enum RegexState {
     Empty = 0,
     Escape = 0x1,
@@ -76,7 +72,7 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
 
   const { index: flagStart } = state;
 
-  while (isIdentifierPart(nextChar(state))) {
+  loop: while (state.index < state.source.length) {
     switch (state.currentChar) {
       case Chars.LowerG:
         if (mask & RegexFlags.Global) report(state, Errors.DuplicateRegExpFlag, 'g');
@@ -109,9 +105,13 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
         break;
 
       default:
+        if (!isIdentifierPart(state.currentChar)) break loop;
         report(state, Errors.UnexpectedTokenRegExpFlag);
     }
+
+    nextChar(state);
   }
+
   const flags = state.source.slice(flagStart, state.index);
 
   const pattern = state.source.slice(bodyStart, bodyEnd);

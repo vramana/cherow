@@ -76,12 +76,12 @@ export function scanIdentifierSlowCase(
 }
 
 export function scanPrivateName(state: ParserState): Token {
-  if (!isIdentifierStart(state.source.charCodeAt(state.index + 1))) {
-    return Token.Illegal;
-  }
   nextChar(state);
   const { index } = state;
-  while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0) {}
+  if (!isIdentifierStart(state.currentChar)) {
+    report(state, Errors.InvalidOrUnexpectedToken);
+  }
+  while (CharTypes[nextChar(state)] & CharFlags.IdentifierPart) {}
   state.tokenValue = state.source.slice(index, state.index);
   return Token.PrivateField;
 }

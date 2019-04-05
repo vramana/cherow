@@ -23,8 +23,9 @@ export function consumeMultiUnitCodePoint(state: ParserState, hi: number): boole
   if ((lo & 0xfc00) !== 0xdc00) return false;
   nextChar(state);
   hi = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
-  if (((unicodeLookup[(hi >>> 5) + 0] >>> hi) & 31 & 1) === 0)
-    report(state, Errors.InvalidIdentCharIdentEscape, fromCodePoint(hi));
+  if (((unicodeLookup[(hi >>> 5) + 0] >>> hi) & 31 & 1) === 0) {
+    report(state, Errors.UnexpectedChar, fromCodePoint(hi));
+  }
   state.currentChar = hi;
   return true;
 }
