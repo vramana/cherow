@@ -124,12 +124,13 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
     return codePoint;
   }
 
+  if ((CharTypes[state.currentChar] & CharFlags.Hex) === 0) return Escape.InvalidIdentChar; // first one is mandatory
+
   const c2 = state.source.charCodeAt(state.index + 1);
   const c3 = state.source.charCodeAt(state.index + 2);
   const c4 = state.source.charCodeAt(state.index + 3);
 
   if (
-    (CharTypes[state.currentChar] & CharFlags.Hex) === 0 ||
     (CharTypes[c2] & CharFlags.Hex) === 0 ||
     (CharTypes[c3] & CharFlags.Hex) === 0 ||
     (CharTypes[c4] & CharFlags.Hex) === 0
@@ -137,7 +138,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number {
     return Escape.InvalidIdentChar;
   }
 
-  codePoint = (((toHex(state.currentChar) << 4) | toHex(c2)) << 8) | (toHex(c3) << 4) | toHex(c4);
+  codePoint = (toHex(state.currentChar) << 12) | (toHex(c2) << 8) | (toHex(c3) << 4) | toHex(c4);
 
   state.currentChar = state.source.charCodeAt((state.index += 4));
 
