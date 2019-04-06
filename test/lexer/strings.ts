@@ -73,6 +73,12 @@ describe('Lexer - String', () => {
     [Context.Empty, Token.StringLiteral, '"\\x34"', '4'],
     [Context.Empty, Token.StringLiteral, '"\\xCd"', 'Í'],
     [Context.Empty, Token.StringLiteral, '"\\xF0"', 'ð'],
+    [
+      Context.Empty,
+      Token.StringLiteral,
+      '"\\xF000111FEEEDDAAAB77777999344BBBCCD0"',
+      'ð00111FEEEDDAAAB77777999344BBBCCD0'
+    ],
     [Context.Empty, Token.StringLiteral, '"\\x128"', '\u00128'],
     [Context.Empty, Token.StringLiteral, '"\\xCd#"', 'Í#'],
     [Context.Empty, Token.StringLiteral, '"\\xDe\\x00"', 'Þ\\x00'],

@@ -1,18 +1,18 @@
 import { ParserState, Context } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars } from '../chars';
-import { nextCodeUnit, consumeMultiUnitCodePoint, fromCodePoint, toHex, Escape, handleEscapeError } from './common';
+import { nextCodePoint, consumeMultiUnitCodePoint, fromCodePoint, toHex, Escape, handleEscapeError } from './common';
 import { CharTypes, CharFlags, isIdentifierStart, isIdentifierPart } from './charClassifier';
 import { report, Errors } from '../errors';
 
 export function scanIdentifier(state: ParserState, context: Context): Token {
   let hasEscape = false;
   let canBeKeyword = (CharTypes[state.currentChar] & CharFlags.KeywordCandidate) !== 0;
-  if (state.currentChar <= 0x7f) {
+  if (state.currentChar <= 0x7e) {
     if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
-      while ((CharTypes[nextCodeUnit(state)] & CharFlags.IdentifierPart) !== 0) {}
+      while ((CharTypes[nextCodePoint(state)] & CharFlags.IdentifierPart) !== 0) {}
       state.tokenValue = state.source.slice(state.startIndex, state.index);
-      if (state.currentChar > 0x7f) return scanIdentifierSlowCase(state, context, hasEscape, canBeKeyword);
+      if (state.currentChar > 0x7e) return scanIdentifierSlowCase(state, context, hasEscape, canBeKeyword);
 
       if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
         return descKeywordTable[state.tokenValue] || Token.Identifier;
@@ -50,7 +50,7 @@ export function scanIdentifierSlowCase(
         start = state.index;
       } else handleEscapeError(state, code, /* isTemplate */ false);
     } else if (isIdentifierPart(state.currentChar) || consumeMultiUnitCodePoint(state, state.currentChar)) {
-      nextCodeUnit(state);
+      nextCodePoint(state);
     } else {
       break;
     }
@@ -80,12 +80,12 @@ export function scanIdentifierSlowCase(
 }
 
 export function scanPrivateName(state: ParserState): Token {
-  nextCodeUnit(state); // consumes '#'
+  nextCodePoint(state); // consumes '#'
   const { index } = state;
   if (!isIdentifierStart(state.currentChar)) {
     report(state, Errors.InvalidOrUnexpectedToken);
   }
-  while (CharTypes[nextCodeUnit(state)] & CharFlags.IdentifierPart) {}
+  while (CharTypes[nextCodePoint(state)] & CharFlags.IdentifierPart) {}
   state.tokenValue = state.source.slice(index, state.index);
   return Token.PrivateField;
 }
@@ -102,12 +102,13 @@ export function scanIdentifierUnicodeEscape(state: ParserState): any {
 
 export function scanUnicodeEscapeValue(state: ParserState): number | Escape {
   let codePoint = 0;
+  // First handle a delimited Unicode escape, e.g. \u{1F4A9}
   if (state.currentChar === Chars.LeftBrace) {
-    while (CharTypes[nextCodeUnit(state)] & CharFlags.Hex) {
-      codePoint = codePoint * 0x10 + toHex(state.currentChar);
+    while (CharTypes[nextCodePoint(state)] & CharFlags.Hex) {
+      codePoint = (codePoint << 4) | toHex(state.currentChar);
       // Check this early to avoid `code` wrapping to a negative on overflow (which is
       // reserved for abnormal conditions).
-      if (codePoint > Chars.LastUnicodeChar) {
+      if (codePoint > Chars.NonBMPMax) {
         return Escape.OutOfRange;
       }
     }
@@ -116,23 +117,18 @@ export function scanUnicodeEscapeValue(state: ParserState): number | Escape {
     if (codePoint < 1 || (state.currentChar as number) !== Chars.RightBrace) {
       return Escape.InvalidHex;
     }
-    nextCodeUnit(state);
+    nextCodePoint(state); // consumes '}'
     return codePoint;
   }
 
   if ((CharTypes[state.currentChar] & CharFlags.Hex) === 0) return Escape.InvalidIdentChar; // first one is mandatory
 
   const c2 = state.source.charCodeAt(state.index + 1);
+  if ((CharTypes[c2] & CharFlags.Hex) === 0) return Escape.InvalidIdentChar;
   const c3 = state.source.charCodeAt(state.index + 2);
+  if ((CharTypes[c3] & CharFlags.Hex) === 0) return Escape.InvalidIdentChar;
   const c4 = state.source.charCodeAt(state.index + 3);
-
-  if (
-    (CharTypes[c2] & CharFlags.Hex) === 0 ||
-    (CharTypes[c3] & CharFlags.Hex) === 0 ||
-    (CharTypes[c4] & CharFlags.Hex) === 0
-  ) {
-    return Escape.InvalidIdentChar;
-  }
+  if ((CharTypes[c4] & CharFlags.Hex) === 0) return Escape.InvalidIdentChar;
 
   codePoint = (toHex(state.currentChar) << 12) | (toHex(c2) << 8) | (toHex(c3) << 4) | toHex(c4);
 

@@ -20,8 +20,6 @@ describe('src/scanner/scan', () => {
     [Context.Empty, Token.Arrow, '=>'],
     [Context.Empty, Token.Period, '.'],
     [Context.Empty, Token.Ellipsis, '...'],
-    [Context.OptionsJSX, Token.JSXAutoClose, '/>'],
-    [Context.OptionsJSX, Token.JSXClose, '</'],
     [Context.Empty, Token.Increment, '++'],
     [Context.Empty, Token.Decrement, '--'],
     [Context.Empty, Token.Assign, '='],

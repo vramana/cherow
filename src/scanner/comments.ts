@@ -1,4 +1,4 @@
-import { nextCodeUnit } from './common';
+import { nextCodePoint } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
 import { Chars } from '../chars';
 import { Token } from '../token';
@@ -10,7 +10,7 @@ export function skipSingleLineComment(state: ParserState): Token {
     if (CharTypes[state.currentChar] & CharFlags.LineTerminator || (state.currentChar ^ Chars.LineSeparator) <= 1) {
       break;
     }
-    nextCodeUnit(state);
+    nextCodePoint(state);
   }
   return Token.WhiteSpace;
 }
@@ -18,9 +18,9 @@ export function skipSingleLineComment(state: ParserState): Token {
 export function parseMultiComment(state: ParserState): any {
   while (state.index < state.length) {
     if (state.currentChar === Chars.Asterisk) {
-      nextCodeUnit(state);
+      nextCodePoint(state);
       if ((state.currentChar as number) === Chars.Slash) {
-        nextCodeUnit(state);
+        nextCodePoint(state);
         return Token.WhiteSpace;
       }
     }
@@ -32,7 +32,7 @@ export function parseMultiComment(state: ParserState): any {
     ) {
       state.flags |= Flags.NewLine;
     }
-    nextCodeUnit(state);
+    nextCodePoint(state);
   }
 
   report(state, Errors.UnterminatedComment);

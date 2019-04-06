@@ -2,7 +2,9 @@
  * A list of character constants with much more human-readable names.
  */
 export const enum Chars {
-     Null = 0x00,
+
+
+    Null = 0x00,
 
     Backspace      = 0x08,
     Tab            = 0x09,
@@ -143,5 +145,5 @@ export const enum Chars {
 
     ByteOrderMark = 0xffef,
 
-    LastUnicodeChar = 0x10ffff,
+    NonBMPMax = 0x10ffff,
 }

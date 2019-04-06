@@ -36,6 +36,7 @@ describe('Lexer - Identifiers', () => {
     [Context.Empty, Token.EndOfSource, '/* abcd!@#@$* { } && null*/', ''],
     [Context.Empty, Token.EndOfSource, '/*x*x*/', ''],
     [Context.Empty, Token.EndOfSource, '/**/', ''],
+    [Context.Empty, Token.EndOfSource, '<!--', ''],
 
     [Context.Empty, Token.EndOfSource, '\n--' + '>', '']
   ];
