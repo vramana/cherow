@@ -1,13 +1,13 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { toHex, nextChar, fromCodePoint, Escape, handleEscapeError } from './common';
+import { toHex, nextCodeUnit, fromCodePoint, Escape, handleEscapeError } from './common';
 import { CharTypes, CharFlags } from './charClassifier';
 import { scanUnicodeEscapeValue } from './identifier';
 import { report, Errors } from '../errors';
 
 export function scanString(state: ParserState, context: Context, quote: number): Token | void {
-  nextChar(state); // consume quote
+  nextCodeUnit(state); // consume quote
   let res: string | void = '';
   let marker = state.index;
   do {
@@ -15,10 +15,10 @@ export function scanString(state: ParserState, context: Context, quote: number):
     if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
       // check for valid sequences
       res += state.source.slice(marker, state.index);
-      nextChar(state);
+      nextCodeUnit(state);
       if (state.currentChar > 0x7f) {
         res += fromCodePoint(state.currentChar);
-        nextChar(state); // skip the slash
+        nextCodeUnit(state); // skip the slash
       } else {
         const code = scanEscape(state, context, state.currentChar);
         if (code >= 0) res += fromCodePoint(code);
@@ -28,18 +28,18 @@ export function scanString(state: ParserState, context: Context, quote: number):
     }
     if (state.currentChar === quote) {
       state.tokenValue = res += state.source.slice(marker, state.index);
-      nextChar(state); // skip closing quote
+      nextCodeUnit(state); // skip closing quote
       return Token.StringLiteral;
     }
     if (state.index >= state.length) report(state, Errors.UnterminatedString);
-  } while ((CharTypes[nextChar(state)] & CharFlags.LineTerminator) === 0);
+  } while ((CharTypes[nextCodeUnit(state)] & CharFlags.LineTerminator) === 0);
 
   // New-line or end of input is not allowed
   report(state, Errors.UnterminatedString);
 }
 
 export function scanEscape(state: ParserState, context: Context, first: number): number {
-  nextChar(state);
+  nextCodeUnit(state);
 
   switch (first) {
     // Magic escapes
@@ -80,9 +80,9 @@ export function scanEscape(state: ParserState, context: Context, first: number):
     case Chars.LowerX: {
       if ((CharTypes[state.currentChar] & CharFlags.Hex) === 0) return Escape.InvalidHex;
       const hi = toHex(state.currentChar);
-      if ((CharTypes[nextChar(state)] & CharFlags.Hex) === 0) return Escape.InvalidHex;
+      if ((CharTypes[nextCodeUnit(state)] & CharFlags.Hex) === 0) return Escape.InvalidHex;
       const lo = toHex(state.currentChar);
-      nextChar(state);
+      nextCodeUnit(state);
       return (hi << 4) | lo;
     }
 
@@ -95,21 +95,18 @@ export function scanEscape(state: ParserState, context: Context, first: number):
     case Chars.Five:
     case Chars.Six:
     case Chars.Seven: {
+      // Octal character sequences
       let codePoint = first - Chars.Zero;
       let idx = 0;
       for (; idx < 2; idx++) {
-        let digit = state.currentChar - Chars.Zero;
-        if (digit < 0 || digit > 7) break;
-        let nx = codePoint * 8 + digit;
+        if ((CharTypes[state.currentChar] & CharFlags.Octal) === 0) break;
+        let nx = codePoint * 8 + state.currentChar - Chars.Zero;
         if (nx >= 256) break;
         codePoint = nx;
-        nextChar(state);
+        nextCodeUnit(state);
       }
-      if (first !== Chars.Zero || idx > 0 || CharTypes[state.currentChar] & CharFlags.Decimal) {
-        // Octal escape sequences are not allowed inside string template literals
-        if (context & Context.Strict) {
-          return Escape.StrictOctal;
-        }
+      if (first !== Chars.Zero || codePoint > 0 || CharTypes[state.currentChar] & CharFlags.Decimal) {
+        if (context & Context.Strict) return Escape.StrictOctal;
         state.flags |= Flags.HasOctal;
       }
       return codePoint;

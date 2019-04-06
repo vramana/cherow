@@ -1,30 +1,30 @@
 import { ParserState, Context } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { nextChar, fromCodePoint, Escape, handleEscapeError } from './common';
+import { nextCodeUnit, fromCodePoint, Escape, handleEscapeError } from './common';
 import { scanEscape } from './string';
 import { report, Errors } from '../errors';
 
 export function scanTemplate(state: ParserState, context: Context): any {
   const { index: start } = state;
   let result: string | void = '';
-  nextChar(state);
+  nextCodeUnit(state);
   while (state.index < state.source.length) {
     if (state.currentChar === Chars.Backtick) {
-      nextChar(state); // Consume '`'
+      nextCodeUnit(state); // Consume '`'
       state.tokenValue = result;
       state.tokenRaw = state.source.slice(start + 1, state.index - 1);
       return Token.TemplateTail;
     } else if (state.currentChar === Chars.Dollar) {
       if (state.index + 1 < state.length && state.source.charCodeAt(state.index + 1) === Chars.LeftBrace) {
-        nextChar(state);
+        nextCodeUnit(state);
         state.tokenRaw = state.source.slice(start + 1, state.index - 2);
         return Token.TemplateSpan;
       } else {
         result += '$';
       }
     } else if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
-      nextChar(state);
+      nextCodeUnit(state);
       if (state.currentChar > 0x7f) {
         result += fromCodePoint(state.currentChar);
       } else {
@@ -50,7 +50,7 @@ export function scanTemplate(state: ParserState, context: Context): any {
       if ((state.currentChar as number) === Chars.CarriageReturn) {
         if (state.index < state.source.length && state.source.charCodeAt(state.index + 1) === Chars.LineFeed) {
           if (result != null) result += fromCodePoint(state.currentChar);
-          nextChar(state);
+          nextCodeUnit(state);
         }
       }
 
@@ -60,7 +60,7 @@ export function scanTemplate(state: ParserState, context: Context): any {
     }
 
     if (state.index >= state.length) report(state, Errors.UnterminatedTemplate);
-    nextChar(state);
+    nextCodeUnit(state);
   }
 
   report(state, Errors.UnterminatedTemplate);
@@ -82,7 +82,7 @@ function scanLooserTemplateSegment(state: ParserState, ch: number): number {
     // Skip '\' and continue to scan the template token to search
     // for the end, without validating any escape sequences
     if (state.index >= state.length) report(state, Errors.UnterminatedTemplate);
-    nextChar(state);
+    nextCodeUnit(state);
   }
 
   return ch;

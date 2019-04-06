@@ -1,7 +1,7 @@
 import { ParserState, Context } from '../common';
 import { Token, descKeywordTable } from '../token';
 import { Chars } from '../chars';
-import { nextChar, consumeMultiUnitCodePoint, fromCodePoint, toHex, Escape, handleEscapeError } from './common';
+import { nextCodeUnit, consumeMultiUnitCodePoint, fromCodePoint, toHex, Escape, handleEscapeError } from './common';
 import { CharTypes, CharFlags, isIdentifierStart, isIdentifierPart } from './charClassifier';
 import { report, Errors } from '../errors';
 
@@ -10,7 +10,7 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
   let canBeKeyword = (CharTypes[state.currentChar] & CharFlags.KeywordCandidate) !== 0;
   if (state.currentChar <= 0x7f) {
     if ((CharTypes[state.currentChar] & CharFlags.BackSlash) === 0) {
-      while ((CharTypes[nextChar(state)] & CharFlags.IdentifierPart) !== 0) {}
+      while ((CharTypes[nextCodeUnit(state)] & CharFlags.IdentifierPart) !== 0) {}
       state.tokenValue = state.source.slice(state.startIndex, state.index);
       if (state.currentChar > 0x7f) return scanIdentifierSlowCase(state, context, hasEscape, canBeKeyword);
 
@@ -50,7 +50,7 @@ export function scanIdentifierSlowCase(
         start = state.index;
       } else handleEscapeError(state, code, /* isTemplate */ false);
     } else if (isIdentifierPart(state.currentChar) || consumeMultiUnitCodePoint(state, state.currentChar)) {
-      nextChar(state);
+      nextCodeUnit(state);
     } else {
       break;
     }
@@ -80,12 +80,12 @@ export function scanIdentifierSlowCase(
 }
 
 export function scanPrivateName(state: ParserState): Token {
-  nextChar(state); // consumes '#'
+  nextCodeUnit(state); // consumes '#'
   const { index } = state;
   if (!isIdentifierStart(state.currentChar)) {
     report(state, Errors.InvalidOrUnexpectedToken);
   }
-  while (CharTypes[nextChar(state)] & CharFlags.IdentifierPart) {}
+  while (CharTypes[nextCodeUnit(state)] & CharFlags.IdentifierPart) {}
   state.tokenValue = state.source.slice(index, state.index);
   return Token.PrivateField;
 }
@@ -103,7 +103,7 @@ export function scanIdentifierUnicodeEscape(state: ParserState): any {
 export function scanUnicodeEscapeValue(state: ParserState): number | Escape {
   let codePoint = 0;
   if (state.currentChar === Chars.LeftBrace) {
-    while (CharTypes[nextChar(state)] & CharFlags.Hex) {
+    while (CharTypes[nextCodeUnit(state)] & CharFlags.Hex) {
       codePoint = codePoint * 0x10 + toHex(state.currentChar);
       // Check this early to avoid `code` wrapping to a negative on overflow (which is
       // reserved for abnormal conditions).
@@ -116,7 +116,7 @@ export function scanUnicodeEscapeValue(state: ParserState): number | Escape {
     if (codePoint < 1 || (state.currentChar as number) !== Chars.RightBrace) {
       return Escape.InvalidHex;
     }
-    nextChar(state);
+    nextCodeUnit(state);
     return codePoint;
   }
 

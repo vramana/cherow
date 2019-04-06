@@ -1,6 +1,6 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
-import { nextChar, toHex } from './common';
+import { nextCodeUnit, toHex } from './common';
 import { CharTypes, CharFlags, isIdentifierStart } from './charClassifier';
 import { Chars } from '../chars';
 import { report, Errors } from '../errors';
@@ -20,17 +20,17 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
   let atStart = !isFloat;
   if (isFloat) {
     while (CharTypes[state.currentChar] & CharFlags.Decimal) {
-      nextChar(state);
+      nextCodeUnit(state);
     }
   } else {
     if (state.currentChar === Chars.Zero) {
-      nextChar(state);
+      nextCodeUnit(state);
 
       // Hex
       if ((state.currentChar | 32) === Chars.LowerX) {
         kind = NumberKind.Hex;
         let digits = 0;
-        while (CharTypes[nextChar(state)] & CharFlags.Hex) {
+        while (CharTypes[nextCodeUnit(state)] & CharFlags.Hex) {
           value = value * 0x10 + toHex(state.currentChar);
           digits++;
         }
@@ -39,7 +39,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       } else if ((state.currentChar | 32) === Chars.LowerO) {
         kind = NumberKind.Octal;
         let digits = 0;
-        while (CharTypes[nextChar(state)] & CharFlags.Octal) {
+        while (CharTypes[nextCodeUnit(state)] & CharFlags.Octal) {
           value = value * 8 + (state.currentChar - Chars.Zero);
           digits++;
         }
@@ -47,7 +47,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       } else if ((state.currentChar | 32) === Chars.LowerB) {
         kind = NumberKind.Binary;
         let digits = 0;
-        while (CharTypes[nextChar(state)] & CharFlags.Binary) {
+        while (CharTypes[nextCodeUnit(state)] & CharFlags.Binary) {
           value = value * 2 + (state.currentChar - Chars.Zero);
           digits++;
         }
@@ -64,7 +64,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
             break;
           }
           value = value * 8 + (state.currentChar - Chars.Zero);
-        } while (CharTypes[nextChar(state)] & CharFlags.Decimal);
+        } while (CharTypes[nextCodeUnit(state)] & CharFlags.Decimal);
       } else if (CharTypes[state.currentChar] & CharFlags.ImplicitOctalDigits) {
         if (context & Context.Strict) report(state, Errors.LegacyOctalsInStrictMode);
         else state.flags = Flags.HasOctal;
@@ -79,7 +79,7 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
         let digit = 9;
         while (digit >= 0 && CharTypes[state.currentChar] & CharFlags.Decimal) {
           value = 0xa * value + (state.currentChar - Chars.Zero);
-          nextChar(state);
+          nextCodeUnit(state);
           --digit;
         }
 
@@ -90,14 +90,14 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       }
 
       while (CharTypes[state.currentChar] & CharFlags.Decimal) {
-        nextChar(state);
+        nextCodeUnit(state);
       }
       // Scan any decimal dot and fractional component
       if (state.currentChar === Chars.Period) {
         isFloat = true;
-        nextChar(state); // consumes '.'
+        nextCodeUnit(state); // consumes '.'
         while (CharTypes[state.currentChar] & CharFlags.Decimal) {
-          nextChar(state);
+          nextCodeUnit(state);
         }
       }
     }
@@ -110,24 +110,24 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
   ) {
     if (isFloat) report(state, Errors.InvalidBigInt);
     isBigInt = true;
-    nextChar(state);
+    nextCodeUnit(state);
     // Scan any exponential notation
   } else if ((state.currentChar | 32) === Chars.LowerE) {
     if ((kind & (NumberKind.Decimal | NumberKind.DecimalWithLeadingZero)) === 0) {
       report(state, Errors.InvalidNumber);
     }
 
-    nextChar(state);
+    nextCodeUnit(state);
 
     // '-', '+'
     if (CharTypes[state.currentChar] & CharFlags.Exponent) {
-      nextChar(state);
+      nextCodeUnit(state);
     }
 
     let exponentDigits = 0;
     // Consume exponential digits
     while (CharTypes[state.currentChar] & CharFlags.Decimal) {
-      nextChar(state);
+      nextCodeUnit(state);
       exponentDigits++;
     }
     // Exponential notation must contain at least one digit

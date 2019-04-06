@@ -1,7 +1,7 @@
 import { Chars } from '../chars';
 import { Context, ParserState } from '../common';
 import { Token } from '../token';
-import { nextChar } from './common';
+import { nextCodeUnit } from './common';
 import { isIdentifierPart } from './charClassifier';
 import { report, Errors } from '../errors';
 
@@ -24,7 +24,7 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
 
   loop: while (true) {
     const ch = state.currentChar;
-    nextChar(state);
+    nextCodeUnit(state);
 
     if (preparseState & RegexState.Escape) {
       preparseState &= ~RegexState.Escape;
@@ -59,13 +59,13 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
   const bodyEnd = state.index - 1;
 
   const enum RegexFlags {
-    Empty = 0,
-    IgnoreCase = 1 << 0,
-    Global = 1 << 1,
-    Multiline = 1 << 2,
-    Unicode = 1 << 3,
-    Sticky = 1 << 4,
-    DotAll = 1 << 5
+    Empty = 0b00000,
+    IgnoreCase = 0b00001,
+    Global = 0b00010,
+    Multiline = 0b00100,
+    Unicode = 0b10000,
+    Sticky = 0b01000,
+    DotAll = 0b1100
   }
 
   let mask = RegexFlags.Empty;
@@ -109,7 +109,7 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
         report(state, Errors.UnexpectedTokenRegExpFlag);
     }
 
-    nextChar(state);
+    nextCodeUnit(state);
   }
 
   const flags = state.source.slice(flagStart, state.index);
