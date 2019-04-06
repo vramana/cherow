@@ -208,6 +208,11 @@ describe('src/scanner/scan', () => {
 
   fail('fails on 11.1n', '11.1n', Context.Strict);
   fail('fails on 0.1n', '0.1n', Context.Strict);
+  fail('fails on 2017.8n', '2017.8n', Context.Strict);
+  fail('fails on 0xgn', '0xgn', Context.Strict);
+  fail('fails on 0e0n', '0e0n', Context.Strict);
+  fail('fails on 0o9n', '0o9n', Context.Strict);
+  fail('fails on 0b2n', '0b2n', Context.Strict);
   fail('fails on 008.3', '008.3', Context.Strict);
   fail('fails on 008.3n', '008.3n', Context.Empty);
   fail('fails on 0b001E-100', '0b001E-100', Context.Empty);

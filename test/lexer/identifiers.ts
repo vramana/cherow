@@ -13,6 +13,11 @@ describe('Lexer - Identifiers', () => {
     [Context.Empty, Token.Identifier, '$e', '$e'],
     [Context.Empty, Token.Identifier, '$A', '$A'],
     [Context.Empty, Token.Identifier, '_', '_'],
+    [Context.Empty, Token.Identifier, '_$', '_$'],
+    [Context.Empty, Token.Identifier, '__', '__'],
+    [Context.Empty, Token.Identifier, '$x', '$x'],
+    [Context.Empty, Token.Identifier, '$_', '$_'],
+    [Context.Empty, Token.Identifier, '$$', '$$'],
     [Context.Empty, Token.Identifier, '$', '$'],
     [Context.Empty, Token.Identifier, '$i', '$i'],
     [Context.Empty, Token.Identifier, '_O', '_O'],
@@ -27,14 +32,31 @@ describe('Lexer - Identifiers', () => {
     [Context.Empty, Token.Identifier, 'a_______3333333', 'a_______3333333'],
     [Context.Empty, Token.Identifier, 'abc', 'abc'],
     [Context.Empty, Token.Identifier, '    $', '$'],
+    [Context.Empty, Token.Identifier, '$8', '$8'],
     [Context.Empty, Token.Identifier, '/* skip */   $', '$'],
     [Context.Empty, Token.Identifier, 'CAN_NOT_BE_A_KEYWORD', 'CAN_NOT_BE_A_KEYWORD'],
+
+    // IdentifierStart - Unicode 4.0
+
+    [Context.Empty, Token.Identifier, '℘', '℘'],
+    [Context.Empty, Token.Identifier, '℮', '℮'],
+    [Context.Empty, Token.Identifier, '゛', '゛'],
+    [Context.Empty, Token.Identifier, '゜', '゜'],
+
+    // IdentifierStart - Unicode 9.0
+
+    [Context.Empty, Token.Identifier, ' ᢅ', 'ᢅ'],
+    [Context.Empty, Token.Identifier, ' ᢆ', 'ᢆ'],
 
     // Unicode escape sequence - classic
 
     [Context.Empty, Token.Identifier, '\\u0070bc', 'pbc'],
     [Context.Empty, Token.Identifier, 'a\\u0071c', 'aqc'],
     [Context.Empty, Token.Identifier, 'ab\\u0072', 'abr'],
+    [Context.Empty, Token.Identifier, '\\u0024', '$'],
+    [Context.Empty, Token.Identifier, '\\u0078\\u0078', 'xx'],
+    [Context.Empty, Token.Identifier, '\\u0024_', '$_'],
+    [Context.Empty, Token.Identifier, '\\u005F\\u005F', '__'],
     [Context.Empty, Token.Identifier, '\\u044D', 'э'],
     [Context.Empty, Token.Identifier, '\\u0431', 'б'],
     [Context.Empty, Token.Identifier, 'ab\\u0072', 'abr'],
@@ -49,6 +71,8 @@ describe('Lexer - Identifiers', () => {
     // Long unicode escape
 
     [Context.Empty, Token.Identifier, '\\u{70}bc', 'pbc'],
+    [Context.Empty, Token.Identifier, '$\\u{32}', '$2'],
+    [Context.Empty, Token.Identifier, '\\u{37}', '7'],
     [Context.Empty, Token.Identifier, '\\u{70}bc\\u{70}bc', 'pbcpbc'],
     [Context.Empty, Token.Identifier, '\\u{070}bc', 'pbc'],
     [Context.Empty, Token.Identifier, 'ab\\u{0072}', 'abr'],
@@ -75,6 +99,26 @@ describe('Lexer - Identifiers', () => {
     [Context.Empty, Token.InterfaceKeyword, 'int\\u0065rface', 'interface'],
     [Context.Empty, Token.YieldKeyword, 'yi\\u0065ld', 'yield'],
     [Context.Strict, Token.YieldKeyword, 'yi\\u0065ld', 'yield'],
+    [Context.Strict, Token.EscapedKeyword, '\\u{64}ebugger', 'debugger'],
+    [Context.Strict, Token.EscapedKeyword, 'fina\\u{6c}ly', 'finally'],
+    [Context.Strict, Token.EscapedKeyword, '\\u0069\\u0066', 'if'],
+    [Context.Empty, Token.EscapedKeyword, '\\u{62}\\u{72}\\u{65}\\u{61}\\u{6b}', 'break'],
+    [Context.Empty, Token.EscapedKeyword, '\\u0063atch', 'catch'],
+
+    // Russian letters
+    [Context.Empty, Token.Identifier, 'б', 'б'],
+    [Context.Empty, Token.Identifier, 'е', 'е'],
+    [Context.Empty, Token.Identifier, 'ц', 'ц'],
+
+    // Escaped Russian letters
+    [Context.Empty, Token.Identifier, '\\u0431', 'б'],
+    [Context.Empty, Token.Identifier, '\\u0434', 'д'],
+    [Context.Empty, Token.Identifier, '\\u0447', 'ч'],
+    [Context.Empty, Token.Identifier, '\\u004C', 'L'],
+    [Context.Empty, Token.Identifier, '\\u004C', 'L'],
+    [Context.Empty, Token.Identifier, '\\u{413}', 'Г'],
+    [Context.Empty, Token.Identifier, '\\u{419}', 'Й'],
+    [Context.Empty, Token.Identifier, '\\u{424}', 'Ф'],
 
     // Others
 
@@ -153,6 +197,7 @@ describe('Lexer - Identifiers', () => {
   fail('fails on \\u0', '\\u0', Context.Empty);
   fail('fails on \\u', '\\u', Context.Empty);
   fail('fails on \\', '\\', Context.Empty);
+  fail('fails on \\', '\\u2E2F', Context.Empty);
   fail('fails on \\uD800', '\\uD800', Context.Empty);
   fail('fails on \\uD83B\\uDE00', '\\uD83B\\uDE00', Context.Empty);
   fail('fails on \\u007Xvwxyz', '\\u007Xvwxyz', Context.Empty);

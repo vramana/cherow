@@ -41,7 +41,7 @@ describe('Lexer - String', () => {
     [Context.Empty, Token.StringLiteral, '"\\Rsuffix"', 'Rsuffix'],
     [Context.Empty, Token.StringLiteral, '"prefix\\r\\n"', 'prefix\r\\n'],
 
-    // Unicode escape sequence - classic
+    // Unicode escape sequence
 
     [Context.Empty, Token.StringLiteral, '"\\u1000"', 'က'],
     [Context.Empty, Token.StringLiteral, '"\\uf2ff"', ''],
@@ -53,6 +53,16 @@ describe('Lexer - String', () => {
     [Context.Empty, Token.StringLiteral, '"\\u{CDEF}"', '췯'],
     [Context.Empty, Token.StringLiteral, '"\\u{0000000000000000000010ffff}"', 'пϿ'],
     [Context.Empty, Token.StringLiteral, '"\\u{10ffff}"', 'пϿ'],
+    [Context.Empty, Token.StringLiteral, '"\\u0062"', 'b'],
+    [Context.Empty, Token.StringLiteral, '"\\u0410"', 'А'],
+    [Context.Empty, Token.StringLiteral, '"\\u0412"', 'В'],
+    [Context.Empty, Token.StringLiteral, '"\\u0419"', 'Й'],
+    [Context.Empty, Token.StringLiteral, '"\\u042E"', 'Ю'],
+    [Context.Empty, Token.StringLiteral, '"\\u0432"', 'в'],
+    [Context.Empty, Token.StringLiteral, '"\\u0030"', '0'],
+    [Context.Empty, Token.StringLiteral, '"\\u0035"', '5'],
+    [Context.Empty, Token.StringLiteral, '"\\u0003"', '\u0003'],
+    [Context.Empty, Token.StringLiteral, '"\\u180E"', '᠎'],
 
     // Escaped hex
 
@@ -66,6 +76,11 @@ describe('Lexer - String', () => {
     [Context.Empty, Token.StringLiteral, '"\\x128"', '\u00128'],
     [Context.Empty, Token.StringLiteral, '"\\xCd#"', 'Í#'],
     [Context.Empty, Token.StringLiteral, '"\\xDe\\x00"', 'Þ\\x00'],
+    [Context.Empty, Token.StringLiteral, '"\\0x0061"', '\u0000x0061'],
+    [Context.Empty, Token.StringLiteral, '"\\x41"', 'A'],
+    [Context.Empty, Token.StringLiteral, '"\\x4A"', 'J'],
+    [Context.Empty, Token.StringLiteral, '"\\x4F"', 'O'],
+    [Context.Empty, Token.StringLiteral, '"\\x69"', 'i'],
 
     // Escaped octals
     [Context.Empty, Token.StringLiteral, '"\\01"', '\u0001'],
@@ -150,8 +165,11 @@ describe('Lexer - String', () => {
   }
 
   fail('fails on "\\9999"', '"\\9999"', Context.Empty);
+  fail('fails on "\\08"', '"\\08"', Context.Strict);
+  fail('fails on "\\1"', '"\\1"', Context.Strict);
   fail('fails on "foo', '"foo', Context.Empty);
-  fail('fails on "\\u007"', '"\\u007"', Context.OptionsNext);
+  fail('fails on "foo', '"foo', Context.Empty);
+  fail('fails on "\\u{1F_639}"', '"\\u{1F_639}"', Context.OptionsNext);
   fail('fails on "\\u007Xvwxyz"', '"\\u007Xvwxyz"', Context.OptionsNext);
   fail('fails on "abc\\u{}"', '"abc\\u{}"', Context.OptionsNext);
   fail('fails on "abc\\u}"', '"abc\\u}"', Context.OptionsNext);
