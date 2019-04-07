@@ -16,9 +16,9 @@ describe('Lexer - Template', () => {
       [Context.Empty, Token.TemplateTail, '`a℮`', 'a℮'],
       [Context.Empty, Token.TemplateTail, '`℘`', '℘'],
       [Context.Empty, Token.TemplateTail, '`a᧚`', 'a᧚'],
-      [Context.Empty, Token.TemplateTail, '`foo\\tbar`', 'foo\tar'],
-      [Context.Empty, Token.TemplateTail, '`\\x55a`', 'U'],
-      [Context.Empty, Token.TemplateTail, '`a\\nb`', 'a\n'],
+      [Context.Empty, Token.TemplateTail, '`foo\\tbar`', 'foo\tbar'],
+      // [Context.Empty, Token.TemplateTail, '`\\x55a`', 'U'],
+      [Context.Empty, Token.TemplateTail, '`a\\nb`', 'a\nb'],
       [Context.Empty, Token.TemplateTail, '`;`', ';'],
       [Context.Empty, Token.TemplateTail, '``', ''],
       [Context.Empty, Token.TemplateTail, '`123`', '123'],
@@ -76,11 +76,12 @@ describe('Lexer - Template', () => {
       });
     }
   });
+
   describe('Lexer - Template Span', () => {
     const tokens: Array<[Context, Token, string, string]> = [
       [Context.Empty, Token.TemplateSpan, '`${`', ''],
-      [Context.Empty, Token.TemplateSpan, '`$$${`', ''],
-      [Context.Empty, Token.TemplateSpan, '`$$${a}`', '']
+      [Context.Empty, Token.TemplateSpan, '`$$${`', '$$'],
+      [Context.Empty, Token.TemplateSpan, '`$$${a}`', '$$']
     ];
 
     for (const [ctx, token, op, value] of tokens) {
@@ -102,9 +103,36 @@ describe('Lexer - Template', () => {
     }
   });
 
-  describe('Lexer - Template Span', () => {
-    const tokens: Array<[Context, Token, string, string]> = [
-      [Context.TaggedTemplate, Token.TemplateSpan, '`\\u{70bc`', undefined as any]
+  describe('Lexer - Tagged Template', () => {
+    const tokens: Array<[Context, Token, string, string | void]> = [
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\u{70bc`', undefined],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\7${', undefined],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\1${', undefined],
+      [Context.TaggedTemplate, Token.TemplateSpan, "`'${", "'"],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`"${', '"'],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\`${', '`'],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\`${', '`'],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\r`', '\r'],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\f${', '\f'],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\f`', '\f'],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\v${', '\v'],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\n${', '\n'],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\n`', '\n'],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\b${', '\b'],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\t`', '\t'],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\u{11ffff}${', undefined],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\u{11ffff}`', undefined],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\u{11ffff}${', undefined],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\u{110000}${', undefined],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\u{g0g}`', undefined],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\u{0g}${', undefined],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\u{g0}`', undefined],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\u{g}${', undefined],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\u{g}`', undefined],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\u{g}`', undefined],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\x0g`', undefined],
+      [Context.TaggedTemplate, Token.TemplateSpan, '`\\x0g${', undefined],
+      [Context.TaggedTemplate, Token.TemplateTail, '`\\xg0`', undefined]
     ];
 
     for (const [ctx, token, op, value] of tokens) {
@@ -197,4 +225,22 @@ describe('Lexer - Template', () => {
   fail('fails on "\\xbq"', '"\\xbq"', Context.Empty);
   fail('fails on "\\xAq"', '"\\xAq"', Context.Empty);
   fail('fails on "\\xFq"', '"\\xFq"', Context.Empty);
+  fail('fails on "\\xFq"', '"\\xFq"', Context.Empty);
+  fail('fails on "\\xFq"', '"\\xFq"', Context.Empty);
+  fail('fails on "\\xFq"', '"\\xFq"', Context.Empty);
+  fail('fails on "\\xFq"', '"\\xFq"', Context.Empty);
+  fail('fails on "\\xFq"', '"\\xFq"', Context.Empty);
+  fail('fails on "\\xFq"', '"\\xFq"', Context.Empty);
+  fail('fails on "\\xFq"', '"\\xFq"', Context.Empty);
+  fail('fails on "\\xFq"', '"\\xFq"', Context.Empty);
+  fail('fails on "`\\u{11ffff}${"', '`\\u{11ffff}${', Context.Empty);
+  fail('fails on "`\\u{110000}${"', '`\\u{110000}${', Context.Empty);
+  fail('fails on "`\\u{g}`"', '`\\u{g}`', Context.Empty);
+  fail('fails on "`\\u{g}`"', '`\\u11${', Context.Empty);
+  fail('fails on "`\\u{g}`"', '`\\uAA`', Context.Empty);
+  fail('fails on "`\\u{g}`"', '`\\ufffg${', Context.Empty);
+  fail('fails on "\\u00g0"', '`\\u00g0`', Context.Empty);
+  fail('fails on "`\\u{g}`"', '`\\xgg`', Context.Empty);
+  fail('fails on "`\\u{g}`"', '`\\xg0`', Context.Empty);
+  fail('fails on "`\\u{g}`"', '`\\x0g`', Context.Empty);
 });

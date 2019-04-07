@@ -28,6 +28,17 @@ describe('Lexer - String', () => {
 
     // Russian letters
     [Context.Empty, Token.StringLiteral, '"\\б"', 'б'],
+    [Context.Empty, Token.StringLiteral, '"\\И"', 'И'],
+    [Context.Empty, Token.StringLiteral, '"\\Й"', 'Й'],
+    [Context.Empty, Token.StringLiteral, '"\\К"', 'К'],
+    [Context.Empty, Token.StringLiteral, '"\\Л"', 'Л'],
+    [Context.Empty, Token.StringLiteral, '"\\О"', 'О'],
+    [Context.Empty, Token.StringLiteral, '"\\Ф"', 'Ф'],
+    [Context.Empty, Token.StringLiteral, '"\\Ц"', 'Ц'],
+    [Context.Empty, Token.StringLiteral, '"\\Ш"', 'Ш'],
+    [Context.Empty, Token.StringLiteral, '"\\Э"', 'Э'],
+    [Context.Empty, Token.StringLiteral, '"\\ж"', 'ж'],
+    [Context.Empty, Token.StringLiteral, '"\\з"', 'з'],
 
     // Escaped letters
     [Context.Empty, Token.StringLiteral, '"\\b"', '\b'],

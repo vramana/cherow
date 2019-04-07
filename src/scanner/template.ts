@@ -5,27 +5,24 @@ import { nextCodePoint, fromCodePoint, Escape, handleEscapeError } from './commo
 import { scanEscape } from './string';
 import { report, Errors } from '../errors';
 
-export function scanTemplate(state: ParserState, context: Context): any {
+export function scanTemplate(state: ParserState, context: Context): Token {
   const { index: start } = state;
+  let tail = true;
   let result: string | void = '';
-  nextCodePoint(state);
-  while (state.index < state.source.length) {
-    if (state.currentChar === Chars.Backtick) {
-      nextCodePoint(state); // Consume '`'
-      state.tokenValue = result;
-      state.tokenRaw = state.source.slice(start + 1, state.index - 1);
-      return Token.TemplateTail;
-    } else if (state.currentChar === Chars.Dollar) {
-      if (state.index + 1 < state.length && state.source.charCodeAt(state.index + 1) === Chars.LeftBrace) {
-        nextCodePoint(state);
-        state.tokenRaw = state.source.slice(start + 1, state.index - 2);
-        return Token.TemplateSpan;
-      } else {
-        result += '$';
+
+  while (nextCodePoint(state) !== Chars.Backtick) {
+    if (state.currentChar === Chars.Dollar) {
+      const index = state.index + 1;
+      if (index < state.source.length && state.source.charCodeAt(index) === Chars.LeftBrace) {
+        state.index = index;
+        state.column++;
+        tail = false;
+        break;
       }
-    } else if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
-      nextCodePoint(state);
-      if (state.currentChar > 0x7e) {
+      result += '$';
+    } else if (state.currentChar === Chars.Backslash) {
+      nextCodePoint(state); // consumes '/'
+      if (state.currentChar >= 128) {
         result += fromCodePoint(state.currentChar);
       } else {
         const code = scanEscape(state, context | Context.Strict, state.currentChar);
@@ -35,35 +32,41 @@ export function scanTemplate(state: ParserState, context: Context): any {
         } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
           result = undefined;
           state.currentChar = scanLooserTemplateSegment(state, state.currentChar);
-          state.currentChar = -state.currentChar;
-          state.tokenRaw = state.source.slice(start + 1, state.index - 2);
-          state.tokenValue = result;
-          return Token.TemplateSpan;
+          if (state.currentChar < 0) {
+            state.currentChar = -state.currentChar;
+            tail = false;
+          }
+          break;
         } else {
           handleEscapeError(state, code as Escape, /* isTemplate */ true);
         }
       }
+    } else if (state.currentChar === Chars.CarriageReturn || state.currentChar === Chars.LineFeed) {
+      if (state.index < state.source.length && nextCodePoint(state) === Chars.LineFeed) {
+        if (result != null) result += fromCodePoint(state.currentChar);
+        nextCodePoint(state);
+        state.index++;
+      }
+      state.column = -1;
+      state.line++;
+      // falls through
     } else {
-      // The TRV of LineTerminatorSequence :: <CR> is the CV 0x000A.
-      // The TRV of LineTerminatorSequence :: <CR><LF> is the sequence
-      // consisting of the CV 0x000A.
-      if ((state.currentChar as number) === Chars.CarriageReturn) {
-        if (state.index < state.source.length && state.source.charCodeAt(state.index + 1) === Chars.LineFeed) {
-          if (result != null) result += fromCodePoint(state.currentChar);
-          nextCodePoint(state);
-        }
+      if (state.index >= state.length) {
+        report(state, Errors.UnterminatedTemplate);
       }
-
-      if (result != null) {
-        result += fromCodePoint(state.currentChar);
-      }
+      if (result != null) result += fromCodePoint(state.currentChar);
     }
-
-    if (state.index >= state.length) report(state, Errors.UnterminatedTemplate);
-    nextCodePoint(state);
   }
 
-  report(state, Errors.UnterminatedTemplate);
+  nextCodePoint(state);
+  state.tokenValue = result;
+  if (tail) {
+    state.tokenRaw = state.source.slice(start + 1, state.index - 1);
+    return Token.TemplateTail;
+  }
+
+  state.tokenRaw = state.source.slice(start + 1, state.index - 2);
+  return Token.TemplateSpan;
 }
 
 export function scanTemplateTail(state: ParserState, context: Context): Token {
@@ -74,15 +77,43 @@ export function scanTemplateTail(state: ParserState, context: Context): Token {
 
 function scanLooserTemplateSegment(state: ParserState, ch: number): number {
   while (ch !== Chars.Backtick) {
-    if (ch === Chars.Dollar && state.source.charCodeAt(state.index + 1) === Chars.LeftBrace) {
-      state.currentChar = state.source.charCodeAt(state.index++);
-      return -ch;
-    }
+    // Break after a literal `${` (thus the dedicated code path).
+    switch (ch) {
+      case Chars.Dollar: {
+        const index = state.index + 1;
+        if (index < state.source.length && state.source.charCodeAt(index) === Chars.LeftBrace) {
+          state.index = index;
+          state.column++;
+          return -ch;
+        }
+        break;
+      }
 
-    // Skip '\' and continue to scan the template token to search
-    // for the end, without validating any escape sequences
-    if (state.index >= state.length) report(state, Errors.UnterminatedTemplate);
-    nextCodePoint(state);
+      case Chars.Backslash:
+        ch = nextCodePoint(state);
+        break;
+
+      case Chars.CarriageReturn:
+        if (state.index < state.source.length && nextCodePoint(state) === Chars.LineFeed) {
+          ch = nextCodePoint(state);
+          state.index++;
+        }
+      // falls through
+
+      case Chars.LineFeed:
+      case Chars.LineSeparator:
+      case Chars.ParagraphSeparator:
+        state.column = -1;
+        state.line++;
+      // falls through
+
+      default:
+      // do nothing
+    }
+    if (state.index >= state.length) {
+      report(state, Errors.UnterminatedTemplate);
+    }
+    ch = nextCodePoint(state);
   }
 
   return ch;

@@ -26,7 +26,9 @@ describe('Lexer - Unicode Escape', () => {
     [Context.Empty, Token.Identifier, '\\u{41}', 'A'],
     [Context.Empty, Token.Identifier, '\\u{0041}', 'A'],
     [Context.Empty, Token.Identifier, '\\u{03BB}', 'λ'],
-    [Context.Empty, Token.Identifier, '\\u{6728}', '木']
+    [Context.Empty, Token.Identifier, '\\u{6728}', '木'],
+    [Context.Empty, Token.Identifier, '\\u{7800}', '砀'],
+    [Context.Empty, Token.Identifier, '\\u{4b00}', '䬀']
   ];
 
   for (const [ctx, token, op, value] of tokens) {

@@ -15,12 +15,13 @@ export function scanString(state: ParserState, context: Context, quote: number):
     if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
       // check for valid sequences
       res += state.source.slice(marker, state.index);
-      nextCodePoint(state);
-      if (state.currentChar > 0x7e) {
-        res += fromCodePoint(state.currentChar);
+      let ch = nextCodePoint(state);
+      if (ch > 0x7e) {
+        res += fromCodePoint(ch);
         nextCodePoint(state); // skip the slash
       } else {
-        const code = scanEscape(state, context, state.currentChar);
+        nextCodePoint(state);
+        const code = scanEscape(state, context, ch);
         if (code >= 0) res += fromCodePoint(code);
         else handleEscapeError(state, code, /* isTemplate */ false);
       }
@@ -39,8 +40,6 @@ export function scanString(state: ParserState, context: Context, quote: number):
 }
 
 export function scanEscape(state: ParserState, context: Context, first: number): number {
-  nextCodePoint(state);
-
   switch (first) {
     // Magic escapes
     case Chars.LowerB:
