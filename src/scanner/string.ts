@@ -7,6 +7,7 @@ import { scanUnicodeEscapeValue } from './identifier';
 import { report, Errors } from '../errors';
 
 export function scanString(state: ParserState, context: Context, quote: number): Token | void {
+  const { index: start } = state;
   nextCodePoint(state); // consume quote
   let res: string | void = '';
   let marker = state.index;
@@ -15,7 +16,9 @@ export function scanString(state: ParserState, context: Context, quote: number):
     if ((state.currentChar & 8) === 8 && state.currentChar === Chars.Backslash) {
       // check for valid sequences
       res += state.source.slice(marker, state.index);
+
       let ch = nextCodePoint(state);
+
       if (ch > 0x7e) {
         res += fromCodePoint(ch);
         nextCodePoint(state); // skip the slash
@@ -28,6 +31,7 @@ export function scanString(state: ParserState, context: Context, quote: number):
       marker = state.index;
     }
     if (state.currentChar === quote) {
+      if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(start, state.index);
       state.tokenValue = res += state.source.slice(marker, state.index);
       nextCodePoint(state); // skip closing quote
       return Token.StringLiteral;

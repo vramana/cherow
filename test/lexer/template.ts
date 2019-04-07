@@ -23,6 +23,8 @@ describe('Lexer - Template', () => {
       [Context.Empty, Token.TemplateTail, '``', ''],
       [Context.Empty, Token.TemplateTail, '`123`', '123'],
       [Context.Empty, Token.TemplateTail, '`true`', 'true'],
+      [Context.Empty, Token.TemplateTail, '`\n\r`', ''],
+      [Context.Empty, Token.TemplateTail, '`\r\n`', '\n'],
       [Context.Empty, Token.TemplateTail, '`$$$a}`', '$$$a}'],
 
       // Russian letters

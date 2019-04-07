@@ -148,6 +148,6 @@ export function scanNumber(state: ParserState, context: Context, isFloat: boolea
       : isBigInt
       ? parseInt(state.source.slice(state.startIndex, state.index), 0xa)
       : +state.source.slice(state.startIndex, state.index);
-
+  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.tokenValue, state.index);
   return isBigInt ? Token.Bigint : Token.NumericLiteral;
 }
