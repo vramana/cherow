@@ -756,9 +756,7 @@ function parseForStatement(
   if (optional(state, context, Token.InKeyword)) {
     if (isPattern) {
       if (!state.assignable || init.type === 'AssignmentExpression') {
-        if (context & Context.Strict || (context & Context.OptionsWebCompat) === 0) {
-          report(state, Errors.InvalidLHSInOfForLoop, 'in');
-        }
+        report(state, Errors.InvalidLHSInOfForLoop, 'in');
       }
       reinterpret(state, init);
     }
