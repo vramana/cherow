@@ -4406,9 +4406,7 @@ var cherow = (function (exports) {
       if (optional(state, context, 33707825)) {
           if (isPattern) {
               if (!state.assignable || init.type === 'AssignmentExpression') {
-                  if (context & 1024 || (context & 16) === 0) {
-                      report(state, 77, 'in');
-                  }
+                  report(state, 77, 'in');
               }
               reinterpret(state, init);
           }
