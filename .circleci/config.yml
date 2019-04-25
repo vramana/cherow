@@ -18,6 +18,13 @@ map-3: &filter_ignore_dev
       ignore:
         - dev
 
+map-4: &filter_only_tag
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: /^v[0-9]+(\.[0-9]+)*$/
+
 executors:
 
   docker-circleci:
@@ -76,6 +83,19 @@ jobs:
           command: |
             npm run prepare-nightly
             npm publish --tag dev
+            
+  publish_release:
+    executor: docker-circleci
+    steps:
+      - checkout
+      - run: npm ci
+      - run:
+          name: "Authenticate with registry"
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          name: "Publish to @latest"
+          command: |
+            npm publish --tag latest
 
   merge_and_dist:
     executor: docker-circleci
@@ -139,6 +159,11 @@ workflows:
     jobs:
       - publish_dev:
           <<: *filter_only_dev
+          
+  publish_tag:
+    jobs:
+      - publish_release:
+          <<: *filter_only_tag
 
   run_nightly:
     triggers:
